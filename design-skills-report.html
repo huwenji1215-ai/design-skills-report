@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>业内设计类 Skill 评测报告</title>
+<style>
+  /* =========== ROOT TOKENS =========== */
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e29;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --text: #e8eaf0;
+    --text-muted: #7a8099;
+    --text-dim: #4a5168;
+    --accent: #6c8fff;
+    --accent2: #a78bfa;
+    --accent3: #34d399;
+    --accent4: #f59e0b;
+    --accent5: #f472b6;
+    --red: #f87171;
+    --rank1: #ffd700;
+    --rank2: #c0c0c0;
+    --rank3: #cd7f32;
+    font-size: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* =========== NOISE OVERLAY =========== */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  /* =========== LAYOUT =========== */
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+  /* =========== HEADER =========== */
+  header {
+    padding: 72px 0 48px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    top: -120px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse at center, rgba(108,143,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(108,143,255,0.1);
+    border: 1px solid rgba(108,143,255,0.3);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+  .header-tag::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+  h1 {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  h1 span { background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+  .header-meta {
+    display: flex; flex-wrap: wrap; gap: 24px;
+    color: var(--text-muted); font-size: 13px;
+    margin-top: 24px;
+  }
+  .header-meta span { display: flex; align-items: center; gap: 6px; }
+  .header-meta svg { opacity: 0.5; }
+
+  /* =========== STATS BAR =========== */
+  .stats-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 40px 0;
+  }
+  .stat-item {
+    background: var(--bg2);
+    padding: 24px 28px;
+    transition: background 0.2s;
+  }
+  .stat-item:hover { background: var(--bg3); }
+  .stat-num {
+    font-size: 32px; font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* =========== SECTION TITLES =========== */
+  .section { margin: 64px 0; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 32px;
+  }
+  .section-num {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: rgba(108,143,255,0.15);
+    border: 1px solid rgba(108,143,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--accent);
+  }
+  .section-title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .section-desc { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
+
+  /* =========== OVERVIEW CARDS =========== */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .overview-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+  .overview-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+  }
+  .overview-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card-rank-1::before { background: linear-gradient(90deg, var(--rank1), transparent); }
+  .card-rank-2::before { background: linear-gradient(90deg, var(--rank2), transparent); }
+  .card-rank-3::before { background: linear-gradient(90deg, var(--rank3), transparent); }
+  .card-rank-4::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card-rank-5::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card-rank-6::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+  .card-rank {
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+  .rank-s { background: rgba(255,215,0,0.15); color: var(--rank1); border: 1px solid rgba(255,215,0,0.3); }
+  .rank-a { background: rgba(52,211,153,0.1); color: var(--accent3); border: 1px solid rgba(52,211,153,0.3); }
+  .rank-b { background: rgba(108,143,255,0.1); color: var(--accent); border: 1px solid rgba(108,143,255,0.3); }
+
+  .card-install {
+    font-size: 12px; color: var(--text-muted);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .card-install strong { color: var(--accent3); font-weight: 700; }
+
+  .card-name {
+    font-size: 15px; font-weight: 700;
+    margin-bottom: 6px; letter-spacing: -0.01em;
+  }
+  .card-author { font-size: 11px; color: var(--text-dim); margin-bottom: 12px; font-family: 'SF Mono', 'Fira Code', monospace; }
+  .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 4px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text-muted);
+  }
+
+  /* =========== SCORE RADAR =========== */
+  .radar-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    display: flex; gap: 48px; align-items: center;
+  }
+  .radar-chart { flex-shrink: 0; }
+  .radar-legend { flex: 1; }
+  .legend-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .legend-item:last-child { border-bottom: none; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-name { font-size: 13px; font-weight: 600; flex: 1; }
+  .legend-score { font-size: 13px; font-weight: 700; }
+
+  /* =========== DETAIL CARDS =========== */
+  .detail-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    transition: border-color 0.2s;
+  }
+  .detail-card:hover { border-color: var(--border-hover); }
+
+  .detail-header {
+    padding: 28px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 20px;
+  }
+  .detail-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .detail-meta { flex: 1; }
+  .detail-name { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .detail-pkg {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px; color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .detail-oneliner { font-size: 14px; color: var(--text-muted); }
+
+  .detail-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+  .badge-install { background: rgba(52,211,153,0.1); color: var(--accent3); border: 1px solid rgba(52,211,153,0.25); }
+  .badge-stars { background: rgba(245,158,11,0.1); color: var(--accent4); border: 1px solid rgba(245,158,11,0.25); }
+  .badge-author { background: rgba(108,143,255,0.1); color: var(--accent); border: 1px solid rgba(108,143,255,0.2); }
+  .badge-safe { background: rgba(52,211,153,0.08); color: var(--accent3); border: 1px solid rgba(52,211,153,0.2); }
+
+  .detail-score-bar {
+    padding: 24px 32px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 16px; flex-wrap: wrap;
+  }
+  .score-dim { flex: 1; min-width: 140px; }
+  .score-dim-name { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 6px; }
+  .score-track {
+    height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-bottom: 4px;
+  }
+  .score-fill { height: 100%; border-radius: 3px; transition: width 1s ease-out; }
+  .score-val { font-size: 12px; font-weight: 700; }
+
+  .detail-body { padding: 28px 32px; }
+  .detail-section-title {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text-dim); margin-bottom: 12px; margin-top: 24px;
+  }
+  .detail-section-title:first-child { margin-top: 0; }
+
+  .feature-list { list-style: none; }
+  .feature-list li {
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px; color: var(--text-muted);
+    display: flex; gap: 10px;
+  }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list li::before { content: '→'; color: var(--accent); flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 4px; }
+  .pros-box, .cons-box {
+    background: rgba(255,255,255,0.02);
+    border-radius: 10px; padding: 16px;
+  }
+  .pros-box { border: 1px solid rgba(52,211,153,0.15); }
+  .cons-box { border: 1px solid rgba(248,113,113,0.15); }
+  .box-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .pros-box .box-title { color: var(--accent3); }
+  .cons-box .box-title { color: var(--red); }
+  .box-item { font-size: 12px; color: var(--text-muted); padding: 3px 0; display: flex; gap: 6px; align-items: flex-start; }
+  .box-item::before { flex-shrink: 0; font-size: 10px; margin-top: 2px; }
+  .pros-box .box-item::before { content: '✓'; color: var(--accent3); }
+  .cons-box .box-item::before { content: '×'; color: var(--red); }
+
+  /* =========== COMPARISON TABLE =========== */
+  .compare-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px;
+  }
+  .compare-table th {
+    background: var(--bg3);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .compare-table .skill-name-cell {
+    font-weight: 600; color: var(--text);
+    white-space: nowrap;
+  }
+  .winner-cell { color: var(--accent3) !important; font-weight: 600; }
+
+  /* =========== INSTALL GUIDE =========== */
+  .install-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-top: 16px;
+  }
+  .install-title { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .install-cmd {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px; color: var(--accent3);
+    background: rgba(52,211,153,0.05);
+    border: 1px solid rgba(52,211,153,0.15);
+    border-radius: 8px; padding: 10px 14px;
+    word-break: break-all;
+  }
+
+  /* =========== VERDICT =========== */
+  .verdict-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .verdict-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+  }
+  .verdict-icon { font-size: 28px; margin-bottom: 12px; }
+  .verdict-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 6px; }
+  .verdict-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .verdict-body { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+  /* =========== FOOTER =========== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    margin-top: 64px;
+    text-align: center;
+    color: var(--text-dim); font-size: 12px;
+  }
+
+  /* =========== RESPONSIVE =========== */
+  @media (max-width: 900px) {
+    .wrap { padding: 0 16px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .overview-grid { grid-template-columns: repeat(2, 1fr); }
+    .radar-wrap { flex-direction: column; }
+    .pros-cons { grid-template-columns: 1fr; }
+    .verdict-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .overview-grid { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: 1fr 1fr; }
+    .detail-score-bar { flex-direction: column; }
+    .detail-header { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== HEADER ===== -->
+  <header>
+    <div class="header-tag">
+      <span></span> 2026 · Skills.sh 全量调研
+    </div>
+    <h1>业内最佳<span>设计类 Skill</span><br>深度评测报告</h1>
+    <p style="color:var(--text-muted);font-size:15px;max-width:560px;margin-top:12px;">
+      从 Skills.sh（86K+ 技能库）全量扫描，筛选出安装量最高、质量最优的 6 款 UI/UX/Design 类 Agent Skill，从功能定位、内容深度、实用性和独特机制四维度进行深度评测。
+    </p>
+    <div class="header-meta">
+      <span>
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        2026年3月20日
+      </span>
+      <span>
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        来源：skills.sh / clawhub 双源
+      </span>
+      <span>
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        评测技能数：6 款（含安全审计）
+      </span>
+    </div>
+  </header>
+
+  <!-- ===== STATS BAR ===== -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num">6</div>
+      <div class="stat-label">精选技能数量</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">481K</div>
+      <div class="stat-label">Top6 合计周安装量</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">208K</div>
+      <div class="stat-label">Top1 周安装量（ui-ux-pro-max）</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">5</div>
+      <div class="stat-label">覆盖设计子领域数</div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 1: 概览 ===== -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div>
+        <div class="section-title">技能全景概览</div>
+        <div class="section-desc">6 款精选技能定位速查，按综合评分排序</div>
+      </div>
+    </div>
+
+    <div class="overview-grid">
+
+      <!-- Card 1 -->
+      <div class="overview-card card-rank-1">
+        <div class="card-top">
+          <span class="card-rank rank-s">S 级</span>
+          <span class="card-install">周装 <strong>71.1K</strong></span>
+        </div>
+        <div class="card-name">ui-ux-pro-max</div>
+        <div class="card-author">nextlevelbuilder / ui-ux-pro-max-skill</div>
+        <div class="card-desc">全栈 UI/UX 设计智能体。50+ 风格、161 种调色板、99 条 UX 准则、10 大技术栈，可搜索数据库驱动。</div>
+        <div class="card-tags">
+          <span class="tag">全栈设计</span>
+          <span class="tag">可搜索数据库</span>
+          <span class="tag">10栈覆盖</span>
+          <span class="tag">99条UX准则</span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="overview-card card-rank-2">
+        <div class="card-top">
+          <span class="card-rank rank-s">S 级</span>
+          <span class="card-install">周装 <strong>181.7K</strong></span>
+        </div>
+        <div class="card-name">web-design-guidelines</div>
+        <div class="card-author">vercel-labs / agent-skills</div>
+        <div class="card-desc">Vercel 官方 Web 界面规范审计工具，实时拉取最新规则，以 file:line 格式输出设计问题，无障碍合规检查。</div>
+        <div class="card-tags">
+          <span class="tag">代码审计</span>
+          <span class="tag">Vercel官方</span>
+          <span class="tag">无障碍合规</span>
+          <span class="tag">实时规范</span>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="overview-card card-rank-3">
+        <div class="card-top">
+          <span class="card-rank rank-s">S 级</span>
+          <span class="card-install">周装 <strong>177.4K</strong></span>
+        </div>
+        <div class="card-name">frontend-design</div>
+        <div class="card-author">anthropics / skills</div>
+        <div class="card-desc">Anthropic 官方前端设计准则，反"AI平庸感"核心理念，强调意图性美学、独特字体、戏剧性构图。</div>
+        <div class="card-tags">
+          <span class="tag">Anthropic官方</span>
+          <span class="tag">反AI平庸感</span>
+          <span class="tag">美学方向</span>
+          <span class="tag">创意设计</span>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="overview-card card-rank-4">
+        <div class="card-top">
+          <span class="card-rank rank-a">A 级</span>
+          <span class="card-install">周装 <strong>22.0K</strong></span>
+        </div>
+        <div class="card-name">canvas-design</div>
+        <div class="card-author">anthropics / skills</div>
+        <div class="card-desc">哲学美学驱动的视觉创作技能，先生成设计宣言再输出博物馆级 PDF/PNG 艺术作品。</div>
+        <div class="card-tags">
+          <span class="tag">艺术创作</span>
+          <span class="tag">设计哲学</span>
+          <span class="tag">PDF/PNG输出</span>
+          <span class="tag">博物馆级</span>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="overview-card card-rank-5">
+        <div class="card-top">
+          <span class="card-rank rank-a">A 级</span>
+          <span class="card-install">周装 <strong>8.7K</strong></span>
+        </div>
+        <div class="card-name">interface-design</div>
+        <div class="card-author">dammyjay93 / interface-design</div>
+        <div class="card-desc">专为仪表盘和工具类应用设计，通过领域探索和 Token 架构系统反抗 AI 模板化，构建产品独特签名。</div>
+        <div class="card-tags">
+          <span class="tag">仪表盘专项</span>
+          <span class="tag">Token架构</span>
+          <span class="tag">产品签名</span>
+          <span class="tag">领域探索</span>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="overview-card card-rank-6">
+        <div class="card-top">
+          <span class="card-rank rank-b">B 级</span>
+          <span class="card-install">周装 <strong>21.5K</strong></span>
+        </div>
+        <div class="card-name">sleek-design-mobile-apps</div>
+        <div class="card-author">sleekdotdesign / agent-skills</div>
+        <div class="card-desc">通过 REST API 接入 sleek.design，自然语言描述即可生成移动端界面截图，适合快速原型。</div>
+        <div class="card-tags">
+          <span class="tag">移动端专项</span>
+          <span class="tag">REST API</span>
+          <span class="tag">自然语言驱动</span>
+          <span class="tag">原型截图</span>
+        </div>
+      </div>
+
+    </div><!-- /overview-grid -->
+  </section>
+
+
+  <!-- ===== SECTION 2: 雷达图评分 ===== -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div>
+        <div class="section-title">多维评分矩阵</div>
+        <div class="section-desc">内容深度 × 实用性 × 差异性 × 完整度 × 可维护性</div>
+      </div>
+    </div>
+
+    <div class="radar-wrap">
+      <div class="radar-chart">
+        <svg viewBox="0 0 320 280" width="320" height="280">
+          <defs>
+            <style>
+              .rg { fill: none; stroke: rgba(255,255,255,0.06); }
+              .ra { fill: none; stroke: rgba(255,255,255,0.1); stroke-dasharray: 2,4; }
+            </style>
+          </defs>
+
+          <!-- background grid -->
+          <g transform="translate(160,140)">
+            <!-- 5 axes: top, top-right, bottom-right, bottom-left, top-left -->
+            <!-- axis lines -->
+            <line x1="0" y1="0" x2="0" y2="-100" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="95" y2="-31" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="59" y2="81" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="-59" y2="81" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="-95" y2="-31" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+            <!-- grid rings at 20%, 40%, 60%, 80%, 100% -->
+            <polygon points="0,-20 19,-6.2 11.8,16.2 -11.8,16.2 -19,-6.2" class="rg"/>
+            <polygon points="0,-40 38,-12.4 23.6,32.4 -23.6,32.4 -38,-12.4" class="rg"/>
+            <polygon points="0,-60 57,-18.6 35.4,48.6 -35.4,48.6 -57,-18.6" class="rg"/>
+            <polygon points="0,-80 76,-24.8 47.2,64.8 -47.2,64.8 -76,-24.8" class="rg"/>
+            <polygon points="0,-100 95,-31 59,81 -59,81 -95,-31" class="ra"/>
+
+            <!-- ui-ux-pro-max: 9.2, 9.5, 9.0, 9.3, 8.5 scaled /10 *100 -->
+            <polygon
+              points="0,-92 90.25,-29.45 53.1,73.71 -54.87,75.33 -80.75,-26.35"
+              fill="rgba(108,143,255,0.15)" stroke="#6c8fff" stroke-width="1.5"/>
+
+            <!-- frontend-design: 8.5, 9.0, 9.5, 8.0, 8.0 -->
+            <polygon
+              points="0,-85 85.5,-26.35 56.05,76.95 -47.2,64.8 -76,-24.8"
+              fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+
+            <!-- web-design-guidelines: 8.0, 9.0, 8.5, 8.5, 9.5 -->
+            <polygon
+              points="0,-80 85.5,-26.35 50.15,68.85 -50.15,68.85 -90.25,-29.45"
+              fill="rgba(52,211,153,0.08)" stroke="#34d399" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+            <!-- axis labels -->
+            <text x="0" y="-110" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">内容深度</text>
+            <text x="110" y="-30" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="start">实用性</text>
+            <text x="72" y="95" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">差异性</text>
+            <text x="-72" y="95" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">完整度</text>
+            <text x="-118" y="-30" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="end">可维护性</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="radar-legend">
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">评分说明：满分 10.0，加权综合得分</div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#6c8fff;box-shadow:0 0 8px #6c8fff;"></div>
+          <div class="legend-name">ui-ux-pro-max</div>
+          <div class="legend-score" style="color:#6c8fff">9.1</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#a78bfa;box-shadow:0 0 8px #a78bfa;"></div>
+          <div class="legend-name">frontend-design</div>
+          <div class="legend-score" style="color:#a78bfa">8.7</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#34d399;box-shadow:0 0 8px #34d399;"></div>
+          <div class="legend-name">web-design-guidelines</div>
+          <div class="legend-score" style="color:#34d399">8.7</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#f59e0b;"></div>
+          <div class="legend-name">canvas-design</div>
+          <div class="legend-score" style="color:#f59e0b">8.0</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#f472b6;"></div>
+          <div class="legend-name">interface-design</div>
+          <div class="legend-score" style="color:#f472b6">8.2</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#94a3b8;"></div>
+          <div class="legend-name">sleek-design-mobile-apps</div>
+          <div class="legend-score" style="color:#94a3b8">6.8</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 3: 详细评测 ===== -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div>
+        <div class="section-title">逐项深度评测</div>
+        <div class="section-desc">功能解析 · 亮点拆解 · 优劣对比 · 安装指引</div>
+      </div>
+    </div>
+
+    <!-- ===== SKILL #1: ui-ux-pro-max ===== -->
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="detail-icon" style="background:rgba(108,143,255,0.12);border:1px solid rgba(108,143,255,0.25);">🎨</div>
+        <div class="detail-meta">
+          <div class="detail-name">ui-ux-pro-max</div>
+          <div class="detail-pkg">nextlevelbuilder/ui-ux-pro-max-skill</div>
+          <div class="detail-oneliner">全栈 UI/UX 设计智能体 — 从调色板到组件规范，覆盖 10 种技术栈的一站式设计知识库</div>
+          <div class="detail-badges">
+            <span class="badge badge-install">↓ 71.1K / 周</span>
+            <span class="badge badge-stars">★ 46.1K</span>
+            <span class="badge badge-author">nextlevelbuilder</span>
+            <span class="badge badge-safe">✓ Socket Pass</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:36px;font-weight:900;color:#6c8fff;letter-spacing:-0.03em;">9.1</div>
+          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">综合评分</div>
+          <div style="margin-top:6px;"><span class="card-rank rank-s">S 级</span></div>
+        </div>
+      </div>
+
+      <div class="detail-score-bar">
+        <div class="score-dim">
+          <div class="score-dim-name">内容深度</div>
+          <div class="score-track"><div class="score-fill" style="width:92%;background:linear-gradient(90deg,#6c8fff,#a78bfa)"></div></div>
+          <div class="score-val" style="color:#6c8fff">9.2</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">实用性</div>
+          <div class="score-track"><div class="score-fill" style="width:95%;background:linear-gradient(90deg,#6c8fff,#a78bfa)"></div></div>
+          <div class="score-val" style="color:#6c8fff">9.5</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">差异性</div>
+          <div class="score-track"><div class="score-fill" style="width:90%;background:linear-gradient(90deg,#6c8fff,#a78bfa)"></div></div>
+          <div class="score-val" style="color:#6c8fff">9.0</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">完整度</div>
+          <div class="score-track"><div class="score-fill" style="width:93%;background:linear-gradient(90deg,#6c8fff,#a78bfa)"></div></div>
+          <div class="score-val" style="color:#6c8fff">9.3</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">可维护性</div>
+          <div class="score-track"><div class="score-fill" style="width:85%;background:linear-gradient(90deg,#6c8fff,#a78bfa)"></div></div>
+          <div class="score-val" style="color:#6c8fff">8.5</div>
+        </div>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-section-title">它是做什么的</div>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:16px;">
+          ui-ux-pro-max 是目前 skills.sh 上安装量最高的设计类技能（排除更通用类），定位为<strong style="color:var(--text)">全栈 UI/UX 设计智能体</strong>。它的核心是一个可搜索的设计知识数据库，内置 50+ 设计风格（玻璃拟态、极简主义、暗黑模式、粗野主义等）、161 种调色板、57 种字体配对方案，以及 99 条有优先级的 UX 准则。通过 Python 搜索脚本（search.py），Agent 可以输入产品类型和关键词，精准检索匹配的设计系统推荐。
+        </p>
+
+        <div class="detail-section-title">核心亮点</div>
+        <ul class="feature-list">
+          <li><strong style="color:var(--text)">可搜索数据库驱动</strong>：不只是规范文档，而是通过 `search.py --domain` 脚本实现按产品类型、风格、字体、颜色、UX准则分域检索，极大降低 Agent 查找设计规范的摩擦。</li>
+          <li><strong style="color:var(--text)">设计系统持久化</strong>：支持 `--persist` 参数将设计决策写入 `design-system/MASTER.md`，跨会话保持一致性，解决 AI 设计前后风格不统一的痛点。</li>
+          <li><strong style="color:var(--text)">10 大技术栈覆盖</strong>：React、Next.js、Vue、Svelte、SwiftUI、React Native、Flutter、Tailwind、shadcn/ui、HTML/CSS，一个技能覆盖 Web+Mobile 全场景。</li>
+          <li><strong style="color:var(--text)">10 大规则类别带优先级</strong>：无障碍(CRITICAL)→触控(CRITICAL)→性能(HIGH)→风格→布局→排版→动画→表单→导航→图表，配合反模式列表，可直接用于 Code Review。</li>
+          <li><strong style="color:var(--text)">交付前检查清单</strong>：4 大维度（视觉质量、交互、深浅色模式、无障碍）共 20+ 条 checkbox，可直接嵌入 CI 流程。</li>
+        </ul>
+
+        <div class="detail-section-title">优势与不足</div>
+        <div class="pros-cons">
+          <div class="pros-box">
+            <div class="box-title">优势</div>
+            <div class="box-item">设计知识最全，覆盖面最广</div>
+            <div class="box-item">搜索脚本让 Agent 使用更智能高效</div>
+            <div class="box-item">支持设计决策持久化，解决一致性问题</div>
+            <div class="box-item">规则带优先级，适合快速 Code Review</div>
+            <div class="box-item">安装量最高（同类），社区验证充分</div>
+          </div>
+          <div class="cons-box">
+            <div class="box-title">不足</div>
+            <div class="box-item">Python 脚本依赖，需要环境配置</div>
+            <div class="box-item">规范量大，缺乏"最小化调用"入口</div>
+            <div class="box-item">过于全面导致 Token 占用较高</div>
+          </div>
+        </div>
+
+        <div class="detail-section-title">安装</div>
+        <div class="install-box">
+          <div class="install-title">安装命令</div>
+          <div class="install-cmd">npx skills add nextlevelbuilder/ui-ux-pro-max-skill@ui-ux-pro-max -g -y</div>
+        </div>
+        <div class="install-box" style="margin-top:8px;">
+          <div class="install-title">移至 CodeFlicker</div>
+          <div class="install-cmd">mv ~/.claude/skills/ui-ux-pro-max ~/.codeflicker/skills/</div>
+        </div>
+
+        <div style="margin-top:20px;padding:14px 16px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:10px;font-size:13px;color:rgba(255,215,0,0.8);">
+          <strong>评测结论：</strong>设计知识库类最强选择。安装量和 Stars 双第一（同类），适合一切需要 UI/UX 设计规范的场景。如果只安装一个设计类 Skill，选这个。
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SKILL #2: web-design-guidelines ===== -->
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="detail-icon" style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);">⚡</div>
+        <div class="detail-meta">
+          <div class="detail-name">web-design-guidelines</div>
+          <div class="detail-pkg">vercel-labs / agent-skills</div>
+          <div class="detail-oneliner">Vercel 官方 Web 设计规范审计工具 — 实时拉取最新规则，输出精确的 file:line 设计问题报告</div>
+          <div class="detail-badges">
+            <span class="badge badge-install">↓ 181.7K / 周</span>
+            <span class="badge badge-stars">★ 23.4K</span>
+            <span class="badge badge-author">Vercel Labs ✓</span>
+            <span class="badge badge-safe">✓ Socket Pass</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:36px;font-weight:900;color:#34d399;letter-spacing:-0.03em;">8.7</div>
+          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">综合评分</div>
+          <div style="margin-top:6px;"><span class="card-rank rank-s">S 级</span></div>
+        </div>
+      </div>
+
+      <div class="detail-score-bar">
+        <div class="score-dim">
+          <div class="score-dim-name">内容深度</div>
+          <div class="score-track"><div class="score-fill" style="width:80%;background:linear-gradient(90deg,#34d399,#6c8fff)"></div></div>
+          <div class="score-val" style="color:#34d399">8.0</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">实用性</div>
+          <div class="score-track"><div class="score-fill" style="width:90%;background:linear-gradient(90deg,#34d399,#6c8fff)"></div></div>
+          <div class="score-val" style="color:#34d399">9.0</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">差异性</div>
+          <div class="score-track"><div class="score-fill" style="width:85%;background:linear-gradient(90deg,#34d399,#6c8fff)"></div></div>
+          <div class="score-val" style="color:#34d399">8.5</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">完整度</div>
+          <div class="score-track"><div class="score-fill" style="width:85%;background:linear-gradient(90deg,#34d399,#6c8fff)"></div></div>
+          <div class="score-val" style="color:#34d399">8.5</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">可维护性</div>
+          <div class="score-track"><div class="score-fill" style="width:95%;background:linear-gradient(90deg,#34d399,#6c8fff)"></div></div>
+          <div class="score-val" style="color:#34d399">9.5</div>
+        </div>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-section-title">它是做什么的</div>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:16px;">
+          这是 <strong style="color:var(--text)">Vercel 官方出品</strong>的 Web 设计规范审计工具。它的工作模式完全不同于其他设计技能：它不是"生成设计"，而是"审查现有代码是否符合 Vercel Web Interface Guidelines"。每次调用时，它会先通过 WebFetch 实时拉取最新版规则（来自 GitHub raw），然后对指定文件进行逐条检查，输出 <code>file:line</code> 格式的精确问题报告。
+        </p>
+
+        <div class="detail-section-title">核心亮点</div>
+        <ul class="feature-list">
+          <li><strong style="color:var(--text)">动态规则拉取</strong>：规则来源是 GitHub raw URL，每次执行都拉取最新版本，保证永不过时——这是目前同类技能中唯一实现"规范自更新"的。</li>
+          <li><strong style="color:var(--text)">精准 file:line 输出</strong>：问题报告格式为 `components/Button.tsx:47 - 对比度不足，当前 3.2:1，需 ≥ 4.5:1`，直接可定位修复，无噪音。</li>
+          <li><strong style="color:var(--text)">Vercel 官方背书</strong>：规范来自 Vercel 内部 Web Interface Guidelines，这是 Next.js 生态最权威的 Web 设计标准之一。</li>
+          <li><strong style="color:var(--text)">安装量最高（全设计类）</strong>：周装 181.7K，说明大量 Next.js/Vercel 生态开发者将其集成进了日常开发工作流。</li>
+          <li><strong style="color:var(--text)">Snyk 警告需注意</strong>：与其他技能不同，此技能 Snyk 审计为 Warn（其他两个官方技能为 Pass），需注意依赖链安全。</li>
+        </ul>
+
+        <div class="detail-section-title">优势与不足</div>
+        <div class="pros-cons">
+          <div class="pros-box">
+            <div class="box-title">优势</div>
+            <div class="box-item">唯一实现"规范动态更新"的设计审计工具</div>
+            <div class="box-item">Vercel 官方出品，权威性高</div>
+            <div class="box-item">输出格式精准，可直接用于 CI</div>
+            <div class="box-item">周安装量全类第一（181.7K）</div>
+          </div>
+          <div class="cons-box">
+            <div class="box-title">不足</div>
+            <div class="box-item">只做审查，不做生成（定位局限）</div>
+            <div class="box-item">依赖网络拉取规则，离线不可用</div>
+            <div class="box-item">Snyk 审计 Warn，需关注安全</div>
+          </div>
+        </div>
+
+        <div class="detail-section-title">安装</div>
+        <div class="install-box">
+          <div class="install-title">安装命令</div>
+          <div class="install-cmd">npx skills add vercel-labs/agent-skills@web-design-guidelines -g -y</div>
+        </div>
+
+        <div style="margin-top:20px;padding:14px 16px;background:rgba(52,211,153,0.05);border:1px solid rgba(52,211,153,0.2);border-radius:10px;font-size:13px;color:rgba(52,211,153,0.85);">
+          <strong>评测结论：</strong>最佳代码审计工具，专为 Vercel/Next.js 生态设计。与 ui-ux-pro-max（生成规范）形成完美互补——一个负责制定设计规范，一个负责检查代码是否遵守规范。建议配合使用。
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SKILL #3: frontend-design ===== -->
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="detail-icon" style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);">✦</div>
+        <div class="detail-meta">
+          <div class="detail-name">frontend-design</div>
+          <div class="detail-pkg">anthropics / skills</div>
+          <div class="detail-oneliner">Anthropic 官方前端美学准则 — 反"AI平庸感"宣言，强制要求意图性设计、独特字体、戏剧性构图</div>
+          <div class="detail-badges">
+            <span class="badge badge-install">↓ 177.4K / 周</span>
+            <span class="badge badge-stars">★ 97.8K</span>
+            <span class="badge badge-author">Anthropic ✓</span>
+            <span class="badge badge-safe">✓ 三项全过</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:36px;font-weight:900;color:#a78bfa;letter-spacing:-0.03em;">8.7</div>
+          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">综合评分</div>
+          <div style="margin-top:6px;"><span class="card-rank rank-s">S 级</span></div>
+        </div>
+      </div>
+
+      <div class="detail-score-bar">
+        <div class="score-dim">
+          <div class="score-dim-name">内容深度</div>
+          <div class="score-track"><div class="score-fill" style="width:85%;background:linear-gradient(90deg,#a78bfa,#f472b6)"></div></div>
+          <div class="score-val" style="color:#a78bfa">8.5</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">实用性</div>
+          <div class="score-track"><div class="score-fill" style="width:90%;background:linear-gradient(90deg,#a78bfa,#f472b6)"></div></div>
+          <div class="score-val" style="color:#a78bfa">9.0</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">差异性</div>
+          <div class="score-track"><div class="score-fill" style="width:95%;background:linear-gradient(90deg,#a78bfa,#f472b6)"></div></div>
+          <div class="score-val" style="color:#a78bfa">9.5</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">完整度</div>
+          <div class="score-track"><div class="score-fill" style="width:80%;background:linear-gradient(90deg,#a78bfa,#f472b6)"></div></div>
+          <div class="score-val" style="color:#a78bfa">8.0</div>
+        </div>
+        <div class="score-dim">
+          <div class="score-dim-name">可维护性</div>
+          <div class="score-track"><div class="score-fill" style="width:80%;background:linear-gradient(90deg,#a78bfa,#f472b6)"></div></div>
+          <div class="score-val" style="color:#a78bfa">8.0</div>
+        </div>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-section-title">它是做什么的</div>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:16px;">
+          <strong style="color:var(--text)">Anthropic 官方出品</strong>，这是一份前端美学宣言，而非规范手册。它的核心使命是：<em style="color:var(--text)">消灭"AI Slop"美学</em>（即每个 AI 生成的界面都长得一样的问题）。它要求 Agent 在编码前先回答四个设计问题（目的、风格基调、约束、差异化），然后选定一个大胆的美学方向，精准执行。GitHub Stars 高达 97.8K，是所有设计类技能中最高的，体现了社区对"反 AI 平庸设计"理念的强烈认同。
+        </p>
+
+        <div class="detail-section-title">核心亮点</div>
+        <ul class="feature-list">
+          <li><strong style="color:var(--text)">差异性最强的设计理念</strong>：明确列出"禁止使用 Inter/Roboto/Arial"、"禁止白底紫渐变"、"禁止可预测的布局模式"——这些禁令直接针对 AI 生成设计的通病。</li>
+          <li><strong style="color:var(--text)">设计思维框架</strong>：四问法（Purpose / Tone / Constraints / Differentiation），在编码之前强制建立美学共识，解决"先写代码再考虑设计"的坏习惯。</li>
+          <li><strong style="color:var(--text)">极繁/极简双向兼容</strong>：明确说明"大胆的极繁主义"和"精致的极简主义"都是合法方向，关键是"意图性（intentionality）"而非强度，避免错误引导。</li>
+          <li><strong style="color:var(--text)">GitHub Stars 最高（97.8K）</strong>：说明它触达了大量开发者痛点，远超同类技能。</li>
+          <li><strong style="color:var(--text)">三项安全审计全部通过</strong>：Gen Agent Trust Hub ✓、Socket ✓、Snyk ✓，是唯一全绿技能。</li>
+        </ul>
+
+        <div class="detail-section-title">优势与不足</div>
+        <div class="pros-cons">
+          <div class="pros-box">
+            <div class="box-title">优势</div>
+            <div class="box-item">理念最具差异化，直击 AI 设计通病</div>
+            <div class="box-item">GitHub Stars 最高（97.8K），社区认可度最强</div>
+            <div class="box-item">三项安全审计全绿，唯一完全通过</div>
+            <div class="box-item">Anthropic 官方出品，质量有保障</div>
+          </div>
+          <div class="cons-box">
+            <div class="box-title">不足</div>
+            <div class="box-item">偏理念/原则，缺具体规范数值（如对比度比值）</div>
+            <div class="box-item">不含可搜索数据库，无法精准检索</div>
+            <div class="box-item">对初学者不友好，需要审美基础</div>
+          </div>
+        </div>
+
+        <div class="detail-section-title">安装</div>
+        <div class="install-box">
+          <div class="install-title">安装命令</div>
+          <div class="install-cmd">npx skills add anthropics/skills@frontend-design -g -y</div>
+        </div>
+
+        <div style="margin-top:20px;padding:14px 16px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:10px;font-size:13px;color:rgba(167,139,250,0.85);">
+          <strong>评测结论：</strong>最适合追求设计质感的团队。它解决的不是"怎么做对"，而是"怎么做好看且独特"，是设计美学的方向指南针。建议与 ui-ux-pro-max（提供具体数值规范）配合使用，形成"美学方向 + 规范细节"的完整体系。
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SKILL #4: canvas-design ===== -->
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="detail-icon" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);">🖼</div>
+        <div class="detail-meta">
+          <div class="detail-name">canvas-design</div>
+          <div class="detail-pkg">anthropics / skills</div>
+          <div class="detail-oneliner">哲学美学驱动的视觉艺术创作 — 先写设计宣言，再输出博物馆级 PDF/PNG 作品</div>
+          <div class="detail-badges">
+            <span class="badge badge-install">↓ 22.0K / 周</span>
+            <span class="badge badge-stars">★ 97.8K</span>
+            <span class="badge badge-author">Anthropic ✓</span>
+            <span class="badge badge-safe">✓ 安全通过</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:36px;font-weight:900;color:#f59e0b;letter-spacing:-0.03em;">8.0</div>
+          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">综合评分</div>
+          <div style="margin-top:6px;"><span class="card-rank rank-a">A 级</span></div>
+        </div>
+      </div>
+      <div class="detail-score-bar">
+        <div class="score-dim"><div class="score-dim-name">内容深度</div><div class="score-track"><div class="score-fill" style="width:82%;background:linear-gradient(90deg,#f59e0b,#f472b6)"></div></div><div class="score-val" style="color:#f59e0b">8.2</div></div>
+        <div class="score-dim"><div class="score-dim-name">实用性</div><div class="score-track"><div class="score-fill" style="width:70%;background:linear-gradient(90deg,#f59e0b,#f472b6)"></div></div><div class="score-val" style="color:#f59e0b">7.0</div></div>
+        <div class="score-dim"><div class="score-dim-name">差异性</div><div class="score-track"><div class="score-fill" style="width:95%;background:linear-gradient(90deg,#f59e0b,#f472b6)"></div></div><div class="score-val" style="color:#f59e0b">9.5</div></div>
+        <div class="score-dim"><div class="score-dim-name">完整度</div><div class="score-track"><div class="score-fill" style="width:78%;background:linear-gradient(90deg,#f59e0b,#f472b6)"></div></div><div class="score-val" style="color:#f59e0b">7.8</div></div>
+        <div class="score-dim"><div class="score-dim-name">可维护性</div><div class="score-track"><div class="score-fill" style="width:75%;background:linear-gradient(90deg,#f59e0b,#f472b6)"></div></div><div class="score-val" style="color:#f59e0b">7.5</div></div>
+      </div>
+      <div class="detail-body">
+        <div class="detail-section-title">它是做什么的</div>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:16px;">canvas-design 是一款<strong style="color:var(--text)">视觉艺术创作技能</strong>，Anthropic 官方出品。创作前必须先发明一套专属的"设计哲学运动"（如"Brutalist Joy"/"Chromatic Silence"），撰写 4-6 段设计宣言，然后以这套哲学为灵魂，创作出 90% 视觉、10% 文字的博物馆级单页或多页 PDF/PNG 艺术作品。</p>
+        <div class="detail-section-title">核心亮点</div>
+        <ul class="feature-list">
+          <li><strong style="color:var(--text)">设计哲学先行</strong>：每件作品都有专属宣言，彻底避免 AI 批量复制感，差异性评分最高（9.5）。</li>
+          <li><strong style="color:var(--text)">博物馆/杂志级标准</strong>：明确要求"看起来像专业大师耗费数小时打磨"的输出标准。</li>
+          <li><strong style="color:var(--text)">隐晦概念嵌入</strong>：将请求中的隐晦概念无形地嵌入抽象构图——"了解者能感受到，不了解者也欣赏其美感"。</li>
+          <li><strong style="color:var(--text)">多页作品支持</strong>：支持咖啡桌书风格的多页 PDF，每页是同一哲学的不同变奏。</li>
+        </ul>
+        <div class="detail-section-title">优势与不足</div>
+        <div class="pros-cons">
+          <div class="pros-box"><div class="box-title">优势</div><div class="box-item">差异性最强（9.5），作品独一无二</div><div class="box-item">哲学先行框架，输出必然有思想深度</div><div class="box-item">支持多页 PDF，可交付完整作品集</div></div>
+          <div class="cons-box"><div class="box-title">不足</div><div class="box-item">实用性偏低（7.0），适合艺术创作非工程开发</div><div class="box-item">不适合 UI 组件/Web 页面开发</div><div class="box-item">产出周期长，不适合快速迭代</div></div>
+        </div>
+        <div class="detail-section-title">安装</div>
+        <div class="install-box"><div class="install-title">安装命令</div><div class="install-cmd">npx skills add anthropics/skills@canvas-design -g -y</div></div>
+        <div style="margin-top:20px;padding:14px 16px;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-radius:10px;font-size:13px;color:rgba(245,158,11,0.85);"><strong>评测结论：</strong>海报、品牌视觉、艺术作品场景的首选。哲学驱动创作机制能产出其他技能难以企及的质量。</div>
+      </div>
+    </div>
+
+    <!-- ===== SKILL #5: interface-design ===== -->
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="detail-icon" style="background:rgba(244,114,182,0.1);border:1px solid rgba(244,114,182,0.2);">◈</div>
+        <div class="detail-meta">
+          <div class="detail-name">interface-design</div>
+          <div class="detail-pkg">dammyjay93 / interface-design</div>
+          <div class="detail-oneliner">仪表盘与工具类 App 专项设计 — 领域探索 + Token 架构 + 产品签名，反 AI 模板化</div>
+          <div class="detail-badges">
+            <span class="badge badge-install">↓ 8.7K / 周</span>
+            <span class="badge badge-stars">★ 4.1K</span>
+            <span class="badge badge-author">dammyjay93</span>
+            <span class="badge badge-safe">✓ 安全通过</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:36px;font-weight:900;color:#f472b6;letter-spacing:-0.03em;">8.2</div>
+          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">综合评分</div>
+          <div style="margin-top:6px;"><span class="card-rank rank-a">A 级</span></div>
+        </div>
+      </div>
+      <div class="detail-score-bar">
+        <div class="score-dim"><div class="score-dim-name">内容深度</div><div class="score-track"><div class="score-fill" style="width:86%;background:linear-gradient(90deg,#f472b6,#a78bfa)"></div></div><div class="score-val" style="color:#f472b6">8.6</div></div>
+        <div class="score-dim"><div class="score-dim-name">实用性</div><div class="score-track"><div class="score-fill" style="width:85%;background:linear-gradient(90deg,#f472b6,#a78bfa)"></div></div><div class="score-val" style="color:#f472b6">8.5</div></div>
+        <div class="score-dim"><div class="score-dim-name">差异性</div><div class="score-track"><div class="score-fill" style="width:88%;background:linear-gradient(90deg,#f472b6,#a78bfa)"></div></div><div class="score-val" style="color:#f472b6">8.8</div></div>
+        <div class="score-dim"><div class="score-dim-name">完整度</div><div class="score-track"><div class="score-fill" style="width:80%;background:linear-gradient(90deg,#f472b6,#a78bfa)"></div></div><div class="score-val" style="color:#f472b6">8.0</div></div>
+        <div class="score-dim"><div class="score-dim-name">可维护性</div><div class="score-track"><div class="score-fill" style="width:72%;background:linear-gradient(90deg,#f472b6,#a78bfa)"></div></div><div class="score-val" style="color:#f472b6">7.2</div></div>
+      </div>
+      <div class="detail-body">
+        <div class="detail-section-title">它是做什么的</div>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:16px;">专门针对<strong style="color:var(--text)">仪表盘、管理后台和工具类 App</strong> 的设计技能（不适用于落地页/营销站点）。通过<strong style="color:var(--text)">领域探索</strong>（找 5+ 概念词汇、5+ 领域色彩、1 个签名元素）和 <strong style="color:var(--text)">Token 架构</strong>（5 类语义色彩变量），让每个界面都从产品世界中独立涌现，而非套模板。</p>
+        <div class="detail-section-title">核心亮点</div>
+        <ul class="feature-list">
+          <li><strong style="color:var(--text)">产品领域探索机制</strong>：设计前强制进行领域调研，提取概念词汇、色彩和签名元素——反模板化的核心武器。</li>
+          <li><strong style="color:var(--text)">Token 命名哲学</strong>：变量名反映产品世界（如 <code>--ink</code> / <code>--parchment</code> 而非 <code>--gray-700</code>），设计语言融入代码命名。</li>
+          <li><strong style="color:var(--text)">挤眼测试 / 签名测试</strong>：独特的设计验证方法——模糊双眼后仍能感知层次，说明深度真实可信。</li>
+          <li><strong style="color:var(--text)">命令式工作流</strong>：提供 <code>:status</code>、<code>:audit</code>、<code>:extract</code>、<code>:critique</code> 命令，结构化设计审查。</li>
+        </ul>
+        <div class="detail-section-title">优势与不足</div>
+        <div class="pros-cons">
+          <div class="pros-box"><div class="box-title">优势</div><div class="box-item">领域探索机制独一无二，强制建立产品世界观</div><div class="box-item">Token 命名哲学有深度，设计即代码</div><div class="box-item">挤眼测试等验证方法实用且新颖</div></div>
+          <div class="cons-box"><div class="box-title">不足</div><div class="box-item">仅适用于仪表盘/工具类，场景较窄</div><div class="box-item">非官方出品，Stars 较少（4.1K）</div><div class="box-item">可维护性偏低，更新频率不确定</div></div>
+        </div>
+        <div class="detail-section-title">安装</div>
+        <div class="install-box"><div class="install-title">安装命令</div><div class="install-cmd">npx skills add dammyjay93/interface-design@interface-design -g -y</div></div>
+        <div style="margin-top:20px;padding:14px 16px;background:rgba(244,114,182,0.05);border:1px solid rgba(244,114,182,0.2);border-radius:10px;font-size:13px;color:rgba(244,114,182,0.85);"><strong>评测结论：</strong>仪表盘和 B2B 工具类产品的最优选择，"领域探索→签名元素→Token 架构"三步链路是目前同类中最有深度的仪表盘设计方法论。</div>
+      </div>
+    </div>
+
+    <!-- ===== SKILL #6: sleek-design-mobile-apps ===== -->
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="detail-icon" style="background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.15);">📱</div>
+        <div class="detail-meta">
+          <div class="detail-name">sleek-design-mobile-apps</div>
+          <div class="detail-pkg">sleekdotdesign / agent-skills</div>
+          <div class="detail-oneliner">AI 驱动的移动端设计 API — 自然语言描述即可生成 App 界面截图，快速原型利器</div>
+          <div class="detail-badges">
+            <span class="badge badge-install">↓ 21.5K / 周</span>
+            <span class="badge badge-stars">★ 14</span>
+            <span class="badge badge-author">sleekdotdesign</span>
+            <span class="badge" style="background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2);">需要 API Key</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:36px;font-weight:900;color:#94a3b8;letter-spacing:-0.03em;">6.8</div>
+          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">综合评分</div>
+          <div style="margin-top:6px;"><span class="card-rank rank-b">B 级</span></div>
+        </div>
+      </div>
+      <div class="detail-score-bar">
+        <div class="score-dim"><div class="score-dim-name">内容深度</div><div class="score-track"><div class="score-fill" style="width:55%;background:linear-gradient(90deg,#94a3b8,#64748b)"></div></div><div class="score-val" style="color:#94a3b8">5.5</div></div>
+        <div class="score-dim"><div class="score-dim-name">实用性</div><div class="score-track"><div class="score-fill" style="width:75%;background:linear-gradient(90deg,#94a3b8,#64748b)"></div></div><div class="score-val" style="color:#94a3b8">7.5</div></div>
+        <div class="score-dim"><div class="score-dim-name">差异性</div><div class="score-track"><div class="score-fill" style="width:85%;background:linear-gradient(90deg,#94a3b8,#64748b)"></div></div><div class="score-val" style="color:#94a3b8">8.5</div></div>
+        <div class="score-dim"><div class="score-dim-name">完整度</div><div class="score-track"><div class="score-fill" style="width:60%;background:linear-gradient(90deg,#94a3b8,#64748b)"></div></div><div class="score-val" style="color:#94a3b8">6.0</div></div>
+        <div class="score-dim"><div class="score-dim-name">可维护性</div><div class="score-track"><div class="score-fill" style="width:55%;background:linear-gradient(90deg,#94a3b8,#64748b)"></div></div><div class="score-val" style="color:#94a3b8">5.5</div></div>
+      </div>
+      <div class="detail-body">
+        <div class="detail-section-title">它是做什么的</div>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-bottom:16px;">一个<strong style="color:var(--text)">外部 API 调用封装</strong>，通过调用 <code>sleek.design</code> REST API，用自然语言描述移动端设计需求，自动渲染并返回 PNG/WebP 截图。流程：创建项目 → 发送自然语言 → 轮询状态 → 获取截图。</p>
+        <div class="detail-section-title">核心亮点</div>
+        <ul class="feature-list">
+          <li><strong style="color:var(--text)">完全自然语言驱动</strong>：从"设计一个健身应用"到"在这个界面添加定价区域"，无需任何设计工具知识。</li>
+          <li><strong style="color:var(--text)">真实截图交付</strong>：输出实际渲染的移动端截图（PNG/WebP、透明背景），可直接用于演示或 PRD。</li>
+          <li><strong style="color:var(--text)">异步轮询架构</strong>：支持异步/同步两种模式，适应不同场景需求。</li>
+        </ul>
+        <div class="detail-section-title">优势与不足</div>
+        <div class="pros-cons">
+          <div class="pros-box"><div class="box-title">优势</div><div class="box-item">唯一能输出真实渲染截图的技能</div><div class="box-item">自然语言操作门槛极低</div><div class="box-item">适合快速原型演示、PRD 配图</div></div>
+          <div class="cons-box"><div class="box-title">不足</div><div class="box-item">依赖外部付费 API（需 Pro+ 计划）</div><div class="box-item">Stars 仅 14，社区极少</div><div class="box-item">本质是 API 封装，无设计理念深度</div></div>
+        </div>
+        <div class="detail-section-title">安装</div>
+        <div class="install-box"><div class="install-title">安装命令</div><div class="install-cmd">npx skills add sleekdotdesign/agent-skills@sleek-design-mobile-apps -g -y</div></div>
+        <div style="margin-top:20px;padding:14px 16px;background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.15);border-radius:10px;font-size:13px;color:rgba(248,113,113,0.8);"><strong>⚠️ 注意：</strong>需要 sleek.design Pro+ 订阅 + API Key，且依赖外部服务稳定性。适合有预算且需要快速演示的团队，不推荐作为核心设计工具。</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===== SECTION 4: 横向对比 ===== -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div>
+        <div class="section-title">横向对比矩阵</div>
+        <div class="section-desc">关键维度一览，快速找到适合你场景的技能</div>
+      </div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width:170px;">技能名称</th>
+            <th>定位</th>
+            <th>最适场景</th>
+            <th style="text-align:center;">安装量</th>
+            <th style="text-align:center;">综合分</th>
+            <th>核心独特机制</th>
+            <th>局限</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="skill-name-cell" style="color:#6c8fff;">ui-ux-pro-max</td>
+            <td>全栈设计知识库</td>
+            <td class="winner-cell">通用 UI/UX，任何技术栈</td>
+            <td style="text-align:center;color:var(--accent3);font-weight:700;">71.1K</td>
+            <td style="text-align:center;color:#6c8fff;font-weight:800;">9.1</td>
+            <td>可搜索数据库 + 设计系统持久化</td>
+            <td>Python 依赖，Token 重</td>
+          </tr>
+          <tr>
+            <td class="skill-name-cell" style="color:#34d399;">web-design-guidelines</td>
+            <td>设计规范审计工具</td>
+            <td class="winner-cell">代码合规检查，CI 集成</td>
+            <td style="text-align:center;color:var(--accent3);font-weight:700;">181.7K</td>
+            <td style="text-align:center;color:#34d399;font-weight:800;">8.7</td>
+            <td>规则动态拉取，永不过时</td>
+            <td>仅审查不生成；依赖网络</td>
+          </tr>
+          <tr>
+            <td class="skill-name-cell" style="color:#a78bfa;">frontend-design</td>
+            <td>前端美学方向指南</td>
+            <td class="winner-cell">追求独特设计感的项目</td>
+            <td style="text-align:center;color:var(--text-muted);">177.4K</td>
+            <td style="text-align:center;color:#a78bfa;font-weight:800;">8.7</td>
+            <td>反 AI 平庸感宣言 + 四问设计框架</td>
+            <td>无具体规范数值</td>
+          </tr>
+          <tr>
+            <td class="skill-name-cell" style="color:#f59e0b;">canvas-design</td>
+            <td>艺术视觉创作</td>
+            <td>海报、品牌物料、艺术作品</td>
+            <td style="text-align:center;color:var(--text-muted);">22.0K</td>
+            <td style="text-align:center;color:#f59e0b;font-weight:800;">8.0</td>
+            <td>设计哲学运动 + 宣言先行</td>
+            <td>不适合 Web 开发场景</td>
+          </tr>
+          <tr>
+            <td class="skill-name-cell" style="color:#f472b6;">interface-design</td>
+            <td>仪表盘/工具类专项</td>
+            <td>B2B 仪表盘、管理后台</td>
+            <td style="text-align:center;color:var(--text-muted);">8.7K</td>
+            <td style="text-align:center;color:#f472b6;font-weight:800;">8.2</td>
+            <td>领域探索 + Token 命名哲学</td>
+            <td>场景窄，不适合落地页</td>
+          </tr>
+          <tr>
+            <td class="skill-name-cell" style="color:#94a3b8;">sleek-design-mobile</td>
+            <td>移动端原型截图生成</td>
+            <td>快速原型演示、PRD 配图</td>
+            <td style="text-align:center;color:var(--text-muted);">21.5K</td>
+            <td style="text-align:center;color:#94a3b8;font-weight:800;">6.8</td>
+            <td>真实渲染截图输出</td>
+            <td>付费依赖，Stars 极少</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 5: 选型指南 ===== -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div>
+        <div class="section-title">场景选型指南</div>
+        <div class="section-desc">按你的实际需求，找到最合适的技能组合</div>
+      </div>
+    </div>
+
+    <div class="verdict-grid">
+      <div class="verdict-card" style="border-color:rgba(108,143,255,0.2);">
+        <div class="verdict-icon">🚀</div>
+        <div class="verdict-label">如果你只能选一个</div>
+        <div class="verdict-title" style="color:#6c8fff;">选 ui-ux-pro-max</div>
+        <div class="verdict-body">覆盖面最广、内容最深、使用最灵活。无论是 Web、移动端、哪种框架，它都能提供从调色板到组件规范的全套设计支持。社区验证最充分（71.1K 周装），是目前综合最强的设计技能。</div>
+      </div>
+
+      <div class="verdict-card" style="border-color:rgba(52,211,153,0.2);">
+        <div class="verdict-icon">🔍</div>
+        <div class="verdict-label">如果你在做 Vercel / Next.js 项目</div>
+        <div class="verdict-title" style="color:#34d399;">加上 web-design-guidelines</div>
+        <div class="verdict-body">Vercel 官方规范，实时拉取更新，输出精确到代码行的问题报告。与 ui-ux-pro-max 完美互补：一个负责"制定规范"，一个负责"检查执行"。181.7K 周装是全设计类第一。</div>
+      </div>
+
+      <div class="verdict-card" style="border-color:rgba(167,139,250,0.2);">
+        <div class="verdict-icon">✦</div>
+        <div class="verdict-label">如果你在意设计质感与原创性</div>
+        <div class="verdict-title" style="color:#a78bfa;">加上 frontend-design</div>
+        <div class="verdict-body">Anthropic 官方出品，97.8K Stars 说明触达了大量开发者痛点。它不教你"做对"，而是教你"做独特"——消除 AI 生成界面千篇一律的问题，适合追求设计品位的团队。</div>
+      </div>
+
+      <div class="verdict-card" style="border-color:rgba(245,158,11,0.2);">
+        <div class="verdict-icon">🖼</div>
+        <div class="verdict-label">如果你需要创作视觉物料/海报</div>
+        <div class="verdict-title" style="color:#f59e0b;">选 canvas-design</div>
+        <div class="verdict-body">专为艺术创作设计，哲学先行机制保证每件作品都有独特的思想深度。适合品牌视觉、营销物料、艺术海报等场景。不适合 Web 开发，但在其定位场景内是无可替代的选择。</div>
+      </div>
+
+      <div class="verdict-card" style="border-color:rgba(244,114,182,0.2);">
+        <div class="verdict-icon">◈</div>
+        <div class="verdict-label">如果你在做 B2B 仪表盘 / 管理后台</div>
+        <div class="verdict-title" style="color:#f472b6;">选 interface-design</div>
+        <div class="verdict-body">"领域探索→签名元素→Token 架构"三步链路，是目前同类中最有深度的仪表盘设计方法论。挤眼测试、签名测试等验证方法实用且独特。Stars 虽少但内容质量值得关注。</div>
+      </div>
+
+      <div class="verdict-card" style="border-color:rgba(148,163,184,0.15);">
+        <div class="verdict-icon">📱</div>
+        <div class="verdict-label">如果你需要快速生成移动端原型截图</div>
+        <div class="verdict-title" style="color:#94a3b8;">考虑 sleek-design-mobile-apps</div>
+        <div class="verdict-body">唯一能输出真实渲染截图的技能，适合快速演示和 PRD 配图。但需要 Pro+ 订阅，且 Stars 仅 14，社区积累极少。建议先评估成本收益再决定是否使用。</div>
+      </div>
+    </div>
+
+    <!-- 推荐组合 -->
+    <div style="margin-top:32px;background:var(--bg2);border:1px solid rgba(108,143,255,0.2);border-radius:16px;padding:28px 32px;">
+      <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);margin-bottom:16px;font-weight:700;">⚡ 推荐技能组合</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:16px;">
+          <div style="font-size:12px;color:var(--accent3);font-weight:700;margin-bottom:8px;">基础组合（推荐）</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.8;">ui-ux-pro-max<br>+ frontend-design<br><span style="color:var(--text-dim);font-size:11px;">覆盖设计规范 + 美学方向</span></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:16px;">
+          <div style="font-size:12px;color:var(--accent3);font-weight:700;margin-bottom:8px;">全栈 Web 组合（最强）</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.8;">ui-ux-pro-max<br>+ web-design-guidelines<br>+ frontend-design<br><span style="color:var(--text-dim);font-size:11px;">规范制定 + 合规审查 + 美学把控</span></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:16px;">
+          <div style="font-size:12px;color:var(--accent3);font-weight:700;margin-bottom:8px;">B2B 仪表盘组合</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.8;">interface-design<br>+ web-design-guidelines<br><span style="color:var(--text-dim);font-size:11px;">领域专项设计 + 规范审计</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION 6: 总结 ===== -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div>
+        <div class="section-title">评测总结</div>
+        <div class="section-desc">洞察与行业观察</div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:36px 40px;">
+      <p style="font-size:15px;color:var(--text);line-height:1.9;margin-bottom:20px;">
+        从 skills.sh 全量扫描来看，<strong>设计类技能正在从"规范文档"走向"智能化设计引擎"</strong>。本次评测的 6 款技能呈现出三种截然不同的演进方向：
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px;">
+        <div style="padding:16px 20px;background:rgba(108,143,255,0.06);border:1px solid rgba(108,143,255,0.15);border-radius:10px;">
+          <div style="font-size:13px;font-weight:700;color:#6c8fff;margin-bottom:6px;">方向一：设计知识数据库化（ui-ux-pro-max 代表）</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">将设计规范转化为可编程、可搜索的数据库，Agent 可以通过脚本精准检索匹配的设计方案。这是目前最实用的演进方向，降低了 AI 使用设计知识的摩擦。</div>
+        </div>
+        <div style="padding:16px 20px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.15);border-radius:10px;">
+          <div style="font-size:13px;font-weight:700;color:#a78bfa;margin-bottom:6px;">方向二：美学理念化（frontend-design / interface-design 代表）</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">不只给出"怎么做对"的规范，而是建立"怎么做出独特感"的理念框架。这类技能意识到 AI 生成设计的最大问题不是不合规，而是千篇一律——它们通过强制建立美学意图来解决这个问题。</div>
+        </div>
+        <div style="padding:16px 20px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.15);border-radius:10px;">
+          <div style="font-size:13px;font-weight:700;color:#34d399;margin-bottom:6px;">方向三：设计即代码审查（web-design-guidelines 代表）</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">将设计规范直接与代码 CI/CD 流程结合，以 file:line 格式输出问题，让设计合规变成可自动化的代码审查任务。这是工程化程度最高、最适合团队协作的方向。</div>
+        </div>
+      </div>
+
+      <div style="padding-top:20px;border-top:1px solid var(--border);">
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);margin-bottom:12px;">核心洞察</div>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+          最值得关注的现象是：<strong style="color:var(--text)">安装量最高的两款技能（web-design-guidelines 181.7K + frontend-design 177.4K）都来自官方机构（Vercel Labs / Anthropic）</strong>，说明开发者在设计类技能上有强烈的权威性偏好。而 <strong style="color:var(--text)">ui-ux-pro-max 的 46.1K Stars 和 71.1K 周装量</strong>，则证明了"可搜索数据库驱动"这一设计理念正在获得广泛认可。<br><br>
+          另外，interface-design 虽然 Stars 较少（4.1K），但其"领域探索→Token 架构→签名测试"的方法论深度在同类中独树一帜，是目前在 B2B 产品设计领域最有价值的非官方技能，值得重点关注。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div style="margin-bottom:8px;">业内设计类 Skill 评测报告 · 2026年3月20日</div>
+    <div>数据来源：skills.sh · clawhub · GitHub · 各技能官方页面</div>
+    <div style="margin-top:12px;color:var(--text-dim);">评分由内容深度(20%) + 实用性(30%) + 差异性(25%) + 完整度(15%) + 可维护性(10%) 加权计算</div>
+  </footer>
+
+</div><!-- /wrap -->
+</body>
+</html>
