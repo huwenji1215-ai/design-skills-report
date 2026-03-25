@@ -1,0 +1,3636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill 体验评测框架 — SaaS Skill化 People in Loop</title>
+<style>
+  :root {
+    --bg:    #0e1117;
+    --bg2:   #161b22;
+    --bg3:   #1c2230;
+    --bg4:   #212836;
+    --border:        #2a3348;
+    --border-accent: #3d4f6a;
+    --text:     #c9d1d9;
+    --text-dim: #6e7f96;
+    --text-muted: #3d4f6a;
+    --blue:   #58a6ff;
+    --blue-dim: #1c3a5c;
+    --green:  #3fb950;
+    --green-dim: #1a3828;
+    --red:    #f85149;
+    --red-dim: #3d1a1a;
+    --orange: #e3843c;
+    --orange-dim: #3d2a10;
+    --purple: #bc8cff;
+    --purple-dim: #2d1f4a;
+    --cyan:   #39d0d8;
+    --cyan-dim: #0d2a2e;
+    --yellow: #f0c040;
+    --yellow-dim: #2e2510;
+    --teal:   #26a69a;
+    --teal-dim: #0d2824;
+    --pink:   #ec4899;
+    --pink-dim: #3b1229;
+    --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ═══ HEADER ═══ */
+  .page-header {
+    padding: 32px 40px 28px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, #0e1117 0%, #0d1a2e 60%, #0e1117 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(88,166,255,.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: var(--blue-dim);
+    border: 1px solid rgba(88,166,255,.3);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--blue);
+    font-family: var(--mono);
+    letter-spacing: .4px;
+    margin-bottom: 14px;
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -.5px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .page-title span { color: var(--blue); }
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    max-width: 640px;
+    line-height: 1.6;
+  }
+  .header-meta {
+    display: flex;
+    gap: 20px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  .meta-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  /* ═══ NAV TABS ═══ */
+  .nav-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 0 40px;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav-tab {
+    padding: 12px 18px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all .15s;
+    user-select: none;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active {
+    color: var(--blue);
+    border-bottom-color: var(--blue);
+  }
+  .nav-tab .tab-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--blue-dim);
+    font-size: 9px;
+    color: var(--blue);
+    margin-left: 5px;
+    font-family: var(--mono);
+  }
+
+  /* ═══ SECTIONS ═══ */
+  .section {
+    display: none;
+    padding: 32px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section.active { display: block; }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .section-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+    margin-left: 38px;
+  }
+
+  /* ═══ TRAIL MODEL ═══ */
+  .trail-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 900px) {
+    .trail-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .trail-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s, transform .15s;
+    cursor: default;
+  }
+  .trail-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+  }
+  .trail-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 10px 10px 0 0;
+  }
+  .trail-card.t::before { background: var(--blue); }
+  .trail-card.r::before { background: var(--green); }
+  .trail-card.a::before { background: var(--orange); }
+  .trail-card.i::before { background: var(--purple); }
+  .trail-card.l::before { background: var(--cyan); }
+
+  .trail-letter {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+    font-family: var(--mono);
+  }
+  .trail-card.t .trail-letter { color: var(--blue); }
+  .trail-card.r .trail-letter { color: var(--green); }
+  .trail-card.a .trail-letter { color: var(--orange); }
+  .trail-card.i .trail-letter { color: var(--purple); }
+  .trail-card.l .trail-letter { color: var(--cyan); }
+
+  .trail-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .trail-name-cn {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .trail-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .trail-signal {
+    font-size: 10px;
+    font-family: var(--mono);
+    padding: 4px 8px;
+    border-radius: 5px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    line-height: 1.4;
+  }
+  .trail-signal::before {
+    content: '→';
+    flex-shrink: 0;
+    opacity: .5;
+  }
+  .trail-card.t .trail-signal { background: var(--blue-dim); color: #7dbfff; }
+  .trail-card.r .trail-signal { background: var(--green-dim); color: #5cd66a; }
+  .trail-card.a .trail-signal { background: var(--orange-dim); color: #f0a060; }
+  .trail-card.i .trail-signal { background: var(--purple-dim); color: #d0a8ff; }
+  .trail-card.l .trail-signal { background: var(--cyan-dim); color: #5ce8ee; }
+
+  .trail-layer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 9px;
+    font-family: var(--mono);
+    margin-top: 8px;
+    font-weight: 600;
+    letter-spacing: .3px;
+  }
+  .badge-a { background: rgba(88,166,255,.12); color: var(--blue); border: 1px solid rgba(88,166,255,.25); }
+  .badge-b { background: rgba(63,185,80,.12); color: var(--green); border: 1px solid rgba(63,185,80,.25); }
+  .badge-ab { background: rgba(188,140,255,.12); color: var(--purple); border: 1px solid rgba(188,140,255,.25); }
+
+  /* ═══ MAPPING TABLE ═══ */
+  .map-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 14px;
+    padding-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .map-title::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: var(--blue);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  table.mapping {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  table.mapping thead tr {
+    background: var(--bg3);
+  }
+  table.mapping th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.mapping td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  table.mapping tr:last-child td { border-bottom: none; }
+  table.mapping tr:hover td { background: rgba(255,255,255,.02); }
+
+  .dim-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .dim-T { background: var(--blue-dim); color: var(--blue); }
+  .dim-R { background: var(--green-dim); color: var(--green); }
+  .dim-A { background: var(--orange-dim); color: var(--orange); }
+  .dim-I { background: var(--purple-dim); color: var(--purple); }
+  .dim-L { background: var(--cyan-dim); color: var(--cyan); }
+
+  .sqe-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-family: var(--mono);
+    background: rgba(255,255,255,.05);
+    color: var(--text-dim);
+    white-space: nowrap;
+    border: 1px solid var(--border);
+  }
+
+  .signal-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: var(--mono);
+    background: var(--bg3);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    margin: 1px;
+  }
+  .missing-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    background: var(--red-dim);
+    color: var(--red);
+    font-family: var(--mono);
+    border: 1px solid rgba(248,81,73,.2);
+  }
+
+  .note-box {
+    background: rgba(88,166,255,.06);
+    border: 1px solid rgba(88,166,255,.2);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .note-box strong { color: var(--text); }
+
+  /* ═══ UTILITIES ═══ */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .card-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tag {
+    padding: 3px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 28px 0;
+  }
+
+  /* ═══ SCROLLBAR ═══ */
+  /* ─── Gap Cards ─── */
+  .gaps-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 11px; }
+  @media (max-width: 900px) { .gaps-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .gaps-grid { grid-template-columns: 1fr; } }
+  .gap-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 12px;
+  }
+  .gap-card.resolved { border-color: rgba(63,185,80,.2); }
+  .gap-header {
+    display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+    font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 8px;
+  }
+  .gap-num { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+  .gap-status { padding: 2px 7px; border-radius: 4px; font-size: 9px; font-family: var(--mono); font-weight: 700; }
+  .resolved-badge { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,.3); }
+  .gap-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; margin-bottom: 8px; }
+  .gap-ref  { font-size: 10px; color: var(--cyan); font-family: var(--mono); padding: 4px 7px; background: var(--cyan-dim); border-radius: 4px; }
+
+  /* ─── Gap 1&2: Eval Type Bar ─── */
+  .eval-type-bar {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 14px;
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 9px;
+    margin-bottom: 12px;
+  }
+  .etb-item { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 180px; }
+  .etb-sep { color: var(--text-muted); font-size: 12px; font-family: var(--mono); flex-shrink: 0; }
+  .etb-badge { padding: 3px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; font-family: var(--mono); white-space: nowrap; flex-shrink: 0; }
+  .cap-badge { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(88,166,255,.3); }
+  .reg-badge { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,.3); }
+  .etb-desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
+
+  /* ─── Gap 1: Non-determinism box ─── */
+  .nondeterminism-box {
+    padding: 12px 14px; background: rgba(240,192,64,.04);
+    border: 1px solid rgba(240,192,64,.25); border-radius: 9px; margin-bottom: 14px;
+  }
+  .nd-title { font-size: 12px; font-weight: 600; color: var(--yellow); margin-bottom: 10px; }
+  .nd-body  { display: flex; flex-direction: column; gap: 8px; }
+  .nd-rule  { font-size: 11px; color: var(--text-dim); line-height: 1.5; padding: 8px 10px; background: var(--bg3); border-radius: 6px; }
+  .nd-label { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--yellow-dim); color: var(--yellow); font-size: 10px; font-family: var(--mono); font-weight: 700; margin-right: 6px; }
+
+  /* ─── Gap 3: Task + Grader Spec ─── */
+  .task-grader-spec {
+    margin-top: 14px; padding: 14px;
+    background: rgba(57,208,216,.03); border: 1px solid rgba(57,208,216,.2); border-radius: 9px;
+  }
+  .tgs-title { font-size: 12px; font-weight: 600; color: var(--cyan); margin-bottom: 12px; display: flex; flex-direction: column; gap: 3px; }
+  .tgs-subtitle { font-size: 10px; color: var(--text-dim); font-weight: 400; font-family: var(--mono); }
+  .tgs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+  @media (max-width: 720px) { .tgs-grid { grid-template-columns: 1fr; } }
+  .tgs-item { background: var(--bg3); border-radius: 7px; padding: 10px; border: 1px solid var(--border); }
+  .tgs-num   { font-size: 10px; font-family: var(--mono); color: var(--cyan); font-weight: 700; margin-bottom: 4px; }
+  .tgs-label { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
+  .tgs-example { font-size: 10px; color: var(--text-dim); line-height: 1.5; font-family: var(--mono); }
+  .tgs-example code { color: var(--cyan); font-size: 10px; }
+  .tgs-warn { font-size: 11px; color: var(--orange); padding: 7px 10px; background: var(--orange-dim); border-radius: 6px; line-height: 1.5; }
+
+  /* ─── Gap 4: Saturation box ─── */
+  .saturation-box {
+    padding: 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 9px;
+    margin-bottom: 8px;
+  }
+  .sat-warning {
+    display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px;
+    background: rgba(248,81,73,.04); border: 1px solid rgba(248,81,73,.2); border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .sat-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .sat-text { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  .sat-trigger-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 680px) { .sat-trigger-grid { grid-template-columns: 1fr; } }
+  .sat-trigger { background: var(--bg3); border-radius: 7px; padding: 10px; }
+  .sat-t-label { font-size: 10px; font-family: var(--mono); color: var(--text-muted); font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
+  .sat-t-desc  { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
+
+  /* ─── Gap 5&6: Eval Meta Grid ─── */
+  .eval-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 8px; }
+  @media (max-width: 720px) { .eval-meta-grid { grid-template-columns: 1fr; } }
+  .em-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .em-header {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    background: var(--bg3); font-size: 13px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .em-badge { padding: 2px 8px; border-radius: 5px; font-size: 10px; font-family: var(--mono); font-weight: 700; background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(188,140,255,.3); }
+  .em-body  { padding: 12px 14px; }
+  .em-desc  { font-size: 11px; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
+  .em-rules { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+  .em-rule  { font-size: 11px; padding: 6px 9px; border-radius: 5px; line-height: 1.4; }
+  .em-rule.green { background: var(--green-dim); color: var(--green); }
+  .em-rule.warn  { background: var(--yellow-dim); color: var(--yellow); }
+  .em-rule.red   { background: var(--red-dim); color: var(--red); }
+  .em-note  { font-size: 10px; color: var(--text-muted); font-family: var(--mono); padding: 6px 9px; background: var(--bg3); border-radius: 5px; line-height: 1.4; }
+
+  /* ─── TRAIL Logic Diagram ─── */
+  .trail-logic-diagram {
+    display: flex; flex-direction: column; gap: 0;
+    margin-bottom: 20px;
+  }
+  .tl-layer {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; margin-bottom: 4px;
+  }
+  .tl-layer-l { border-color: rgba(57,208,216,.25); background: rgba(57,208,216,.03); }
+
+  .tl-layer-label {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 13px; font-weight: 600; color: var(--text);
+    margin-bottom: 14px;
+  }
+  .tl-layer-num {
+    padding: 2px 9px; border-radius: 10px;
+    background: var(--bg4); border: 1px solid var(--border-accent);
+    font-size: 10px; font-family: var(--mono); font-weight: 700;
+    color: var(--text-dim);
+  }
+  .tl-layer-sub { font-size: 11px; color: var(--text-dim); font-weight: 400; font-style: italic; }
+
+  .tl-chain {
+    display: flex; align-items: flex-start; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .tl-stage {
+    flex: 1; min-width: 160px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px;
+  }
+  .tl-stage-name  { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+  .tl-stage-break { font-size: 10px; color: var(--red); line-height: 1.4; margin-bottom: 8px; font-family: var(--mono); }
+  .tl-stage-dim {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: 5px;
+    font-size: 11px; font-family: var(--mono); font-weight: 700;
+  }
+  .t-dim { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(88,166,255,.3); }
+  .r-dim { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(63,185,80,.3); }
+  .a-dim { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(227,132,60,.3); }
+  .i-dim { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(188,140,255,.3); }
+
+  .tl-conn { font-size: 18px; color: var(--border-accent); padding-top: 14px; flex-shrink: 0; }
+  .tl-layer-insight {
+    font-size: 11px; color: var(--text-dim); padding: 7px 10px;
+    background: var(--bg3); border-radius: 6px;
+    border-left: 2px solid var(--border-accent); line-height: 1.5;
+  }
+
+  .tl-up-arrow {
+    text-align: center; font-size: 11px; color: var(--text-muted);
+    font-family: var(--mono); padding: 5px 0;
+  }
+
+  .tl-i-block {
+    background: var(--bg3); border-radius: 8px; padding: 12px;
+    border: 1px solid var(--border);
+  }
+  .tl-i-question { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.5; }
+  .tl-i-question em { color: var(--text); font-style: normal; }
+  .tl-i-dim { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
+  .tl-i-note { font-size: 10px; font-family: var(--mono); color: var(--text-muted); line-height: 1.4; padding: 5px 8px; background: var(--bg2); border-radius: 5px; }
+
+  .tl-l-block { background: var(--bg3); border-radius: 8px; padding: 12px; }
+  .tl-l-question { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; }
+  .tl-l-items { display: flex; flex-direction: column; gap: 5px; margin-bottom: 6px; }
+  .tl-l-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--text-dim); }
+  .tl-l-bullet { font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .tl-l-bullet.cyan { color: var(--cyan); }
+  .tl-l-note { font-size: 11px; color: var(--text-dim); padding: 7px 10px; background: var(--bg2); border-radius: 6px; border-left: 2px solid rgba(57,208,216,.4); line-height: 1.5; margin-top: 10px; }
+
+  /* TRAIL summary bar */
+  .trail-logic-summary {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 8px;
+  }
+  .tls-row { display: flex; flex-direction: column; gap: 8px; }
+  .tls-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tls-arrow { color: var(--text-muted); font-size: 13px; }
+  .tls-eq    { color: var(--text-muted); font-size: 13px; font-family: var(--mono); }
+  .tls-result { font-size: 12px; color: var(--text-dim); }
+
+  /* ─── Paradigm Shift ─── */
+  .paradigm-shift {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    gap: 0;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .ps-col { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .ps-old { border-color: rgba(248,81,73,.2); }
+  .ps-new { border-color: rgba(57,208,216,.25); }
+  .ps-col-header {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ps-old .ps-col-header { background: rgba(248,81,73,.05); }
+  .ps-new .ps-col-header { background: rgba(57,208,216,.05); }
+  .ps-badge { padding: 2px 9px; border-radius: 10px; font-size: 10px; font-family: var(--mono); font-weight: 700; }
+  .old-badge { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,81,73,.3); }
+  .new-badge { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(57,208,216,.3); }
+  .ps-col-title { font-size: 12px; font-weight: 600; color: var(--text); }
+  .ps-items { padding: 6px 0; background: var(--bg2); }
+  .ps-item {
+    display: grid; grid-template-columns: 72px 1fr;
+    gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--border);
+    font-size: 11px; align-items: start;
+  }
+  .ps-item:last-child { border-bottom: none; }
+  .ps-dim { color: var(--text-muted); font-family: var(--mono); font-size: 10px; padding-top: 1px; }
+  .ps-val { color: var(--text-dim); line-height: 1.4; }
+  .ps-arrow { text-align: center; font-size: 22px; color: var(--border-accent); }
+
+  /* ─── PIL Cards ─── */
+  .pil-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 720px) { .pil-grid { grid-template-columns: 1fr; } }
+  .pil-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .pil-a { border-color: rgba(240,192,64,.25); }
+  .pil-b { border-color: rgba(63,185,80,.25); }
+  .pil-header { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .pil-a .pil-header { background: rgba(240,192,64,.05); }
+  .pil-b .pil-header { background: rgba(63,185,80,.05); }
+  .pil-badge { padding: 2px 9px; border-radius: 5px; font-size: 11px; font-weight: 700; font-family: var(--mono); }
+  .pa-badge { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(240,192,64,.3); }
+  .pb-badge { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(63,185,80,.3); }
+  .pil-title { font-size: 13px; font-weight: 600; color: #fff; flex: 1; }
+  .pil-who   { font-size: 10px; color: var(--text-dim); font-family: var(--mono); width: 100%; }
+  .pil-body  { padding: 14px; background: var(--bg2); }
+  .pil-question { font-size: 10px; font-weight: 700; color: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .pil-q-text   { font-size: 12px; color: var(--text); font-weight: 500; }
+  .pil-items    { margin-top: 4px; display: flex; flex-direction: column; gap: 5px; }
+  .pil-item { font-size: 11px; color: var(--text-dim); line-height: 1.5; padding: 5px 8px 5px 14px; position: relative; }
+  .pil-item::before { content: '·'; position: absolute; left: 4px; color: var(--border-accent); }
+
+  /* ─── Evolution Flow ─── */
+  .evolution-flow { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  .ev-stage { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  .ev-stage-label { font-size: 10px; font-family: var(--mono); color: var(--text-dim); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+  .ev-node-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .ev-node { padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; text-align: center; font-family: var(--mono); line-height: 1.3; }
+  .ev-node small { display: block; font-size: 9px; opacity: .6; margin-top: 2px; }
+  .ev-node.blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(88,166,255,.3); }
+  .ev-node.cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(57,208,216,.3); }
+  .ev-conn { color: var(--text-muted); font-size: 12px; }
+  .ev-loop { font-size: 10px; color: var(--text-muted); font-family: var(--mono); padding: 3px 8px; border-radius: 4px; background: var(--bg3); border: 1px solid var(--border); white-space: nowrap; }
+  .ev-target { font-size: 11px; color: var(--text-dim); font-style: italic; }
+  .ev-divider { text-align: center; font-size: 12px; color: var(--text-muted); font-family: var(--mono); padding: 2px 0; }
+  .ev-sync { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(57,208,216,.04); border: 1px solid rgba(57,208,216,.2); border-radius: 8px; }
+  .ev-sync-icon { font-size: 18px; color: var(--cyan); flex-shrink: 0; }
+  .ev-sync-text { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+  /* ─── Research Grid ─── */
+  .research-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 720px) { .research-grid { grid-template-columns: 1fr; } }
+  .rg-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 9px; padding: 14px; }
+  .rg-source { font-size: 10px; color: var(--text-muted); font-family: var(--mono); margin-bottom: 5px; }
+  .rg-title  { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  .rg-insight { background: var(--bg3); border-radius: 7px; padding: 10px; border-left: 2px solid var(--border-accent); margin-bottom: 9px; font-size: 11px; color: var(--text-dim); line-height: 1.6; }
+  .rg-insight-label { font-size: 9px; font-family: var(--mono); color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+  .rg-apply { font-size: 11px; color: var(--text-dim); line-height: 1.5; padding: 7px 9px; background: rgba(88,166,255,.04); border: 1px solid rgba(88,166,255,.15); border-radius: 6px; }
+  .rg-apply-label { font-size: 9px; font-family: var(--mono); color: var(--blue); font-weight: 700; margin-bottom: 4px; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-accent); border-radius: 3px; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="page-header">
+  <div class="header-badge">⬡ SKILL EXPERIENCE EVAL FRAMEWORK · v1.0</div>
+  <h1 class="page-title">SaaS Skill化 <span>体验评测体系</span></h1>
+  <p class="page-subtitle">
+    People in Loop 双层评测框架——覆盖 Skill 创建质量门控（Layer A）与生产使用体验持续监测（Layer B），
+    以评测驱动体验优化，构建越用越好的 Skill 自进化飞轮。
+  </p>
+  <div class="header-meta">
+    <span class="meta-item"><span class="meta-dot"></span>TRAIL 5维度量模型</span>
+    <span class="meta-item"><span class="meta-dot" style="background:var(--blue)"></span>SQE-5 创建评测矩阵</span>
+    <span class="meta-item"><span class="meta-dot" style="background:var(--orange)"></span>Gate Protocol 三道门控</span>
+    <span class="meta-item"><span class="meta-dot" style="background:var(--purple)"></span>Layer B 健康仪表盘</span>
+    <span class="meta-item"><span class="meta-dot" style="background:var(--cyan)"></span>知识飞轮闭环</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════ NAV ═══════════════════════ -->
+<nav class="nav-bar">
+  <div class="nav-tab active" onclick="switchTab('research')">背景 · 调研</div>
+  <div class="nav-tab" onclick="switchTab('trail')">TRAIL 模型<span class="tab-num">5</span></div>
+  <div class="nav-tab" onclick="switchTab('layer-a')">Layer A · 创建评测<span class="tab-num">3</span></div>
+  <div class="nav-tab" onclick="switchTab('layer-b')">Layer B · 使用监测<span class="tab-num">3</span></div>
+  <div class="nav-tab" onclick="switchTab('flywheel')">评测飞轮闭环</div>
+  <div class="nav-tab" onclick="switchTab('failures')">失败知识库</div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB 0 · RESEARCH
+══════════════════════════════════════════════════════ -->
+<section id="tab-research" class="section active">
+  <div class="section-title">
+    <span class="icon" style="background:rgba(57,208,216,.1)">🔬</span>
+    背景调研 — 为什么需要这套评测体系？
+  </div>
+  <p class="section-desc">
+    本节梳理 SaaS Skill化的本质挑战、People in Loop 的两个层次、
+    以及从「内容飞轮」到「Skill体验飞轮」的概念演进路径。
+  </p>
+
+  <!-- ── 核心命题 ── -->
+  <div class="map-title">核心命题：SaaS Skill化不是功能迁移，是交互范式的切换</div>
+
+  <div class="paradigm-shift">
+    <div class="ps-col ps-old">
+      <div class="ps-col-header">
+        <span class="ps-badge old-badge">SaaS 时代</span>
+        <div class="ps-col-title">主动操作范式</div>
+      </div>
+      <div class="ps-items">
+        <div class="ps-item">
+          <span class="ps-dim">用户行为</span>
+          <span class="ps-val">主动点击 · 填表单 · 触发按钮</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">体验断点</span>
+          <span class="ps-val">UI 交互问题（找不到按钮、流程不清晰）</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">评测对象</span>
+          <span class="ps-val">交互设计、流程效率、转化漏斗</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">优化手段</span>
+          <span class="ps-val">改界面、改流程、A/B测试</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">失败信号</span>
+          <span class="ps-val">点击率低 · 流程中断 · 表单放弃</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">体验框架</span>
+          <span class="ps-val">HEART / CASTLE / NPS</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ps-arrow">→</div>
+
+    <div class="ps-col ps-new">
+      <div class="ps-col-header">
+        <span class="ps-badge new-badge">Skill 时代</span>
+        <div class="ps-col-title">意图表达范式</div>
+      </div>
+      <div class="ps-items">
+        <div class="ps-item">
+          <span class="ps-dim">用户行为</span>
+          <span class="ps-val">自然语言描述意图，等待 AI 产出</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">体验断点</span>
+          <span class="ps-val">AI 理解问题（没触发 / 理解偏差 / 产出质量差）</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">评测对象</span>
+          <span class="ps-val">意图识别准确率 · 结果质量 · 人工干预必要性</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">优化手段</span>
+          <span class="ps-val">改 Prompt · 改 Skill 定义 · 改评测标准</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">失败信号</span>
+          <span class="ps-val">未触发 · 放弃率 · 重试率 · 人工修正频率</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-dim">体验框架</span>
+          <span class="ps-val"><strong style="color:var(--cyan)">TRAIL</strong>（本框架专门为此设计）</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 为什么 HEART 不够用 -->
+  <div class="note-box" style="border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.04);margin-bottom:28px">
+    <strong>为什么传统 HEART 框架不够用？</strong>
+    HEART（Happiness / Engagement / Adoption / Retention / Task Success）是为 SaaS 界面设计的。
+    对 Skill 场景：Adoption / Retention 没有意义（Skill 是嵌入式的，不存在「主动采用」）；
+    Happiness 太主观，无法指导 Prompt 优化；Task Success 定义模糊（AI 做了 = 成功，还是用户满意 = 成功？）。
+    需要一套针对 <em>意图理解 → AI 执行 → 产出可用</em> 全链路的专属框架。
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── People in Loop 两个层次 ── -->
+  <div class="map-title">People in Loop — 两个完全不同的层次</div>
+  <div class="pil-grid">
+
+    <div class="pil-card pil-a">
+      <div class="pil-header">
+        <span class="pil-badge pa-badge">Layer A</span>
+        <div class="pil-title">Skill 创建层</div>
+        <div class="pil-who">执行人：设计团队 / PD / 平台侧</div>
+      </div>
+      <div class="pil-body">
+        <div class="pil-question">核心问题</div>
+        <div class="pil-q-text">这个 SaaS 功能有没有被正确「翻译」成 Skill？</div>
+        <div class="pil-question" style="margin-top:12px">评测时机</div>
+        <div class="pil-q-text">上线前 · 版本迭代时 · Gate 2 人工抽测</div>
+        <div class="pil-question" style="margin-top:12px">人工介入的价值</div>
+        <div class="pil-items">
+          <div class="pil-item">发现 LLM 自动评测无法感知的「预期偏差」</div>
+          <div class="pil-item">用真实用户视角而非设计者视角验证产出可用度</div>
+          <div class="pil-item">对歧义场景做出 LLM 难以处理的主观判断</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pil-card pil-b">
+      <div class="pil-header">
+        <span class="pil-badge pb-badge">Layer B</span>
+        <div class="pil-title">Skill 使用层</div>
+        <div class="pil-who">执行人：最终用户（自然行为 + 轻量反馈）</div>
+      </div>
+      <div class="pil-body">
+        <div class="pil-question">核心问题</div>
+        <div class="pil-q-text">用户用这个 Skill 完成任务，体验是否顺畅？</div>
+        <div class="pil-question" style="margin-top:12px">评测时机</div>
+        <div class="pil-q-text">持续 · 每周健康检查 · 指标越线时深度分析</div>
+        <div class="pil-question" style="margin-top:12px">人工介入的价值</div>
+        <div class="pil-items">
+          <div class="pil-item">自动指标只能发现「放弃了」，人工分析才能找到「为什么放弃」</div>
+          <div class="pil-item">识别新型失败模式（分布漂移），在自动系统感知之前介入</div>
+          <div class="pil-item">将高置信度的用户反馈转化为 known_failures 知识</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 内容飞轮到 Skill 体验飞轮的演进 ── -->
+  <div class="map-title">概念溯源：从「内容飞轮」到「Skill 体验飞轮」</div>
+  <div class="note-box">
+    本框架的核心机制源自已有的 <strong>infovis-autoevo</strong> 内容飞轮架构（
+    <em>生成 → 多维评测 → Diff计算 → 变异补丁 → 带约束重新生成</em>）。
+    这套机制验证了「评测结论可以被结构化转化为生成约束」的可行性。
+    Skill 体验飞轮将相同的逻辑向上抽象一层，作用对象从「内容质量」扩展到「Skill 定义质量」。
+  </div>
+
+  <div class="evolution-flow">
+
+    <div class="ev-stage">
+      <div class="ev-stage-label">已有架构（内容层）</div>
+      <div class="ev-node-chain">
+        <div class="ev-node blue">Case 输入<br><small>data + intent</small></div>
+        <div class="ev-conn">→</div>
+        <div class="ev-node blue">visual-creator<br><small>生成</small></div>
+        <div class="ev-conn">→</div>
+        <div class="ev-node blue">infovis-evaluator<br><small>三维评测</small></div>
+        <div class="ev-conn">→</div>
+        <div class="ev-node blue">Diff Engine<br><small>差异计算</small></div>
+        <div class="ev-conn">→</div>
+        <div class="ev-node blue">Mutator<br><small>变异补丁</small></div>
+        <div class="ev-conn ev-loop">↺ 循环直到 9.6 分</div>
+      </div>
+      <div class="ev-target">解决：<em>生成出来的内容质量够不够好？</em></div>
+    </div>
+
+    <div class="ev-divider">↓ 向上抽象</div>
+
+    <div class="ev-stage">
+      <div class="ev-stage-label">新增架构（Skill 定义层）</div>
+      <div class="ev-node-chain">
+        <div class="ev-node cyan">Skill 草稿<br><small>description + 示例</small></div>
+        <div class="ev-conn">→</div>
+        <div class="ev-node cyan">SQE-5<br><small>5维评测</small></div>
+        <div class="ev-conn">→</div>
+        <div class="ev-node cyan">失败分类<br><small>P0/P1/P2</small></div>
+        <div class="ev-conn">→</div>
+        <div class="ev-node cyan">体验卡<br><small>人工抽测</small></div>
+        <div class="ev-conn">→</div>
+        <div class="ev-node cyan">Skill 变异补丁<br><small>可注入 description</small></div>
+        <div class="ev-conn ev-loop">↺ 循环直到总分 8.0</div>
+      </div>
+      <div class="ev-target">解决：<em>Skill 本身的定义质量够不够好？用户能顺畅使用吗？</em></div>
+    </div>
+
+    <div class="ev-sync">
+      <div class="ev-sync-icon">⇄</div>
+      <div class="ev-sync-text">
+        两层 <code style="font-family:var(--mono);color:var(--cyan);font-size:11px">known_failures</code> 双向同步：
+        同一类失败在内容层和 Skill 定义层都沉淀，避免两层各自为政
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <hr class="divider">
+
+  <!-- ── TRAIL 框架设计逻辑 ── -->
+  <div class="map-title">TRAIL 框架设计逻辑 — 为什么是这 5 个维度？</div>
+
+  <div class="note-box" style="border-color:rgba(57,208,216,.3);background:rgba(57,208,216,.04);margin-bottom:20px">
+    <strong>TRAIL 是针对本场景自创的框架，不是引用业界标准。</strong>
+    现有框架（HEART / CASTLE）均为 SaaS 界面设计而生，无法覆盖
+    「意图识别 → AI 执行 → 产出可用」这条 Skill 特有的体验链路。
+    TRAIL 的 5 个维度是从这条链路的 3 个层次反向推导出来的。
+  </div>
+
+  <!-- 三层推导图 -->
+  <div class="trail-logic-diagram">
+
+    <!-- 层次一：单次交互质量 -->
+    <div class="tl-layer">
+      <div class="tl-layer-label">
+        <span class="tl-layer-num">层次 1</span>
+        单次交互质量
+        <span class="tl-layer-sub">每一次对话，体验好不好？</span>
+      </div>
+      <div class="tl-chain">
+        <div class="tl-stage">
+          <div class="tl-stage-name">用户表达意图</div>
+          <div class="tl-stage-break">← 断裂点：Skill 没有响应 / 响应了错误的 Skill</div>
+          <div class="tl-stage-dim t-dim">T · Trigger Accuracy</div>
+        </div>
+        <div class="tl-conn">→</div>
+        <div class="tl-stage">
+          <div class="tl-stage-name">Skill 执行任务</div>
+          <div class="tl-stage-break">← 断裂点：需要多轮澄清 / 过程不透明 / 用户中途放弃</div>
+          <div class="tl-stage-dim a-dim">A · Activation Friction</div>
+        </div>
+        <div class="tl-conn">→</div>
+        <div class="tl-stage">
+          <div class="tl-stage-name">用户获得产出</div>
+          <div class="tl-stage-break">← 断裂点：产出不对 / 格式不能用 / 需要大幅修改</div>
+          <div class="tl-stage-dim r-dim">R · Result Quality</div>
+        </div>
+      </div>
+      <div class="tl-layer-insight">T、A、R 是单次对话的三段式：入口 → 过程 → 出口。任意一段断裂，这次体验就失败。</div>
+    </div>
+
+    <div class="tl-up-arrow">↑ 单次体验的汇聚</div>
+
+    <!-- 层次二：能力覆盖完整性 -->
+    <div class="tl-layer">
+      <div class="tl-layer-label">
+        <span class="tl-layer-num">层次 2</span>
+        能力覆盖完整性
+        <span class="tl-layer-sub">这个 Skill 能做的，够不够用？</span>
+      </div>
+      <div class="tl-i-block">
+        <div class="tl-i-question">即使单次体验流畅，用户也可能发现：<em>「我以前在 SaaS 里能做的事，现在做不了了」</em></div>
+        <div class="tl-i-dim">
+          <span class="tl-stage-dim i-dim" style="display:inline-flex">I · Integration Fit</span>
+          衡量 Skill 对原 SaaS 功能集的覆盖度，以及与上下游工作流的衔接程度
+        </div>
+        <div class="tl-i-note">I 维度是 SaaS Skill 化场景特有的——纯 AI 原生产品不需要这个维度，但迁移场景必须有。</div>
+      </div>
+    </div>
+
+    <div class="tl-up-arrow">↑ 单次 + 覆盖的汇聚</div>
+
+    <!-- 层次三：系统自进化 -->
+    <div class="tl-layer tl-layer-l">
+      <div class="tl-layer-label">
+        <span class="tl-layer-num">层次 3</span>
+        系统自进化
+        <span class="tl-layer-sub">越用越好，还是原地踏步？</span>
+      </div>
+      <div class="tl-l-block">
+        <div class="tl-l-question">前 4 个维度衡量「现在怎么样」，L 维度衡量「是否在变好」：</div>
+        <div class="tl-l-items">
+          <div class="tl-l-item">
+            <span class="tl-l-bullet cyan">✓</span>
+            Known Failures 被注入到下一版 Skill 的设计约束里
+          </div>
+          <div class="tl-l-item">
+            <span class="tl-l-bullet cyan">✓</span>
+            新上线 Skill 的 Gate 2 初始评分季度环比上升
+          </div>
+          <div class="tl-l-item">
+            <span class="tl-l-bullet cyan">✓</span>
+            同类 P0 失败不再重复出现
+          </div>
+        </div>
+        <div class="tl-stage-dim" style="display:inline-flex;background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(57,208,216,.3);margin-top:10px">
+          L · Learning Compound — 飞轮是否在转
+        </div>
+        <div class="tl-l-note">L 是整套体系的验证维度。如果 T/R/A/I 的评测结论没有被系统性积累和注入，前 4 个维度的改善只是一次性的，不构成飞轮。</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TRAIL 推导逻辑总结 -->
+  <div class="trail-logic-summary">
+    <div class="tls-row">
+      <div class="tls-item">
+        <span class="tls-dim t-dim">T</span>
+        <span class="tls-arrow">+</span>
+        <span class="tls-dim a-dim">A</span>
+        <span class="tls-arrow">+</span>
+        <span class="tls-dim r-dim">R</span>
+        <span class="tls-eq">=</span>
+        <span class="tls-result">单次对话体验是否流畅</span>
+      </div>
+      <div class="tls-item">
+        <span class="tls-dim i-dim">I</span>
+        <span class="tls-eq">=</span>
+        <span class="tls-result">能力范围是否够用（迁移场景特有）</span>
+      </div>
+      <div class="tls-item">
+        <span class="tls-dim" style="background:var(--cyan-dim);color:var(--cyan);border-color:rgba(57,208,216,.3)">L</span>
+        <span class="tls-eq">=</span>
+        <span class="tls-result">系统是否在自我进化（飞轮验证维度）</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 调研发现：关键外部参照 ── -->
+  <div class="map-title">调研发现：外部最佳实践参照</div>
+  <div class="research-grid">
+
+    <div class="rg-card">
+      <div class="rg-source">Lenny's Newsletter · 2025</div>
+      <div class="rg-title">Beyond Vibe Checks — AI 产品评估指南</div>
+      <div class="rg-insight">
+        <div class="rg-insight-label">核心洞察</div>
+        编写评估正成为 AI PM 最核心的竞争力。三类评估：人工评估（高质量低效率）、代码评估（快速低成本）、
+        LLM评估（高度可扩展）——最佳实践是三者按场景组合，而非只选其一。
+      </div>
+      <div class="rg-apply">
+        <div class="rg-apply-label">本框架应用</div>
+        Gate 0（人工）→ Gate 1（LLM-as-Judge）→ Gate 2（人工）三层正对应此三类评估的混合策略
+      </div>
+    </div>
+
+    <div class="rg-card">
+      <div class="rg-source">getmaxim.ai · 2025</div>
+      <div class="rg-title">AI 智能体 Human-in-the-Loop 反馈系统</div>
+      <div class="rg-insight">
+        <div class="rg-insight-label">核心洞察</div>
+        结构化 HITL 工作流比非结构化手动测试效率提升 10–15 倍。
+        关键：<em>人工专注于自动评估不确定的场景</em>、新颖失败模式、边缘案例——而非覆盖所有 case。
+        「评估毕业」机制：成熟标准从人工转向自动，人工精力聚焦于真正需要判断的地方。
+      </div>
+      <div class="rg-apply">
+        <div class="rg-apply-label">本框架应用</div>
+        Layer B 信号分层正是此逻辑——被动信号自动处理，只有越线时才触发深度人工评审
+      </div>
+    </div>
+
+    <div class="rg-card">
+      <div class="rg-source">arXiv · Agent-in-the-Loop · 2025</div>
+      <div class="rg-title">Data Flywheel for Continuous Improvement</div>
+      <div class="rg-insight">
+        <div class="rg-insight-label">核心洞察</div>
+        数据飞轮的关键不是「收集数据」，而是「让每次人机交互都产生可复用的改进知识」。
+        最有价值的时刻：<em>人工标注与 LLM 自动判断产生分歧的 case</em>——这才是系统盲点所在。
+      </div>
+      <div class="rg-apply">
+        <div class="rg-apply-label">本框架应用</div>
+        Known Failures 的核心写入时机：Gate 2 人工评审与 Gate 1 LLM 评测出现分歧的条目
+      </div>
+    </div>
+
+    <div class="rg-card">
+      <div class="rg-source">自有架构 · infovis-autoevo</div>
+      <div class="rg-title">内容飞轮实战验证（电商部门评分预警图案例）</div>
+      <div class="rg-insight">
+        <div class="rg-insight-label">核心数据</div>
+        3 轮迭代，+4.25 分，从「看不出问题在哪」(5.35分) 到「5秒决策级」(9.60分)。
+        关键机制验证：已知失败列表（known_failures）在轮次间的积累，直接决定了后续迭代效率——
+        第 3 轮只需微调即可过关，因为前两轮的错误已经被系统性记住。
+      </div>
+      <div class="rg-apply">
+        <div class="rg-apply-label">对 Skill 层的启示</div>
+        同样的机制适用于 Skill 定义：知识积累够多之后，新 Skill 的初始质量会显著提升（TRAIL · L 维度）
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 框架自检：已知空白与演进方向 ── -->
+  <div class="map-title">框架自检 — 已知空白与演进方向（对标 Anthropic 最高标准）</div>
+  <div class="note-box" style="margin-bottom:16px">
+    以下 6 个 Gap 是在对标 Anthropic《Demystifying Evals for AI Agents》（Jan 2026）等最高标准后
+    自检发现的——它们已在本框架的 Layer A/B 相关章节中被补充完善，此处作全貌索引。
+  </div>
+  <div class="gaps-grid">
+
+    <div class="gap-card resolved">
+      <div class="gap-header">
+        <span class="gap-num">Gap 1</span>
+        <span class="gap-status resolved-badge">已修复</span>
+        非确定性处理缺失
+      </div>
+      <div class="gap-desc">原方案 SQE-5 只给一次评测分数，没有处理模型随机波动。现已补充：能力评用均值（跑3次），回归评用 pass^k（3次全过才算稳定）。</div>
+      <div class="gap-ref">→ Layer A · Gate 1 · 非确定性处理规则</div>
+    </div>
+
+    <div class="gap-card resolved">
+      <div class="gap-header">
+        <span class="gap-num">Gap 2</span>
+        <span class="gap-status resolved-badge">已修复</span>
+        能力评 vs 回归评未区分
+      </div>
+      <div class="gap-desc">原方案把两种性质不同的评测混用同一套标准。现已明确：新 Skill 上线用能力评（hill-climbing），已上线 Skill 迭代用回归评（防倒退）。</div>
+      <div class="gap-ref">→ Layer A · Gate 1 · 评测类型区分栏</div>
+    </div>
+
+    <div class="gap-card resolved">
+      <div class="gap-header">
+        <span class="gap-num">Gap 3</span>
+        <span class="gap-status resolved-badge">已修复</span>
+        Task + Grader 规范缺失
+      </div>
+      <div class="gap-desc">原方案只说"10 条用户表达"，没有定义什么叫"命中"、谁判、怎么判。现已补充 Task 三条件（两专家可独立判断 / 有 Reference Solution / 失败可从 transcript 定位）。</div>
+      <div class="gap-ref">→ Layer A · Gate 1 · Task + Grader 规范</div>
+    </div>
+
+    <div class="gap-card resolved">
+      <div class="gap-header">
+        <span class="gap-num">Gap 4</span>
+        <span class="gap-status resolved-badge">已修复</span>
+        Eval Saturation（天花板效应）无预警
+      </div>
+      <div class="gap-desc">当所有 Skill 都 9.0+ 时，分数失去区分度，真实退化被高分掩盖。现已补充：触发条件（连续4周均分≥9.0）→ 自动升级题库难度机制。</div>
+      <div class="gap-ref">→ Layer B · Eval Saturation 防天花板机制</div>
+    </div>
+
+    <div class="gap-card resolved">
+      <div class="gap-header">
+        <span class="gap-num">Gap 5</span>
+        <span class="gap-status resolved-badge">已修复</span>
+        Gate 2 多人标注无一致性校验
+      </div>
+      <div class="gap-desc">多人评同一 Skill 时，分差 &gt; 2 说明的是评测标准模糊，而非 Skill 质量差异。现已补充 IAA（Inter-Annotator Agreement）三级规则和月度 Calibration Session 机制。</div>
+      <div class="gap-ref">→ Layer B · 评测质量保障 · IAA 校验</div>
+    </div>
+
+    <div class="gap-card resolved">
+      <div class="gap-header">
+        <span class="gap-num">Gap 6</span>
+        <span class="gap-status resolved-badge">已修复</span>
+        LLM 评测自身未被验证
+      </div>
+      <div class="gap-desc">Gate 1 LLM-as-Judge 的结论可信度从未被检验。现已补充：月度交叉校验机制，相关系数 &lt; 0.70 时暂停 Gate 1 自动化，强制全量人工评。</div>
+      <div class="gap-ref">→ Layer B · 评测质量保障 · LLM vs 人工交叉校验</div>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB 1 · TRAIL MODEL
+══════════════════════════════════════════════════════ -->
+<section id="tab-trail" class="section">
+  <div class="section-title">
+    <span class="icon" style="background:rgba(88,166,255,.12)">📐</span>
+    TRAIL 模型 — Skill 体验的 5 维度量语言
+  </div>
+  <p class="section-desc">
+    TRAIL 是用户侧的体验度量框架，定义了评判一个 Skill 体验好坏的 5 个核心维度。
+    SQE-5 是 Skill 创建质量的检测工具，两者分属不同层次，互为映射而非替代。
+  </p>
+
+  <!-- 5张维度卡片 -->
+  <div class="trail-grid">
+
+    <!-- T -->
+    <div class="trail-card t">
+      <div class="trail-letter">T</div>
+      <div class="trail-name">Trigger Accuracy</div>
+      <div class="trail-name-cn">触发准确率</div>
+      <div class="trail-desc">用户用自然语言表达意图时，Skill 能否被准确唤起？既不漏触发，也不错误触发。</div>
+      <div class="trail-signal">触发准确率 ≥ 85% 为健康</div>
+      <div class="trail-signal">误触发率 ≤ 5% 为健康</div>
+      <div class="trail-layer-badge badge-ab">Layer A + B</div>
+    </div>
+
+    <!-- R -->
+    <div class="trail-card r">
+      <div class="trail-letter">R</div>
+      <div class="trail-name">Result Quality</div>
+      <div class="trail-name-cn">结果质量</div>
+      <div class="trail-desc">AI 产出的内容，用户能否不经大幅修改直接使用？产出格式、完整性、准确性是否满足预期？</div>
+      <div class="trail-signal">产出满意率 ≥ 75% 为健康</div>
+      <div class="trail-signal">重试率 ≤ 12% 为健康</div>
+      <div class="trail-layer-badge badge-ab">Layer A + B</div>
+    </div>
+
+    <!-- A -->
+    <div class="trail-card a">
+      <div class="trail-letter">A</div>
+      <div class="trail-name">Activation Friction</div>
+      <div class="trail-name-cn">激活摩擦力</div>
+      <div class="trail-desc">从用户产生意图到 Skill 开始执行，中间经历了多少认知负担和交互步骤？轮次越多摩擦越大。</div>
+      <div class="trail-signal">单任务轮次 ≤ 2.5 为健康</div>
+      <div class="trail-signal">放弃率 ≤ 15% 为健康</div>
+      <div class="trail-layer-badge badge-b">Layer B 主要</div>
+    </div>
+
+    <!-- I -->
+    <div class="trail-card i">
+      <div class="trail-letter">I</div>
+      <div class="trail-name">Integration Fit</div>
+      <div class="trail-name-cn">集成适配度</div>
+      <div class="trail-desc">Skill 是否覆盖了用户在 SaaS 时代的全量功能需求？是否与上下游工作流无缝衔接？</div>
+      <div class="trail-signal">功能覆盖率 ≥ 90% 为达标</div>
+      <div class="trail-signal">"功能找不到"投诉率 ≤ 5%</div>
+      <div class="trail-layer-badge badge-a">Layer A 主要</div>
+    </div>
+
+    <!-- L -->
+    <div class="trail-card l">
+      <div class="trail-letter">L</div>
+      <div class="trail-name">Learning Compound</div>
+      <div class="trail-name-cn">学习复利</div>
+      <div class="trail-desc">使用越多，Skill 体验是否越来越好？Known Failures 积累后，新 Skill 的初始质量是否持续提升？</div>
+      <div class="trail-signal">Gate 2 初始评分季度环比 ↑</div>
+      <div class="trail-signal">P0 类失败重现率趋近 0%</div>
+      <div class="trail-layer-badge badge-b">长期追踪 (季度)</div>
+    </div>
+
+  </div>
+
+  <!-- 说明注解 -->
+  <div class="note-box">
+    <strong>L 维度是上一版方案的遗漏，也是整套体系最关键的验证维度。</strong>
+    如果飞轮真的在运转，L 维度会是最直接的证据——每季度对比「新上线 Skill 的 Gate 2 初始评分均值」，
+    应当持续上涨。若 L 维度停滞，说明 known_failures 没有真正注入到 Skill 设计流程中，飞轮空转。
+  </div>
+
+  <hr class="divider">
+
+  <!-- TRAIL ↔ SQE-5 映射表 -->
+  <div class="map-title">TRAIL 维度 × SQE-5 × Layer 信号 — 完整映射关系</div>
+  <table class="mapping">
+    <thead>
+      <tr>
+        <th>TRAIL 维度</th>
+        <th>SQE-5 对应维度</th>
+        <th>Layer A 评测点</th>
+        <th>Layer B 监测信号</th>
+        <th>上一版状态</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="dim-badge dim-T">T · 触发准确</span></td>
+        <td><span class="sqe-badge">D1 触发 25%</span></td>
+        <td>10条真实用户表达压测命中率</td>
+        <td>
+          <span class="signal-tag">触发准确率</span>
+          <span class="signal-tag">误触发率</span>
+        </td>
+        <td style="color:var(--green)">✓ 覆盖</td>
+      </tr>
+      <tr>
+        <td><span class="dim-badge dim-R">R · 结果质量</span></td>
+        <td><span class="sqe-badge">D3 产出 30%</span></td>
+        <td>盲测：不看过程，产出能直接用？</td>
+        <td>
+          <span class="signal-tag">产出满意率 👍👎</span>
+          <span class="signal-tag">重试率</span>
+        </td>
+        <td style="color:var(--green)">✓ 覆盖</td>
+      </tr>
+      <tr>
+        <td><span class="dim-badge dim-A">A · 激活摩擦</span></td>
+        <td><span class="sqe-badge">D2 理解 25%</span></td>
+        <td>5条歧义指令测试意图解读准确性</td>
+        <td>
+          <span class="signal-tag">单任务轮次</span>
+          <span class="signal-tag">放弃率</span>
+          <span class="signal-tag">放弃点分析</span>
+        </td>
+        <td style="color:var(--green)">✓ 覆盖</td>
+      </tr>
+      <tr>
+        <td><span class="dim-badge dim-I">I · 集成适配</span></td>
+        <td>
+          <span class="sqe-badge">D4 边界 10%</span>
+          <span class="sqe-badge" style="margin-left:4px">D5 文档 10%</span>
+        </td>
+        <td>3条越界指令测试 + description 语言质量</td>
+        <td>
+          <span class="signal-tag">"功能找不到"投诉</span>
+          <span class="signal-tag">功能覆盖体感分</span>
+        </td>
+        <td style="color:var(--green)">✓ 覆盖</td>
+      </tr>
+      <tr>
+        <td><span class="dim-badge dim-L">L · 学习复利</span></td>
+        <td style="color:var(--text-muted)">— (无直接对应)</td>
+        <td>Known Failures 是否注入下一版 Skill？</td>
+        <td>
+          <span class="signal-tag">Gate2 初始分季度趋势</span>
+          <span class="signal-tag">P0失败重现率</span>
+        </td>
+        <td><span class="missing-badge">✗ 原版遗漏</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 两框架定位说明 -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--blue)"></span>TRAIL — 用户体验的度量语言</div>
+      <p style="font-size:12px;color:var(--text-dim);line-height:1.6">
+        面向<strong style="color:var(--text)">外部</strong>——用来描述和追踪「用户感受到的体验质量」。
+        5 个维度对应用户使用 Skill 全程的体验触点，每个维度都有可量化的健康指标。
+        这是向上汇报（给团队/管理层）时的语言。
+      </p>
+      <div class="tag-row" style="margin-top:10px">
+        <span class="tag">用户感知</span>
+        <span class="tag">持续监测</span>
+        <span class="tag">季度追踪</span>
+        <span class="tag">健康指标</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--orange)"></span>SQE-5 — Skill创建的检测工具</div>
+      <p style="font-size:12px;color:var(--text-dim);line-height:1.6">
+        面向<strong style="color:var(--text)">内部</strong>——用来在 Skill 上线前检测「Skill 定义本身的质量」。
+        5 个维度对应 Skill 设计的 5 个可检测属性，带权重打分，
+        是 Gate 1（LLM 自动评测）和 Gate 2（人工抽测）的评分依据。
+      </p>
+      <div class="tag-row" style="margin-top:10px">
+        <span class="tag">创建检测</span>
+        <span class="tag">上线门控</span>
+        <span class="tag">可自动化</span>
+        <span class="tag">LLM-as-Judge</span>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB 2 · LAYER A
+══════════════════════════════════════════════════════ -->
+<section id="tab-layer-a" class="section">
+  <div class="section-title">
+    <span class="icon" style="background:rgba(227,132,60,.12)">🚦</span>
+    Layer A · Skill 创建评测（三道门控）
+  </div>
+  <p class="section-desc">
+    每一个由 SaaS 功能转化而来的 Skill，在上线前必须通过三道质检关卡。
+    Gate 0 是人工自查，Gate 1 是 LLM 自动评测（SQE-5），Gate 2 是人工体验抽测。
+    任意一关未过，打回修改后重新从 Gate 0 开始。
+  </p>
+
+  <!-- ── Gate Protocol 流程图 ── -->
+  <div class="map-title">Gate Protocol — 三道门控全流程</div>
+
+  <div class="gate-flow">
+
+    <!-- 入口 -->
+    <div class="flow-start">
+      <div class="flow-start-inner">
+        <div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-bottom:4px">INPUT</div>
+        <div style="font-size:13px;font-weight:600;color:#fff">新 Skill / SaaS 功能 Skill 化</div>
+      </div>
+    </div>
+
+    <div class="flow-arrow-v">↓</div>
+
+    <!-- Gate 0 -->
+    <div class="gate-block gate-0">
+      <div class="gate-header">
+        <span class="gate-label g0">Gate 0</span>
+        <span class="gate-title">人工自查清单</span>
+        <span class="gate-who">执行人：Skill 设计者</span>
+      </div>
+      <div class="gate-body">
+        <div class="checklist">
+          <div class="check-item">
+            <span class="check-box">□</span>
+            <span>description 是否包含 <strong>≥ 5 个</strong>用户真实触发短语（而非功能描述语言）？</span>
+          </div>
+          <div class="check-item">
+            <span class="check-box">□</span>
+            <span>是否明确写了 <strong>「不应触发的场景」</strong>（Negative cases）？</span>
+          </div>
+          <div class="check-item">
+            <span class="check-box">□</span>
+            <span>输出格式是否有 <strong>具体示例</strong>（≥1 个完整 Output 样例）？</span>
+          </div>
+          <div class="check-item">
+            <span class="check-box">□</span>
+            <span>关键参数是否可被用户 <strong>自然语言覆盖</strong>（而非硬编码）？</span>
+          </div>
+          <div class="check-item">
+            <span class="check-box">□</span>
+            <span>是否包含 ≥ 1 个完整的 <strong>end-to-end 使用示例</strong>（用户说X → 产出Y）？</span>
+          </div>
+        </div>
+        <div class="gate-rule">
+          <span class="rule-pass">全部 ✓ → 进入 Gate 1</span>
+          <span class="rule-fail">任意 ✗ → 打回修改，不得跳过</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-arrow-v">↓ PASS</div>
+
+    <!-- Gate 1 -->
+    <div class="gate-block gate-1">
+      <div class="gate-header">
+        <span class="gate-label g1">Gate 1</span>
+        <span class="gate-title">SQE-5 自动评测</span>
+        <span class="gate-who">执行人：LLM-as-Judge（可自动化）</span>
+      </div>
+      <div class="gate-body">
+        <!-- Gap 1&2 补充：评测类型区分 + 非确定性处理 -->
+        <div class="eval-type-bar">
+          <div class="etb-item">
+            <span class="etb-badge cap-badge">能力评（Capability Eval）</span>
+            <span class="etb-desc">新 Skill 首次上线时使用。目标低起点，验证「能不能做到」，允许多轮迭代。</span>
+          </div>
+          <div class="etb-sep">vs</div>
+          <div class="etb-item">
+            <span class="etb-badge reg-badge">回归评（Regression Eval）</span>
+            <span class="etb-desc">已上线 Skill 每次迭代后使用。目标接近 100%，验证「还能不能做到原来做到的事」。</span>
+          </div>
+        </div>
+
+        <div class="nondeterminism-box">
+          <div class="nd-title">⚠ 非确定性处理规则（对标 Anthropic pass@k 机制）</div>
+          <div class="nd-body">
+            <div class="nd-rule">
+              <span class="nd-label">能力评</span>
+              D1/D2/D3 各维度各跑 <strong>3 次</strong>，取均值作为维度分。单次波动 ≤ 0.5 为正常，超过说明 Skill 定义本身不稳定，需先修复描述歧义再评测。
+            </div>
+            <div class="nd-rule">
+              <span class="nd-label">回归评</span>
+              使用 <strong>pass^k</strong> 逻辑：k=3 次全部通过（≥ 8.0）才算稳定上线。如果 3 次中有 1 次低于通过线，视为不稳定，需查 transcript 定位根因。
+            </div>
+          </div>
+        </div>
+
+        <!-- SQE-5 矩阵 -->
+        <div class="sqe-matrix">
+          <div class="sqe-row header">
+            <span class="sqe-dim">维度</span>
+            <span class="sqe-weight">权重</span>
+            <span class="sqe-method">评测方法</span>
+            <span class="sqe-threshold">通过线</span>
+          </div>
+          <div class="sqe-row">
+            <span class="sqe-dim"><span class="sqe-d d1">D1 触发</span></span>
+            <span class="sqe-weight">25%</span>
+            <span class="sqe-method">给出 10 条真实用户表达，测试 Skill 命中率</span>
+            <span class="sqe-threshold t-strict">≥ 7.5</span>
+          </div>
+          <div class="sqe-row">
+            <span class="sqe-dim"><span class="sqe-d d2">D2 理解</span></span>
+            <span class="sqe-weight">25%</span>
+            <span class="sqe-method">给出 5 条有歧义的指令，测试 AI 解读是否准确</span>
+            <span class="sqe-threshold t-strict">≥ 7.5</span>
+          </div>
+          <div class="sqe-row">
+            <span class="sqe-dim"><span class="sqe-d d3">D3 产出</span></span>
+            <span class="sqe-weight">30%</span>
+            <span class="sqe-method">盲测：不看过程，产出能直接用？</span>
+            <span class="sqe-threshold t-strict">≥ 7.5</span>
+          </div>
+          <div class="sqe-row">
+            <span class="sqe-dim"><span class="sqe-d d4">D4 边界</span></span>
+            <span class="sqe-weight">10%</span>
+            <span class="sqe-method">给出 3 条越界指令，测试 Skill 是否正确拒绝</span>
+            <span class="sqe-threshold t-normal">≥ 6.0</span>
+          </div>
+          <div class="sqe-row">
+            <span class="sqe-dim"><span class="sqe-d d5">D5 文档</span></span>
+            <span class="sqe-weight">10%</span>
+            <span class="sqe-method">description 是否从用户语言角度写的？</span>
+            <span class="sqe-threshold t-normal">≥ 6.0</span>
+          </div>
+          <div class="sqe-row total">
+            <span class="sqe-dim" style="font-weight:700;color:var(--text)">综合总分</span>
+            <span class="sqe-weight" style="color:var(--text)">100%</span>
+            <span class="sqe-method" style="color:var(--text-dim)">D1×0.25 + D2×0.25 + D3×0.30 + D4×0.10 + D5×0.10</span>
+            <span class="sqe-threshold t-total">≥ 8.0</span>
+          </div>
+        </div>
+
+        <!-- 失败后的变异逻辑 -->
+        <div class="mutation-box">
+          <div class="mut-title">⚙ 自动变异逻辑（分数 &lt; 8.0 时触发）</div>
+          <div class="mut-steps">
+            <div class="mut-step">
+              <span class="mut-num">1</span>
+              <span>识别失分最高的维度（P0 失分 &gt; 2.0 / P1 失分 1–2 / P2 失分 &lt; 1）</span>
+            </div>
+            <div class="mut-step">
+              <span class="mut-num">2</span>
+              <span>生成可直接注入 description 的修复指令（不是问题描述，是操作指令）</span>
+            </div>
+            <div class="mut-step">
+              <span class="mut-num">3</span>
+              <span>将失败模式写入 known_failures（类型 + 修复指令 + 防止重现规则）</span>
+            </div>
+            <div class="mut-step">
+              <span class="mut-num">4</span>
+              <span>携带补丁返回 Gate 0，重新自查后进入 Gate 1 重测</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="gate-rule">
+          <span class="rule-pass">综合分 ≥ 8.0 且 D1/D2/D3 均 ≥ 7.5 → 进入 Gate 2</span>
+          <span class="rule-fail">否则 → 生成变异补丁 → 返回修改</span>
+        </div>
+
+        <!-- Gap 3 补充：Task + Grader 规范 -->
+        <div class="task-grader-spec">
+          <div class="tgs-title">
+            📋 Task + Grader 规范（对标 Anthropic eval task 标准）
+            <span class="tgs-subtitle">每个 SQE-5 测试项必须满足以下 3 个可执行条件</span>
+          </div>
+          <div class="tgs-grid">
+            <div class="tgs-item">
+              <div class="tgs-num">条件 1</div>
+              <div class="tgs-label">两个领域专家独立判断，结论一致</div>
+              <div class="tgs-example">
+                ✗ 模糊：「用户表达自然」<br>
+                ✓ 可判：「用户输入 X，Skill 是否响应了 description 中定义的场景」
+              </div>
+            </div>
+            <div class="tgs-item">
+              <div class="tgs-num">条件 2</div>
+              <div class="tgs-label">有 Reference Solution（标准答案）</div>
+              <div class="tgs-example">
+                每条 D1 测试用例必须写明：<br>
+                <code>input: "帮我生成一个季度报表"</code><br>
+                <code>expected: skill_id = "quarterly-report-skill"</code>
+              </div>
+            </div>
+            <div class="tgs-item">
+              <div class="tgs-num">条件 3</div>
+              <div class="tgs-label">失败原因可从 transcript 直接定位</div>
+              <div class="tgs-example">
+                不能只知道「这次没过」——必须能从对话记录中看出是「触发了错误 Skill」还是「未触发任何 Skill」
+              </div>
+            </div>
+          </div>
+          <div class="tgs-warn">
+            ⚠ 若 0% pass@3（3 次全不通过），优先检查 Task 定义是否有问题，而非认定 Skill 无能力。
+            Anthropic 的实践表明，这种情况 90% 是 eval task 本身的规范缺陷。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-arrow-v">↓ PASS</div>
+
+    <!-- Gate 2 -->
+    <div class="gate-block gate-2">
+      <div class="gate-header">
+        <span class="gate-label g2">Gate 2</span>
+        <span class="gate-title">人工体验抽测</span>
+        <span class="gate-who">执行人：设计师 / PD（People in Loop 核心节点）</span>
+      </div>
+      <div class="gate-body">
+        <p style="font-size:12px;color:var(--text-dim);margin-bottom:14px">
+          用真实场景试用 Skill ≥ 3 次，填写「Skill 体验卡」。
+          任意项 ≤ 6 分强制打回并标注原因，全部 ≥ 7 分允许上线。
+        </p>
+
+        <!-- 体验卡 -->
+        <div class="exp-card">
+          <div class="ec-header">
+            <span class="ec-title">📋 Skill 体验卡 v1.0</span>
+            <span class="ec-meta">测试人：___   日期：___   Skill：___</span>
+          </div>
+          <div class="ec-questions">
+
+            <div class="ec-q">
+              <div class="ec-q-label">
+                <span class="ec-qnum">Q1</span>
+                <span class="ec-qtext">触发自然度 <em>— 我用自然语言说了这件事，Skill 有没有准确响应？</em></span>
+              </div>
+              <div class="ec-scale">
+                <span class="scale-bad">完全没响应 / 响应错了</span>
+                <div class="scale-dots">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                  <span>6</span><span>7</span><span class="s-hi">8</span><span class="s-hi">9</span><span class="s-hi">10</span>
+                </div>
+                <span class="scale-good">完全准确理解</span>
+              </div>
+              <div class="ec-trail-link">→ TRAIL · T 触发准确率 / SQE D1</div>
+            </div>
+
+            <div class="ec-q">
+              <div class="ec-q-label">
+                <span class="ec-qnum">Q2</span>
+                <span class="ec-qtext">产出可用度 <em>— AI 的产出，我能不能直接用？需要多大程度二次加工？</em></span>
+              </div>
+              <div class="ec-scale">
+                <span class="scale-bad">完全不能用 / 需要大改</span>
+                <div class="scale-dots">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                  <span>6</span><span>7</span><span class="s-hi">8</span><span class="s-hi">9</span><span class="s-hi">10</span>
+                </div>
+                <span class="scale-good">直接可用</span>
+              </div>
+              <div class="ec-trail-link">→ TRAIL · R 结果质量 / SQE D3</div>
+            </div>
+
+            <div class="ec-q">
+              <div class="ec-q-label">
+                <span class="ec-qnum">Q3</span>
+                <span class="ec-qtext">意图覆盖度 <em>— 我原本在 SaaS 上能做的事，Skill 都帮我做到了吗？</em></span>
+              </div>
+              <div class="ec-scale">
+                <span class="scale-bad">大量功能丢失</span>
+                <div class="scale-dots">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                  <span>6</span><span>7</span><span class="s-hi">8</span><span class="s-hi">9</span><span class="s-hi">10</span>
+                </div>
+                <span class="scale-good">完整覆盖</span>
+              </div>
+              <div class="ec-trail-link">→ TRAIL · I 集成适配度 / SQE D4+D5</div>
+            </div>
+
+            <div class="ec-q">
+              <div class="ec-q-label">
+                <span class="ec-qnum">Q4</span>
+                <span class="ec-qtext">操控感 <em>— 我感觉自己在驾驭 AI，还是被 AI 牵着走？</em></span>
+              </div>
+              <div class="ec-scale">
+                <span class="scale-bad">完全不知道 AI 要做什么</span>
+                <div class="scale-dots">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                  <span>6</span><span>7</span><span class="s-hi">8</span><span class="s-hi">9</span><span class="s-hi">10</span>
+                </div>
+                <span class="scale-good">清晰可控</span>
+              </div>
+              <div class="ec-trail-link">→ TRAIL · A 激活摩擦力 / SQE D2</div>
+            </div>
+
+            <div class="ec-q">
+              <div class="ec-q-label">
+                <span class="ec-qnum">Q5</span>
+                <span class="ec-qtext">综合体验 <em>— 相比以前用 SaaS，这个 Skill 让我用得更顺还是更难？</em></span>
+              </div>
+              <div class="ec-scale">
+                <span class="scale-bad">明显更难用了</span>
+                <div class="scale-dots">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                  <span>6</span><span>7</span><span class="s-hi">8</span><span class="s-hi">9</span><span class="s-hi">10</span>
+                </div>
+                <span class="scale-good">明显更顺畅</span>
+              </div>
+              <div class="ec-trail-link">→ TRAIL · 综合（跨维度）</div>
+            </div>
+
+          </div>
+          <div class="ec-footer">
+            <div class="ec-open">
+              <div class="ec-open-label">发现的具体问题（必填）</div>
+              <div class="ec-open-box">___________________________________________</div>
+            </div>
+            <div class="ec-open">
+              <div class="ec-open-label">如打回，建议修改哪一项（D1–D5）</div>
+              <div class="ec-open-box">___________________________________________</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gate-rule">
+          <span class="rule-pass">Q1–Q5 均 ≥ 7 分 → 允许上线 ✓</span>
+          <span class="rule-fail">任意项 ≤ 6 分 → 打回，标注原因，从 Gate 0 重新开始</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-arrow-v">↓ PASS</div>
+
+    <!-- 出口 -->
+    <div class="flow-end">
+      <div class="flow-end-inner">
+        <div style="font-size:11px;color:var(--green);font-family:var(--mono);margin-bottom:4px">OUTPUT</div>
+        <div style="font-size:13px;font-weight:600;color:#fff">Skill 上线 → 进入 Layer B 持续监测</div>
+      </div>
+    </div>
+
+  </div><!-- /gate-flow -->
+
+  <!-- 失败类型参考 -->
+  <hr class="divider">
+  <div class="map-title">SaaS Skill 化常见失败类型（Gate 1 评测标准测试用例指南）</div>
+  <div class="failure-types-grid">
+
+    <div class="ft-card">
+      <div class="ft-type"><span class="ft-p p0">P0</span> 意图边界模糊</div>
+      <div class="ft-desc">Skill 能做 A 也能做 B，用户不知道什么时候用；或与其他 Skill 重叠严重。</div>
+      <div class="ft-trigger">触发维度：D1 触发 · D5 文档</div>
+      <div class="ft-fix">修复：在 description 中明确定义 Skill 的唯一专属场景，写出 3 条对比用例</div>
+    </div>
+
+    <div class="ft-card">
+      <div class="ft-type"><span class="ft-p p0">P0</span> 触发词稀疏</div>
+      <div class="ft-desc">用户说了相关的话，但 Skill 没有响应；或只有精确说出关键词才能触发。</div>
+      <div class="ft-trigger">触发维度：D1 触发</div>
+      <div class="ft-fix">修复：用真实用户表达语言重写 description，覆盖口语化、缩写、上下文触发等模式</div>
+    </div>
+
+    <div class="ft-card">
+      <div class="ft-type"><span class="ft-p p1">P1</span> 参数硬编码</div>
+      <div class="ft-desc">SaaS 的表单字段被直接映射成固定参数，用户无法通过自然语言调整。</div>
+      <div class="ft-trigger">触发维度：D2 理解 · D4 边界</div>
+      <div class="ft-fix">修复：将关键参数改为可被自然语言覆盖的可选项，并在 description 中举例说明</div>
+    </div>
+
+    <div class="ft-card">
+      <div class="ft-type"><span class="ft-p p1">P1</span> 输出格式不可用</div>
+      <div class="ft-desc">AI 产出了内容，但格式/结构与用户下游使用场景不匹配，需大量二次处理。</div>
+      <div class="ft-trigger">触发维度：D3 产出</div>
+      <div class="ft-fix">修复：在 description 中明确输出格式规范，提供 ≥1 个完整产出示例</div>
+    </div>
+
+    <div class="ft-card">
+      <div class="ft-type"><span class="ft-p p1">P1</span> 能力边界缺失</div>
+      <div class="ft-desc">用户问了 Skill 不能做的事，AI 没有拒绝或说明，而是给出错误/幻觉性回答。</div>
+      <div class="ft-trigger">触发维度：D4 边界</div>
+      <div class="ft-fix">修复：在 description 中显式定义「本 Skill 不处理的场景」，并标注推荐的替代 Skill</div>
+    </div>
+
+    <div class="ft-card">
+      <div class="ft-type"><span class="ft-p p2">P2</span> 预期偏差</div>
+      <div class="ft-desc">Skill 的功能定义与用户的心智模型不一致，用户以为能做 A，实际做的是 A'。</div>
+      <div class="ft-trigger">触发维度：D5 文档 · D2 理解</div>
+      <div class="ft-fix">修复：重写 description 使用用户语言，避免内部技术术语；增加场景对比说明</div>
+    </div>
+
+  </div>
+
+</section>
+
+<style>
+/* ──────────────────── Gate Flow ──────────────────── */
+.gate-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 28px;
+}
+.flow-start, .flow-end {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0;
+}
+.flow-start-inner, .flow-end-inner {
+  background: var(--bg3);
+  border: 1px solid var(--border-accent);
+  border-radius: 8px;
+  padding: 10px 28px;
+  text-align: center;
+  min-width: 280px;
+}
+.flow-end-inner { border-color: rgba(63,185,80,.4); background: var(--green-dim); }
+.flow-arrow-v {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 18px;
+  padding: 4px 0;
+  font-family: var(--mono);
+  line-height: 1;
+}
+
+.gate-block {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 2px 0;
+}
+.gate-0 { border-color: rgba(240,192,64,.2); }
+.gate-1 { border-color: rgba(88,166,255,.2); }
+.gate-2 { border-color: rgba(188,140,255,.2); }
+
+.gate-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.gate-0 .gate-header { background: rgba(240,192,64,.05); border-bottom-color: rgba(240,192,64,.15); }
+.gate-1 .gate-header { background: rgba(88,166,255,.05); border-bottom-color: rgba(88,166,255,.15); }
+.gate-2 .gate-header { background: rgba(188,140,255,.05); border-bottom-color: rgba(188,140,255,.15); }
+
+.gate-label {
+  padding: 2px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+.g0 { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(240,192,64,.3); }
+.g1 { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(88,166,255,.3); }
+.g2 { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(188,140,255,.3); }
+
+.gate-title { font-size: 13px; font-weight: 600; color: #fff; flex: 1; }
+.gate-who   { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
+
+.gate-body { padding: 16px; background: var(--bg2); }
+
+/* checklist */
+.checklist { margin-bottom: 14px; }
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.check-item:last-child { border-bottom: none; }
+.check-item strong { color: var(--text); }
+.check-box {
+  width: 16px; height: 16px;
+  border: 1px solid var(--border-accent);
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  color: var(--yellow);
+}
+
+/* gate rule */
+.gate-rule {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.rule-pass, .rule-fail {
+  padding: 4px 12px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-family: var(--mono);
+}
+.rule-pass { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,.25); }
+.rule-fail  { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(248,81,73,.25); }
+
+/* SQE-5 matrix */
+.sqe-matrix {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.sqe-row {
+  display: grid;
+  grid-template-columns: 100px 54px 1fr 80px;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.sqe-row:last-child { border-bottom: none; }
+.sqe-row.header {
+  background: var(--bg4);
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+.sqe-row.header > span { padding: 8px 10px; }
+.sqe-row > span { padding: 9px 10px; font-size: 12px; }
+.sqe-row.total { background: rgba(255,255,255,.03); }
+
+.sqe-d {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-family: var(--mono); font-weight: 600;
+}
+.d1 { background: var(--blue-dim);   color: var(--blue); }
+.d2 { background: var(--orange-dim); color: var(--orange); }
+.d3 { background: var(--green-dim);  color: var(--green); }
+.d4 { background: var(--purple-dim); color: var(--purple); }
+.d5 { background: var(--yellow-dim); color: var(--yellow); }
+
+.sqe-threshold {
+  font-family: var(--mono); font-weight: 700; font-size: 12px;
+  text-align: center;
+}
+.t-strict { color: var(--red); }
+.t-normal { color: var(--yellow); }
+.t-total  { color: var(--green); font-size: 13px; }
+
+/* mutation box */
+.mutation-box {
+  background: rgba(88,166,255,.04);
+  border: 1px solid rgba(88,166,255,.15);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.mut-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 10px;
+  font-family: var(--mono);
+}
+.mut-steps { display: flex; flex-direction: column; gap: 6px; }
+.mut-step {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 12px; color: var(--text-dim);
+}
+.mut-num {
+  width: 18px; height: 18px;
+  background: var(--blue-dim);
+  border: 1px solid rgba(88,166,255,.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-family: var(--mono);
+  color: var(--blue); flex-shrink: 0;
+}
+
+/* experience card */
+.exp-card {
+  background: var(--bg3);
+  border: 1px solid var(--border-accent);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.ec-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--bg4);
+  border-bottom: 1px solid var(--border);
+}
+.ec-title { font-size: 12px; font-weight: 600; color: #fff; }
+.ec-meta  { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
+
+.ec-questions { padding: 0; }
+.ec-q {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.ec-q:last-child { border-bottom: none; }
+.ec-q-label { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.ec-qnum {
+  width: 22px; height: 22px;
+  background: var(--purple-dim);
+  border: 1px solid rgba(188,140,255,.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-family: var(--mono); font-weight: 700;
+  color: var(--purple); flex-shrink: 0;
+}
+.ec-qtext { font-size: 12px; color: var(--text); }
+.ec-qtext em { color: var(--text-dim); font-style: normal; }
+
+.ec-scale {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 6px; flex-wrap: wrap;
+}
+.scale-bad, .scale-good { font-size: 10px; color: var(--text-muted); font-family: var(--mono); flex-shrink: 0; }
+.scale-dots {
+  display: flex; gap: 4px; flex: 1; justify-content: center; flex-wrap: wrap;
+}
+.scale-dots span {
+  width: 24px; height: 24px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-family: var(--mono); color: var(--text-dim);
+  cursor: pointer;
+}
+.scale-dots span.s-hi {
+  border-color: rgba(63,185,80,.3);
+  color: var(--green);
+  background: var(--green-dim);
+}
+
+.ec-trail-link {
+  font-size: 10px; font-family: var(--mono);
+  color: var(--text-muted);
+}
+
+.ec-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; }
+.ec-open { flex: 1; min-width: 200px; }
+.ec-open-label { font-size: 10px; color: var(--text-dim); margin-bottom: 5px; font-family: var(--mono); }
+.ec-open-box { height: 28px; border-bottom: 1px solid var(--border-accent); font-size: 11px; color: var(--text-muted); padding: 4px 0; }
+
+/* failure types */
+.failure-types-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 800px) { .failure-types-grid { grid-template-columns: 1fr 1fr; } }
+
+.ft-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+.ft-type {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; color: var(--text);
+  margin-bottom: 7px;
+}
+.ft-p {
+  padding: 1px 7px; border-radius: 4px;
+  font-size: 10px; font-family: var(--mono); font-weight: 700;
+}
+.p0 { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,81,73,.2); }
+.p1 { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(227,132,60,.2); }
+.p2 { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(240,192,64,.2); }
+
+.ft-desc { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; line-height: 1.5; }
+.ft-trigger { font-size: 10px; font-family: var(--mono); color: var(--text-muted); margin-bottom: 6px; }
+.ft-fix { font-size: 11px; color: var(--text-dim); padding: 6px 8px; background: var(--bg3); border-radius: 5px; border-left: 2px solid var(--border-accent); line-height: 1.5; }
+</style>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB 3 · LAYER B
+══════════════════════════════════════════════════════ -->
+<section id="tab-layer-b" class="section">
+  <div class="section-title">
+    <span class="icon" style="background:rgba(63,185,80,.12)">📊</span>
+    Layer B · 生产使用监测（持续评测）
+  </div>
+  <p class="section-desc">
+    Skill 上线后进入持续监测阶段。三类信号按采集成本和信号质量分层，
+    触达阈值后自动升级为深度人工评审。所有发现最终转化为可执行的 Skill 变异补丁。
+  </p>
+
+  <!-- ── 信号采集分层 ── -->
+  <div class="map-title">信号采集三层架构（采集成本 × 信号质量）</div>
+  <div class="signal-pyramid">
+
+    <!-- Layer 3：深度评审（顶部，低量高质） -->
+    <div class="sp-tier sp-t3">
+      <div class="sp-tier-header">
+        <div class="sp-tier-label">
+          <span class="sp-num">③</span>
+          <span class="sp-tname">深度人工评审</span>
+          <span class="sp-tbadge t3b">低量 · 最高质</span>
+        </div>
+        <span class="sp-trigger">触发条件：放弃率 &gt; 20% 或任意 TRAIL 指标越线</span>
+      </div>
+      <div class="sp-signals">
+        <div class="sp-sig">
+          <span class="sp-sig-icon">👁</span>
+          <div>
+            <div class="sp-sig-name">每 Skill 每周抽取 ≥ 20 条对话</div>
+            <div class="sp-sig-desc">按 SQE-5 维度人工评分，产出维度失分分布报告</div>
+          </div>
+        </div>
+        <div class="sp-sig">
+          <span class="sp-sig-icon">🔍</span>
+          <div>
+            <div class="sp-sig-name">放弃点精细分析</div>
+            <div class="sp-sig-desc">抽取 50 条放弃对话，人工分类放弃原因（5 类归因）</div>
+          </div>
+        </div>
+        <div class="sp-sig">
+          <span class="sp-sig-icon">🧑‍🤝‍🧑</span>
+          <div>
+            <div class="sp-sig-name">新 / 老用户触发模式对比</div>
+            <div class="sp-sig-desc">识别新用户的语言模式与 description 的差异，用于扩充触发词</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 2：轻量主动信号 -->
+    <div class="sp-tier sp-t2">
+      <div class="sp-tier-header">
+        <div class="sp-tier-label">
+          <span class="sp-num">②</span>
+          <span class="sp-tname">轻量主动信号</span>
+          <span class="sp-tbadge t2b">中量 · 中等质</span>
+        </div>
+        <span class="sp-trigger">用户单次低成本反馈，自动聚合统计</span>
+      </div>
+      <div class="sp-signals">
+        <div class="sp-sig">
+          <span class="sp-sig-icon">👍👎</span>
+          <div>
+            <div class="sp-sig-name">产出评价按钮</div>
+            <div class="sp-sig-desc">对本次产出的快速评价。聚合为「产出满意率」，对应 TRAIL · R</div>
+          </div>
+        </div>
+        <div class="sp-sig">
+          <span class="sp-sig-icon">↩</span>
+          <div>
+            <div class="sp-sig-name">撤回 / 重做操作</div>
+            <div class="sp-sig-desc">隐式「不满意」信号。追踪撤回率，峰值对应特定产出类型问题</div>
+          </div>
+        </div>
+        <div class="sp-sig">
+          <span class="sp-sig-icon">✏️</span>
+          <div>
+            <div class="sp-sig-name">「帮我改成…」指令</div>
+            <div class="sp-sig-desc">隐式「产出需修正」信号。高频修正指令揭示 D3 产出质量系统缺陷</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 1：被动信号（底部，高量低质） -->
+    <div class="sp-tier sp-t1">
+      <div class="sp-tier-header">
+        <div class="sp-tier-label">
+          <span class="sp-num">①</span>
+          <span class="sp-tname">被动信号</span>
+          <span class="sp-tbadge t1b">最高量 · 最低质</span>
+        </div>
+        <span class="sp-trigger">用户不做任何操作自然产生，系统自动采集</span>
+      </div>
+      <div class="sp-signals sp-grid">
+        <div class="sp-sig-sm">
+          <div class="sp-sig-sm-name">触发准确率</div>
+          <div class="sp-sig-sm-desc">某功能有多少比例用 Skill 完成</div>
+          <span class="trail-link-sm">TRAIL · T</span>
+        </div>
+        <div class="sp-sig-sm">
+          <div class="sp-sig-sm-name">单任务轮次</div>
+          <div class="sp-sig-sm-desc">完成一个任务需要几轮对话</div>
+          <span class="trail-link-sm">TRAIL · A</span>
+        </div>
+        <div class="sp-sig-sm">
+          <div class="sp-sig-sm-name">放弃率</div>
+          <div class="sp-sig-sm-desc">中途停止未完成任务的比例</div>
+          <span class="trail-link-sm">TRAIL · A</span>
+        </div>
+        <div class="sp-sig-sm">
+          <div class="sp-sig-sm-name">重试率</div>
+          <div class="sp-sig-sm-desc">「重新做 / 再试一次」的频率</div>
+          <span class="trail-link-sm">TRAIL · R</span>
+        </div>
+        <div class="sp-sig-sm">
+          <div class="sp-sig-sm-name">误触发率</div>
+          <div class="sp-sig-sm-desc">Skill 被错误场景触发的比例</div>
+          <span class="trail-link-sm">TRAIL · T</span>
+        </div>
+        <div class="sp-sig-sm">
+          <div class="sp-sig-sm-name">功能投诉率</div>
+          <div class="sp-sig-sm-desc">「找不到功能 / 做不到」的反馈</div>
+          <span class="trail-link-sm">TRAIL · I</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /signal-pyramid -->
+
+  <hr class="divider">
+
+  <!-- ── Gap 4: Eval Saturation 预警 ── -->
+  <div class="map-title">Eval Saturation 防天花板机制</div>
+  <div class="saturation-box">
+    <div class="sat-warning">
+      <span class="sat-icon">⚡</span>
+      <div class="sat-text">
+        <strong>当所有 Skill 的 Gate 2 平均分 &gt; 9.0 时，评测已经饱和</strong>——
+        分数不再有区分度，真实的能力退化会被「高分假象」掩盖。
+        这与 Anthropic 的 eval saturation 警告完全对应（SWE-Bench 从 30% 涨到 80%+ 后进入饱和区）。
+      </div>
+    </div>
+    <div class="sat-trigger-grid">
+      <div class="sat-trigger">
+        <div class="sat-t-label">触发条件</div>
+        <div class="sat-t-desc">全平台 Skill 平均 Gate 2 分 ≥ 9.0，连续 4 周</div>
+      </div>
+      <div class="sat-trigger">
+        <div class="sat-t-label">升级动作</div>
+        <div class="sat-t-desc">在 D1/D2/D3 的测试集中替换 30% 为「高难度 case」（歧义指令 / 跨 Skill 意图 / 复杂上下文）</div>
+      </div>
+      <div class="sat-trigger">
+        <div class="sat-t-label">目标状态</div>
+        <div class="sat-t-desc">升级后通过率回落到 75–85% 区间，确保评测仍有区分度可以衡量进步</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── Gap 5: IAA 标注一致性 + Gap 6: 评测元验证 ── -->
+  <div class="map-title">评测质量保障 — 让评测本身可信</div>
+  <div class="eval-meta-grid">
+
+    <div class="em-card">
+      <div class="em-header">
+        <span class="em-badge">Gap 5</span>
+        IAA 标注者一致性校验
+      </div>
+      <div class="em-body">
+        <div class="em-desc">
+          Gate 2 体验卡由多人填写时，必须计算 <strong>Inter-Annotator Agreement（IAA）</strong>。
+          两人在同一 Skill 同一维度的分差 &gt; 2.0，说明评测标准模糊，需要先校准标准，而非取平均。
+        </div>
+        <div class="em-rules">
+          <div class="em-rule green">✓ IAA &lt; 1.5 — 标准清晰，结果可信，取均值</div>
+          <div class="em-rule warn">⚠ IAA 1.5–2.5 — 存在歧义，需召开校准会，对齐后重测</div>
+          <div class="em-rule red">✗ IAA &gt; 2.5 — 评测标准本身有问题，修复 Rubric 后重新发起</div>
+        </div>
+        <div class="em-note">频率：每月至少一次 Calibration Session，至少 3 人共同评同一批 Skill</div>
+      </div>
+    </div>
+
+    <div class="em-card">
+      <div class="em-header">
+        <span class="em-badge">Gap 6</span>
+        LLM 评测 vs 人工评测 交叉校验
+      </div>
+      <div class="em-body">
+        <div class="em-desc">
+          Gate 1（LLM-as-Judge）的可信度需要定期用 Gate 2 人工结果来校准。
+          若 LLM 评分与人工评分的 <strong>相关系数 &lt; 0.7</strong>，LLM Rubric 需要重写。
+        </div>
+        <div class="em-rules">
+          <div class="em-rule green">✓ 相关系数 ≥ 0.85 — LLM 评测可信，维持现有 Rubric</div>
+          <div class="em-rule warn">⚠ 相关系数 0.70–0.85 — 偏差可控，记录偏差类型，定向优化 Rubric</div>
+          <div class="em-rule red">✗ 相关系数 &lt; 0.70 — LLM 评测不可信，暂停 Gate 1 自动化，全量人工评</div>
+        </div>
+        <div class="em-note">频率：每月抽取 20 个 Skill 做双盲交叉验证。发现「LLM 给高分，人工给低分」的 case 优先写入 Known Failures。</div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 健康仪表盘 ── -->
+  <div class="map-title">Skill 健康仪表盘（每 Skill 独立追踪）</div>
+
+  <div class="dashboard-container">
+    <!-- 仪表盘卡片示例 -->
+    <div class="db-card">
+      <div class="db-card-header">
+        <div class="db-skill-name">visual-creator</div>
+        <div class="db-period">本周 · 2026-W12</div>
+        <div class="db-overall good">健康</div>
+      </div>
+      <div class="db-metrics">
+        <div class="db-metric green">
+          <div class="db-m-label">触发准确率 <span class="trail-dot t-dot">T</span></div>
+          <div class="db-m-value">87%</div>
+          <div class="db-m-target">目标 ≥85%</div>
+          <div class="db-m-delta up">↑ +3%</div>
+          <div class="db-m-bar"><div class="db-m-fill" style="width:87%;background:var(--green)"></div></div>
+        </div>
+        <div class="db-metric warn">
+          <div class="db-m-label">单任务轮次 <span class="trail-dot a-dot">A</span></div>
+          <div class="db-m-value">3.2轮</div>
+          <div class="db-m-target">目标 ≤2.5轮</div>
+          <div class="db-m-delta down">↑ +0.4 ⚠</div>
+          <div class="db-m-bar"><div class="db-m-fill" style="width:72%;background:var(--yellow)"></div></div>
+        </div>
+        <div class="db-metric alert">
+          <div class="db-m-label">放弃率 <span class="trail-dot a-dot">A</span></div>
+          <div class="db-m-value">22%</div>
+          <div class="db-m-target">目标 ≤15%</div>
+          <div class="db-m-delta down">↑ +5% 🔴</div>
+          <div class="db-m-bar"><div class="db-m-fill" style="width:22%;background:var(--red)"></div></div>
+        </div>
+        <div class="db-metric green">
+          <div class="db-m-label">产出满意率 <span class="trail-dot r-dot">R</span></div>
+          <div class="db-m-value">78%</div>
+          <div class="db-m-target">目标 ≥75%</div>
+          <div class="db-m-delta neutral">→ 持平</div>
+          <div class="db-m-bar"><div class="db-m-fill" style="width:78%;background:var(--green)"></div></div>
+        </div>
+        <div class="db-metric green">
+          <div class="db-m-label">重试率 <span class="trail-dot r-dot">R</span></div>
+          <div class="db-m-value">9%</div>
+          <div class="db-m-target">目标 ≤12%</div>
+          <div class="db-m-delta up">↓ -2%</div>
+          <div class="db-m-bar"><div class="db-m-fill" style="width:9%;background:var(--green)"></div></div>
+        </div>
+      </div>
+      <div class="db-alerts">
+        <div class="db-alert-title">⚠ 本周需进入深度评审的信号</div>
+        <div class="db-alert-item">放弃率异常上升 +5%（超过阈值 20%），需抽样分析放弃点</div>
+        <div class="db-alert-item">单任务轮次超标，可能存在意图理解偏差（D2）</div>
+        <div class="db-action-btn" onclick="showAbandonment()">→ 查看放弃点分析</div>
+      </div>
+    </div>
+
+    <!-- TRAIL · L 季度追踪 -->
+    <div class="db-card" style="grid-column: span 1;">
+      <div class="db-card-header">
+        <div class="db-skill-name">TRAIL · L 复利追踪</div>
+        <div class="db-period">季度维度 · 飞轮验证指标</div>
+      </div>
+      <div class="l-chart">
+        <div class="l-chart-title">Gate 2 初始评分季度趋势（越高 = 飞轮在转）</div>
+        <div class="l-bars">
+          <div class="l-bar-group">
+            <div class="l-bar" style="height:52%"><span class="l-bar-val">6.8</span></div>
+            <div class="l-bar-label">Q3'25</div>
+          </div>
+          <div class="l-bar-group">
+            <div class="l-bar" style="height:66%"><span class="l-bar-val">7.4</span></div>
+            <div class="l-bar-label">Q4'25</div>
+          </div>
+          <div class="l-bar-group">
+            <div class="l-bar" style="height:78%"><span class="l-bar-val">7.9</span></div>
+            <div class="l-bar-label">Q1'26</div>
+          </div>
+          <div class="l-bar-group current">
+            <div class="l-bar active" style="height:88%"><span class="l-bar-val">8.5</span></div>
+            <div class="l-bar-label">Q2'26</div>
+          </div>
+        </div>
+        <div class="l-baseline">
+          <span style="border-top:1px dashed var(--yellow);width:100%;display:block;position:relative">
+            <span style="position:absolute;right:0;top:-14px;font-size:9px;color:var(--yellow);font-family:var(--mono)">上线目标 8.0</span>
+          </span>
+        </div>
+        <div class="l-insight">
+          <span class="l-ok">✓</span> 季度环比持续上涨，known_failures 有效注入 Skill 设计流程
+        </div>
+      </div>
+      <div class="db-metrics" style="margin-top:12px">
+        <div class="db-metric green">
+          <div class="db-m-label">P0 失败重现率</div>
+          <div class="db-m-value">2%</div>
+          <div class="db-m-target">目标趋近 0%</div>
+          <div class="db-m-delta up">↓ -6%</div>
+          <div class="db-m-bar"><div class="db-m-fill" style="width:2%;background:var(--green)"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 放弃点分析 ── -->
+  <div id="abandonment-section" class="map-title">放弃点分析（体验塌陷诊断）</div>
+  <div class="note-box" style="border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.04)">
+    <strong>放弃率 &gt; 20% 时强制触发深度人工诊断。</strong>
+    抽取 50 条放弃对话，按下方 5 类归因人工分类，每类对应不同的修复路径。
+  </div>
+
+  <div class="abandon-grid">
+
+    <div class="ab-card">
+      <div class="ab-type">
+        <span class="ab-num" style="background:var(--red-dim);color:var(--red)">类型 1</span>
+        意图没被理解
+      </div>
+      <div class="ab-symptom">Skill 根本没触发，或触发了错误的 Skill</div>
+      <div class="ab-trail">TRAIL · T 失分 · SQE D1 问题</div>
+      <div class="ab-fix">
+        <div class="ab-fix-label">修复方向</div>
+        <div>扩充 description 触发词覆盖更多用户真实表达；优化意图路由逻辑</div>
+      </div>
+    </div>
+
+    <div class="ab-card">
+      <div class="ab-type">
+        <span class="ab-num" style="background:var(--orange-dim);color:var(--orange)">类型 2</span>
+        产出质量差
+      </div>
+      <div class="ab-symptom">触发成功，但结果不对 / 格式不能用 / 内容不完整</div>
+      <div class="ab-trail">TRAIL · R 失分 · SQE D3 问题</div>
+      <div class="ab-fix">
+        <div class="ab-fix-label">修复方向</div>
+        <div>优化 Prompt 约束层；在 description 中增加产出格式规范和完整示例</div>
+      </div>
+    </div>
+
+    <div class="ab-card">
+      <div class="ab-type">
+        <span class="ab-num" style="background:var(--yellow-dim);color:var(--yellow)">类型 3</span>
+        过程不透明
+      </div>
+      <div class="ab-symptom">用户不知道 AI 在做什么，等待过程无反馈，放弃等待</div>
+      <div class="ab-trail">TRAIL · A 失分 · SQE D2 问题</div>
+      <div class="ab-fix">
+        <div class="ab-fix-label">修复方向</div>
+        <div>增加执行过程说明；在关键决策点添加用户确认步骤</div>
+      </div>
+    </div>
+
+    <div class="ab-card">
+      <div class="ab-type">
+        <span class="ab-num" style="background:var(--purple-dim);color:var(--purple)">类型 4</span>
+        功能缺失
+      </div>
+      <div class="ab-symptom">用户想做的事，当前 Skill 能力范围覆盖不到</div>
+      <div class="ab-trail">TRAIL · I 失分 · SQE D4 问题</div>
+      <div class="ab-fix">
+        <div class="ab-fix-label">修复方向</div>
+        <div>扩展 Skill 能力边界，或拆分成多个子 Skill；优先级 ≥ P1 时纳入迭代排期</div>
+      </div>
+    </div>
+
+    <div class="ab-card">
+      <div class="ab-type">
+        <span class="ab-num" style="background:var(--blue-dim);color:var(--blue)">类型 5</span>
+        预期偏差
+      </div>
+      <div class="ab-symptom">Skill 做了某件事，但不是用户期望的那件事；心智模型不匹配</div>
+      <div class="ab-trail">TRAIL · I / T 失分 · SQE D5 问题</div>
+      <div class="ab-fix">
+        <div class="ab-fix-label">修复方向</div>
+        <div>重写 description 使用用户语言，明确说明「Skill 做什么 / 不做什么」</div>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<style>
+/* ─── Signal Pyramid ─── */
+.signal-pyramid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.sp-tier {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.sp-t3 { border-color: rgba(188,140,255,.25); }
+.sp-t2 { border-color: rgba(88,166,255,.2); }
+.sp-t1 { border-color: rgba(63,185,80,.2); }
+
+.sp-tier-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sp-t3 .sp-tier-header { background: rgba(188,140,255,.05); }
+.sp-t2 .sp-tier-header { background: rgba(88,166,255,.04); }
+.sp-t1 .sp-tier-header { background: rgba(63,185,80,.04); }
+
+.sp-tier-label { display: flex; align-items: center; gap: 8px; }
+.sp-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-family: var(--mono); font-weight: 700;
+  flex-shrink: 0;
+}
+.sp-t3 .sp-num { background: var(--purple-dim); color: var(--purple); }
+.sp-t2 .sp-num { background: var(--blue-dim);   color: var(--blue); }
+.sp-t1 .sp-num { background: var(--green-dim);  color: var(--green); }
+
+.sp-tname { font-size: 12px; font-weight: 600; color: var(--text); }
+.sp-tbadge {
+  padding: 1px 8px; border-radius: 10px;
+  font-size: 10px; font-family: var(--mono);
+}
+.t3b { background: var(--purple-dim); color: var(--purple); }
+.t2b { background: var(--blue-dim);   color: var(--blue); }
+.t1b { background: var(--green-dim);  color: var(--green); }
+
+.sp-trigger { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
+
+.sp-signals { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+.sp-sig {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px; background: var(--bg3); border-radius: 7px;
+  border: 1px solid var(--border);
+}
+.sp-sig-icon { font-size: 16px; flex-shrink: 0; width: 24px; text-align: center; padding-top: 2px; }
+.sp-sig-name { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.sp-sig-desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
+
+.sp-signals.sp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px 14px;
+}
+@media (max-width: 720px) { .sp-signals.sp-grid { grid-template-columns: 1fr 1fr; } }
+
+.sp-sig-sm {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 7px; padding: 10px;
+}
+.sp-sig-sm-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.sp-sig-sm-desc { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; line-height: 1.4; }
+.trail-link-sm {
+  display: inline-block; padding: 1px 6px;
+  border-radius: 4px; font-size: 10px;
+  font-family: var(--mono); font-weight: 600;
+  background: var(--bg4); border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+/* ─── Dashboard ─── */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+@media (max-width: 860px) { .dashboard-container { grid-template-columns: 1fr; } }
+
+.db-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.db-card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+  flex-wrap: wrap;
+}
+.db-skill-name { font-size: 13px; font-weight: 700; color: #fff; font-family: var(--mono); flex: 1; }
+.db-period { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
+.db-overall {
+  padding: 2px 10px; border-radius: 10px;
+  font-size: 10px; font-weight: 600; font-family: var(--mono);
+}
+.db-overall.good { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,.3); }
+.db-overall.warn { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(240,192,64,.3); }
+.db-overall.bad  { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,81,73,.3); }
+
+.db-metrics {
+  display: flex; flex-direction: column; gap: 0;
+  padding: 0;
+}
+.db-metric {
+  display: grid;
+  grid-template-columns: 1fr 60px 80px 56px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.db-metric:last-child { border-bottom: none; }
+.db-m-label {
+  font-size: 12px; color: var(--text-dim);
+  display: flex; align-items: center; gap: 5px;
+}
+.db-m-value { font-size: 14px; font-weight: 700; font-family: var(--mono); }
+.db-metric.green .db-m-value { color: var(--green); }
+.db-metric.warn  .db-m-value { color: var(--yellow); }
+.db-metric.alert .db-m-value { color: var(--red); }
+
+.db-m-target { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
+.db-m-delta  { font-size: 10px; font-family: var(--mono); }
+.db-m-delta.up   { color: var(--green); }
+.db-m-delta.down { color: var(--red); }
+.db-m-delta.neutral { color: var(--text-muted); }
+
+.db-m-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--bg3);
+}
+.db-m-fill { height: 100%; border-radius: 1px; transition: width .3s; }
+
+.trail-dot {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 3px;
+  font-size: 9px; font-family: var(--mono); font-weight: 700;
+}
+.t-dot { background: var(--blue-dim);   color: var(--blue); }
+.r-dot { background: var(--green-dim);  color: var(--green); }
+.a-dot { background: var(--orange-dim); color: var(--orange); }
+
+.db-alerts {
+  padding: 12px 14px;
+  background: rgba(248,81,73,.04);
+  border-top: 1px solid rgba(248,81,73,.2);
+}
+.db-alert-title { font-size: 11px; font-weight: 600; color: var(--yellow); margin-bottom: 7px; }
+.db-alert-item  { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; padding-left: 12px; position: relative; line-height: 1.4; }
+.db-alert-item::before { content: '·'; position: absolute; left: 2px; color: var(--red); }
+.db-action-btn {
+  margin-top: 10px;
+  display: inline-flex; align-items: center;
+  padding: 4px 12px; border-radius: 5px;
+  background: var(--red-dim); border: 1px solid rgba(248,81,73,.3);
+  color: var(--red); font-size: 11px; font-family: var(--mono);
+  cursor: pointer; transition: background .15s;
+}
+.db-action-btn:hover { background: rgba(248,81,73,.15); }
+
+/* ─── L Chart ─── */
+.l-chart { padding: 12px 14px; }
+.l-chart-title { font-size: 11px; color: var(--text-dim); margin-bottom: 14px; }
+.l-bars {
+  display: flex; gap: 12px; align-items: flex-end;
+  height: 80px; padding-bottom: 0;
+}
+.l-bar-group {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  flex: 1;
+}
+.l-bar {
+  width: 100%; background: var(--bg4);
+  border: 1px solid var(--border-accent);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  display: flex; align-items: flex-start; justify-content: center;
+  transition: height .3s;
+}
+.l-bar.active { background: var(--blue-dim); border-color: rgba(88,166,255,.4); }
+.l-bar-val {
+  position: absolute; top: -18px;
+  font-size: 11px; font-family: var(--mono); font-weight: 700;
+  color: var(--text);
+}
+.l-bar-group.current .l-bar-val { color: var(--blue); }
+.l-bar-label { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
+.l-insight {
+  display: flex; align-items: center; gap: 7px;
+  margin-top: 14px;
+  font-size: 11px; color: var(--text-dim);
+  padding: 7px 10px;
+  background: var(--green-dim); border-radius: 6px;
+  border: 1px solid rgba(63,185,80,.2);
+}
+.l-ok { color: var(--green); font-weight: 700; }
+
+/* ─── Abandon Grid ─── */
+.abandon-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 860px) { .abandon-grid { grid-template-columns: 1fr 1fr; } }
+
+.ab-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 14px;
+}
+.ab-type {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; color: var(--text);
+  margin-bottom: 8px;
+}
+.ab-num {
+  padding: 1px 7px; border-radius: 4px;
+  font-size: 10px; font-family: var(--mono); font-weight: 600;
+  flex-shrink: 0;
+}
+.ab-symptom {
+  font-size: 11px; color: var(--text-dim); margin-bottom: 6px; line-height: 1.5;
+}
+.ab-trail {
+  font-size: 10px; color: var(--text-muted);
+  font-family: var(--mono); margin-bottom: 8px;
+}
+.ab-fix {
+  background: var(--bg3); border-radius: 6px; padding: 8px;
+  border-left: 2px solid var(--border-accent);
+}
+.ab-fix-label {
+  font-size: 10px; color: var(--text-dim); font-family: var(--mono);
+  margin-bottom: 4px; font-weight: 600;
+}
+.ab-fix div { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+</style>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB 4 · FLYWHEEL
+══════════════════════════════════════════════════════ -->
+<section id="tab-flywheel" class="section">
+  <div class="section-title">
+    <span class="icon" style="background:rgba(188,140,255,.12)">🔄</span>
+    评测飞轮闭环架构
+  </div>
+  <p class="section-desc">
+    Layer A（创建评测）与 Layer B（使用监测）通过 Known Failures 知识库首尾相连，
+    构成完整的 Skill 自进化飞轮。每一次人工评审产生的结论都转化为可注入下一版 Skill 的变异补丁。
+  </p>
+
+  <!-- ── 飞轮主图 ── -->
+  <div class="flywheel-diagram">
+
+    <!-- 左侧：Layer A -->
+    <div class="fw-side fw-left">
+      <div class="fw-side-label la-label">Layer A · 创建评测</div>
+
+      <div class="fw-node fw-input">
+        <div class="fw-node-icon">📦</div>
+        <div class="fw-node-name">SaaS 功能 / Skill 草稿</div>
+      </div>
+      <div class="fw-arrow-down la-arrow">↓</div>
+
+      <div class="fw-gate gate-g0">
+        <span class="fw-gate-badge g0">Gate 0</span>
+        <span class="fw-gate-name">人工自查 (5项)</span>
+      </div>
+      <div class="fw-arrow-down la-arrow">↓ PASS</div>
+
+      <div class="fw-gate gate-g1">
+        <span class="fw-gate-badge g1">Gate 1</span>
+        <span class="fw-gate-name">SQE-5 自动评测</span>
+        <span class="fw-gate-score">综合 ≥ 8.0</span>
+      </div>
+      <div class="fw-arrow-down la-arrow">↓ PASS</div>
+
+      <div class="fw-gate gate-g2">
+        <span class="fw-gate-badge g2">Gate 2</span>
+        <span class="fw-gate-name">人工体验抽测</span>
+        <span class="fw-gate-score">Q1-Q5 均 ≥ 7</span>
+      </div>
+      <div class="fw-arrow-down la-arrow">↓ PASS</div>
+
+      <div class="fw-node fw-online">
+        <div class="fw-node-icon">🟢</div>
+        <div class="fw-node-name">Skill 上线</div>
+      </div>
+    </div>
+
+    <!-- 中间：飞轮核心 -->
+    <div class="fw-center">
+      <!-- 失败回路（左） -->
+      <div class="fw-loop-left">
+        <div class="fw-loop-label">Gate 未过 → 变异补丁 → 打回修改</div>
+        <div class="fw-loop-arrow">↺</div>
+      </div>
+
+      <!-- 知识库核心 -->
+      <div class="fw-knowledge-core">
+        <div class="fw-kc-icon">🧠</div>
+        <div class="fw-kc-title">Known Failures</div>
+        <div class="fw-kc-subtitle">永久积累 · 注入下一版</div>
+        <div class="fw-kc-stats">
+          <div class="fw-kc-stat"><span class="fw-kcs-num red">12</span><span>P0 禁止项</span></div>
+          <div class="fw-kc-stat"><span class="fw-kcs-num yellow">28</span><span>P1 警告项</span></div>
+          <div class="fw-kc-stat"><span class="fw-kcs-num green">↑</span><span>季度复利</span></div>
+        </div>
+      </div>
+
+      <!-- 接驳说明 -->
+      <div class="fw-dock-note">
+        <div class="fw-dock-item">
+          <span class="fw-dock-arrow">←</span>
+          <span>Layer B 放弃分析 → 失败模式归类</span>
+        </div>
+        <div class="fw-dock-item">
+          <span class="fw-dock-arrow">→</span>
+          <span>Gate 1 前置注入 → Skill 设计约束</span>
+        </div>
+        <div class="fw-dock-item">
+          <span class="fw-dock-arrow">⬆</span>
+          <span>infovis-autoevo known_failures 双向同步</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：Layer B -->
+    <div class="fw-side fw-right">
+      <div class="fw-side-label lb-label">Layer B · 使用监测</div>
+
+      <div class="fw-node fw-prod">
+        <div class="fw-node-icon">⚙️</div>
+        <div class="fw-node-name">Skill 生产环境运行</div>
+      </div>
+      <div class="fw-arrow-down lb-arrow">↓</div>
+
+      <div class="fw-monitor-block">
+        <div class="fw-mb-title">被动信号 + 轻量主动信号</div>
+        <div class="fw-mb-metrics">
+          <span class="fw-mbm green">触发准确率</span>
+          <span class="fw-mbm yellow">单任务轮次</span>
+          <span class="fw-mbm">产出满意率</span>
+          <span class="fw-mbm red">放弃率</span>
+        </div>
+      </div>
+      <div class="fw-arrow-down lb-arrow">↓ 指标越线</div>
+
+      <div class="fw-deep-review">
+        <div class="fw-dr-icon">👁</div>
+        <div>
+          <div class="fw-dr-title">深度人工评审</div>
+          <div class="fw-dr-sub">抽样 20+ 条 · 放弃点归因</div>
+        </div>
+      </div>
+      <div class="fw-arrow-down lb-arrow">↓</div>
+
+      <div class="fw-patch-output">
+        <div class="fw-po-icon">🔧</div>
+        <div>
+          <div class="fw-po-title">生成 Skill 变异补丁</div>
+          <div class="fw-po-sub">P0/P1/P2 分级 · 可注入 description</div>
+        </div>
+      </div>
+      <div class="fw-arrow-down lb-arrow">↓ 迭代后</div>
+
+      <div class="fw-node fw-reeval">
+        <div class="fw-node-icon">🔁</div>
+        <div class="fw-node-name">重走 Gate 1 + Gate 2</div>
+      </div>
+    </div>
+
+  </div><!-- /flywheel-diagram -->
+
+  <hr class="divider">
+
+  <!-- ── 与 infovis-autoevo 的接驳点 ── -->
+  <div class="map-title">与现有 infovis-autoevo 架构的接驳方式</div>
+  <div class="dock-table-wrap">
+    <table class="mapping">
+      <thead>
+        <tr>
+          <th>现有架构（已有）</th>
+          <th>新增架构（本框架）</th>
+          <th>接驳点</th>
+          <th>联动方式</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--blue)">infovis-autoevo<br><small style="color:var(--text-muted)">生成内容质量的自进化</small></td>
+          <td style="color:var(--green)">Skill Experience Eval<br><small style="color:var(--text-muted)">Skill 定义质量的自进化</small></td>
+          <td><code style="font-family:var(--mono);font-size:11px;color:var(--cyan)">known_failures</code></td>
+          <td>双向写入：内容层失败 ↔ Skill层失败 同步沉淀</td>
+        </tr>
+        <tr>
+          <td>生成器：<span class="sqe-badge">visual-creator</span></td>
+          <td>Skill 定义：<span class="sqe-badge">description + SKILL.md</span></td>
+          <td>变异补丁格式</td>
+          <td>相同格式（P0/P1/P2 + 指令文本），可复用 Mutator 逻辑</td>
+        </tr>
+        <tr>
+          <td>评测器：<span class="sqe-badge">infovis-evaluator</span></td>
+          <td>评测器：<span class="sqe-badge">SQE-5 + 体验卡</span></td>
+          <td>通过阈值设计</td>
+          <td>同样采用高阈值倒逼迭代（内容层 9.6 分 / Skill层 8.0 分）</td>
+        </tr>
+        <tr>
+          <td>激进变异：连续 2 轮提升 &lt; 0.1 时重置</td>
+          <td>打回机制：Gate 未过强制从 Gate 0 重新开始</td>
+          <td>防止局部最优</td>
+          <td>两套机制互补：自动化层防收敛，人工层防系统性盲点</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 执行路线图 ── -->
+  <div class="map-title">执行路线图（优先级排序）</div>
+  <div class="roadmap">
+
+    <div class="rm-phase p0-phase">
+      <div class="rm-phase-header">
+        <span class="rm-phase-badge p0b">P0 · 立刻做</span>
+        <span class="rm-phase-sub">是整个体系的地基，没有这一步飞轮无法启动</span>
+      </div>
+      <div class="rm-items">
+        <div class="rm-item">
+          <span class="rm-item-num">1</span>
+          <div>
+            <div class="rm-item-title">建立 Skill 体验卡标准（Gate 2 必用工具）</div>
+            <div class="rm-item-desc">固定 Q1-Q5 评分标准，形成团队共识；每次上线必须留存体验卡记录</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <span class="rm-item-num">2</span>
+          <div>
+            <div class="rm-item-title">为已有 Skill 补做 Gate 0 自查（visual-creator / design-evaluator 等）</div>
+            <div class="rm-item-desc">存量 Skill 用 Gate 0 清单扫描一遍，识别已有的 P0 级缺陷</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <span class="rm-item-num">3</span>
+          <div>
+            <div class="rm-item-title">跑 2 周数据，确定各 Skill 的 TRAIL 健康指标基线</div>
+            <div class="rm-item-desc">先观测再定目标，基线数据决定预警阈值是否合理</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-phase p1-phase">
+      <div class="rm-phase-header">
+        <span class="rm-phase-badge p1b">P1 · 本月内</span>
+        <span class="rm-phase-sub">体系化，让评测成为流程的一部分而不是额外负担</span>
+      </div>
+      <div class="rm-items">
+        <div class="rm-item">
+          <span class="rm-item-num">4</span>
+          <div>
+            <div class="rm-item-title">打通被动信号采集（触发率、轮次、放弃率）</div>
+            <div class="rm-item-desc">与工程侧对齐埋点方案；放弃率是最关键的先行指标</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <span class="rm-item-num">5</span>
+          <div>
+            <div class="rm-item-title">建立每周 Skill 健康周报机制</div>
+            <div class="rm-item-desc">5 项指标 + 本周预警 Skill + 需进入深度评审的行动项；自动生成</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <span class="rm-item-num">6</span>
+          <div>
+            <div class="rm-item-title">初版 Known Failures 知识库（从 infovis-autoevo 已有数据迁移）</div>
+            <div class="rm-item-desc">已有的 known_failures 内容直接提取，分类入库，补充 Skill 层字段</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-phase p2-phase">
+      <div class="rm-phase-header">
+        <span class="rm-phase-badge p2b">P2 · 下个阶段</span>
+        <span class="rm-phase-sub">规模化，降低人工成本、提高覆盖广度</span>
+      </div>
+      <div class="rm-items">
+        <div class="rm-item">
+          <span class="rm-item-num">7</span>
+          <div>
+            <div class="rm-item-title">LLM-as-Judge 自动化 Gate 1（替代人工初评）</div>
+            <div class="rm-item-desc">用 LLM 跑 SQE-5 的 20 条标准测试用例；初期与人工结果交叉校验</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <span class="rm-item-num">8</span>
+          <div>
+            <div class="rm-item-title">对放弃率 &gt; 20% 的 Skill 做用户访谈</div>
+            <div class="rm-item-desc">数据发现问题，访谈定位根因；放弃率数据 + 访谈结论一起写入 known_failures</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <span class="rm-item-num">9</span>
+          <div>
+            <div class="rm-item-title">打通 Layer A 失败知识 ↔ Layer B known_failures 联动更新</div>
+            <div class="rm-item-desc">两层失败知识库双向同步；同一类失败在内容层和 Skill 层都沉淀</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /roadmap -->
+
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     TAB 5 · FAILURES
+══════════════════════════════════════════════════════ -->
+<section id="tab-failures" class="section">
+  <div class="section-title">
+    <span class="icon" style="background:rgba(248,81,73,.12)">🧠</span>
+    失败知识库（Known Failures）
+  </div>
+  <p class="section-desc">
+    Known Failures 是整套飞轮的记忆核心。每一次人工评审产生的失败发现，
+    都必须被结构化记录并注入下一版 Skill 的设计约束前置条件里。
+    失败不可重复，是飞轮加速的唯一燃料。
+  </p>
+
+  <!-- 核心原则 -->
+  <div class="note-box" style="border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.04)">
+    <strong>核心原则：记录失败 ≠ 只是记录问题。</strong>
+    每条失败记录必须包含：触发场景 + 失败类型 + 可执行修复指令 + 防重现规则。
+    没有修复指令的失败记录是无效的——它无法被注入 Prompt，飞轮就断了。
+  </div>
+
+  <!-- JSON 结构展示 -->
+  <div class="map-title">知识库数据结构（Skill 层）</div>
+  <div class="code-block">
+    <div class="cb-header">
+      <span class="cb-lang">JSON · skill_failure_patterns</span>
+      <span class="cb-comment">// 每条记录对应一个可执行的修复约束</span>
+    </div>
+    <pre class="cb-body">{
+  "skill_failure_patterns": [
+    {
+      <span class="cb-key">"id"</span>: <span class="cb-str">"SFP-001"</span>,
+      <span class="cb-key">"skill_type"</span>: <span class="cb-str">"可视化生成"</span>,
+      <span class="cb-key">"gate_level"</span>: <span class="cb-str">"P0"</span>,
+      <span class="cb-key">"trail_dim"</span>: <span class="cb-str">"T · 触发准确率"</span>,
+      <span class="cb-key">"failure_type"</span>: <span class="cb-str">"意图边界模糊"</span>,
+      <span class="cb-key">"scene"</span>: <span class="cb-str">"用户说'帮我做个图'未指定图表类型时，AI直接随机选型"</span>,
+      <span class="cb-key">"symptom"</span>: <span class="cb-str">"40% 的用户在第一轮产出后放弃，重试率飙升至 28%"</span>,
+      <span class="cb-key">"root_cause"</span>: <span class="cb-str">"description 未说明 ambiguous intent 的处理策略"</span>,
+      <span class="cb-key">"fix_instruction"</span>: <span class="cb-str">"在 description 中添加：「当意图模糊时，必须先通过1个问题确认意图再生成，禁止直接随机选型」"</span>,
+      <span class="cb-key">"prevention_rule"</span>: <span class="cb-str">"所有生成类 Skill 必须包含 intent_clarification_protocol"</span>,
+      <span class="cb-key">"layer_sync"</span>: <span class="cb-str">"已同步到 infovis-autoevo.known_failures（内容层同类约束）"</span>,
+      <span class="cb-key">"confirmed_at"</span>: <span class="cb-str">"2026-03-25"</span>,
+      <span class="cb-key">"source"</span>: <span class="cb-str">"Layer B · 放弃率分析 · 类型1"</span>
+    },
+    {
+      <span class="cb-key">"id"</span>: <span class="cb-str">"SFP-002"</span>,
+      <span class="cb-key">"skill_type"</span>: <span class="cb-str">"PPT 生成"</span>,
+      <span class="cb-key">"gate_level"</span>: <span class="cb-str">"P0"</span>,
+      <span class="cb-key">"trail_dim"</span>: <span class="cb-str">"R · 结果质量"</span>,
+      <span class="cb-key">"failure_type"</span>: <span class="cb-str">"输出格式不可用"</span>,
+      <span class="cb-key">"scene"</span>: <span class="cb-str">"用户要求「汇报 PPT」，AI 产出了正文段落而非结构化 Slide 内容"</span>,
+      <span class="cb-key">"symptom"</span>: <span class="cb-str">"Gate 2 体验卡 Q2 产出可用度平均 4.2 分，大量用户要求「帮我重新整理」"</span>,
+      <span class="cb-key">"root_cause"</span>: <span class="cb-str">"description 未指定输出格式规范，Skill 缺少 Output Format 约束层"</span>,
+      <span class="cb-key">"fix_instruction"</span>: <span class="cb-str">"在 description 中添加输出格式示例：每 Slide 格式为「标题 | 3-5 个要点 | 备注」，并附一个完整示例"</span>,
+      <span class="cb-key">"prevention_rule"</span>: <span class="cb-str">"所有有固定输出形式的 Skill，必须在 description 中包含 ≥1 个完整 Output 示例"</span>,
+      <span class="cb-key">"layer_sync"</span>: <span class="cb-str">"N/A（PPT Skill 特有，不涉及 infovis-autoevo）"</span>,
+      <span class="cb-key">"confirmed_at"</span>: <span class="cb-str">"2026-03-25"</span>,
+      <span class="cb-key">"source"</span>: <span class="cb-str">"Layer A · Gate 2 · visual-creator PPT 场景"</span>
+    }
+  ]
+}</pre>
+  </div>
+
+  <!-- 实时知识库面板 -->
+  <div class="map-title" style="margin-top:24px">当前知识库条目（示例）</div>
+  <div class="kf-filter-bar">
+    <span class="kf-filter active" onclick="filterKF('all')">全部 <span class="kf-count">12</span></span>
+    <span class="kf-filter" onclick="filterKF('p0')">P0 禁止项 <span class="kf-count red">5</span></span>
+    <span class="kf-filter" onclick="filterKF('p1')">P1 警告项 <span class="kf-count yellow">5</span></span>
+    <span class="kf-filter" onclick="filterKF('p2')">P2 建议项 <span class="kf-count">2</span></span>
+  </div>
+
+  <div class="kf-list" id="kf-list">
+
+    <div class="kf-item p0-item" data-level="p0">
+      <div class="kf-item-header">
+        <span class="ft-p p0">P0</span>
+        <span class="kf-id">SFP-001</span>
+        <span class="kf-type">意图边界模糊</span>
+        <span class="kf-trail-tag t-tag">T</span>
+        <span class="kf-date">2026-03-25</span>
+        <span class="kf-source">Layer B · 放弃分析</span>
+      </div>
+      <div class="kf-scene">触发场景：用户说「帮我做个图」未指定类型时，AI 直接随机选型，导致 40% 放弃率</div>
+      <div class="kf-fix-block">
+        <span class="kf-fix-label">修复指令</span>
+        当意图模糊时，必须先通过 1 个问题确认意图再生成，禁止直接随机选型
+      </div>
+      <div class="kf-prevent">
+        <span class="kf-prevent-label">防重现规则</span>
+        所有生成类 Skill 必须包含 intent_clarification_protocol
+      </div>
+    </div>
+
+    <div class="kf-item p0-item" data-level="p0">
+      <div class="kf-item-header">
+        <span class="ft-p p0">P0</span>
+        <span class="kf-id">SFP-002</span>
+        <span class="kf-type">输出格式不可用</span>
+        <span class="kf-trail-tag r-tag">R</span>
+        <span class="kf-date">2026-03-25</span>
+        <span class="kf-source">Layer A · Gate 2</span>
+      </div>
+      <div class="kf-scene">触发场景：「汇报 PPT」场景下 AI 产出正文段落而非结构化 Slide，体验卡 Q2 均分 4.2</div>
+      <div class="kf-fix-block">
+        <span class="kf-fix-label">修复指令</span>
+        在 description 中添加输出格式示例：每 Slide 格式为「标题 | 3-5 要点 | 备注」，附完整示例
+      </div>
+      <div class="kf-prevent">
+        <span class="kf-prevent-label">防重现规则</span>
+        所有有固定输出形式的 Skill，必须在 description 中包含 ≥1 个完整 Output 示例
+      </div>
+    </div>
+
+    <div class="kf-item p0-item" data-level="p0">
+      <div class="kf-item-header">
+        <span class="ft-p p0">P0</span>
+        <span class="kf-id">SFP-003</span>
+        <span class="kf-type">触发词稀疏</span>
+        <span class="kf-trail-tag t-tag">T</span>
+        <span class="kf-date">2026-03-20</span>
+        <span class="kf-source">Layer B · 被动信号</span>
+      </div>
+      <div class="kf-scene">触发场景：用户说「给我画个趋势图」「走势图怎么做」等口语化表达时 Skill 无响应</div>
+      <div class="kf-fix-block">
+        <span class="kf-fix-label">修复指令</span>
+        用真实用户口语扩充 description：「趋势图 / 走势图 / 折线 / 变化曲线」等口语化短语
+      </div>
+      <div class="kf-prevent">
+        <span class="kf-prevent-label">防重现规则</span>
+        Gate 0 必查：description 是否覆盖口语化、缩写、上下文触发等模式（≥5 个真实短语）
+      </div>
+    </div>
+
+    <div class="kf-item p1-item" data-level="p1">
+      <div class="kf-item-header">
+        <span class="ft-p p1">P1</span>
+        <span class="kf-id">SFP-004</span>
+        <span class="kf-type">过程不透明</span>
+        <span class="kf-trail-tag a-tag">A</span>
+        <span class="kf-date">2026-03-18</span>
+        <span class="kf-source">Layer B · 放弃分析</span>
+      </div>
+      <div class="kf-scene">触发场景：多步骤 Skill（生成→评测→导出）执行过程中无状态反馈，用户以为卡死而放弃</div>
+      <div class="kf-fix-block">
+        <span class="kf-fix-label">修复指令</span>
+        在 description 中说明执行步骤数量和预期时长；在关键步骤前输出进度标记
+      </div>
+      <div class="kf-prevent">
+        <span class="kf-prevent-label">防重现规则</span>
+        执行时间 &gt; 30s 的 Skill 必须包含分步进度说明
+      </div>
+    </div>
+
+    <div class="kf-item p1-item" data-level="p1">
+      <div class="kf-item-header">
+        <span class="ft-p p1">P1</span>
+        <span class="kf-id">SFP-005</span>
+        <span class="kf-type">能力边界缺失</span>
+        <span class="kf-trail-tag i-tag">I</span>
+        <span class="kf-date">2026-03-15</span>
+        <span class="kf-source">Layer A · Gate 1</span>
+      </div>
+      <div class="kf-scene">触发场景：用户要求「数据清洗 + 可视化」，Skill 只处理可视化部分，对数据清洗部分给出错误答案</div>
+      <div class="kf-fix-block">
+        <span class="kf-fix-label">修复指令</span>
+        在 description 显式标注「本 Skill 仅处理已清洗数据的可视化，不包含数据清洗」，并推荐替代 Skill
+      </div>
+      <div class="kf-prevent">
+        <span class="kf-prevent-label">防重现规则</span>
+        Gate 0 必查：是否包含「不处理的场景」的显式声明
+      </div>
+    </div>
+
+    <div class="kf-item p1-item" data-level="p1">
+      <div class="kf-item-header">
+        <span class="ft-p p1">P1</span>
+        <span class="kf-id">SFP-006</span>
+        <span class="kf-type">参数硬编码</span>
+        <span class="kf-trail-tag a-tag">A</span>
+        <span class="kf-date">2026-03-12</span>
+        <span class="kf-source">Layer A · Gate 2</span>
+      </div>
+      <div class="kf-scene">触发场景：设计规范色值被硬编码，用户说「改成红色主题」时 Skill 无响应或输出错误</div>
+      <div class="kf-fix-block">
+        <span class="kf-fix-label">修复指令</span>
+        将颜色、尺寸等关键参数改为可被自然语言覆盖的可选项，在 description 举例「如需指定颜色，直接说「用蓝色」」
+      </div>
+      <div class="kf-prevent">
+        <span class="kf-prevent-label">防重现规则</span>
+        Gate 0 必查：关键参数是否可被用户自然语言覆盖
+      </div>
+    </div>
+
+    <div class="kf-item p2-item" data-level="p2" style="display:none">
+      <div class="kf-item-header">
+        <span class="ft-p p2">P2</span>
+        <span class="kf-id">SFP-007</span>
+        <span class="kf-type">预期偏差</span>
+        <span class="kf-trail-tag i-tag">I</span>
+        <span class="kf-date">2026-03-10</span>
+        <span class="kf-source">Layer B · 用户访谈</span>
+      </div>
+      <div class="kf-scene">触发场景：用户以为「设计评测」=评测视觉美感，实际 Skill 评测的是信息传达效率</div>
+      <div class="kf-fix-block">
+        <span class="kf-fix-label">修复指令</span>
+        在 description 首句明确：「本 Skill 评测信息传达效率（而非视觉美感），适用于...」
+      </div>
+      <div class="kf-prevent">
+        <span class="kf-prevent-label">防重现规则</span>
+        Skill 名称与用户心智模型差异较大时，description 首句必须包含「是什么/不是什么」的对比说明
+      </div>
+    </div>
+
+    <div class="kf-item p2-item" data-level="p2" style="display:none">
+      <div class="kf-item-header">
+        <span class="ft-p p2">P2</span>
+        <span class="kf-id">SFP-008</span>
+        <span class="kf-type">触发竞争</span>
+        <span class="kf-trail-tag t-tag">T</span>
+        <span class="kf-date">2026-03-08</span>
+        <span class="kf-source">Layer B · 被动信号</span>
+      </div>
+      <div class="kf-scene">触发场景：「做一个图表」同时触发 visual-creator 和 design-evaluator，用户收到两个 Skill 的响应，困惑选择</div>
+      <div class="kf-fix-block">
+        <span class="kf-fix-label">修复指令</span>
+        在 design-evaluator 的 description 中添加负向触发说明：「用户说「做」/「生成」时不触发，仅当说「评测」/「检查」/「审查」时触发」
+      </div>
+      <div class="kf-prevent">
+        <span class="kf-prevent-label">防重现规则</span>
+        Gate 0 必查：与相邻 Skill 是否存在触发词重叠，如有需明确写出互斥关系
+      </div>
+    </div>
+
+  </div><!-- /kf-list -->
+
+  <!-- 添加条目 CTA -->
+  <div class="kf-add-cta">
+    <span class="kf-add-icon">＋</span>
+    每次完成 Gate 2 评审或 Layer B 深度分析后，将新发现的失败模式添加到此处
+  </div>
+
+  <!-- 知识库健康度 -->
+  <hr class="divider">
+  <div class="map-title">知识库健康度（TRAIL · L 维度的度量基础）</div>
+  <div class="kf-health-grid">
+    <div class="kf-h-item">
+      <div class="kf-h-num" style="color:var(--green)">8.5</div>
+      <div class="kf-h-label">本季度 Gate 2 初始均分</div>
+      <div class="kf-h-trend" style="color:var(--green)">↑ vs 上季 7.9（飞轮有效）</div>
+    </div>
+    <div class="kf-h-item">
+      <div class="kf-h-num" style="color:var(--green)">2%</div>
+      <div class="kf-h-label">P0 失败重现率</div>
+      <div class="kf-h-trend" style="color:var(--green)">↓ vs 上季 8%（知识注入有效）</div>
+    </div>
+    <div class="kf-h-item">
+      <div class="kf-h-num" style="color:var(--blue)">40</div>
+      <div class="kf-h-label">累计知识条目数</div>
+      <div class="kf-h-trend" style="color:var(--blue)">P0: 12 · P1: 22 · P2: 6</div>
+    </div>
+    <div class="kf-h-item">
+      <div class="kf-h-num" style="color:var(--yellow)">3轮</div>
+      <div class="kf-h-label">平均上线前迭代轮次</div>
+      <div class="kf-h-trend" style="color:var(--yellow)">↓ vs 早期 6轮（效率翻倍）</div>
+    </div>
+  </div>
+
+</section>
+
+<style>
+/* ─── Flywheel Diagram ─── */
+.flywheel-diagram {
+  display: grid;
+  grid-template-columns: 1fr 200px 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .flywheel-diagram { grid-template-columns: 1fr; }
+}
+
+.fw-side { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+.fw-side-label {
+  text-align: center; font-size: 11px; font-weight: 700;
+  padding: 5px 10px; border-radius: 6px; margin-bottom: 6px;
+  font-family: var(--mono); letter-spacing: .4px;
+}
+.la-label { background: rgba(240,192,64,.08); color: var(--yellow); border: 1px solid rgba(240,192,64,.2); }
+.lb-label { background: rgba(63,185,80,.08);  color: var(--green);  border: 1px solid rgba(63,185,80,.2); }
+
+.fw-node {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px; background: var(--bg3);
+  font-size: 12px; font-weight: 500; color: var(--text);
+}
+.fw-node-icon { font-size: 16px; }
+.fw-online { border-color: rgba(63,185,80,.4); background: var(--green-dim); }
+.fw-reeval { border-color: rgba(88,166,255,.3); background: var(--blue-dim); }
+
+.fw-arrow-down {
+  text-align: center; font-size: 16px; padding: 2px 0;
+  font-family: var(--mono);
+}
+.la-arrow { color: var(--yellow); }
+.lb-arrow { color: var(--green); }
+
+.fw-gate {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 8px 12px;
+  border-radius: 8px; background: var(--bg2);
+  border: 1px solid var(--border);
+}
+.gate-g0 { border-color: rgba(240,192,64,.25); }
+.gate-g1 { border-color: rgba(88,166,255,.25); }
+.gate-g2 { border-color: rgba(188,140,255,.25); }
+
+.fw-gate-badge { padding: 1px 8px; border-radius: 4px; font-size: 10px; font-family: var(--mono); font-weight: 700; }
+.fw-gate-name  { font-size: 12px; color: var(--text); flex: 1; }
+.fw-gate-score { font-size: 10px; font-family: var(--mono); color: var(--text-dim); }
+
+.fw-monitor-block {
+  padding: 10px 12px;
+  background: var(--bg2); border: 1px solid rgba(63,185,80,.2);
+  border-radius: 8px;
+}
+.fw-mb-title { font-size: 11px; color: var(--text-dim); margin-bottom: 7px; }
+.fw-mb-metrics { display: flex; flex-wrap: wrap; gap: 4px; }
+.fw-mbm {
+  padding: 2px 7px; border-radius: 4px; font-size: 10px;
+  background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim);
+  font-family: var(--mono);
+}
+.fw-mbm.green { color: var(--green); border-color: rgba(63,185,80,.3); background: var(--green-dim); }
+.fw-mbm.yellow { color: var(--yellow); border-color: rgba(240,192,64,.3); background: var(--yellow-dim); }
+.fw-mbm.red   { color: var(--red);   border-color: rgba(248,81,73,.3);  background: var(--red-dim); }
+
+.fw-deep-review, .fw-patch-output {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px; background: var(--bg2);
+  border: 1px solid var(--border);
+}
+.fw-deep-review { border-color: rgba(188,140,255,.25); }
+.fw-patch-output { border-color: rgba(227,132,60,.25); }
+.fw-dr-icon, .fw-po-icon { font-size: 16px; }
+.fw-dr-title, .fw-po-title { font-size: 12px; font-weight: 500; color: var(--text); }
+.fw-dr-sub, .fw-po-sub { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
+
+/* center */
+.fw-center {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding-top: 40px;
+}
+.fw-loop-left {
+  text-align: center;
+}
+.fw-loop-label { font-size: 9px; color: var(--text-muted); font-family: var(--mono); margin-bottom: 2px; }
+.fw-loop-arrow { font-size: 24px; color: var(--red); opacity: .6; }
+
+.fw-knowledge-core {
+  background: var(--bg2);
+  border: 1px solid rgba(188,140,255,.4);
+  border-radius: 12px;
+  padding: 16px 14px;
+  text-align: center;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(188,140,255,.08);
+}
+.fw-kc-icon { font-size: 24px; margin-bottom: 6px; }
+.fw-kc-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.fw-kc-subtitle { font-size: 10px; color: var(--text-dim); font-family: var(--mono); margin-bottom: 10px; }
+.fw-kc-stats { display: flex; gap: 8px; justify-content: center; }
+.fw-kc-stat {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  font-size: 9px; color: var(--text-dim); font-family: var(--mono);
+}
+.fw-kcs-num { font-size: 16px; font-weight: 700; line-height: 1; }
+.fw-kcs-num.red    { color: var(--red); }
+.fw-kcs-num.yellow { color: var(--yellow); }
+.fw-kcs-num.green  { color: var(--green); }
+
+.fw-dock-note {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.fw-dock-item {
+  display: flex; align-items: flex-start; gap: 7px;
+  padding: 5px 8px;
+  background: var(--bg3); border-radius: 5px;
+  font-size: 10px; color: var(--text-dim); font-family: var(--mono);
+  border: 1px solid var(--border);
+  line-height: 1.4;
+}
+.fw-dock-arrow { color: var(--cyan); flex-shrink: 0; font-size: 11px; }
+
+/* ─── Roadmap ─── */
+.roadmap { display: flex; flex-direction: column; gap: 12px; }
+.rm-phase {
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+}
+.p0-phase { border-color: rgba(248,81,73,.25); }
+.p1-phase { border-color: rgba(227,132,60,.2); }
+.p2-phase { border-color: rgba(88,166,255,.2); }
+
+.rm-phase-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 14px; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 8px;
+}
+.p0-phase .rm-phase-header { background: rgba(248,81,73,.05); }
+.p1-phase .rm-phase-header { background: rgba(227,132,60,.05); }
+.p2-phase .rm-phase-header { background: rgba(88,166,255,.04); }
+
+.rm-phase-badge {
+  padding: 2px 10px; border-radius: 5px;
+  font-size: 11px; font-weight: 700; font-family: var(--mono);
+}
+.p0b { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(248,81,73,.3); }
+.p1b { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(227,132,60,.3); }
+.p2b { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(88,166,255,.3); }
+.rm-phase-sub { font-size: 11px; color: var(--text-dim); }
+
+.rm-items { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+.rm-item {
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.rm-item-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bg4); border: 1px solid var(--border-accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-family: var(--mono); font-weight: 700;
+  color: var(--text-dim); flex-shrink: 0; margin-top: 2px;
+}
+.rm-item-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.rm-item-desc  { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+
+/* ─── Code Block ─── */
+.code-block {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; margin-bottom: 24px;
+}
+.cb-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 14px; border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+.cb-lang { font-size: 11px; font-family: var(--mono); color: var(--blue); font-weight: 600; }
+.cb-comment { font-size: 11px; font-family: var(--mono); color: var(--text-muted); }
+.cb-body {
+  padding: 14px; font-size: 11px; font-family: var(--mono);
+  color: var(--text-dim); line-height: 1.7;
+  overflow-x: auto; white-space: pre;
+}
+.cb-key { color: var(--blue); }
+.cb-str { color: var(--green); }
+
+/* ─── KF List ─── */
+.kf-filter-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.kf-filter {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 11px; font-family: var(--mono);
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text-dim); cursor: pointer; transition: all .15s;
+}
+.kf-filter.active, .kf-filter:hover {
+  background: var(--bg3); border-color: var(--border-accent); color: var(--text);
+}
+.kf-count {
+  padding: 0 5px; border-radius: 8px;
+  background: var(--bg3); font-size: 10px; color: var(--text-dim);
+}
+.kf-count.red    { background: var(--red-dim);    color: var(--red); }
+.kf-count.yellow { background: var(--yellow-dim); color: var(--yellow); }
+
+.kf-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.kf-item {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 12px 14px;
+}
+.p0-item { border-left: 3px solid var(--red); }
+.p1-item { border-left: 3px solid var(--orange); }
+.p2-item { border-left: 3px solid var(--blue); }
+
+.kf-item-header {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.kf-id   { font-size: 11px; font-family: var(--mono); color: var(--text-dim); }
+.kf-type { font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
+.kf-date { font-size: 10px; font-family: var(--mono); color: var(--text-muted); }
+.kf-source { font-size: 10px; font-family: var(--mono); color: var(--text-muted); }
+
+.kf-trail-tag {
+  padding: 1px 6px; border-radius: 3px;
+  font-size: 10px; font-family: var(--mono); font-weight: 700;
+}
+.t-tag { background: var(--blue-dim);   color: var(--blue); }
+.r-tag { background: var(--green-dim);  color: var(--green); }
+.a-tag { background: var(--orange-dim); color: var(--orange); }
+.i-tag { background: var(--purple-dim); color: var(--purple); }
+
+.kf-scene {
+  font-size: 11px; color: var(--text-dim);
+  padding: 7px 10px; background: var(--bg3);
+  border-radius: 6px; margin-bottom: 7px; line-height: 1.5;
+}
+.kf-fix-block {
+  font-size: 11px; color: var(--text-dim); margin-bottom: 6px; line-height: 1.5;
+  padding: 7px 10px; background: rgba(63,185,80,.04);
+  border: 1px solid rgba(63,185,80,.15); border-radius: 6px;
+}
+.kf-fix-label {
+  display: inline-block; margin-right: 6px;
+  padding: 1px 6px; border-radius: 3px;
+  font-size: 9px; font-family: var(--mono); font-weight: 700;
+  background: var(--green-dim); color: var(--green);
+}
+.kf-prevent {
+  font-size: 11px; color: var(--text-dim); line-height: 1.5;
+}
+.kf-prevent-label {
+  display: inline-block; margin-right: 6px;
+  padding: 1px 6px; border-radius: 3px;
+  font-size: 9px; font-family: var(--mono); font-weight: 700;
+  background: var(--purple-dim); color: var(--purple);
+}
+
+.kf-add-cta {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg2); border: 1px dashed var(--border-accent);
+  border-radius: 8px; font-size: 12px; color: var(--text-dim);
+  cursor: pointer; transition: border-color .15s;
+}
+.kf-add-cta:hover { border-color: var(--blue); color: var(--blue); }
+.kf-add-icon { font-size: 16px; color: var(--blue); }
+
+/* health grid */
+.kf-health-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 720px) { .kf-health-grid { grid-template-columns: 1fr 1fr; } }
+.kf-h-item {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 14px; text-align: center;
+}
+.kf-h-num   { font-size: 28px; font-weight: 700; font-family: var(--mono); margin-bottom: 5px; }
+.kf-h-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; }
+.kf-h-trend { font-size: 10px; font-family: var(--mono); }
+
+/* dock table */
+.dock-table-wrap table.mapping { margin-bottom: 0; }
+</style>
+
+<script>
+function filterKF(level) {
+  document.querySelectorAll('.kf-filter').forEach(f => f.classList.remove('active'));
+  event.target.closest('.kf-filter').classList.add('active');
+
+  const items = document.querySelectorAll('.kf-item');
+  items.forEach(item => {
+    if (level === 'all') {
+      item.style.display = 'block';
+    } else {
+      item.style.display = item.dataset.level === level ? 'block' : 'none';
+    }
+  });
+}
+</script>
+
+<script>
+const TAB_MAP = {
+  'research': 0, 'trail': 1, 'layer-a': 2, 'layer-b': 3, 'flywheel': 4, 'failures': 5
+};
+const VALID_TABS = Object.keys(TAB_MAP);
+
+function switchTab(name, pushHistory) {
+  if (!VALID_TABS.includes(name)) name = 'research';
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab')[TAB_MAP[name]].classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  // 更新 URL hash，不触发页面跳转
+  if (pushHistory !== false) {
+    history.replaceState(null, '', '#' + name);
+  }
+}
+
+// 从 hash 读取初始 Tab
+function initTabFromHash() {
+  const hash = location.hash.replace('#', '');
+  switchTab(VALID_TABS.includes(hash) ? hash : 'research', false);
+}
+
+// 监听浏览器前进/后退
+window.addEventListener('hashchange', () => {
+  const hash = location.hash.replace('#', '');
+  switchTab(VALID_TABS.includes(hash) ? hash : 'research', false);
+});
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', initTabFromHash);
+</script>
+</body>
+</html>
