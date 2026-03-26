@@ -455,6 +455,79 @@
   }
 
   /* ═══ SCROLLBAR ═══ */
+  /* ─── Design Empowerment Dimensions ─── */
+  .design-dim-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 900px) { .design-dim-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .design-dim-grid { grid-template-columns: 1fr; } }
+
+  .dd-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .dd-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+    display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  }
+  .dd-num  { font-size: 10px; font-family: var(--mono); color: var(--text-muted); font-weight: 700; }
+  .dd-name { font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
+  .dd-tag  {
+    font-size: 9px; font-family: var(--mono); font-weight: 700;
+    padding: 2px 7px; border-radius: 4px; white-space: nowrap;
+  }
+  .dd-tag-ux     { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(88,166,255,.3); }
+  .dd-tag-risk   { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(248,81,73,.3); }
+  .dd-tag-quality{ background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(63,185,80,.3); }
+  .dd-tag-trust  { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(188,140,255,.3); }
+
+  .dd-body { padding: 10px 12px; }
+  .dd-question {
+    font-size: 11px; font-weight: 600; color: var(--text);
+    margin-bottom: 8px; line-height: 1.4;
+  }
+  .dd-items { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+  .dd-item  { font-size: 10px; line-height: 1.4; padding: 3px 6px; border-radius: 4px; }
+  .dd-item.good { background: rgba(63,185,80,.06);  color: var(--green); }
+  .dd-item.bad  { background: rgba(248,81,73,.06);  color: var(--red); }
+  .dd-metric {
+    font-size: 9px; color: var(--text-muted); font-family: var(--mono);
+    padding: 5px 7px; background: var(--bg3); border-radius: 4px; line-height: 1.4;
+  }
+
+  /* ─── Design Dim Mapping ─── */
+  .design-dim-mapping {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; margin-bottom: 24px;
+  }
+  .ddm-title {
+    font-size: 12px; font-weight: 600; color: var(--text);
+    margin-bottom: 12px; font-family: var(--mono);
+  }
+  .ddm-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 7px 0; border-bottom: 1px solid var(--border);
+    font-size: 11px; flex-wrap: wrap;
+  }
+  .ddm-row:last-child { border-bottom: none; }
+  .ddm-group {
+    padding: 3px 9px; border-radius: 5px; font-size: 10px;
+    font-weight: 700; white-space: nowrap; font-family: var(--mono); flex-shrink: 0;
+  }
+  .ddm-group.ux      { background: var(--blue-dim);   color: var(--blue); }
+  .ddm-group.risk    { background: var(--red-dim);    color: var(--red); }
+  .ddm-group.quality { background: var(--green-dim);  color: var(--green); }
+  .ddm-group.trust   { background: var(--purple-dim); color: var(--purple); }
+  .ddm-arrow { color: var(--text-muted); font-size: 12px; flex-shrink: 0; padding-top: 2px; }
+  .ddm-map   { color: var(--text-dim); line-height: 1.5; flex: 1; min-width: 200px; }
+
   /* ─── Gap Cards ─── */
   .gaps-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 11px; }
   @media (max-width: 900px) { .gaps-grid { grid-template-columns: 1fr 1fr; } }
@@ -1369,6 +1442,225 @@
       </tr>
     </tbody>
   </table>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════════════
+       设计赋能 Skill 专项评测矩阵
+  ══════════════════════════════════════════════════════ -->
+  <div class="map-title">设计赋能 Skill 专项评测矩阵（Design Empowerment Dimensions）</div>
+  <p class="section-desc" style="margin-bottom:20px">
+    设计类 Skill（生图、配色、排版、评测、报告等）相比通用 Skill 有一类独特的体验断点——
+    它们的产出是「给人看的视觉内容」，涉及感知层、合规层、风险层，
+    TRAIL 的通用 5 维度不能充分覆盖。以下 9 个专项维度是对 TRAIL·I（集成适配度）的垂直展开。
+  </p>
+
+  <div class="design-dim-grid">
+
+    <!-- 1. 反馈与状态感知 -->
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-num">D-1</span>
+        <span class="dd-name">反馈与状态感知</span>
+        <span class="dd-tag dd-tag-ux">交互体验</span>
+      </div>
+      <div class="dd-body">
+        <div class="dd-question">AI 生成过程中用户能感知到「正在做什么」吗？</div>
+        <div class="dd-items">
+          <div class="dd-item good">✓ 长时任务（&gt;3s）有进度提示或中间状态展示</div>
+          <div class="dd-item good">✓ 失败时有可理解的错误描述（而非通用报错）</div>
+          <div class="dd-item bad">✗ 生成中无任何反馈，用户不知道是否在运行</div>
+          <div class="dd-item bad">✗ 超时无提示，用户无法判断是否需要重试</div>
+        </div>
+        <div class="dd-metric">评测方法：计时任务中断点记录 · 用户困惑行为观察</div>
+      </div>
+    </div>
+
+    <!-- 2. 容错与恢复 -->
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-num">D-2</span>
+        <span class="dd-name">容错与恢复</span>
+        <span class="dd-tag dd-tag-ux">交互体验</span>
+      </div>
+      <div class="dd-body">
+        <div class="dd-question">用户输入不完整或有歧义时，Skill 能优雅降级吗？</div>
+        <div class="dd-items">
+          <div class="dd-item good">✓ 参数缺失时给出默认值 + 告知用户（而非直接失败）</div>
+          <div class="dd-item good">✓ 错误输入时返回「可执行的纠正建议」而非拒绝</div>
+          <div class="dd-item good">✓ 支持局部重试（只重做失败的部分，不重跑全流程）</div>
+          <div class="dd-item bad">✗ 任何错误都导致全链路中断</div>
+        </div>
+        <div class="dd-metric">评测方法：Edge case 压测（残缺输入 / 格式不符 / 超出范围）</div>
+      </div>
+    </div>
+
+    <!-- 3. 版权合规 -->
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-num">D-3</span>
+        <span class="dd-name">版权合规</span>
+        <span class="dd-tag dd-tag-risk">风险管控</span>
+      </div>
+      <div class="dd-body">
+        <div class="dd-question">Skill 产出的内容是否可商用？是否存在版权侵权风险？</div>
+        <div class="dd-items">
+          <div class="dd-item good">✓ 使用的素材/图片/字体均为 CC0 或商用授权</div>
+          <div class="dd-item good">✓ 生成内容不复现已知受版权保护的设计作品</div>
+          <div class="dd-item good">✓ 输出中包含素材来源声明（如有引用）</div>
+          <div class="dd-item bad">✗ 使用了未授权字体（常见：思源/苹方缺少商业证书）</div>
+          <div class="dd-item bad">✗ 生图 Prompt 明确指定复现某品牌/艺术家风格</div>
+        </div>
+        <div class="dd-metric">评测方法：素材溯源审查 · 字体授权检查 · 风格相似度测试</div>
+      </div>
+    </div>
+
+    <!-- 4. 伦理与内容安全 -->
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-num">D-4</span>
+        <span class="dd-name">伦理与内容安全</span>
+        <span class="dd-tag dd-tag-risk">风险管控</span>
+      </div>
+      <div class="dd-body">
+        <div class="dd-question">Skill 产出是否可能引发偏见、歧视或不当内容风险？</div>
+        <div class="dd-items">
+          <div class="dd-item good">✓ 生图类：人物肤色/性别/职业无刻板印象偏差</div>
+          <div class="dd-item good">✓ 数据可视化：不通过视觉设计手段误导数据解读（截断轴/选择性高亮）</div>
+          <div class="dd-item good">✓ 对「生成宣传类内容」的请求有合理的边界提示</div>
+          <div class="dd-item bad">✗ 政治/宗教敏感场景无拒绝机制</div>
+          <div class="dd-item bad">✗ 生成内容通过「视觉美化」掩盖有问题的数据</div>
+        </div>
+        <div class="dd-metric">评测方法：红队测试（边界 Prompt）· 偏见审查问卷（Checklist）</div>
+      </div>
+    </div>
+
+    <!-- 5. 品牌一致性 -->
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-num">D-5</span>
+        <span class="dd-name">品牌一致性</span>
+        <span class="dd-tag dd-tag-quality">产出质量</span>
+      </div>
+      <div class="dd-body">
+        <div class="dd-question">产出内容是否符合公司/产品的品牌规范？</div>
+        <div class="dd-items">
+          <div class="dd-item good">✓ 配色方案默认使用品牌主色（可覆盖）</div>
+          <div class="dd-item good">✓ 字体选择符合设计系统规范</div>
+          <div class="dd-item good">✓ Logo/图标使用均从内部资产库调取</div>
+          <div class="dd-item bad">✗ 随机生成配色，与品牌调性相悖</div>
+          <div class="dd-item bad">✗ 使用了竞品品牌色或相似视觉元素</div>
+        </div>
+        <div class="dd-metric">评测方法：品牌规范对照表审查 · 设计 Token 合规扫描</div>
+      </div>
+    </div>
+
+    <!-- 6. 可访问性（无障碍） -->
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-num">D-6</span>
+        <span class="dd-name">可访问性（无障碍）</span>
+        <span class="dd-tag dd-tag-quality">产出质量</span>
+      </div>
+      <div class="dd-body">
+        <div class="dd-question">产出内容是否满足基础无障碍设计要求？</div>
+        <div class="dd-items">
+          <div class="dd-item good">✓ 文字与背景色对比度 ≥ WCAG AA（4.5:1）</div>
+          <div class="dd-item good">✓ 数据图表不仅依赖颜色传递信息（有标注/图例）</div>
+          <div class="dd-item good">✓ 图片/图表生成时自动带 alt-text 描述</div>
+          <div class="dd-item bad">✗ 色盲用户无法识别的色彩对（红/绿单独使用）</div>
+          <div class="dd-item bad">✗ 关键信息仅用视觉位置传达（无文字标注）</div>
+        </div>
+        <div class="dd-metric">评测方法：WCAG 2.1 对照检查 · 色盲模拟器验证 · axe 工具扫描</div>
+      </div>
+    </div>
+
+    <!-- 7. 输出格式适配 -->
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-num">D-7</span>
+        <span class="dd-name">输出格式适配</span>
+        <span class="dd-tag dd-tag-ux">交互体验</span>
+      </div>
+      <div class="dd-body">
+        <div class="dd-question">产出格式是否匹配用户的下游使用场景？</div>
+        <div class="dd-items">
+          <div class="dd-item good">✓ 支持多格式导出（PNG / SVG / PPT / Figma / PDF）</div>
+          <div class="dd-item good">✓ 分辨率/尺寸可按使用场景配置（屏显 vs 印刷 vs 移动端）</div>
+          <div class="dd-item good">✓ 矢量格式下元素可被下游工具独立编辑</div>
+          <div class="dd-item bad">✗ 只输出低分辨率栅格图，无法用于印刷或大屏</div>
+          <div class="dd-item bad">✗ PPT 导出后字体/样式全部变形</div>
+        </div>
+        <div class="dd-metric">评测方法：多格式导出全量测试 · 各场景实际使用走查</div>
+      </div>
+    </div>
+
+    <!-- 8. 可解释性与透明度 -->
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-num">D-8</span>
+        <span class="dd-name">可解释性与透明度</span>
+        <span class="dd-tag dd-tag-trust">信任建立</span>
+      </div>
+      <div class="dd-body">
+        <div class="dd-question">用户能理解 Skill「为什么这样做」吗？AI 决策是否可审计？</div>
+        <div class="dd-items">
+          <div class="dd-item good">✓ 配色推荐时说明依据（对比度 / 品牌匹配度 / 情绪联想）</div>
+          <div class="dd-item good">✓ 评测类 Skill 给出「打分理由」而非只给结论</div>
+          <div class="dd-item good">✓ 生成的内容可关联到「它依据哪些规则/规范」</div>
+          <div class="dd-item bad">✗ 完全黑盒：「AI 觉得这样好」，无法溯源</div>
+          <div class="dd-item bad">✗ 评测分数变化时用户无法判断是 Skill 变了还是内容变了</div>
+        </div>
+        <div class="dd-metric">评测方法：决策溯源问卷 · 用户「为什么」追问测试</div>
+      </div>
+    </div>
+
+    <!-- 9. 人工干预与协作 -->
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-num">D-9</span>
+        <span class="dd-name">人工干预与协作</span>
+        <span class="dd-tag dd-tag-trust">信任建立</span>
+      </div>
+      <div class="dd-body">
+        <div class="dd-question">当 AI 产出不达预期时，用户能有效干预和修正吗？</div>
+        <div class="dd-items">
+          <div class="dd-item good">✓ 支持「局部重生成」：只重做指定部分，保留满意内容</div>
+          <div class="dd-item good">✓ 参数可渐进式调整（而非每次全量重跑）</div>
+          <div class="dd-item good">✓ 支持「人工修改后反哺」：用户改了什么可以作为偏好记忆</div>
+          <div class="dd-item bad">✗ 任何调整都触发全量重新生成，历史状态丢失</div>
+          <div class="dd-item bad">✗ 无法向 Skill 传达「保持 X 不变，只改 Y」的指令</div>
+        </div>
+        <div class="dd-metric">评测方法：协同编辑场景走查 · 「局部修改」任务完成率测试</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 维度与 TRAIL/SQE 的映射关系说明 -->
+  <div class="design-dim-mapping">
+    <div class="ddm-title">9 个专项维度与 TRAIL 的关系</div>
+    <div class="ddm-row">
+      <span class="ddm-group ux">交互体验（D-1/D-2/D-7）</span>
+      <span class="ddm-arrow">→</span>
+      <span class="ddm-map">归属 TRAIL · A（激活摩擦力）的垂直展开，衡量设计交互的特殊摩擦点</span>
+    </div>
+    <div class="ddm-row">
+      <span class="ddm-group risk">风险管控（D-3/D-4）</span>
+      <span class="ddm-arrow">→</span>
+      <span class="ddm-map">归属 TRAIL · I（集成适配度）的合规层，SaaS 时代由法务/设计规范团队管控，Skill 化后需内化到 Skill 自身</span>
+    </div>
+    <div class="ddm-row">
+      <span class="ddm-group quality">产出质量（D-5/D-6）</span>
+      <span class="ddm-arrow">→</span>
+      <span class="ddm-map">归属 TRAIL · R（结果质量）的垂直展开，是「能用」之上的「专业可用」</span>
+    </div>
+    <div class="ddm-row">
+      <span class="ddm-group trust">信任建立（D-8/D-9）</span>
+      <span class="ddm-arrow">→</span>
+      <span class="ddm-map">TRAIL 原始 5 维度缺失的新层次——设计类 AI Skill 特有，决定专业用户是否愿意长期使用</span>
+    </div>
+  </div>
 
   <!-- 两框架定位说明 -->
   <div class="grid-2">
