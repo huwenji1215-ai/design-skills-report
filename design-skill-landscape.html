@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计域 Skill 全景图</title>
+<style>
+:root {
+  --bg:#0c0e14; --bg2:#111420; --bg3:#181c28; --bg4:#0e111a;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.14);
+  --text:#e2e8f0; --text2:#94a3b8; --text3:#4b5563; --text4:#2d3748;
+  --built:#34d399; --ref:#60a5fa; --pending:#f59e0b;
+  --c-d1:#a78bfa; --c-d2:#f472b6; --c-d3:#38bdf8; --c-d4:#fb923c;
+  --c-d5:#4ade80; --c-d6:#e879f9; --c-d7:#fbbf24; --c-d8:#f87171;
+  --line-include:#6366f1; --line-collab:#10b981;
+  --line-depend:#f59e0b;  --line-output:#f472b6;
+  --p0:#ef4444; --p1:#f59e0b; --p2:#6b7280;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"PingFang SC","SF Pro Text",system-ui,sans-serif;font-size:13px;overflow-x:auto}
+
+/* ─── 顶栏 ─── */
+.header{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:14px;
+  padding:9px 20px;
+  background:rgba(12,14,20,0.96);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.header h1{font-size:14px;font-weight:700;letter-spacing:-.3px;white-space:nowrap}
+.legend{display:flex;align-items:center;gap:12px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);white-space:nowrap}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.divider{width:1px;height:14px;background:var(--border);flex-shrink:0}
+.rel-row{display:flex;gap:4px}
+.rbtn{padding:3px 8px;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s}
+.rbtn:hover{background:rgba(255,255,255,.06)}
+.rbtn.on{color:var(--text);border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.07)}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hdr-meta{font-size:11px;color:var(--text3)}
+
+/* ─── Hero 区 ─── */
+.hero{
+  padding:28px 28px 0;
+  background:linear-gradient(180deg, rgba(16,20,32,.8) 0%, transparent 100%);
+}
+.hero-top{display:flex;align-items:flex-start;gap:28px;margin-bottom:20px}
+.hero-text{flex:1}
+.hero-title{
+  font-size:26px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(135deg,#e2e8f0 30%,#94a3b8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:6px;
+}
+.hero-sub{font-size:13px;color:var(--text2);line-height:1.6;max-width:560px}
+.hero-tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.htag{
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
+  background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--text2);
+}
+.htag.hi{background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.3);color:#818cf8}
+
+/* ─── 数据概览卡片 ─── */
+.overview-cards{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:10px;
+  padding:0 28px 20px;
+}
+.ov-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;position:relative;overflow:hidden;
+}
+.ov-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--ov-color,var(--border));
+}
+.ov-num{font-size:24px;font-weight:800;line-height:1;margin-bottom:4px}
+.ov-label{font-size:11px;color:var(--text2);line-height:1.3}
+.ov-sub{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* ─── 核心调用链路 ─── */
+.chain-section{
+  margin:0 28px 20px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;
+}
+.chain-head{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  cursor:pointer;user-select:none;
+}
+.chain-head-title{font-size:12px;font-weight:700;color:var(--text)}
+.chain-head-sub{font-size:11px;color:var(--text3);margin-left:4px}
+.chain-toggle{margin-left:auto;font-size:10px;color:var(--text3);transition:transform .18s}
+.chain-body{padding:12px 16px 14px}
+.chain-list{display:flex;flex-direction:column;gap:12px}
+
+.chain-item{
+  display:flex;align-items:flex-start;gap:0;
+  position:relative;
+}
+.chain-item::before{
+  content:'';position:absolute;left:20px;top:36px;bottom:-12px;
+  width:1px;background:linear-gradient(180deg,var(--border2),transparent);
+}
+.chain-item:last-child::before{display:none}
+
+.chain-step-num{
+  width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;margin-right:12px;margin-top:2px;
+}
+.chain-content{flex:1}
+.chain-name{font-size:12px;font-weight:700;margin-bottom:3px}
+.chain-flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;row-gap:4px}
+.cf-node{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:5px;font-size:11px;
+  background:var(--bg3);border:1px solid var(--border2);
+  white-space:nowrap;
+}
+.cf-node .p-badge{
+  font-size:9px;font-weight:700;padding:0 4px;border-radius:3px;
+}
+.cf-arrow{
+  padding:0 6px;color:var(--text3);font-size:12px;flex-shrink:0;
+}
+.cf-label{
+  font-size:10px;color:var(--text3);padding:0 4px;
+  font-style:italic;
+}
+
+/* ─── 主画布 ─── */
+.canvas-wrap{position:relative;padding:16px 28px 28px;min-width:1400px}
+#svg-layer{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:30;
+}
+#svg-layer path{pointer-events:stroke}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative;z-index:20}
+
+/* ─── 域卡片 ─── */
+.domain-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;
+}
+.domain-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0}
+.d1::before{background:var(--c-d1)} .d2::before{background:var(--c-d2)}
+.d3::before{background:var(--c-d3)} .d4::before{background:var(--c-d4)}
+.d5::before{background:var(--c-d5)} .d6::before{background:var(--c-d6)}
+.d7::before{background:var(--c-d7)} .d8::before{background:var(--c-d8)}
+
+.card-head{display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid var(--border)}
+.card-icon{font-size:14px;flex-shrink:0}
+.card-title{font-size:13px;font-weight:700;flex:1}
+.d1 .card-title{color:var(--c-d1)} .d2 .card-title{color:var(--c-d2)}
+.d3 .card-title{color:var(--c-d3)} .d4 .card-title{color:var(--c-d4)}
+.d5 .card-title{color:var(--c-d5)} .d6 .card-title{color:var(--c-d6)}
+.d7 .card-title{color:var(--c-d7)} .d8 .card-title{color:var(--c-d8)}
+.card-count{width:19px;height:19px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.d1 .card-count{background:rgba(167,139,250,.12);color:var(--c-d1)}
+.d2 .card-count{background:rgba(244,114,182,.12);color:var(--c-d2)}
+.d3 .card-count{background:rgba(56,189,248,.12);color:var(--c-d3)}
+.d4 .card-count{background:rgba(251,146,60,.12);color:var(--c-d4)}
+.d5 .card-count{background:rgba(74,222,128,.12);color:var(--c-d5)}
+.d6 .card-count{background:rgba(232,121,249,.12);color:var(--c-d6)}
+.d7 .card-count{background:rgba(251,191,36,.12);color:var(--c-d7)}
+.d8 .card-count{background:rgba(248,113,113,.12);color:var(--c-d8)}
+
+.card-body{padding:7px 8px 8px}
+
+/* ─── 子场景 ─── */
+.scene{margin-bottom:6px}
+.scene:last-child{margin-bottom:0}
+.scene-label{
+  font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--text3);
+  text-transform:uppercase;margin-bottom:4px;padding:0 2px;
+  display:flex;align-items:center;gap:5px;
+}
+.scene-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ─── 抽象节点行 ─── */
+.abs-row{
+  display:flex;align-items:flex-start;gap:5px;
+  padding:5px 6px 5px 7px;border-radius:7px;margin-bottom:2px;
+  cursor:pointer;transition:background .12s;position:relative;
+  border:1px solid transparent;
+}
+.abs-row:hover{background:rgba(255,255,255,.04);border-color:var(--border)}
+.abs-row.expanded{background:rgba(255,255,255,.035);border-color:var(--border2)}
+
+.abs-icon{font-size:12px;flex-shrink:0;margin-top:1px}
+.abs-main{flex:1;min-width:0}
+.abs-name{font-size:11px;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.abs-desc{font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.abs-footer{display:flex;align-items:center;gap:4px;margin-top:3px;flex-wrap:wrap}
+
+/* 优先级徽标 */
+.p-badge{
+  font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px;flex-shrink:0;
+}
+.p0{background:rgba(239,68,68,.15);color:var(--p0);border:1px solid rgba(239,68,68,.3)}
+.p1{background:rgba(245,158,11,.12);color:var(--p1);border:1px solid rgba(245,158,11,.25)}
+.p2{background:rgba(107,114,128,.1); color:#9ca3af; border:1px solid rgba(107,114,128,.2)}
+
+/* 来源徽标 */
+.src-pip{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:1px 5px;border-radius:3px}
+.src-pip.built  {background:rgba(52,211,153,.13);color:var(--built);  border:1px solid rgba(52,211,153,.25)}
+.src-pip.ref    {background:rgba(96,165,250,.11); color:var(--ref);   border:1px solid rgba(96,165,250,.22)}
+.src-pip.pending{background:rgba(245,158,11,.09); color:var(--pending);border:1px solid rgba(245,158,11,.2)}
+.count-badge{font-size:9px;color:var(--text3)}
+.expand-arrow{flex-shrink:0;font-size:9px;color:var(--text3);margin-top:3px;transition:transform .18s}
+.abs-row.expanded .expand-arrow{transform:rotate(90deg)}
+
+/* ─── 展开详情 ─── */
+.abs-detail{
+  display:none;margin:0 0 5px 7px;padding:5px 8px;
+  background:rgba(0,0,0,.2);border-radius:6px;border-left:2px solid var(--border2);
+}
+.abs-detail.show{display:block}
+.detail-item{display:flex;align-items:center;gap:5px;padding:3px 4px;border-radius:4px;transition:background .1s}
+.detail-item:hover{background:rgba(255,255,255,.04)}
+.di-src{flex-shrink:0;width:22px;height:13px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700}
+.di-built  {background:rgba(52,211,153,.15);color:var(--built)}
+.di-ref    {background:rgba(96,165,250,.12);color:var(--ref)}
+.di-pending{background:rgba(245,158,11,.1); color:var(--pending)}
+.di-name{font-size:11px;color:var(--text2);flex:1}
+.di-tech{font-size:9px;color:var(--text3)}
+
+/* ─── 统计条 ─── */
+.stats-row{display:flex;gap:3px;padding:6px 8px 0;border-top:1px solid var(--border);margin:5px -8px -8px}
+.stat-pill{flex:1;text-align:center;padding:3px 0;border-radius:4px;font-size:9px;font-weight:600}
+.sp-built  {background:rgba(52,211,153,.09);color:var(--built)}
+.sp-ref    {background:rgba(96,165,250,.09);color:var(--ref)}
+.sp-pending{background:rgba(245,158,11,.09);color:var(--pending)}
+
+/* ─── 浮层提示 ─── */
+.rel-tooltip{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--bg3);border:1px solid var(--border2);border-radius:7px;
+  padding:5px 14px;font-size:11px;color:var(--text2);
+  pointer-events:none;z-index:200;opacity:0;transition:opacity .2s;white-space:nowrap;
+}
+.rel-tooltip.show{opacity:1}
+
+/* ─── 优先级图例 ─── */
+.p-legend{display:flex;align-items:center;gap:8px}
+
+/* ─── 优先级评分 Tooltip ─── */
+.prio-tooltip{
+  position:fixed;
+  background:#0e111a;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;
+  padding:12px 14px;
+  z-index:500;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s;
+  min-width:220px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+}
+.prio-tooltip.show{opacity:1}
+.pt-header{
+  display:flex;align-items:center;gap:7px;
+  margin-bottom:10px;padding-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.pt-badge{font-size:11px;font-weight:800;padding:2px 8px;border-radius:4px}
+.pt-total{font-size:13px;font-weight:800;margin-left:auto}
+.pt-desc{font-size:10px;color:#94a3b8;margin-bottom:8px;line-height:1.5}
+.pt-row{
+  display:flex;align-items:center;gap:6px;
+  margin-bottom:5px;
+}
+.pt-row:last-child{margin-bottom:0}
+.pt-dim{font-size:10px;color:#64748b;width:88px;flex-shrink:0;line-height:1.3}
+.pt-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.pt-bar{height:100%;border-radius:3px;transition:width .3s}
+.pt-score{font-size:10px;font-weight:700;width:14px;text-align:right;flex-shrink:0}
+.pt-rule{
+  margin-top:9px;padding-top:8px;
+  border-top:1px solid rgba(255,255,255,.06);
+  font-size:9px;color:#374151;line-height:1.5;
+}
+</style>
+</head>
+<body>
+
+<!-- ── 顶部导航栏 ── -->
+<header class="header">
+  <h1>⬡ 设计域 Skill 全景图</h1>
+  <div class="divider"></div>
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--built)"></div>仓库已建</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--ref)"></div>业内参考</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--pending)"></div>待建</div>
+    <div class="divider"></div>
+    <div class="leg"><div class="leg-dot" style="background:var(--line-output);border-radius:50%"></div>产物流</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--line-include);border-radius:50%"></div>包含</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--line-collab);border-radius:50%"></div>协同</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--line-depend);border-radius:50%"></div>依赖</div>
+    <div class="divider"></div>
+    <div class="p-legend">
+      <span class="p-badge p0">P0</span><span style="font-size:10px;color:var(--text3)">核心</span>
+      <span class="p-badge p1">P1</span><span style="font-size:10px;color:var(--text3)">重要</span>
+      <span class="p-badge p2">P2</span><span style="font-size:10px;color:var(--text3)">补充</span>
+    </div>
+  </div>
+  <div class="rel-row" id="relRow" style="margin-left:8px">
+    <button class="rbtn on" data-type="output"  onclick="toggleRel('output',this)">产物流</button>
+    <button class="rbtn on" data-type="include" onclick="toggleRel('include',this)">包含</button>
+    <button class="rbtn on" data-type="collab"  onclick="toggleRel('collab',this)">协同</button>
+    <button class="rbtn on" data-type="depend"  onclick="toggleRel('depend',this)">依赖</button>
+    <button class="rbtn"    onclick="toggleAllRel(this)">隐藏全部</button>
+  </div>
+  <div class="header-right">
+    <span class="hdr-meta" id="totalCount"></span>
+  </div>
+</header>
+
+<!-- ── Hero 标题区 ── -->
+<div class="hero">
+  <div class="hero-top">
+    <div class="hero-text">
+      <div class="hero-title">设计智力 Skill 全景图</div>
+      <div class="hero-sub">覆盖视觉生产→品牌→动效→设计系统→用研→评审→协同→进化的完整能力矩阵。
+        33 个抽象节点，点击展开查看原始 Skill 明细；核心调用链路展示跨域协同逻辑。</div>
+      <div class="hero-tags">
+        <span class="htag">8 大设计域</span>
+        <span class="htag">33 个能力节点</span>
+        <span class="htag hi">5 条核心调用链</span>
+        <span class="htag">P0/P1/P2 优先级</span>
+        <span class="htag">生成-评测-进化闭环</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 数据概览卡片 ── -->
+<div class="overview-cards" id="overviewCards">
+  <!-- JS 动态填充 -->
+</div>
+
+<!-- ── 核心调用链路 ── -->
+<div class="chain-section">
+  <div class="chain-head" onclick="toggleChain(this)">
+    <span style="font-size:14px">⛓</span>
+    <span class="chain-head-title">核心调用链路</span>
+    <span class="chain-head-sub">5 条跨域协同主干链，点击节点高亮关联</span>
+    <span class="chain-toggle" id="chainToggle">▼</span>
+  </div>
+  <div class="chain-body" id="chainBody">
+    <div class="chain-list" id="chainList"></div>
+  </div>
+</div>
+
+<!-- ── 主画布 ── -->
+<div class="canvas-wrap" id="canvasWrap">
+  <svg id="svg-layer" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div class="grid" id="grid"></div>
+</div>
+<div class="rel-tooltip" id="relTooltip"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// 节点数据
+// prio: 'p0'|'p1'|'p2'
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// 5维评分体系
+// D1 使用频率 1-3  D2 跨域依赖数 1-3  D3 能力空缺度 1-3
+// D4 业务价值直接性 1-3  D5 建设成本(低=3) 1-3
+// 总分≥12→P0  7-11→P1  <7→P2
+// ══════════════════════════════════════════════════════
+const SCORE_DIMS=[
+  {key:'freq',  label:'使用频率',   tip:'日常任务调用频率',   color:'#a78bfa'},
+  {key:'dep',   label:'跨域依赖',   tip:'其他节点依赖它的数量',color:'#f472b6'},
+  {key:'gap',   label:'能力空缺度', tip:'当前能力缺口大小',   color:'#f59e0b'},
+  {key:'value', label:'业务价值',   tip:'直接产出交付物的程度',color:'#34d399'},
+  {key:'cost',  label:'建设成本',   tip:'低成本=3 高成本=1',  color:'#60a5fa'},
+];
+function calcPrio(s){
+  const total=s.freq+s.dep+s.gap+s.value+s.cost;
+  return {prio:total>=12?'p0':total>=7?'p1':'p2', total};
+}
+
+const DOMAINS = [
+{id:'d1',cls:'d1',icon:'🎨',title:'视觉内容生产',
+ nodes:[
+  {scene:'数据可视化',items:[
+    {nid:'nd-infovis', icon:'📊', name:'信息图 & 图表生成', desc:'数据→信息图/图表/生成艺术',
+     scores:{freq:3,dep:3,gap:2,value:3,cost:3},  // total=14 → P0
+     variants:[
+      {src:'built',  name:'信息图生成 (infographic-gen)', tech:'AI+Prompt', repo:'designskill'},
+      {src:'ref',    name:'数据图表生成 (visual-creator)', tech:'Python/ECharts'},
+      {src:'pending',name:'图表美化&品牌注入',             tech:'Token注入'},
+      {src:'ref',    name:'生成艺术 p5.js',               tech:'p5.js'},
+     ]},
+    {nid:'nd-imggen', prio:'p1', icon:'🖼', name:'静态视觉生成', desc:'海报/AI图/动图/超分',
+     variants:[
+      {src:'ref',name:'艺术海报 (canvas-design)', tech:'PNG/PDF'},
+      {src:'ref',name:'AI图片生成',                tech:'Siliconflow'},
+      {src:'ref',name:'图像超分&修复',             tech:'fal.ai'},
+      {src:'ref',name:'GIF动图&贴纸',             tech:'MiniMax'},
+     ]},
+  ]},
+  {scene:'前端界面',items:[
+    {nid:'nd-uicode', icon:'💻', name:'前端 UI 生成套件', desc:'界面/组件/Artifact构建',
+     scores:{freq:3,dep:3,gap:1,value:3,cost:3},  // total=13 → P0
+     variants:[
+      {src:'ref',name:'前端界面生成 (frontend-design)', tech:'HTML/React'},
+      {src:'ref',name:'UI/UX规范库 (ui-ux-promax)',     tech:'50风格'},
+      {src:'ref',name:'Web Artifact构建',               tech:'React+Tailwind'},
+      {src:'ref',name:'shadcn/ui 组件',                 tech:'shadcn/ui'},
+     ]},
+  ]},
+ ]},
+
+{id:'d2',cls:'d2',icon:'💠',title:'品牌设计',
+ nodes:[
+  {scene:'品牌策略',items:[
+    {nid:'nd-brand-strategy', icon:'📌', name:'品牌策略 & 提案', desc:'定位/声音/提案Deck',
+     scores:{freq:1,dep:2,gap:3,value:2,cost:1},  // total=9 → P1
+     variants:[
+      {src:'pending',name:'品牌策略文档',   tech:'定位/声音/价值观'},
+      {src:'pending',name:'品牌提案Deck',   tech:'叙事+视觉方向'},
+      {src:'pending',name:'品牌命名&测试',  tech:'语义分析'},
+      {src:'ref',    name:'StoryBrand信息框架', tech:'7步框架'},
+     ]},
+  ]},
+  {scene:'视觉规范',items:[
+    {nid:'nd-brand-system', icon:'🎨', name:'品牌视觉系统', desc:'色彩Token/VI手册/Moodboard',
+     scores:{freq:2,dep:3,gap:3,value:2,cost:2},  // total=12 → P0
+     variants:[
+      {src:'ref',    name:'品牌规范应用 (brand-guidelines)', tech:'色彩/字体/Logo'},
+      {src:'pending',name:'品牌规范手册生成',               tech:'VI手册'},
+      {src:'pending',name:'色彩系统设计',                   tech:'Token体系'},
+      {src:'pending',name:'情绪板 Moodboard',               tech:'AI生图+排版'},
+     ]},
+    {nid:'nd-brand-qa', icon:'✅', name:'品牌合规检查', desc:'规范对照/声音一致性',
+     scores:{freq:1,dep:1,gap:3,value:1,cost:2},  // total=8 → P1
+     variants:[
+      {src:'pending',name:'品牌合规性检查',    tech:'对照规范文档'},
+      {src:'pending',name:'品牌声音一致性审查', tech:'文案分析'},
+     ]},
+  ]},
+ ]},
+
+{id:'d3',cls:'d3',icon:'✨',title:'动效 & 高端交互',
+ nodes:[
+  {scene:'Web 动画',items:[
+    {nid:'nd-gsap', icon:'⚡', name:'GSAP 动画套件', desc:'时间轴/滚动视差/插件全套',
+     scores:{freq:2,dep:2,gap:1,value:2,cost:3},  // total=10 → P1
+     variants:[
+      {src:'ref',name:'GSAP 核心动画',          tech:'gsap-core'},
+      {src:'ref',name:'滚动视差 ScrollTrigger', tech:'gsap-scroll'},
+      {src:'ref',name:'时间轴动画',              tech:'gsap-timeline'},
+      {src:'ref',name:'GSAP 插件集',            tech:'Flip/Draggable'},
+     ]},
+  ]},
+  {scene:'微交互 & 规范',items:[
+    {nid:'nd-motion', icon:'💫', name:'微交互 & 动效规范', desc:'微交互/Lottie/动效文档',
+     scores:{freq:2,dep:2,gap:2,value:2,cost:2},  // total=10 → P1
+     variants:[
+      {src:'ref',    name:'微交互设计规范 (microinteractions)', tech:'状态机+触发器'},
+      {src:'pending',name:'Lottie 动效规范',                   tech:'AE导出+JSON'},
+      {src:'pending',name:'CSS 过渡&动效',                     tech:'CSS Animation'},
+      {src:'pending',name:'动效说明文档生成',                   tech:'参数+示例'},
+     ]},
+  ]},
+  {scene:'高级视觉特效',items:[
+    {nid:'nd-vfx', icon:'🌟', name:'高级视觉特效套件', desc:'Shader/3D/视频生成',
+     scores:{freq:1,dep:1,gap:2,value:1,cost:1},  // total=6 → P2
+     variants:[
+      {src:'ref',    name:'GLSL Shader特效',         tech:'WebGL/GLSL'},
+      {src:'pending',name:'Three.js 3D场景',         tech:'Three.js'},
+      {src:'ref',    name:'代码驱动视频 (Remotion)', tech:'React'},
+      {src:'ref',    name:'AI视频生成 (Sora)',        tech:'Sora API'},
+     ]},
+  ]},
+ ]},
+
+{id:'d4',cls:'d4',icon:'🔧',title:'设计系统',
+ nodes:[
+  {scene:'主题 & Token',items:[
+    {nid:'nd-token', icon:'🎨', name:'主题 & Token 体系', desc:'预设主题/Token管理/色彩系统',
+     scores:{freq:3,dep:3,gap:2,value:2,cost:3},  // total=13 → P0
+     variants:[
+      {src:'ref',    name:'主题工厂 (theme-factory)',  tech:'10套预设'},
+      {src:'pending',name:'Design Token 管理',         tech:'Web/iOS/Android'},
+     ]},
+  ]},
+  {scene:'组件库 & Figma',items:[
+    {nid:'nd-figma', icon:'🔷', name:'Figma 工作流套件', desc:'生成库/Code Connect/脚本/还原',
+     scores:{freq:3,dep:3,gap:1,value:3,cost:2},  // total=12 → P0
+     variants:[
+      {src:'ref',name:'Figma 组件库生成',    tech:'Figma MCP'},
+      {src:'ref',name:'Figma→代码连接',      tech:'Code Connect'},
+      {src:'ref',name:'设计系统规则生成',    tech:'Figma→Code'},
+      {src:'ref',name:'Figma 设计还原',      tech:'1:1还原'},
+      {src:'ref',name:'Figma 脚本自动化',   tech:'Plugin API'},
+      {src:'ref',name:'Figma 文件管理',      tech:'Figma MCP'},
+     ]},
+    {nid:'nd-content', icon:'📝', name:'内容设计规范', desc:'UX Writing/错误文案/内容模型',
+     scores:{freq:1,dep:1,gap:3,value:1,cost:2},  // total=8 → P1
+     variants:[
+      {src:'pending',name:'UX Writing 规范',           tech:'Microcopy'},
+      {src:'pending',name:'错误提示文案设计',           tech:'友好化+多语言'},
+      {src:'ref',    name:'内容模型设计 (Sanity CMS)', tech:'CMS'},
+     ]},
+  ]},
+ ]},
+
+{id:'d5',cls:'d5',icon:'🔍',title:'用户研究 & 洞察',
+ nodes:[
+  {scene:'研究前置',items:[
+    {nid:'nd-research-prep', icon:'📋', name:'研究 & 竞品分析', desc:'访谈/竞品拆解/趋势追踪',
+     scores:{freq:2,dep:2,gap:2,value:2,cost:2},  // total=10 → P1
+     variants:[
+      {src:'pending',name:'竞品设计风格拆解',   tech:'截图→色彩/字体/布局'},
+      {src:'ref',    name:'行业调研与市场分析',  tech:'多维对比'},
+      {src:'ref',    name:'设计趋势追踪',        tech:'多平台爬取'},
+      {src:'ref',    name:'用研访谈方案设计',    tech:'Mom Test'},
+     ]},
+  ]},
+  {scene:'洞察合成',items:[
+    {nid:'nd-insight', icon:'👤', name:'用户洞察链', desc:'画像→旅程→测试 三段式',
+     scores:{freq:2,dep:2,gap:2,value:3,cost:2},  // total=11 → P1
+     variants:[
+      {src:'ref',    name:'用户画像生成',    tech:'JTBD框架'},
+      {src:'pending',name:'用户旅程地图',    tech:'情绪曲线+痛点'},
+      {src:'pending',name:'可用性测试方案',  tech:'任务脚本+指标'},
+     ]},
+    {nid:'nd-prototype', icon:'🗺', name:'信息架构 & 原型方法', desc:'IA/设计冲刺/精益UX',
+     scores:{freq:1,dep:2,gap:2,value:1,cost:2},  // total=8 → P1
+     variants:[
+      {src:'pending',name:'信息架构梳理',         tech:'IA树+卡片分类'},
+      {src:'ref',    name:'设计冲刺 (design-sprint)', tech:'5天流程'},
+      {src:'ref',    name:'精益UX画布',            tech:'Lean UX Canvas'},
+      {src:'ref',    name:'故事板/场景原型',       tech:'6格叙事'},
+     ]},
+  ]},
+ ]},
+
+{id:'d6',cls:'d6',icon:'✅',title:'设计评审 & 质量',
+ nodes:[
+  {scene:'评测引擎',items:[
+    {nid:'nd-eval-engine', icon:'🧠', name:'评测引擎（总调度）', desc:'通用评测→路由→专项维度',
+     scores:{freq:3,dep:3,gap:1,value:3,cost:3},  // total=13 → P0
+     variants:[
+      {src:'built',name:'设计评测总调度 (design-evaluator)',  tech:'4层架构', repo:'designskill'},
+      {src:'built',name:'可视化三维评测 (infovis-evaluator)', tech:'路由×解码×摩擦力', repo:'designskill'},
+      {src:'ref',  name:'Web规范合规检查',                    tech:'Vercel准则'},
+     ]},
+  ]},
+  {scene:'专项检查',items:[
+    {nid:'nd-spec-check', icon:'🔬', name:'专项评审套件', desc:'启发式/无障碍/评分/走查',
+     scores:{freq:2,dep:2,gap:2,value:2,cost:2},  // total=10 → P1
+     variants:[
+      {src:'ref',    name:'Nielsen启发式评审',  tech:'10大原则'},
+      {src:'pending',name:'无障碍可访问性检查', tech:'WCAG 2.1 AA'},
+      {src:'ref',    name:'设计走查&代码修复',  tech:'视觉审计+提交'},
+      {src:'ref',    name:'设计维度评分(0-10)', tech:'AI Slop检测'},
+     ]},
+    {nid:'nd-figma-review', icon:'🔄', name:'Figma 评审工具', desc:'迭代反馈环/设计决策记录',
+     scores:{freq:2,dep:2,gap:1,value:2,cost:3},  // total=10 → P1
+     variants:[
+      {src:'ref',name:'设计→代码迭代反馈环 (Stitch)', tech:'Stitch MCP'},
+      {src:'ref',name:'DESIGN.md 管理',               tech:'设计决策记录'},
+     ]},
+  ]},
+ ]},
+
+{id:'d7',cls:'d7',icon:'🤝',title:'设计协同 & 交付',
+ nodes:[
+  {scene:'演示 & 汇报',items:[
+    {nid:'nd-ppt', icon:'📊', name:'演示文档套件', desc:'视觉PPT/企业汇报/艺术/提案Deck',
+     scores:{freq:3,dep:2,gap:1,value:3,cost:3},  // total=12 → P0
+     variants:[
+      {src:'built',  name:'视觉PPT生成 (ppt-from-vision)', tech:'AI生图+15套配色', repo:'designskill'},
+      {src:'ref',    name:'企业汇报PPT (work-report-ppt)', tech:'温暖渐变'},
+      {src:'ref',    name:'艺术创意PPT (artistic-ppt)',    tech:'宝丽来+手写体'},
+      {src:'pending',name:'设计提案Deck',                  tech:'问题→洞察→方案'},
+     ]},
+  ]},
+  {scene:'交付文档',items:[
+    {nid:'nd-handoff', icon:'📦', name:'交付文档生成', desc:'设计规范/交付说明/方案文档',
+     scores:{freq:2,dep:2,gap:3,value:3,cost:2},  // total=12 → P0
+     variants:[
+      {src:'pending',name:'设计交付说明文档',tech:'标注/切图/动效参数'},
+      {src:'pending',name:'设计规范文档生成',tech:'组件/交互/标注'},
+      {src:'pending',name:'设计方案说明文档',tech:'背景/方案/风险'},
+      {src:'ref',    name:'周报&内部通讯',   tech:'状态报告+FAQ'},
+     ]},
+  ]},
+  {scene:'协作平台',items:[
+    {nid:'nd-collab', icon:'🔗', name:'协作平台对接', desc:'语雀/Notion/文件管理',
+     scores:{freq:2,dep:1,gap:1,value:1,cost:3},  // total=8 → P1
+     variants:[
+      {src:'ref',name:'语雀知识库同步',         tech:'双向读写'},
+      {src:'ref',name:'Notion规范转实施计划',   tech:'Notion API'},
+     ]},
+  ]},
+ ]},
+
+{id:'d8',cls:'d8',icon:'🚀',title:'设计进化',
+ nodes:[
+  {scene:'自进化引擎',items:[
+    {nid:'nd-autoevo', icon:'♾', name:'自进化闭环引擎', desc:'生成→评测→变异→反哺',
+     scores:{freq:2,dep:3,gap:2,value:3,cost:3},  // total=13 → P0
+     variants:[
+      {src:'built',  name:'可视化自进化 (infovis-autoevo)', tech:'生成→评测→变异', repo:'designskill'},
+      {src:'pending',name:'通用设计自进化引擎',             tech:'PPT/海报/UI'},
+      {src:'ref',    name:'Stitch 设计→代码进化环',         tech:'迭代反馈'},
+     ]},
+  ]},
+  {scene:'数据驱动迭代',items:[
+    {nid:'nd-data-iter', icon:'📈', name:'数据驱动迭代链', desc:'埋点→A/B→度量→周报',
+     scores:{freq:1,dep:2,gap:3,value:2,cost:2},  // total=10 → P1
+     variants:[
+      {src:'pending',name:'A/B测试方案设计',  tech:'假设→指标→分组'},
+      {src:'ref',    name:'埋点方案&数据追踪', tech:'Analytics'},
+      {src:'pending',name:'设计价值量化指标',  tech:'转化/体验/效率'},
+      {src:'pending',name:'设计周报&月报',     tech:'产出统计+洞察'},
+     ]},
+  ]},
+  {scene:'能力沉淀',items:[
+    {nid:'nd-meta', icon:'🧬', name:'元能力沉淀', desc:'Skill创建/复盘/演进',
+     scores:{freq:2,dep:1,gap:1,value:2,cost:3},  // total=9 → P1
+     variants:[
+      {src:'ref',name:'Skill 创建&优化', tech:'Eval框架'},
+      {src:'ref',name:'复盘举一反三',    tech:'4层递进框架'},
+     ]},
+  ]},
+ ]},
+];
+
+// ══════════════════════════════════════════════════════
+// 关系连线数据
+// ══════════════════════════════════════════════════════
+const RELATIONS = [
+  {from:'nd-infovis',       to:'nd-eval-engine',    type:'output',  label:'信息图/图表 → 评测'},
+  {from:'nd-imggen',        to:'nd-eval-engine',    type:'output',  label:'海报/图片 → 评测'},
+  {from:'nd-uicode',        to:'nd-eval-engine',    type:'output',  label:'UI界面 → 评测'},
+  {from:'nd-ppt',           to:'nd-eval-engine',    type:'output',  label:'PPT → 评测'},
+  {from:'nd-infovis',       to:'nd-ppt',            type:'collab',  label:'信息图嵌入PPT/Deck'},
+  {from:'nd-eval-engine',   to:'nd-autoevo',        type:'output',  label:'评测结论 → 自进化引擎'},
+  {from:'nd-autoevo',       to:'nd-meta',           type:'output',  label:'进化日志 → 能力沉淀'},
+  {from:'nd-brand-strategy',to:'nd-ppt',            type:'output',  label:'品牌策略 → 提案Deck'},
+  {from:'nd-brand-strategy',to:'nd-brand-system',   type:'include', label:'策略→视觉规范'},
+  {from:'nd-brand-system',  to:'nd-uicode',         type:'depend',  label:'品牌Token注入UI'},
+  {from:'nd-brand-system',  to:'nd-infovis',        type:'depend',  label:'品牌色注入图表'},
+  {from:'nd-brand-system',  to:'nd-ppt',            type:'depend',  label:'品牌规范约束PPT'},
+  {from:'nd-brand-system',  to:'nd-brand-qa',       type:'include', label:'规范→合规检查'},
+  {from:'nd-token',         to:'nd-infovis',        type:'depend',  label:'色彩Token注入图表'},
+  {from:'nd-token',         to:'nd-ppt',            type:'depend',  label:'主题注入PPT'},
+  {from:'nd-figma',         to:'nd-uicode',         type:'collab',  label:'Figma→代码协同'},
+  {from:'nd-figma',         to:'nd-figma-review',   type:'include', label:'Figma工具→评审工具'},
+  {from:'nd-research-prep', to:'nd-insight',        type:'output',  label:'访谈/竞品→用户洞察'},
+  {from:'nd-insight',       to:'nd-ppt',            type:'collab',  label:'画像/旅程支撑提案'},
+  {from:'nd-insight',       to:'nd-handoff',        type:'output',  label:'研究结论写入文档'},
+  {from:'nd-prototype',     to:'nd-uicode',         type:'collab',  label:'IA/原型指导界面'},
+  {from:'nd-research-prep', to:'nd-brand-strategy', type:'collab',  label:'竞品分析支撑品牌策略'},
+  {from:'nd-gsap',          to:'nd-uicode',         type:'collab',  label:'GSAP动画增强UI'},
+  {from:'nd-motion',        to:'nd-uicode',         type:'collab',  label:'微交互规范注入'},
+  {from:'nd-motion',        to:'nd-handoff',        type:'output',  label:'动效参数写入交付文档'},
+  {from:'nd-eval-engine',   to:'nd-spec-check',     type:'include', label:'调度专项评审'},
+  {from:'nd-eval-engine',   to:'nd-ppt',            type:'collab',  label:'评测结论支撑提案叙事'},
+  {from:'nd-spec-check',    to:'nd-figma-review',   type:'collab',  label:'评审→迭代反馈'},
+  {from:'nd-figma',         to:'nd-handoff',        type:'output',  label:'Figma导出→交付文档'},
+  {from:'nd-handoff',       to:'nd-collab',         type:'output',  label:'文档同步协作平台'},
+  {from:'nd-data-iter',     to:'nd-autoevo',        type:'collab',  label:'A/B数据反哺进化'},
+  {from:'nd-eval-engine',   to:'nd-data-iter',      type:'output',  label:'评测报告→数据迭代'},
+];
+
+// ══════════════════════════════════════════════════════
+// 核心调用链路
+// ══════════════════════════════════════════════════════
+const CHAINS = [
+  {
+    id:'chain-evo',
+    color:'#f472b6',
+    name:'生成-评测-进化 核心闭环',
+    desc:'设计侧内容飞轮最核心链路',
+    steps:[
+      {nid:'nd-infovis', label:'生成信息图/图表'},
+      {nid:'nd-eval-engine', label:'三维评测打分'},
+      {nid:'nd-autoevo', label:'变异反哺进化'},
+      {nid:'nd-meta',    label:'能力沉淀'},
+    ]
+  },
+  {
+    id:'chain-ui',
+    color:'#60a5fa',
+    name:'设计系统 → UI 交付链',
+    desc:'从规范到代码落地的完整路径',
+    steps:[
+      {nid:'nd-token',  label:'Token/主题设定'},
+      {nid:'nd-figma',  label:'Figma设计&还原'},
+      {nid:'nd-uicode', label:'前端UI生成'},
+      {nid:'nd-figma-review', label:'迭代反馈'},
+      {nid:'nd-handoff', label:'交付文档生成'},
+    ]
+  },
+  {
+    id:'chain-ppt',
+    color:'#fbbf24',
+    name:'研究洞察 → 提案 PPT 链',
+    desc:'从用户调研到汇报产物的路径',
+    steps:[
+      {nid:'nd-research-prep', label:'竞品/趋势调研'},
+      {nid:'nd-insight',       label:'画像/旅程合成'},
+      {nid:'nd-ppt',           label:'演示文档生成'},
+      {nid:'nd-eval-engine',   label:'PPT质量评测'},
+    ]
+  },
+  {
+    id:'chain-brand',
+    color:'#f472b6',
+    name:'品牌系统 → 视觉落地链',
+    desc:'品牌策略→规范→UI/图表一致性注入',
+    steps:[
+      {nid:'nd-brand-strategy', label:'品牌策略制定'},
+      {nid:'nd-brand-system',   label:'色彩/VI规范'},
+      {nid:'nd-infovis',        label:'品牌色注入图表'},
+      {nid:'nd-uicode',         label:'品牌Token注入UI'},
+      {nid:'nd-brand-qa',       label:'合规检查'},
+    ]
+  },
+  {
+    id:'chain-data',
+    color:'#4ade80',
+    name:'数据驱动迭代链',
+    desc:'评测结论驱动A/B→度量→进化',
+    steps:[
+      {nid:'nd-eval-engine',  label:'评测产出报告'},
+      {nid:'nd-data-iter',    label:'A/B方案设计'},
+      {nid:'nd-autoevo',      label:'数据反哺进化'},
+      {nid:'nd-meta',         label:'规律沉淀为Skill'},
+    ]
+  },
+];
+
+// ══════════════════════════════════════════════════════
+// 渲染配置
+// ══════════════════════════════════════════════════════
+// 运行时从 scores 计算优先级，注入 nd.prio
+DOMAINS.forEach(d=>d.nodes.forEach(sc=>sc.items.forEach(nd=>{
+  if(nd.scores){
+    const r=calcPrio(nd.scores);
+    nd.prio=r.prio;
+    nd._total=r.total;
+  } else {
+    nd.prio='p2'; nd._total=0;
+  }
+})));
+
+const REL_CFG = {
+  output:  {color:'#f472b6', dash:'none', width:2,   arrow:true },
+  include: {color:'#6366f1', dash:'none', width:1.5, arrow:true },
+  collab:  {color:'#10b981', dash:'6,4',  width:1.5, arrow:false},
+  depend:  {color:'#f59e0b', dash:'2,3',  width:1.5, arrow:true },
+};
+const PRIO_CFG = {
+  p0:{label:'P0', cls:'p0'},
+  p1:{label:'P1', cls:'p1'},
+  p2:{label:'P2', cls:'p2'},
+};
+let relVisible = {output:true,include:true,collab:true,depend:true};
+let chainOpen = true;
+
+function toggleRel(type,btn){
+  relVisible[type]=!relVisible[type];
+  btn.classList.toggle('on',relVisible[type]);
+  drawLines();
+}
+function toggleAllRel(btn){
+  const anyOn=Object.values(relVisible).some(v=>v);
+  Object.keys(relVisible).forEach(k=>relVisible[k]=!anyOn);
+  document.querySelectorAll('.rbtn[data-type]').forEach(b=>b.classList.toggle('on',!anyOn));
+  btn.textContent=anyOn?'显示全部':'隐藏全部';
+  drawLines();
+}
+function toggleChain(head){
+  chainOpen=!chainOpen;
+  document.getElementById('chainBody').style.display=chainOpen?'block':'none';
+  document.getElementById('chainToggle').style.transform=chainOpen?'':'rotate(-90deg)';
+}
+
+// ── 构建 Overview Cards ──
+function buildOverview(tB,tR,tP,tN,tP0,tP1,tP2){
+  const oc=document.getElementById('overviewCards');
+  const items=[
+    {num:tN,  label:'能力节点',  sub:'抽象层', color:'#6366f1'},
+    {num:8,   label:'设计域',    sub:'大分类',  color:'#818cf8'},
+    {num:tB,  label:'仓库已建', sub:'designskill repo', color:'var(--built)'},
+    {num:tR,  label:'业内参考', sub:'可直接引入',       color:'var(--ref)'},
+    {num:tP,  label:'待建 Skill',sub:'建设空间',        color:'var(--pending)'},
+    {num:tP0, label:'P0 核心节点',sub:'立刻启动',       color:'var(--p0)'},
+    {num:tP1, label:'P1 重要节点',sub:'近期建设',       color:'var(--p1)'},
+  ];
+  items.forEach(it=>{
+    const c=document.createElement('div');
+    c.className='ov-card';
+    c.style.setProperty('--ov-color',it.color);
+    c.innerHTML=`<div class="ov-num" style="color:${it.color}">${it.num}</div>
+      <div class="ov-label">${it.label}</div>
+      <div class="ov-sub">${it.sub}</div>`;
+    oc.appendChild(c);
+  });
+}
+
+// ── 构建 Chain List ──
+function buildChains(){
+  const cl=document.getElementById('chainList');
+  CHAINS.forEach((ch,i)=>{
+    const div=document.createElement('div');
+    div.className='chain-item';
+    const num=document.createElement('div');
+    num.className='chain-step-num';
+    num.style.background=ch.color+'18';
+    num.style.color=ch.color;
+    num.style.border=`1px solid ${ch.color}30`;
+    num.textContent=i+1;
+    div.appendChild(num);
+
+    const cont=document.createElement('div');
+    cont.className='chain-content';
+    const row1=document.createElement('div');
+    row1.className='chain-name';
+    row1.style.color=ch.color;
+    row1.textContent=ch.name;
+    cont.appendChild(row1);
+
+    const flowRow=document.createElement('div');
+    flowRow.className='chain-flow';
+
+    ch.steps.forEach((step,si)=>{
+      // 查找节点信息
+      let ndInfo=null;
+      DOMAINS.forEach(d=>d.nodes.forEach(sc=>sc.items.forEach(nd=>{
+        if(nd.nid===step.nid) ndInfo=nd;
+      })));
+      const prioClass=ndInfo?ndInfo.prio:'p2';
+      const prioLbl=PRIO_CFG[prioClass]?.label||'';
+
+      if(si>0){
+        const arr=document.createElement('span');
+        arr.className='cf-arrow';
+        arr.textContent='→';
+        flowRow.appendChild(arr);
+      }
+      const node=document.createElement('span');
+      node.className='cf-node';
+      node.style.cursor='pointer';
+      node.innerHTML=`<span class="p-badge ${prioClass}">${prioLbl}</span>${ndInfo?ndInfo.icon:''}${step.label}`;
+      node.addEventListener('click',()=>highlightNode(step.nid));
+      flowRow.appendChild(node);
+    });
+    cont.appendChild(flowRow);
+    div.appendChild(cont);
+    cl.appendChild(div);
+  });
+}
+
+// ── 构建主 Grid ──
+function buildUI(){
+  const grid=document.getElementById('grid');
+  let tB=0,tR=0,tP=0,tN=0,tP0=0,tP1=0,tP2=0;
+
+  DOMAINS.forEach(d=>{
+    let dB=0,dR=0,dP=0,nodeCount=0;
+    d.nodes.forEach(sc=>sc.items.forEach(nd=>{
+      nodeCount++;
+      nd.variants.forEach(v=>{
+        if(v.src==='built')   dB++;
+        if(v.src==='ref')     dR++;
+        if(v.src==='pending') dP++;
+      });
+      if(nd.prio==='p0') tP0++;
+      if(nd.prio==='p1') tP1++;
+      if(nd.prio==='p2') tP2++;
+    }));
+    tB+=dB;tR+=dR;tP+=dP;tN+=nodeCount;
+
+    const card=document.createElement('div');
+    card.className=`domain-card ${d.cls}`;
+    card.innerHTML=`
+      <div class="card-head">
+        <span class="card-icon">${d.icon}</span>
+        <span class="card-title">${d.title}</span>
+        <span class="card-count">${nodeCount}</span>
+      </div>
+      <div class="card-body" id="body-${d.id}"></div>`;
+    grid.appendChild(card);
+
+    const body=card.querySelector(`#body-${d.id}`);
+
+    d.nodes.forEach(sc=>{
+      const scDiv=document.createElement('div');
+      scDiv.className='scene';
+      scDiv.innerHTML=`<div class="scene-label">${sc.label}</div>`;
+
+      sc.items.forEach(nd=>{
+        const srcs=nd.variants.map(v=>v.src);
+        const builtN=srcs.filter(s=>s==='built').length;
+        const refN  =srcs.filter(s=>s==='ref').length;
+        const pendN =srcs.filter(s=>s==='pending').length;
+        const pc=PRIO_CFG[nd.prio];
+
+        const row=document.createElement('div');
+        row.className='abs-row';
+        row.id=`nrow-${nd.nid}`;
+        // P徽标（带hover数据）
+        const pBadgeEl=document.createElement('span');
+        pBadgeEl.className=`p-badge ${pc.cls}`;
+        pBadgeEl.textContent=pc.label;
+        pBadgeEl.style.cursor='default';
+        pBadgeEl.addEventListener('mouseenter', e=>showPrioTooltip(e, nd));
+        pBadgeEl.addEventListener('mousemove',  e=>movePrioTooltip(e));
+        pBadgeEl.addEventListener('mouseleave', hidePrioTooltip);
+
+        row.innerHTML=`
+          <span class="abs-icon">${nd.icon}</span>
+          <div class="abs-main">
+            <div class="abs-name">${nd.name}</div>
+            <div class="abs-desc">${nd.desc}</div>
+            <div class="abs-footer" id="footer-${nd.nid}">
+              ${builtN?`<span class="src-pip built">✓${builtN}</span>`:''}
+              ${refN  ?`<span class="src-pip ref">↗${refN}</span>`:''}
+              ${pendN ?`<span class="src-pip pending">◌${pendN}</span>`:''}
+            </div>
+          </div>
+          <span class="expand-arrow">▶</span>`;
+        // 插入 P徽标到 abs-footer 前面
+        row.querySelector(`#footer-${nd.nid}`).prepend(pBadgeEl);
+        scDiv.appendChild(row);
+
+        const detail=document.createElement('div');
+        detail.className='abs-detail';
+        detail.id=`detail-${nd.nid}`;
+        nd.variants.forEach(v=>{
+          const di=document.createElement('div');
+          di.className='detail-item';
+          const srcLbl=v.src==='built'?'已建':v.src==='ref'?'参考':'待建';
+          di.innerHTML=`
+            <span class="di-src di-${v.src}">${srcLbl}</span>
+            <span class="di-name">${v.name}</span>
+            ${v.tech?`<span class="di-tech">${v.tech}</span>`:''}`;
+          detail.appendChild(di);
+        });
+        scDiv.appendChild(detail);
+
+        row.addEventListener('click',()=>{
+          const open=row.classList.toggle('expanded');
+          detail.classList.toggle('show',open);
+          setTimeout(drawLines,160);
+        });
+      });
+      body.appendChild(scDiv);
+    });
+
+    const stats=document.createElement('div');
+    stats.className='stats-row';
+    stats.innerHTML=`
+      <div class="stat-pill sp-built">${dB} 已建</div>
+      <div class="stat-pill sp-ref">${dR} 参考</div>
+      <div class="stat-pill sp-pending">${dP} 待建</div>`;
+    body.appendChild(stats);
+  });
+
+  document.getElementById('totalCount').textContent=
+    `${tN} 节点 · P0×${tP0} P1×${tP1} P2×${tP2}`;
+  buildOverview(tB,tR,tP,tN,tP0,tP1,tP2);
+}
+
+// ── 高亮节点 ──
+function highlightNode(nid){
+  document.querySelectorAll('.abs-row').forEach(r=>r.classList.remove('hl'));
+  const el=document.getElementById(`nrow-${nid}`);
+  if(!el)return;
+  el.classList.add('hl');
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>el.classList.remove('hl'),2000);
+}
+
+// ── SVG 连线 ──
+function getCenter(el){
+  if(!el)return null;
+  const wrap=document.getElementById('canvasWrap');
+  const wR=wrap.getBoundingClientRect();
+  const eR=el.getBoundingClientRect();
+  return {x:eR.left-wR.left+eR.width/2, y:eR.top-wR.top+eR.height/2};
+}
+function bezier(f,t){
+  const dx=t.x-f.x;
+  const off=Math.min(Math.abs(dx)*.45,110);
+  const cx1=f.x+Math.sign(dx)*off, cy1=f.y;
+  const cx2=t.x-Math.sign(dx)*off, cy2=t.y;
+  return `M${f.x},${f.y} C${cx1},${cy1} ${cx2},${cy2} ${t.x},${t.y}`;
+}
+function drawLines(){
+  const svg=document.getElementById('svg-layer');
+  const wrap=document.getElementById('canvasWrap');
+  svg.setAttribute('width', wrap.scrollWidth);
+  svg.setAttribute('height',wrap.scrollHeight);
+
+  let defs='<defs>';
+  Object.entries(REL_CFG).forEach(([type,cfg])=>{
+    if(cfg.arrow) defs+=`<marker id="arr-${type}" markerWidth="8" markerHeight="8"
+      refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="${cfg.color}" opacity=".9"/></marker>`;
+  });
+  defs+='</defs>';
+
+  let paths='';
+  RELATIONS.forEach(rel=>{
+    if(!relVisible[rel.type])return;
+    const fEl=document.getElementById(`nrow-${rel.from}`);
+    const tEl=document.getElementById(`nrow-${rel.to}`);
+    if(!fEl||!tEl)return;
+    const f=getCenter(fEl), t=getCenter(tEl);
+    if(!f||!t)return;
+    const cfg=REL_CFG[rel.type];
+    const mEnd=cfg.arrow?`marker-end="url(#arr-${rel.type})"`:'';
+    const dash=cfg.dash!=='none'?`stroke-dasharray="${cfg.dash}"`:'';
+    paths+=`<path d="${bezier(f,t)}"
+      fill="none" stroke="${cfg.color}" stroke-width="${cfg.width}"
+      ${dash} ${mEnd} opacity=".4" class="rel-line rel-${rel.type}"
+      data-label="${rel.label||''}"><title>${rel.label||''}</title></path>`;
+  });
+
+  svg.innerHTML=defs+paths;
+  svg.querySelectorAll('.rel-line').forEach(p=>{
+    p.addEventListener('mouseenter',()=>{p.style.opacity='1';showTip(p.dataset.label)});
+    p.addEventListener('mouseleave',()=>{p.style.opacity='.4';hideTip()});
+  });
+}
+
+// ── 优先级 Tooltip ──
+const prioTip=document.createElement('div');
+prioTip.className='prio-tooltip';
+document.body.appendChild(prioTip);
+
+const DIM_BARS=['#a78bfa','#f472b6','#f59e0b','#34d399','#60a5fa'];
+
+function showPrioTooltip(e, nd){
+  const s=nd.scores||{};
+  const total=nd._total||0;
+  const pc=PRIO_CFG[nd.prio];
+  const prioColors={p0:'#ef4444',p1:'#f59e0b',p2:'#6b7280'};
+  const color=prioColors[nd.prio];
+
+  let rows='';
+  SCORE_DIMS.forEach((dim,i)=>{
+    const val=s[dim.key]||0;
+    const pct=Math.round(val/3*100);
+    rows+=`<div class="pt-row">
+      <div class="pt-dim">${dim.label}<br><span style="font-size:9px;color:#374151">${dim.tip}</span></div>
+      <div class="pt-bar-wrap"><div class="pt-bar" style="width:${pct}%;background:${dim.color}"></div></div>
+      <div class="pt-score" style="color:${dim.color}">${val}</div>
+    </div>`;
+  });
+
+  prioTip.innerHTML=`
+    <div class="pt-header">
+      <span class="pt-badge" style="background:${color}18;color:${color};border:1px solid ${color}40">${pc.label} ${nd.prio==='p0'?'核心':nd.prio==='p1'?'重要':'补充'}</span>
+      <span style="font-size:11px;color:#94a3b8">${nd.name}</span>
+      <span class="pt-total" style="color:${color}">${total}/15</span>
+    </div>
+    <div class="pt-desc">5维评分（每维1-3分）· 总分≥12→P0 · 7-11→P1 · &lt;7→P2</div>
+    ${rows}
+    <div class="pt-rule">① 使用频率 ② 跨域依赖数 ③ 能力空缺度 ④ 业务价值直接性 ⑤ 建设成本（低=3）</div>`;
+
+  movePrioTooltip(e);
+  prioTip.classList.add('show');
+}
+function movePrioTooltip(e){
+  let x=e.clientX+14, y=e.clientY-10;
+  const tw=240, th=200;
+  if(x+tw>window.innerWidth-10) x=e.clientX-tw-10;
+  if(y+th>window.innerHeight-10) y=e.clientY-th-10;
+  prioTip.style.left=x+'px';
+  prioTip.style.top=y+'px';
+}
+function hidePrioTooltip(){
+  prioTip.classList.remove('show');
+}
+
+// 高亮动画
+const style=document.createElement('style');
+style.textContent=`.abs-row.hl{
+  background:rgba(255,255,200,.08)!important;
+  border-color:rgba(255,255,100,.4)!important;
+  animation:pulse-hl 2s ease;
+}
+@keyframes pulse-hl{
+  0%,100%{box-shadow:none}
+  30%{box-shadow:0 0 0 3px rgba(255,255,100,.25)}
+}`;
+document.head.appendChild(style);
+
+function showTip(t){if(!t)return;const el=document.getElementById('relTooltip');el.textContent=t;el.classList.add('show')}
+function hideTip(){document.getElementById('relTooltip').classList.remove('show')}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  buildUI();
+  buildChains();
+  requestAnimationFrame(()=>requestAnimationFrame(drawLines));
+});
+let rt;
+window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawLines,120)});
+</script>
+</body>
+</html>
