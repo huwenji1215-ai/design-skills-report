@@ -674,69 +674,111 @@ const RELATIONS = [
 ];
 
 // ══════════════════════════════════════════════════════
-// 核心调用链路
+// 核心调用链路（7条，覆盖真实工作流）
+// loop: true → 末节点回到首节点，表示闭环
 // ══════════════════════════════════════════════════════
 const CHAINS = [
   {
     id:'chain-evo',
     color:'#f472b6',
-    name:'生成-评测-进化 核心闭环',
-    desc:'设计侧内容飞轮最核心链路',
+    name:'内容飞轮：生成 → 评测 → 自进化闭环',
+    desc:'设计侧最核心飞轮。所有视觉内容（图表/PPT/海报/UI）均经过三维评测，分数不达标则变异反哺重新生成，循环直到≥9.6分通过',
+    loop: true,
     steps:[
-      {nid:'nd-infovis', label:'生成信息图/图表'},
-      {nid:'nd-eval-engine', label:'三维评测打分'},
-      {nid:'nd-autoevo', label:'变异反哺进化'},
-      {nid:'nd-meta',    label:'能力沉淀'},
+      {nid:'nd-infovis',    label:'图表/信息图生成'},
+      {nid:'nd-ppt',        label:'PPT/Deck生成'},
+      {nid:'nd-imggen',     label:'海报/静态图生成'},
+      {nid:'nd-eval-engine',label:'多维评测打分（≥9.6 PASS）'},
+      {nid:'nd-autoevo',    label:'FAIL→变异补丁反哺生成'},
+      {nid:'nd-meta',       label:'PASS→洞察沉淀为Skill'},
     ]
   },
   {
-    id:'chain-ui',
-    color:'#60a5fa',
-    name:'设计系统 → UI 交付链',
-    desc:'从规范到代码落地的完整路径',
+    id:'chain-research-to-ui',
+    color:'#38bdf8',
+    name:'用研 → 原型 → 交付全链',
+    desc:'从用户调研到前端交付的完整路径：访谈/竞品分析→用户洞察→信息架构→Figma设计→代码还原→评审→交付文档',
     steps:[
-      {nid:'nd-token',  label:'Token/主题设定'},
-      {nid:'nd-figma',  label:'Figma设计&还原'},
-      {nid:'nd-uicode', label:'前端UI生成'},
-      {nid:'nd-figma-review', label:'迭代反馈'},
-      {nid:'nd-handoff', label:'交付文档生成'},
+      {nid:'nd-research-prep', label:'访谈/竞品/趋势调研'},
+      {nid:'nd-insight',       label:'画像·旅程·测试方案'},
+      {nid:'nd-prototype',     label:'信息架构&原型方法'},
+      {nid:'nd-figma',         label:'Figma设计&组件还原'},
+      {nid:'nd-uicode',        label:'前端UI代码生成'},
+      {nid:'nd-eval-engine',   label:'UI质量评测'},
+      {nid:'nd-spec-check',    label:'专项检查（a11y/启发式）'},
+      {nid:'nd-figma-review',  label:'Stitch迭代反馈'},
+      {nid:'nd-handoff',       label:'交付文档生成'},
     ]
   },
   {
     id:'chain-ppt',
     color:'#fbbf24',
-    name:'研究洞察 → 提案 PPT 链',
-    desc:'从用户调研到汇报产物的路径',
+    name:'洞察 → 提案 PPT 链',
+    desc:'从竞品洞察/用户数据到汇报提案的产物链：研究→洞察合成→信息图素材→PPT组装→评测验收→发布',
     steps:[
-      {nid:'nd-research-prep', label:'竞品/趋势调研'},
-      {nid:'nd-insight',       label:'画像/旅程合成'},
-      {nid:'nd-ppt',           label:'演示文档生成'},
-      {nid:'nd-eval-engine',   label:'PPT质量评测'},
+      {nid:'nd-research-prep', label:'竞品/行业调研'},
+      {nid:'nd-insight',       label:'用户洞察合成'},
+      {nid:'nd-infovis',       label:'数据图表制作'},
+      {nid:'nd-ppt',           label:'PPT/Deck生成'},
+      {nid:'nd-eval-engine',   label:'叙事&视觉质量评测'},
+      {nid:'nd-collab',        label:'发布到语雀/协作平台'},
+    ]
+  },
+  {
+    id:'chain-design-system',
+    color:'#fb923c',
+    name:'设计系统 → 产品落地链',
+    desc:'从Token/主题定义→Figma组件库→代码组件→质量验收→交付规范的系统化路径',
+    steps:[
+      {nid:'nd-token',         label:'主题&Token定义'},
+      {nid:'nd-figma',         label:'组件库&Code Connect'},
+      {nid:'nd-uicode',        label:'前端组件生成'},
+      {nid:'nd-figma-review',  label:'Stitch设计↔代码对齐'},
+      {nid:'nd-handoff',       label:'交付规范文档'},
+      {nid:'nd-collab',        label:'同步协作平台'},
     ]
   },
   {
     id:'chain-brand',
-    color:'#f472b6',
-    name:'品牌系统 → 视觉落地链',
-    desc:'品牌策略→规范→UI/图表一致性注入',
+    color:'#e879f9',
+    name:'品牌策略 → 全域视觉一致性链',
+    desc:'品牌策略制定→视觉规范→注入所有产出物（图表/UI/PPT）→合规检查闭环',
     steps:[
-      {nid:'nd-brand-strategy', label:'品牌策略制定'},
-      {nid:'nd-brand-system',   label:'色彩/VI规范'},
+      {nid:'nd-research-prep',  label:'竞品品牌拆解'},
+      {nid:'nd-brand-strategy', label:'品牌定位&策略'},
+      {nid:'nd-brand-system',   label:'色彩/VI/Moodboard规范'},
+      {nid:'nd-token',          label:'Design Token落地'},
       {nid:'nd-infovis',        label:'品牌色注入图表'},
       {nid:'nd-uicode',         label:'品牌Token注入UI'},
-      {nid:'nd-brand-qa',       label:'合规检查'},
+      {nid:'nd-ppt',            label:'品牌规范约束PPT'},
+      {nid:'nd-brand-qa',       label:'全域品牌合规检查'},
     ]
   },
   {
     id:'chain-data',
     color:'#4ade80',
-    name:'数据驱动迭代链',
-    desc:'评测结论驱动A/B→度量→进化',
+    name:'产物上线 → 数据驱动迭代链',
+    desc:'内容发布后的真实闭环：上线埋点→用户行为数据→A/B方案→度量验证→洞察反哺进化引擎',
     steps:[
-      {nid:'nd-eval-engine',  label:'评测产出报告'},
-      {nid:'nd-data-iter',    label:'A/B方案设计'},
-      {nid:'nd-autoevo',      label:'数据反哺进化'},
-      {nid:'nd-meta',         label:'规律沉淀为Skill'},
+      {nid:'nd-handoff',      label:'产物交付&上线'},
+      {nid:'nd-data-iter',    label:'埋点追踪&A/B方案设计'},
+      {nid:'nd-eval-engine',  label:'评测结论+数据度量交叉'},
+      {nid:'nd-autoevo',      label:'数据驱动进化反哺'},
+      {nid:'nd-meta',         label:'迭代规律沉淀为Skill'},
+    ]
+  },
+  {
+    id:'chain-motion',
+    color:'#a78bfa',
+    name:'动效 & 交互体验增强链',
+    desc:'动效规范→微交互设计→注入前端UI→动效参数写入交付文档，保证设计意图在代码层精确还原',
+    steps:[
+      {nid:'nd-motion',        label:'微交互&动效规范定义'},
+      {nid:'nd-gsap',          label:'GSAP动画实现'},
+      {nid:'nd-uicode',        label:'动画注入前端UI'},
+      {nid:'nd-eval-engine',   label:'交互体验评测'},
+      {nid:'nd-figma-review',  label:'动效还原度对齐'},
+      {nid:'nd-handoff',       label:'动效参数写入交付文档'},
     ]
   },
 ];
@@ -857,7 +899,20 @@ function buildChains(){
       node.addEventListener('click',()=>highlightNode(step.nid));
       flowRow.appendChild(node);
     });
+    // 闭环链路加回路标记
+    if(ch.loop){
+      const loopBadge=document.createElement('span');
+      loopBadge.className='cf-arrow';
+      loopBadge.style.cssText='color:#f472b6;font-size:12px;font-weight:700';
+      loopBadge.innerHTML='<span title="FAIL时回到生成节点，循环直到PASS">⟳ 闭环</span>';
+      flowRow.appendChild(loopBadge);
+    }
     cont.appendChild(flowRow);
+    // 链路说明
+    const descEl=document.createElement('div');
+    descEl.style.cssText='font-size:10px;color:#4b5563;margin-top:3px;line-height:1.5';
+    descEl.textContent=ch.desc;
+    cont.appendChild(descEl);
     div.appendChild(cont);
     cl.appendChild(div);
   });
