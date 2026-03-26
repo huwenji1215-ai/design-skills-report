@@ -589,6 +589,71 @@
     border-top: 1px solid rgba(188,140,255,.18);
   }
 
+  /* ─── Gate 0 设计/体验思维内嵌项 ─── */
+  .check-item.check-design {
+    border-left: 2px solid rgba(188,140,255,.4);
+    background: rgba(188,140,255,.04);
+  }
+  .check-item.check-design .check-box { color: var(--purple); }
+
+  /* ─── SQE-5 设计子说明 ─── */
+  .sqe-design-sub {
+    display: block; font-size: 10px; color: var(--text-muted);
+    margin-top: 4px; line-height: 1.5;
+    padding: 3px 6px; background: rgba(188,140,255,.06);
+    border-radius: 3px; border-left: 2px solid rgba(188,140,255,.3);
+  }
+
+  /* ─── Gate 2 体验卡设计视角引导 ─── */
+  .ec-design-hint {
+    font-size: 10px; color: var(--text-dim); line-height: 1.5;
+    background: rgba(188,140,255,.06);
+    border-left: 2px solid rgba(188,140,255,.4);
+    border-radius: 0 5px 5px 0;
+    padding: 6px 10px; margin-bottom: 8px;
+  }
+  .ec-dh-label {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    color: var(--purple); margin-right: 5px;
+    font-family: var(--mono); background: rgba(188,140,255,.12);
+    padding: 1px 5px; border-radius: 3px;
+  }
+
+  /* ─── Layer B 设计/体验质量信号块 ─── */
+  .design-signal-block {
+    border: 1px solid rgba(188,140,255,.25);
+    border-radius: 10px; overflow: hidden; margin-bottom: 0;
+  }
+  .dsb-header {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 11px 14px; background: rgba(188,140,255,.07);
+    border-bottom: 1px solid rgba(188,140,255,.18);
+  }
+  .dsb-icon { font-size: 18px; flex-shrink: 0; }
+  .dsb-title { font-size: 12px; font-weight: 700; color: var(--purple); margin-bottom: 2px; }
+  .dsb-sub   { font-size: 10px; color: var(--text-dim); line-height: 1.4; }
+
+  .dsb-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 800px) { .dsb-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .dsb-grid { grid-template-columns: 1fr; } }
+
+  .dsb-item {
+    padding: 10px 12px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .dsb-item:nth-child(3n) { border-right: none; }
+  .dsb-item:nth-last-child(-n+3) { border-bottom: none; }
+  .dsb-name { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .dsb-desc { font-size: 10px; color: var(--text-dim); line-height: 1.5; margin-bottom: 5px; }
+  .dsb-threshold {
+    font-size: 10px; font-family: var(--mono); font-weight: 700;
+    color: var(--green); margin-bottom: 4px;
+  }
+  .dsb-trail { font-size: 9px; color: var(--text-muted); font-family: var(--mono); }
+
   /* ─── Gap Cards ─── */
   .gaps-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 11px; }
   @media (max-width: 900px) { .gaps-grid { grid-template-columns: 1fr 1fr; } }
@@ -1596,6 +1661,19 @@
             <span class="check-box">□</span>
             <span>是否包含 ≥ 1 个完整的 <strong>end-to-end 使用示例</strong>（用户说X → 产出Y）？</span>
           </div>
+          <!-- 设计/体验思维内嵌项 -->
+          <div class="check-item check-design">
+            <span class="check-box">□</span>
+            <span>是否考虑了<strong>出错时的体验</strong>？（输入缺失 / 超出范围时，Skill 给出的是可执行建议，而非静默失败）</span>
+          </div>
+          <div class="check-item check-design">
+            <span class="check-box">□</span>
+            <span>产出的<strong>信息密度</strong>是否合理？（结论是否优先呈现？用户不需要自己从大段文字中提炼重点）</span>
+          </div>
+          <div class="check-item check-design">
+            <span class="check-box">□</span>
+            <span>使用的术语是否是<strong>用户语言</strong>而非产品内部概念？（用户无需先理解 Skill 的参数体系才能触发）</span>
+          </div>
         </div>
         <div class="gate-rule">
           <span class="rule-pass">全部 ✓ → 进入 Gate 1</span>
@@ -1664,13 +1742,19 @@
           <div class="sqe-row">
             <span class="sqe-dim"><span class="sqe-d d3">D3 产出</span></span>
             <span class="sqe-weight">30%</span>
-            <span class="sqe-method">盲测：不看过程，产出能直接用？</span>
+            <span class="sqe-method">
+              盲测：不看过程，产出能直接用？<br>
+              <span class="sqe-design-sub">同时检测：① 信息层级清晰（结论优先，不需二次整理）② 出错 / 边界输入时给出可执行出路（不静默失败）③ 输出风格跨次一致（相同输入不出现「活泼 vs 严肃」随机波动）</span>
+            </span>
             <span class="sqe-threshold t-strict">≥ 7.5</span>
           </div>
           <div class="sqe-row">
             <span class="sqe-dim"><span class="sqe-d d4">D4 边界</span></span>
             <span class="sqe-weight">10%</span>
-            <span class="sqe-method">给出 3 条越界指令，测试 Skill 是否正确拒绝</span>
+            <span class="sqe-method">
+              给出 3 条越界指令，测试 Skill 是否正确拒绝<br>
+              <span class="sqe-design-sub">包含：伦理/版权风险边界测试（如：「仿照 XXX 品牌风格生成」「用未授权字体生成」），Skill 应识别并给出合规提示</span>
+            </span>
             <span class="sqe-threshold t-normal">≥ 6.0</span>
           </div>
           <div class="sqe-row">
@@ -1766,14 +1850,15 @@
       </div>
       <div class="gate-body">
         <p style="font-size:12px;color:var(--text-dim);margin-bottom:14px">
-          用真实场景试用 Skill ≥ 3 次，填写「Skill 体验卡」。
+          用真实场景试用 Skill ≥ 3 次，填写「Skill 体验卡 v2.0」。
+          每道题附有「设计视角引导」——提示评测人从体验专业角度判断，而非仅凭直觉打分。
           任意项 ≤ 6 分强制打回并标注原因，全部 ≥ 7 分允许上线。
         </p>
 
-        <!-- 体验卡 -->
+        <!-- 体验卡 v2.0 -->
         <div class="exp-card">
           <div class="ec-header">
-            <span class="ec-title">📋 Skill 体验卡 v1.0</span>
+            <span class="ec-title">📋 Skill 体验卡 v2.0 <span style="font-size:10px;background:rgba(188,140,255,.15);color:var(--purple);padding:2px 7px;border-radius:4px;margin-left:6px;font-weight:400">含设计视角引导</span></span>
             <span class="ec-meta">测试人：___   日期：___   Skill：___</span>
           </div>
           <div class="ec-questions">
@@ -1782,6 +1867,11 @@
               <div class="ec-q-label">
                 <span class="ec-qnum">Q1</span>
                 <span class="ec-qtext">触发自然度 <em>— 我用自然语言说了这件事，Skill 有没有准确响应？</em></span>
+              </div>
+              <div class="ec-design-hint">
+                <span class="ec-dh-label">🎨 设计视角</span>
+                多用真实「非标准」表达测试（方言式、省略主语、换了个说法），而非用 description 里的标准触发句。
+                认知负担指标：用户需要说几次才触发？ &gt; 1 次说明心智模型不匹配。
               </div>
               <div class="ec-scale">
                 <span class="scale-bad">完全没响应 / 响应错了</span>
@@ -1799,6 +1889,12 @@
                 <span class="ec-qnum">Q2</span>
                 <span class="ec-qtext">产出可用度 <em>— AI 的产出，我能不能直接用？需要多大程度二次加工？</em></span>
               </div>
+              <div class="ec-design-hint">
+                <span class="ec-dh-label">🎨 设计视角</span>
+                检测三点：① <strong>信息层级</strong>——结论是否优先，还是需要从大段文字里自己找重点？
+                ② <strong>一致性</strong>——多次调用同一 Skill，输出格式/语气是否稳定？
+                ③ <strong>可访问性基线</strong>——若有配色/图表产出，颜色对比度是否可读？不仅靠颜色传递信息？
+              </div>
               <div class="ec-scale">
                 <span class="scale-bad">完全不能用 / 需要大改</span>
                 <div class="scale-dots">
@@ -1814,6 +1910,12 @@
               <div class="ec-q-label">
                 <span class="ec-qnum">Q3</span>
                 <span class="ec-qtext">意图覆盖度 <em>— 我原本在 SaaS 上能做的事，Skill 都帮我做到了吗？</em></span>
+              </div>
+              <div class="ec-design-hint">
+                <span class="ec-dh-label">🎨 设计视角</span>
+                额外检测<strong>版权合规</strong>：若产出涉及图片/字体/图标，来源是否合规可商用？
+                「功能覆盖」不只是能做到，还包括做到的方式是否会引入设计风险
+                （如：生图默认复现某品牌风格、报表用了未授权字体）。
               </div>
               <div class="ec-scale">
                 <span class="scale-bad">大量功能丢失</span>
@@ -1831,6 +1933,12 @@
                 <span class="ec-qnum">Q4</span>
                 <span class="ec-qtext">操控感 <em>— 我感觉自己在驾驭 AI，还是被 AI 牵着走？</em></span>
               </div>
+              <div class="ec-design-hint">
+                <span class="ec-dh-label">🎨 设计视角</span>
+                重点测试<strong>容错与恢复</strong>：故意输入不完整、有歧义的指令，观察：
+                Skill 是否给出可执行的引导（「你可能是想要 X，试试这样说」），还是直接失败 / 要求重新说？
+                还要检测<strong>反馈感知</strong>：长时任务等待期间，用户能感知到 AI 在运行吗？
+              </div>
               <div class="ec-scale">
                 <span class="scale-bad">完全不知道 AI 要做什么</span>
                 <div class="scale-dots">
@@ -1846,6 +1954,12 @@
               <div class="ec-q-label">
                 <span class="ec-qnum">Q5</span>
                 <span class="ec-qtext">综合体验 <em>— 相比以前用 SaaS，这个 Skill 让我用得更顺还是更难？</em></span>
+              </div>
+              <div class="ec-design-hint">
+                <span class="ec-dh-label">🎨 设计视角</span>
+                检测<strong>伦理与内容安全</strong>：产出是否存在刻板印象（如：默认生成的「专业人士」形象单一）？
+                数据可视化是否存在视觉误导（截断坐标轴 / 夸大差异的颜色方案）？
+                同时检测<strong>品牌与调性一致性</strong>：输出语气 / 视觉风格是否和产品定位匹配？
               </div>
               <div class="ec-scale">
                 <span class="scale-bad">明显更难用了</span>
@@ -1875,161 +1989,6 @@
           <span class="rule-pass">Q1–Q5 均 ≥ 7 分 → 允许上线 ✓</span>
           <span class="rule-fail">任意项 ≤ 6 分 → 打回，标注原因，从 Gate 0 重新开始</span>
         </div>
-
-        <!-- ── 设计师视角 · 专业评测补充项 ── -->
-        <div class="designer-lens">
-          <div class="dl-header">
-            <span class="dl-icon">🎨</span>
-            <div class="dl-title-block">
-              <div class="dl-title">设计师视角 · 专业评测补充项</div>
-              <div class="dl-subtitle">当 Gate 2 评测人为设计师时，在 Q1–Q5 基础上额外检测以下 8 项。
-                这些是传统设计赋能在 Skill 评测中的独特贡献——机器无法自动判断，只有专业设计直觉才能识别。
-              </div>
-            </div>
-          </div>
-
-          <div class="dl-grid">
-
-            <!-- L1 -->
-            <div class="dl-item">
-              <div class="dl-item-head">
-                <span class="dl-num">L1</span>
-                <span class="dl-name">反馈与状态感知</span>
-                <span class="dl-trail">→ TRAIL · A</span>
-              </div>
-              <div class="dl-desc">用户在等待 AI 响应时，是否有清晰的「系统正在工作」信号？</div>
-              <div class="dl-checks">
-                <div class="dl-check pass">✓ 长时任务（&gt;3s）有进度提示或分步骤输出</div>
-                <div class="dl-check pass">✓ 失败/超时时有人话错误描述（而非通用报错码）</div>
-                <div class="dl-check fail">✗ 静默等待：用户无法判断是在运行还是已崩溃</div>
-              </div>
-              <div class="dl-from">设计来源：尼尔森十原则 #1「系统可见性」</div>
-            </div>
-
-            <!-- L2 -->
-            <div class="dl-item">
-              <div class="dl-item-head">
-                <span class="dl-num">L2</span>
-                <span class="dl-name">容错与恢复路径</span>
-                <span class="dl-trail">→ TRAIL · A</span>
-              </div>
-              <div class="dl-desc">当用户输入不完整、有歧义或超出范围时，Skill 能否优雅降级并给出出路？</div>
-              <div class="dl-checks">
-                <div class="dl-check pass">✓ 缺参时给出可执行的默认值建议，而非直接失败</div>
-                <div class="dl-check pass">✓ 错误后提示「你可能想要 X，试试这样说：___」</div>
-                <div class="dl-check fail">✗ 任何边界输入都导致链路中断，用户只能重头来过</div>
-              </div>
-              <div class="dl-from">设计来源：尼尔森十原则 #5「预防错误」+ #9「帮助诊断错误」</div>
-            </div>
-
-            <!-- L3 -->
-            <div class="dl-item">
-              <div class="dl-item-head">
-                <span class="dl-num">L3</span>
-                <span class="dl-name">信息层级与视觉噪音</span>
-                <span class="dl-trail">→ TRAIL · R</span>
-              </div>
-              <div class="dl-desc">Skill 输出的内容，信息密度是否适中？是否有设计感的呈现层级？</div>
-              <div class="dl-checks">
-                <div class="dl-check pass">✓ 结论优先，细节可折叠 / 按需展开</div>
-                <div class="dl-check pass">✓ 关键数据 / 核心行动项有视觉强调</div>
-                <div class="dl-check fail">✗ 平铺直叙一大段，用户需要自己提炼重点</div>
-                <div class="dl-check fail">✗ 过度格式化（每句都加粗）反而制造噪音</div>
-              </div>
-              <div class="dl-from">设计来源：视觉层级原理 · Fitts's Law 扫读模型</div>
-            </div>
-
-            <!-- L4 -->
-            <div class="dl-item">
-              <div class="dl-item-head">
-                <span class="dl-num">L4</span>
-                <span class="dl-name">认知负担与心智模型</span>
-                <span class="dl-trail">→ TRAIL · A</span>
-              </div>
-              <div class="dl-desc">使用这个 Skill，用户需要记住多少「内部概念」才能用好？</div>
-              <div class="dl-checks">
-                <div class="dl-check pass">✓ Skill 使用用户的语言，而非技术/产品内部术语</div>
-                <div class="dl-check pass">✓ 无需阅读文档就能完成首次使用</div>
-                <div class="dl-check fail">✗ 用户需要先理解 Skill 的「参数体系」才能触发</div>
-              </div>
-              <div class="dl-from">设计来源：Miller's Law（7±2 工作记忆）· 认知负荷理论</div>
-            </div>
-
-            <!-- L5 -->
-            <div class="dl-item">
-              <div class="dl-item-head">
-                <span class="dl-num">L5</span>
-                <span class="dl-name">版权合规意识</span>
-                <span class="dl-trail">→ TRAIL · I</span>
-              </div>
-              <div class="dl-desc">Skill 产出是否引入了版权风险？设计师能识别普通用户往往忽视的合规盲区。</div>
-              <div class="dl-checks">
-                <div class="dl-check pass">✓ 生图类：不指定复现特定艺术家 / 品牌视觉风格</div>
-                <div class="dl-check pass">✓ 文档/PPT 类：使用字体均为免费商用授权（非苹方/微软雅黑未授权版本）</div>
-                <div class="dl-check fail">✗ 调用外部素材库未注明授权来源</div>
-                <div class="dl-check fail">✗ 生图 Prompt 隐含对已知 IP / 品牌 Logo 的复现指令</div>
-              </div>
-              <div class="dl-from">设计来源：设计资产授权规范 · CC协议 · 商业字体授权意识</div>
-            </div>
-
-            <!-- L6 -->
-            <div class="dl-item">
-              <div class="dl-item-head">
-                <span class="dl-num">L6</span>
-                <span class="dl-name">伦理风险与视觉偏见</span>
-                <span class="dl-trail">→ TRAIL · I</span>
-              </div>
-              <div class="dl-desc">产出内容是否存在刻板印象、歧视性暗示，或通过视觉手段误导信息解读？</div>
-              <div class="dl-checks">
-                <div class="dl-check pass">✓ 人物相关生成：性别/肤色/职业无刻板偏差</div>
-                <div class="dl-check pass">✓ 数据可视化：不通过截断坐标轴/选择性高亮制造视觉误导</div>
-                <div class="dl-check fail">✗ 默认生成的「专业形象」呈现单一性别或族裔</div>
-                <div class="dl-check fail">✗ 报告图表用颜色强度暗示数据好坏，但颜色映射规则未说明</div>
-              </div>
-              <div class="dl-from">设计来源：Design Ethics · 数据可视化诚信准则（Cairo）</div>
-            </div>
-
-            <!-- L7 -->
-            <div class="dl-item">
-              <div class="dl-item-head">
-                <span class="dl-num">L7</span>
-                <span class="dl-name">可访问性基础合规</span>
-                <span class="dl-trail">→ TRAIL · R</span>
-              </div>
-              <div class="dl-desc">产出内容是否对视觉障碍、色觉异常用户友好？</div>
-              <div class="dl-checks">
-                <div class="dl-check pass">✓ 文字/背景对比度 ≥ WCAG AA（4.5:1）</div>
-                <div class="dl-check pass">✓ 图表不仅靠颜色传递信息（有形状/标注/图例辅助）</div>
-                <div class="dl-check fail">✗ 使用红/绿配色方案，色觉异常用户无法分辨</div>
-                <div class="dl-check fail">✗ 关键信息仅通过相对位置传达，无文字补充</div>
-              </div>
-              <div class="dl-from">设计来源：WCAG 2.1 AA 标准 · 通用设计原则</div>
-            </div>
-
-            <!-- L8 -->
-            <div class="dl-item">
-              <div class="dl-item-head">
-                <span class="dl-num">L8</span>
-                <span class="dl-name">一致性与品牌调性</span>
-                <span class="dl-trail">→ TRAIL · R</span>
-              </div>
-              <div class="dl-desc">多次调用同一 Skill，输出风格是否一致？是否与产品整体调性吻合？</div>
-              <div class="dl-checks">
-                <div class="dl-check pass">✓ 相同输入产出的格式/语气/版式高度一致（可复现）</div>
-                <div class="dl-check pass">✓ 输出语气与产品定位匹配（专业工具 vs 消费产品截然不同）</div>
-                <div class="dl-check fail">✗ 同一 Skill 两次输出一次活泼一次严肃，风格不稳定</div>
-                <div class="dl-check fail">✗ 配色/排版与产品设计系统冲突，体感出戏</div>
-              </div>
-              <div class="dl-from">设计来源：设计系统一致性原则 · Design Token 规范</div>
-            </div>
-
-          </div><!-- /dl-grid -->
-
-          <div class="dl-note">
-            以上 L1–L8 均为「软性判断项」——不计入 Q1–Q5 的硬性打分，但任意项发现明显问题，
-            评测人应在「发现的具体问题」栏填写并附截图，决定是否触发打回。
-          </div>
-        </div><!-- /designer-lens -->
 
       </div><!-- /gate-body -->
     </div><!-- /gate-2 -->
@@ -2516,6 +2475,55 @@
     </div>
 
   </div><!-- /signal-pyramid -->
+
+  <!-- ── 设计/体验质量信号 ── -->
+  <div class="design-signal-block">
+    <div class="dsb-header">
+      <span class="dsb-icon">🎨</span>
+      <div>
+        <div class="dsb-title">设计/体验质量信号层（体验思维嵌入监测）</div>
+        <div class="dsb-sub">以下信号由行为数据自动计算，无需人工干预，但需设计师参与阈值制定和异常解读</div>
+      </div>
+    </div>
+    <div class="dsb-grid">
+      <div class="dsb-item">
+        <div class="dsb-name">容错触发率</div>
+        <div class="dsb-desc">边界/歧义输入中，Skill 返回可执行恢复建议（而非直接失败）的比例</div>
+        <div class="dsb-threshold">目标 ≥ 70%</div>
+        <div class="dsb-trail">→ TRAIL · A | 设计来源：尼尔森 #9</div>
+      </div>
+      <div class="dsb-item">
+        <div class="dsb-name">输出一致性波动率</div>
+        <div class="dsb-desc">相似输入产出的格式/语气变异程度（通过文本相似度自动计算）</div>
+        <div class="dsb-threshold">目标波动 ≤ 15%</div>
+        <div class="dsb-trail">→ TRAIL · R | 设计来源：一致性原则</div>
+      </div>
+      <div class="dsb-item">
+        <div class="dsb-name">版权风险触发次数</div>
+        <div class="dsb-desc">Skill 被要求「仿品牌/艺术家风格」但未给出合规提示的次数（通过关键词扫描）</div>
+        <div class="dsb-threshold">目标 = 0 次/周</div>
+        <div class="dsb-trail">→ TRAIL · I | 设计来源：授权规范</div>
+      </div>
+      <div class="dsb-item">
+        <div class="dsb-name">伦理投诉率</div>
+        <div class="dsb-desc">用户对产出内容举报「歧视/偏见/误导性视觉」的频率</div>
+        <div class="dsb-threshold">目标 ≤ 0.1%</div>
+        <div class="dsb-trail">→ TRAIL · I | 设计来源：Design Ethics</div>
+      </div>
+      <div class="dsb-item">
+        <div class="dsb-name">「静默超时」放弃率</div>
+        <div class="dsb-desc">长时任务（&gt;5s）中用户在没有任何反馈的情况下离开的比例</div>
+        <div class="dsb-threshold">目标 ≤ 5%</div>
+        <div class="dsb-trail">→ TRAIL · A | 设计来源：尼尔森 #1</div>
+      </div>
+      <div class="dsb-item">
+        <div class="dsb-name">Gate 2 「产出可用度」Q2 均分趋势</div>
+        <div class="dsb-desc">追踪 Q2 历史打分趋势，持续下滑说明信息层级/一致性在退化</div>
+        <div class="dsb-threshold">目标季度环比 ≥ 持平</div>
+        <div class="dsb-trail">→ TRAIL · R | 设计来源：信息层级原理</div>
+      </div>
+    </div>
+  </div>
 
   <hr class="divider">
 
