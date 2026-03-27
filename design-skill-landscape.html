@@ -477,6 +477,13 @@ const DOMAINS = [
       {src:'ref',    name:'代码驱动视频 (Remotion)', tech:'React'},
       {src:'ref',    name:'AI视频生成 (Sora)',        tech:'Sora API'},
      ]},
+    {nid:'nd-motion-gen', icon:'✨', name:'AE动效复现 & 粒子生成', desc:'AE粒子/复杂动效→Web代码还原',
+     scores:{freq:2,dep:1,gap:3,value:2,cost:2},  // total=10 → P1
+     variants:[
+      {src:'pending',name:'AE动态粒子效果复现',   tech:'GSAP/Canvas2D'},
+      {src:'pending',name:'AE时间轴→GSAP映射',   tech:'参数提取+代码生成'},
+      {src:'ref',    name:'Lottie JSON生成',      tech:'AE导出+JSON'},
+     ]},
   ]},
  ]},
 
@@ -565,8 +572,9 @@ const DOMAINS = [
     {nid:'nd-figma-review', icon:'🔄', name:'Figma 评审工具', desc:'迭代反馈环/设计决策记录',
      scores:{freq:2,dep:2,gap:1,value:2,cost:3},  // total=10 → P1
      variants:[
-      {src:'ref',name:'设计→代码迭代反馈环 (Stitch)', tech:'Stitch MCP'},
-      {src:'ref',name:'DESIGN.md 管理',               tech:'设计决策记录'},
+      {src:'ref',name:'Figma MCP + AI Agent 读取设计树', tech:'Figma MCP'},
+      {src:'ref',name:'DESIGN.md 管理',                  tech:'设计决策记录'},
+      {src:'ref',name:'设计↔代码一致性检查',             tech:'Figma MCP diff'},
      ]},
   ]},
  ]},
@@ -587,10 +595,26 @@ const DOMAINS = [
     {nid:'nd-handoff', icon:'📦', name:'交付文档生成', desc:'设计规范/交付说明/方案文档',
      scores:{freq:2,dep:2,gap:3,value:3,cost:2},  // total=12 → P0
      variants:[
-      {src:'pending',name:'设计交付说明文档',tech:'标注/切图/动效参数'},
+      {src:'pending',name:'交互文档生成 (design-handoff-writer)', tech:'意图提取+模板填充'},
       {src:'pending',name:'设计规范文档生成',tech:'组件/交互/标注'},
       {src:'pending',name:'设计方案说明文档',tech:'背景/方案/风险'},
       {src:'ref',    name:'周报&内部通讯',   tech:'状态报告+FAQ'},
+     ]},
+    {nid:'nd-ops-h5', icon:'📱', name:'运营 H5 生成', desc:'活动页/运营场景H5快速产出',
+     scores:{freq:3,dep:1,gap:3,value:3,cost:3},  // total=13 → P0
+     variants:[
+      {src:'pending',name:'运营H5生成 (ops-h5-generator)', tech:'frontend-design+品牌约束'},
+      {src:'pending',name:'活动落地页快速生成',             tech:'场景模版+意图识别'},
+      {src:'ref',    name:'前端界面生成基础层',             tech:'frontend-design'},
+     ]},
+  ]},
+  {scene:'调研输出',items:[
+    {nid:'nd-style-research', icon:'🔬', name:'AI 样式调研', desc:'色彩/字体/空间趋势专项调研',
+     scores:{freq:2,dep:1,gap:3,value:2,cost:3},  // total=11 → P1
+     variants:[
+      {src:'pending',name:'AI样式趋势调研 (style-research)', tech:'industry-research扩展'},
+      {src:'pending',name:'素材模版AI化调研',                tech:'Figma MCP+批量分析'},
+      {src:'ref',    name:'行业调研基础层',                  tech:'industry-research'},
      ]},
   ]},
   {scene:'协作平台',items:[

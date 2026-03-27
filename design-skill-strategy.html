@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计 Skill 三件事 — 边界·工程化·完成度</title>
+<style>
+:root{
+  --bg:#090d16;--bg2:#0f1420;--bg3:#141926;--bg4:#1a2030;
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.12);
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --p0:#ef4444;--p1:#f59e0b;--p2:#6b7280;
+  --green:#34d399;--blue:#60a5fa;--purple:#a78bfa;--pink:#f472b6;--orange:#fb923c;
+  --accent:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"PingFang SC","SF Pro Text",system-ui,sans-serif;font-size:13px;line-height:1.7;min-height:100vh}
+
+/* ── 顶部 Nav ── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:10px;
+  padding:8px 28px;
+  background:rgba(9,13,22,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-size:13px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.nav-logo span{color:var(--accent)}
+.nav-links{display:flex;gap:4px;margin-left:20px}
+.nl{padding:3px 10px;border-radius:6px;font-size:11px;color:var(--text2);cursor:pointer;text-decoration:none;transition:all .15s}
+.nl:hover,.nl.active{background:rgba(99,102,241,.12);color:#818cf8}
+.nav-right{margin-left:auto;font-size:11px;color:var(--text3)}
+
+/* ── Hero ── */
+.hero{
+  padding:56px 28px 40px;
+  background:radial-gradient(ellipse 900px 400px at 50% -80px, rgba(99,102,241,.12) 0%, transparent 70%);
+  text-align:center;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 14px;border-radius:20px;font-size:11px;font-weight:600;
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#818cf8;
+  margin-bottom:18px;
+}
+.hero-title{
+  font-size:40px;font-weight:900;letter-spacing:-1px;line-height:1.15;
+  background:linear-gradient(135deg,#e2e8f0 20%,#818cf8 60%,#f472b6 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:14px;
+}
+.hero-sub{font-size:15px;color:var(--text2);max-width:560px;margin:0 auto 28px;line-height:1.7}
+.hero-meta{display:flex;justify-content:center;gap:20px;font-size:11px;color:var(--text3)}
+.hero-meta span{display:flex;align-items:center;gap:4px}
+
+/* ── 前置框 ── */
+.premise-box{
+  margin:0 28px 32px;
+  background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(244,114,182,.04));
+  border:1px solid rgba(99,102,241,.2);border-radius:14px;
+  padding:22px 26px;
+}
+.premise-title{font-size:12px;font-weight:700;color:#818cf8;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase}
+.premise-body{font-size:13px;color:var(--text2);line-height:1.8}
+.premise-body strong{color:var(--text)}
+.premise-body code{
+  background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);
+  border-radius:4px;padding:1px 6px;font-size:12px;color:#818cf8;font-family:monospace
+}
+
+/* ── 三件事导航卡 ── */
+.three-nav{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  margin:0 28px 40px;
+}
+.tn-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:14px;
+  padding:20px 22px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+}
+.tn-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--card-color,var(--accent));
+}
+.tn-card:hover{border-color:var(--card-color,var(--accent));transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.tn-num{font-size:11px;font-weight:700;color:var(--card-color,var(--accent));margin-bottom:6px;letter-spacing:.5px}
+.tn-title{font-size:15px;font-weight:800;margin-bottom:8px;line-height:1.3}
+.tn-bullets{list-style:none;font-size:11px;color:var(--text2);line-height:1.9}
+.tn-bullets li::before{content:'→ ';color:var(--card-color,var(--accent))}
+
+/* ── Section 通用 ── */
+.section{margin:0 28px 48px}
+.section-anchor{height:60px;margin-top:-60px;pointer-events:none}
+.s-head{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.s-badge{
+  padding:4px 12px;border-radius:6px;font-size:11px;font-weight:800;
+  letter-spacing:.5px;flex-shrink:0;
+}
+.s-title{font-size:22px;font-weight:900;letter-spacing:-.4px}
+.s-sub{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.6}
+
+/* ── 表格 ── */
+.dt{width:100%;border-collapse:collapse;font-size:12px}
+.dt th{
+  padding:9px 12px;text-align:left;font-weight:700;font-size:10px;
+  color:var(--text3);letter-spacing:.6px;text-transform:uppercase;
+  border-bottom:1px solid var(--border2);background:var(--bg3);
+}
+.dt th:first-child{border-radius:8px 0 0 0}
+.dt th:last-child{border-radius:0 8px 0 0}
+.dt td{
+  padding:10px 12px;border-bottom:1px solid var(--border);
+  vertical-align:top;line-height:1.6;
+}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:rgba(255,255,255,.02)}
+.dt-wrap{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;margin-bottom:20px;
+}
+
+/* ── 优先级徽章 ── */
+.bp0{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.25);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;white-space:nowrap}
+.bp1{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;white-space:nowrap}
+.bp2{background:rgba(107,114,128,.12);color:#9ca3af;border:1px solid rgba(107,114,128,.2);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;white-space:nowrap}
+.bbuilt{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}
+.bpend{background:rgba(245,158,11,.08);color:#f59e0b;border:1px solid rgba(245,158,11,.18);padding:2px 8px;border-radius:4px;font-size:10px;white-space:nowrap}
+.bwip{background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.2);padding:2px 8px;border-radius:4px;font-size:10px;white-space:nowrap}
+.bclarify{background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.2);padding:2px 8px;border-radius:4px;font-size:10px;white-space:nowrap}
+
+/* ── ROI 星级 ── */
+.roi-bar{display:flex;gap:3px;align-items:center}
+.roi-dot{width:8px;height:8px;border-radius:2px}
+.roi-on{background:#f59e0b}
+.roi-off{background:rgba(255,255,255,.08)}
+
+/* ── 执行路线 ── */
+.roadmap{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.rm-col{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:18px 18px;
+}
+.rm-head{
+  display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  padding-bottom:10px;border-bottom:1px solid var(--border);
+}
+.rm-icon{font-size:16px}
+.rm-label{font-size:12px;font-weight:800}
+.rm-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.rm-item{
+  display:flex;align-items:flex-start;gap:8px;
+  margin-bottom:10px;
+}
+.rm-num{
+  width:18px;height:18px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px;
+}
+.rm-text{font-size:11px;color:var(--text2);line-height:1.6}
+.rm-text strong{color:var(--text);display:block;font-weight:700}
+
+/* ── 工程化 Section ── */
+.intent-tree{
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:16px 18px;font-family:monospace;font-size:12px;
+  color:var(--text2);line-height:1.9;margin-bottom:16px;overflow-x:auto;
+}
+.intent-tree .k{color:#f472b6;font-weight:700}
+.intent-tree .v{color:#34d399}
+.intent-tree .c{color:var(--text3)}
+
+.atom-chain{display:flex;flex-direction:column;gap:0;margin-bottom:20px}
+.atom-step{
+  display:flex;align-items:stretch;gap:0;
+}
+.atom-connector{
+  display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0;
+}
+.atom-dot{
+  width:10px;height:10px;border-radius:50%;border:2px solid var(--step-color,var(--accent));
+  background:var(--bg);flex-shrink:0;margin-top:16px;
+}
+.atom-line{width:2px;flex:1;background:linear-gradient(to bottom,var(--step-color,var(--accent)),transparent);opacity:.3;min-height:12px}
+.atom-body{
+  flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;margin:6px 0 6px;
+}
+.atom-name{font-size:12px;font-weight:800;margin-bottom:6px}
+.atom-io{display:flex;gap:8px;flex-wrap:wrap}
+.io-pill{
+  font-size:10px;padding:2px 8px;border-radius:4px;
+  display:flex;align-items:center;gap:4px;
+}
+.io-in{background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.15)}
+.io-out{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.15)}
+.io-proc{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.15)}
+
+/* ── 完成度三层 ── */
+.layer-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.lc{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:18px 18px;
+}
+.lc-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.lc-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.lc-title{font-size:13px;font-weight:800}
+.lc-tag{font-size:10px;color:var(--text3)}
+.lc-item{
+  display:flex;align-items:flex-start;gap:8px;
+  margin-bottom:8px;font-size:11px;color:var(--text2);line-height:1.6;
+}
+.lc-item::before{content:'•';color:var(--lc-color,var(--accent));flex-shrink:0;font-weight:900}
+
+/* ── 能力标准表 ── */
+.std-table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+
+/* ── 底部结论 ── */
+.conclusion{
+  margin:0 28px 60px;
+  background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(244,114,182,.05));
+  border:1px solid rgba(99,102,241,.2);border-radius:16px;
+  padding:28px 32px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;
+}
+.concl-item{}
+.concl-num{
+  font-size:28px;font-weight:900;
+  background:linear-gradient(135deg,var(--c1,#6366f1),var(--c2,#818cf8));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:4px;
+}
+.concl-label{font-size:12px;font-weight:700;margin-bottom:4px}
+.concl-desc{font-size:11px;color:var(--text3);line-height:1.6}
+
+/* ── 底注 ── */
+.footnote{
+  text-align:center;padding:20px;
+  font-size:10px;color:var(--text3);
+  border-top:1px solid var(--border);
+}
+
+/* ── 分隔线标题 ── */
+.sub-h{font-size:13px;font-weight:800;color:var(--text);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.sub-h::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── 高亮块 ── */
+.callout{
+  background:rgba(245,158,11,.06);border-left:3px solid #f59e0b;
+  border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;
+  font-size:12px;color:var(--text2);line-height:1.7;
+}
+.callout strong{color:#f59e0b}
+
+.callout-blue{
+  background:rgba(96,165,250,.06);border-left:3px solid #60a5fa;
+  border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;
+  font-size:12px;color:var(--text2);line-height:1.7;
+}
+.callout-blue strong{color:#60a5fa}
+
+/* ── tag chips ── */
+.tag{padding:2px 8px;border-radius:4px;font-size:10px;background:rgba(255,255,255,.06);color:var(--text3)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">设计 Skill <span>三件事</span></div>
+  <div class="nav-links">
+    <a class="nl active" href="#s1">① 做什么</a>
+    <a class="nl" href="#s2">② 怎么做</a>
+    <a class="nl" href="#s3">③ 完成度</a>
+    <a class="nl" href="#roadmap">执行路线</a>
+  </div>
+  <div class="nav-right">2026 Q2 · design-ai skill 体系规划</div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-eyebrow">⚡ 最高标准 · 可落地</div>
+  <h1 class="hero-title">设计 Skill 三件事</h1>
+  <p class="hero-sub">回答三个核心问题：做什么（边界与优先级）、怎么做（工程化路径）、做到什么算完成（可量化验收）</p>
+  <div class="hero-meta">
+    <span>📦 业务需求 15 项</span>
+    <span>⚡ P0 立刻启动 3 项</span>
+    <span>🔧 P1 近期建设 5 项</span>
+    <span>❓ 待澄清 2 项</span>
+  </div>
+</div>
+
+<!-- 前置 -->
+<div class="premise-box">
+  <div class="premise-title">前置诊断：为什么需要重新定义</div>
+  <div class="premise-body">
+    当前 skill 体系是<strong>以技术模块为中心</strong>组织的 — 按「视觉生产/品牌/动效/设计系统」分域，每个节点挂功能列表。这回答的是「<strong>有什么工具</strong>」，但没有回答三件更本质的事：<br><br>
+    <code>用户意图是什么</code> × <code>做到什么程度值得做</code> × <code>做完的标准是什么</code><br><br>
+    三件事框架强制把这三个维度显式化，让 skill 从「功能清单」升级为「可交付的产品能力」。
+  </div>
+</div>
+
+<!-- 三件事导航 -->
+<div class="three-nav">
+  <a class="tn-card" href="#s1" style="--card-color:#6366f1">
+    <div class="tn-num">第一件事</div>
+    <div class="tn-title">设计 Skill 要做什么</div>
+    <ul class="tn-bullets">
+      <li>现阶段能做什么（能力盘点）</li>
+      <li>应该做什么（需求×难度×ROI）</li>
+      <li>执行路线（今天 / 近期 / 季度）</li>
+    </ul>
+  </a>
+  <a class="tn-card" href="#s2" style="--card-color:#f472b6">
+    <div class="tn-num">第二件事</div>
+    <div class="tn-title">如何提升工程化程度</div>
+    <ul class="tn-bullets">
+      <li>用户意图识别和澄清机制</li>
+      <li>Skill 调用链路原子化拆解</li>
+      <li>Figma MCP 替代 Stitch</li>
+    </ul>
+  </a>
+  <a class="tn-card" href="#s3" style="--card-color:#34d399">
+    <div class="tn-num">第三件事</div>
+    <div class="tn-title">如何判断 Skill 完成度</div>
+    <ul class="tn-bullets">
+      <li>每个原子 Skill 解决什么问题</li>
+      <li>三层验收体系（功能/质量/效率）</li>
+      <li>各类型量化通过标准</li>
+    </ul>
+  </a>
+</div>
+
+<!-- ══════════════════ S1 ══════════════════ -->
+<div id="s1" class="section-anchor"></div>
+<div class="section">
+  <div class="s-head">
+    <div class="s-badge" style="background:rgba(99,102,241,.12);color:#818cf8;border:1px solid rgba(99,102,241,.25)">第一件事</div>
+    <div>
+      <div class="s-title">设计 Skill 要做什么</div>
+      <div class="s-sub">能做什么 → 应该做什么 → 今天做什么</div>
+    </div>
+  </div>
+
+  <div class="sub-h">1.1 现阶段能做什么（能力盘点）</div>
+
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead><tr>
+        <th>Skill</th><th>核心能力</th><th>对应业务需求</th><th>状态</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><code style="color:#a78bfa;font-size:11px">visual-creator + infovis-evaluator</code></td><td>数据→信息可视化图，三维质量评测</td><td>信息可视化图</td><td><span class="bbuilt">已建</span></td></tr>
+        <tr><td><code style="color:#a78bfa;font-size:11px">infovis-autoevo</code></td><td>生成→评测→变异自进化闭环</td><td>美学评测探索（部分）</td><td><span class="bbuilt">已建</span></td></tr>
+        <tr><td><code style="color:#a78bfa;font-size:11px">design-evaluator</code></td><td>任意设计产物通用评测（4层架构）</td><td>美学评测探索（路由层）</td><td><span class="bbuilt">已建</span></td></tr>
+        <tr><td><code style="color:#a78bfa;font-size:11px">ppt-from-vision</code></td><td>视觉PPT生成（AI生图+15套配色）</td><td>不可编辑PPT skill</td><td><span class="bbuilt">已建</span></td></tr>
+        <tr><td><code style="color:#a78bfa;font-size:11px">ai-image-generator</code></td><td>Siliconflow API 图片生成</td><td>图片生成</td><td><span class="bbuilt">已建</span></td></tr>
+        <tr><td><code style="color:#a78bfa;font-size:11px">frontend-design / ui-ux-pro-max</code></td><td>HTML/React UI 生成，50种风格</td><td>AI UI / GEN UI</td><td><span class="bwip">进行中</span></td></tr>
+        <tr><td><code style="color:#a78bfa;font-size:11px">theme-factory</code></td><td>10套预设主题注入</td><td>JSON替换工程（主题层）</td><td><span class="bbuilt">已建</span></td></tr>
+        <tr><td><code style="color:#a78bfa;font-size:11px">industry-research</code></td><td>竞品/市场调研，多维对比</td><td>AI样式调研</td><td><span class="bbuilt">已建</span></td></tr>
+        <tr><td><code style="color:#a78bfa;font-size:11px">canvas-design</code></td><td>海报/静态图 PNG/PDF</td><td>插画图（部分）</td><td><span class="bbuilt">已建</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-blue">
+    <strong>Design-AI 平台能力现状：</strong> 平台已有 智能抠图 / 图片生成 / 图像编辑 / 背景替换 / 智能改尺寸 五项能力，但均无 Skill 封装层。当前需要直接调用 API，<strong>缺乏意图识别和场景约束层</strong>，用户体验断裂。
+  </div>
+
+  <div class="sub-h">1.2 应该做什么（用户需求 × 开发难度 × ROI）</div>
+
+  <div class="callout" style="margin-bottom:16px">
+    <strong>核心结论：</strong>ROI 最高的三件事都是「把现有能力垂直化包装」，而不是建新技术栈。优先级排序：<strong>包装已有能力（P0）> 扩展已有框架（P1）> 建设新能力（P2）</strong>
+  </div>
+
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead><tr>
+        <th>业务需求</th><th>使用频率</th><th>节省时长</th><th>实现难度</th><th>ROI</th><th>优先级</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>帮忙写交互文档</strong><br><span style="font-size:10px;color:var(--text3)">做完设计，帮我写交互说明</span></td>
+          <td>高（每个需求）</td>
+          <td>30–60 min/次</td>
+          <td><span class="tag">Lv1 现有组合</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div></div></td>
+          <td><span class="bp0">P0</span></td>
+        </tr>
+        <tr>
+          <td><strong>运营 H5 生成</strong><br><span style="font-size:10px;color:var(--text3)">每次活动快速产出 H5 页</span></td>
+          <td>高（每次活动）</td>
+          <td>2–4 h/次</td>
+          <td><span class="tag">Lv1 现有扩展</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div></div></td>
+          <td><span class="bp0">P0</span></td>
+        </tr>
+        <tr>
+          <td><strong>美学评测扩展</strong><br><span style="font-size:10px;color:var(--text3)">探索视觉美学量化标准</span></td>
+          <td>高（每个产物）</td>
+          <td>20–40 min/次</td>
+          <td><span class="tag">Lv1 已有框架</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-off"></div></div></td>
+          <td><span class="bp0">P0</span></td>
+        </tr>
+        <tr>
+          <td><strong>AI 样式调研专项化</strong><br><span style="font-size:10px;color:var(--text3)">色彩/字体/空间维度趋势</span></td>
+          <td>中（月级）</td>
+          <td>3–5 h/次</td>
+          <td><span class="tag">Lv1 现有扩展</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-off"></div></div></td>
+          <td><span class="bp1">P1</span></td>
+        </tr>
+        <tr>
+          <td><strong>AE 动态粒子效果复现</strong><br><span style="font-size:10px;color:var(--text3)">把 AE 特效转成 Web 代码</span></td>
+          <td>中（特定项目）</td>
+          <td>4–8 h/次</td>
+          <td><span class="tag">Lv2 新技术栈</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div></div></td>
+          <td><span class="bp1">P1</span></td>
+        </tr>
+        <tr>
+          <td><strong>素材模版 AI 化调研</strong><br><span style="font-size:10px;color:var(--text3)">现有模板智能化改造方案</span></td>
+          <td>中（季度级）</td>
+          <td>8–16 h/次</td>
+          <td><span class="tag">Lv1 调研+方案</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div></div></td>
+          <td><span class="bp1">P1</span></td>
+        </tr>
+        <tr>
+          <td><strong>品牌 MR 提效</strong><br><span style="font-size:10px;color:var(--text3)">品牌物料批量生产自动化</span></td>
+          <td>低-中</td>
+          <td>2–3 h/次</td>
+          <td><span class="tag">Lv2 品牌链路</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div></div></td>
+          <td><span class="bp1">P1</span></td>
+        </tr>
+        <tr>
+          <td><strong>Design-AI 平台桥接</strong><br><span style="font-size:10px;color:var(--text3)">抠图/背景替换/改尺寸封装</span></td>
+          <td>高（每次修图）</td>
+          <td>10–20 min/次</td>
+          <td><span class="tag">Lv1 MCP 封装</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-off"></div></div></td>
+          <td><span class="bp1">P1</span></td>
+        </tr>
+        <tr>
+          <td><strong>JSON 替换工程</strong><br><span style="font-size:10px;color:var(--text3)">主题 Token 批量替换</span></td>
+          <td>中（开发协作）</td>
+          <td>1–2 h/次</td>
+          <td><span class="tag">Lv1 已有</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-on"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div></div></td>
+          <td><span class="bbuilt">已有→维护</span></td>
+        </tr>
+        <tr>
+          <td><strong>明星合照底图生成</strong><br><span style="font-size:10px;color:var(--text3)">人脸合成类，需风险评估</span></td>
+          <td>低</td>
+          <td>1–2 h/次</td>
+          <td><span class="tag">Lv3 人脸合成</span></td>
+          <td><div class="roi-bar"><div class="roi-dot roi-on"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div></div></td>
+          <td><span class="bp2">P2+风险评估</span></td>
+        </tr>
+        <tr>
+          <td><strong>幸运盒子 AI 提效</strong><br><span style="font-size:10px;color:var(--text3)">场景尚不明确</span></td>
+          <td>待确认</td>
+          <td>待确认</td>
+          <td>待确认</td>
+          <td><div class="roi-bar"><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div><div class="roi-dot roi-off"></div></div></td>
+          <td><span class="bclarify">先澄清</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="roadmap" class="sub-h">1.3 执行路线：今天 / 近期 / 季度</div>
+
+  <div class="roadmap">
+    <div class="rm-col">
+      <div class="rm-head">
+        <div class="rm-icon">⚡</div>
+        <div>
+          <div class="rm-label" style="color:#ef4444">今天可交付（本月）</div>
+          <div class="rm-sub">包装已有能力，无需新建技术栈</div>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num" style="background:rgba(239,68,68,.15);color:#ef4444">①</div>
+        <div class="rm-text">
+          <strong>交互文档生成 Skill</strong>
+          design-handoff-writer：基于 docx + 设计交付规范，意图识别→结构提取→文档输出
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num" style="background:rgba(239,68,68,.15);color:#ef4444">②</div>
+        <div class="rm-text">
+          <strong>运营 H5 生成 Skill</strong>
+          ops-h5-generator：在 frontend-design 外层加运营场景意图识别 + 品牌约束注入
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num" style="background:rgba(239,68,68,.15);color:#ef4444">③</div>
+        <div class="rm-text">
+          <strong>美学评测维度扩展</strong>
+          在 design-evaluator 新增 AQE 美学矩阵（视觉和谐/色彩/情绪匹配 4 子维度）
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-col">
+      <div class="rm-head">
+        <div class="rm-icon">🔧</div>
+        <div>
+          <div class="rm-label" style="color:#f59e0b">近期建设（下月）</div>
+          <div class="rm-sub">扩展已有框架，部分需新接入</div>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num" style="background:rgba(245,158,11,.12);color:#f59e0b">④</div>
+        <div class="rm-text">
+          <strong>AI 样式调研专项化</strong>
+          style-research：industry-research + 视觉维度扩展（色彩体系/字体趋势/空间语言）
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num" style="background:rgba(245,158,11,.12);color:#f59e0b">⑤</div>
+        <div class="rm-text">
+          <strong>AE 动态粒子复现</strong>
+          motion-effect-generator：GSAP + Canvas 代码生成，AE 参数映射到 Web 特效
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num" style="background:rgba(245,158,11,.12);color:#f59e0b">⑥</div>
+        <div class="rm-text">
+          <strong>Design-AI 平台桥接层</strong>
+          为抠图 / 背景替换 / 改尺寸 建立 MCP 封装，统一意图识别入口
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-col">
+      <div class="rm-head">
+        <div class="rm-icon">🚀</div>
+        <div>
+          <div class="rm-label" style="color:#6b7280">季度目标</div>
+          <div class="rm-sub">需新建技术栈，长期价值高</div>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num" style="background:rgba(107,114,128,.12);color:#9ca3af">⑦</div>
+        <div class="rm-text">
+          <strong>品牌物料自动化链路</strong>
+          品牌 Token → 物料模版 → 批量生成 → 合规检查，端到端闭环
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num" style="background:rgba(107,114,128,.12);color:#9ca3af">⑧</div>
+        <div class="rm-text">
+          <strong>通用自进化引擎扩展</strong>
+          将 infovis-autoevo 扩展为 PPT / 海报 / H5 通用评测 + 自进化
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-num" style="background:rgba(167,139,250,.12);color:#a78bfa">❓</div>
+        <div class="rm-text">
+          <strong>待澄清后排期</strong>
+          幸运盒子 AI 提效（场景访谈先行）；明星合照底图（风险评估先行）
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ S2 ══════════════════ -->
+<div id="s2" class="section-anchor"></div>
+<div class="section">
+  <div class="s-head">
+    <div class="s-badge" style="background:rgba(244,114,182,.1);color:#f472b6;border:1px solid rgba(244,114,182,.25)">第二件事</div>
+    <div>
+      <div class="s-title">如何提升 Skill 的工程化程度</div>
+      <div class="s-sub">意图识别前置 + 原子单元拆解 + 工具链更新</div>
+    </div>
+  </div>
+
+  <div class="sub-h">2.1 用户意图识别和澄清</div>
+
+  <div class="callout">
+    <strong>当前问题：</strong>大多数 skill 的 description 是「能力描述」，不是「意图描述」。用户说「帮我弄个动效」，skill 体系不知道这是 GSAP 滚动视差、Lottie JSON、AE 粒子复现还是 CSS 过渡。<strong>每个 skill 入口必须有意图识别树。</strong>
+  </div>
+
+  <div style="margin-bottom:8px;font-size:11px;color:var(--text2)">示例：「动效」需求的意图识别树</div>
+  <div class="intent-tree">
+<span class="c"># 用户说「动效」→ 触发意图识别</span>
+<span class="k">├── 是否已有设计稿/原型？</span>
+<span class="c">│   ├── 有  →</span> <span class="v">「还原型」</span><span class="c"> → 匹配 GSAP / CSS Animation</span>
+<span class="c">│   └── 无  →</span> <span class="v">「创作型」</span><span class="c"> → 进一步问风格/品牌调性</span>
+<span class="k">├── 目标平台？</span>
+<span class="c">│   ├── Web     →</span> <span class="v">GSAP / CSS</span>
+<span class="c">│   ├── App     →</span> <span class="v">Lottie JSON</span>
+<span class="c">│   └── 视频    →</span> <span class="v">AE 脚本 / Remotion</span>
+<span class="k">└── 复杂度？</span>
+<span class="c">    ├── 简单过渡  →</span> <span class="v">直接输出代码</span>
+<span class="c">    └── 高级特效  →</span> <span class="v">motion-effect-generator</span> <span class="c">→ AE 粒子复现链路</span>
+  </div>
+
+  <div class="callout-blue">
+    <strong>落地规范：</strong>每个设计 skill 在 SKILL.md 中必须包含 <code>intent_clarification</code> 前置区块，用 YAML 定义意图树。触发 skill 时先走意图识别，再进入能力执行。
+  </div>
+
+  <div class="sub-h">2.2 Skill 调用链路原子化拆解</div>
+
+  <div style="margin-bottom:12px;font-size:12px;color:var(--text2)">示例：「交互文档生成」的原子链路拆解（3个原子单元，Input → Process → Output 完全显式）</div>
+
+  <div class="atom-chain">
+    <div class="atom-step">
+      <div class="atom-connector" style="--step-color:#60a5fa">
+        <div class="atom-dot" style="border-color:#60a5fa"></div>
+        <div class="atom-line" style="background:linear-gradient(to bottom,#60a5fa,transparent)"></div>
+      </div>
+      <div class="atom-body">
+        <div class="atom-name" style="color:#60a5fa">原子 Skill 1 — intent-extractor（意图提取）</div>
+        <div class="atom-io">
+          <span class="io-pill io-in">IN: 设计稿截图 / Figma URL / 用户描述</span>
+          <span class="io-pill io-proc">PROCESS: 提取组件列表、交互状态、流转逻辑</span>
+          <span class="io-pill io-out">OUT: 结构化 YAML（组件树 + 状态机）</span>
+        </div>
+      </div>
+    </div>
+    <div class="atom-step">
+      <div class="atom-connector" style="--step-color:#f472b6">
+        <div class="atom-dot" style="border-color:#f472b6"></div>
+        <div class="atom-line" style="background:linear-gradient(to bottom,#f472b6,transparent)"></div>
+      </div>
+      <div class="atom-body">
+        <div class="atom-name" style="color:#f472b6">原子 Skill 2 — interaction-doc-writer（文档写作）</div>
+        <div class="atom-io">
+          <span class="io-pill io-in">IN: 结构化 YAML</span>
+          <span class="io-pill io-proc">PROCESS: 套用交互文档模板，填充描述</span>
+          <span class="io-pill io-out">OUT: .docx / Markdown 交互说明文档</span>
+        </div>
+      </div>
+    </div>
+    <div class="atom-step">
+      <div class="atom-connector" style="--step-color:#34d399">
+        <div class="atom-dot" style="border-color:#34d399"></div>
+        <div class="atom-line" style="height:0"></div>
+      </div>
+      <div class="atom-body">
+        <div class="atom-name" style="color:#34d399">原子 Skill 3 — design-qa-checker（完整性检查）</div>
+        <div class="atom-io">
+          <span class="io-pill io-in">IN: 生成的交互文档</span>
+          <span class="io-pill io-proc">PROCESS: 对照 Checklist（异常态/空态/动效描述覆盖）</span>
+          <span class="io-pill io-out">OUT: 缺项报告 + 补全建议</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-h">2.3 工具链更新：Figma MCP 替代 Stitch</div>
+
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead><tr><th>对比维度</th><th>Stitch（Google）</th><th>Figma MCP（当前主流）</th></tr></thead>
+      <tbody>
+        <tr><td>归属</td><td>Google 独立产品</td><td>Figma 官方 MCP Server</td></tr>
+        <tr><td>核心能力</td><td>草图/文字 → UI 组件生成</td><td>AI Agent 直接读取/操作真实 Figma 文件结构</td></tr>
+        <tr><td>设计→代码协同</td><td>单向生成，与 Figma 无原生连接</td><td>读取节点树、组件属性、Token、约束，双向同步</td></tr>
+        <tr><td>在设计工作流中的定位</td><td>独立生成工具，不在 Figma 工作流内</td><td>Figma 工作流的 AI 扩展层，无缝集成</td></tr>
+        <tr><td>当前成熟度</td><td>Beta，功能受限</td><td>正式可用，Cursor/Claude Code 均支持</td></tr>
+        <tr>
+          <td><strong>在全景图中的处理</strong></td>
+          <td style="color:#ef4444">移除 Stitch 引用</td>
+          <td style="color:#34d399">nd-figma-review 更新为「Figma MCP + AI Agent」</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════ S3 ══════════════════ -->
+<div id="s3" class="section-anchor"></div>
+<div class="section">
+  <div class="s-head">
+    <div class="s-badge" style="background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.25)">第三件事</div>
+    <div>
+      <div class="s-title">如何判断 Skill 的完成度</div>
+      <div class="s-sub">每个原子 Skill 解决什么问题 + 三层可量化验收体系</div>
+    </div>
+  </div>
+
+  <div class="sub-h">3.1 每个原子 Skill 必须回答的五个问题</div>
+
+  <div class="callout">
+    <strong>反例（当前写法）：</strong>「智能可视化图片生成器，自动理解意图、选择设计方式、生成美学达标图片」— 这回答不了「做完了没有」。
+  </div>
+
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead><tr><th>字段</th><th>说明</th><th>示例（visual-creator）</th></tr></thead>
+      <tbody>
+        <tr><td><strong>解决的核心问题</strong></td><td>用户之前手工要花多少时间</td><td>设计师手工选图表类型+调色+排版，平均 45 min/张</td></tr>
+        <tr><td><strong>用户场景</strong></td><td>谁在什么情境下调用</td><td>数据分析师拿到数据后，需要做汇报 PPT 配图</td></tr>
+        <tr><td><strong>精确 Input</strong></td><td>接受什么格式</td><td>数据表 + 意图描述（「展示各部门Q1对比」）</td></tr>
+        <tr><td><strong>精确 Output</strong></td><td>输出什么格式</td><td>PNG图片 + ECharts 代码 + 设计说明</td></tr>
+        <tr><td><strong>通过标准（量化）</strong></td><td>什么分数算合格</td><td>infovis-evaluator 评分 ≥ 8.5 / 10</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub-h">3.2 三层验收体系</div>
+
+  <div class="layer-cards">
+    <div class="lc" style="--lc-color:#60a5fa">
+      <div class="lc-head">
+        <div class="lc-icon" style="background:rgba(96,165,250,.12)">⚙️</div>
+        <div>
+          <div class="lc-title">Layer A — 功能验收</div>
+          <div class="lc-tag">Skill 能跑通</div>
+        </div>
+      </div>
+      <div class="lc-item">5 种典型 case 能准确路由到正确处理路径</div>
+      <div class="lc-item">输出格式符合定义，无幻觉字段</div>
+      <div class="lc-item">输入不合法时有合理提示，不直接报错</div>
+      <div class="lc-item">意图识别分支均有 fallback 处理</div>
+    </div>
+    <div class="lc" style="--lc-color:#f59e0b">
+      <div class="lc-head">
+        <div class="lc-icon" style="background:rgba(245,158,11,.12)">✅</div>
+        <div>
+          <div class="lc-title">Layer B — 质量验收</div>
+          <div class="lc-tag">Skill 有用</div>
+        </div>
+      </div>
+      <div class="lc-item">视觉生成类：design-evaluator ≥ 8.5 分</div>
+      <div class="lc-item">图表/InfoVis 类：infovis-evaluator ≥ 9.0 分</div>
+      <div class="lc-item">文档生成类：结构完整度 ≥ 90%（必填项无空缺）</div>
+      <div class="lc-item">评测 Skill：与人工评审一致性 ≥ 85%</div>
+    </div>
+    <div class="lc" style="--lc-color:#34d399">
+      <div class="lc-head">
+        <div class="lc-icon" style="background:rgba(52,211,153,.12)">🚀</div>
+        <div>
+          <div class="lc-title">Layer C — 效率验收</div>
+          <div class="lc-tag">Skill 值得用</div>
+        </div>
+      </div>
+      <div class="lc-item">调用时长 + 修改时长 &lt; 人工时长的 50%</div>
+      <div class="lc-item">用户平均修改次数 ≤ 2 次可接受</div>
+      <div class="lc-item">实际使用过的设计师复用率 ≥ 60%</div>
+      <div class="lc-item">用户主动推荐给同事率 ≥ 40%</div>
+    </div>
+  </div>
+
+  <div class="sub-h">3.3 各类型量化通过标准速查</div>
+
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead><tr><th>Skill 类型</th><th>Layer B 质量标准</th><th>Layer C 效率标准</th><th>验收工具</th></tr></thead>
+      <tbody>
+        <tr><td>数据图表/InfoVis 生成</td><td>infovis-evaluator ≥ 9.0</td><td>人工时长的 &lt;30%</td><td>infovis-autoevo 自动验收</td></tr>
+        <tr><td>海报/静态图生成</td><td>design-evaluator ≥ 8.5</td><td>人工时长的 &lt;40%</td><td>design-evaluator poster 路由</td></tr>
+        <tr><td>PPT / Deck 生成</td><td>design-evaluator ≥ 8.0</td><td>人工时长的 &lt;35%</td><td>design-evaluator PPT 路由</td></tr>
+        <tr><td>运营 H5 生成</td><td>design-evaluator ≥ 8.0</td><td>人工时长的 &lt;30%</td><td>web-design-guidelines 检查</td></tr>
+        <tr><td>交互文档生成</td><td>必填项覆盖率 ≥ 90%</td><td>人工时长的 &lt;50%</td><td>design-qa-checker 原子 Skill</td></tr>
+        <tr><td>调研类 Skill</td><td>关键洞察覆盖率 ≥ 80%</td><td>人工时长的 &lt;50%</td><td>人工抽样对比</td></tr>
+        <tr><td>美学评测 Skill</td><td>与人工评审一致性 ≥ 85%</td><td>评测时长 &lt;3 min/件</td><td>人工盲测对比</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 底部结论 -->
+<div class="conclusion">
+  <div class="concl-item">
+    <div class="concl-num" style="--c1:#6366f1;--c2:#818cf8">第一件事</div>
+    <div class="concl-label">战略层</div>
+    <div class="concl-desc">做哪些、不做哪些，资源如何分配。P0 三件都是包装现有能力，立刻可启动。</div>
+  </div>
+  <div class="concl-item">
+    <div class="concl-num" style="--c1:#f472b6;--c2:#fb923c">第二件事</div>
+    <div class="concl-label">工程层</div>
+    <div class="concl-desc">怎么把能力封装成可复用、可组合的单元。意图识别前置 + 原子拆解是核心。</div>
+  </div>
+  <div class="concl-item">
+    <div class="concl-num" style="--c1:#34d399;--c2:#60a5fa">第三件事</div>
+    <div class="concl-label">质量层</div>
+    <div class="concl-desc">做出来的东西有没有真正解决问题。三层验收保证功能、质量、效率缺一不可。</div>
+  </div>
+</div>
+
+<div class="footnote">设计 Skill 体系规划 · 2026 Q2 · 三件事框架 by 畅靖文 · <a href="design-skill-landscape.html" style="color:var(--accent)">查看完整全景图 →</a></div>
+
+<script>
+// 导航高亮
+const sections=['s1','s2','s3','roadmap'];
+const links=document.querySelectorAll('.nl');
+window.addEventListener('scroll',()=>{
+  let cur='s1';
+  sections.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.getBoundingClientRect().top<120) cur=id;
+  });
+  links.forEach(l=>{
+    l.classList.toggle('active',l.getAttribute('href')==='#'+cur);
+  });
+},{passive:true});
+</script>
+</body>
+</html>
