@@ -725,11 +725,214 @@ footer {
   </div>
 </section>
 
-<div id="vid"  style="max-width:1100px;margin:0 auto 40px;padding:0 48px">
-  <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
-    🎬 方向三：视频/动效 — 即将发布（Part 3）
+<!-- ════════ 方向三：视频/动效生成 ════════ -->
+<section class="section" id="vid">
+  <div class="section-header">
+    <span class="index-badge">方向 03</span>
+    <h2 style="color:var(--vid-color)">🎬 视频/动效生成</h2>
+    <span class="count">8 个 Skill</span>
   </div>
-</div>
+  <div class="struct-block"><pre>视频 / 动效生成
+├── F. 代码型动效（设计系统可用）
+│   ├── VID-F1  HTML+CSS 微动效生成（L1）   P0 ✅  ← 最高优先级
+│   └── VID-F2  SVG 动效生成（L1-L2）      P1 ✅
+│
+├── G. Lottie 型动效（移动端/跨平台可用）
+│   ├── VID-G1  Lottie JSON 动效生成       PoC  OmniLottie 前沿
+│   └── VID-G2  Figma → Lottie 导出优化   P1 ✅  工具已成熟
+│
+├── H. 程序化视频（Remotion）
+│   ├── VID-H1  数据可视化视频              P1 ✅
+│   ├── VID-H2  汇报/年报叙事视频          P1 ✅
+│   └── VID-H3  UI 原型演示视频            P1 ⚠️
+│
+└── I. AI 视频生成（写实/营销型）
+    ├── VID-I1  文生视频（营销素材）        P2 ⚠️
+    └── VID-I2  图生视频（设计稿动起来）    P2 ⚠️</pre></div>
+
+  <!-- VID-F1 -->
+  <div class="skill-card" style="border-top:3px solid var(--vid-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">VID-F1</span>
+      <span class="card-title">HTML+CSS 微动效生成（L1）</span>
+      <div class="card-badges"><span class="badge badge-p0">P0</span><span class="badge badge-yes">✅ 2天可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body open" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--vid-color)">输入 UI 元素描述，直接生成可内嵌的 CSS 动效代码，适用于按钮交互、Loading、背景动效等 L1 场景。</div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>动效元素描述（如：「按钮点击涟漪效果」「骨架屏加载」「渐入渐出页面元素」）</li>
+          <li>持续时间（可选，默认 300-500ms）</li>
+          <li>触发方式（hover / click / 页面加载 / 循环）</li>
+          <li>目标框架（可选，纯CSS / Tailwind / React inline）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>可运行的 HTML+CSS 代码片段</li>
+          <li>可选：Codepen 可运行 Demo 格式</li>
+          <li>动效参数说明（duration / easing / delay）</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">L1 动效类型清单（本 Skill 覆盖范围）</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>类型</th><th>示例</th><th>难度</th></tr></thead><tbody>
+        <tr><td>悬停反馈</td><td>按钮 scale/shadow 变化</td><td>⭐</td></tr>
+        <tr><td>加载状态</td><td>Spinner、Skeleton、Shimmer</td><td>⭐⭐</td></tr>
+        <tr><td>页面入场</td><td>元素淡入、从下滑入</td><td>⭐</td></tr>
+        <tr><td>背景动效</td><td>渐变流动背景、粒子漂浮</td><td>⭐⭐</td></tr>
+        <tr><td>数字滚动</td><td>Counter 动效</td><td>⭐⭐</td></tr>
+      </tbody></table></div>
+      <div class="card-section-title">质量标准（竞品对标：Framer Motion 官方示例）</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>维度</th><th>标准</th></tr></thead><tbody>
+        <tr><td>代码可用</td><td>直接粘贴可运行，无语法错误</td></tr>
+        <tr><td>动效自然度</td><td>缓动函数合理（非线性 ease），不生硬</td></tr>
+        <tr><td>性能</td><td>优先使用 transform/opacity（GPU 加速），不触发 layout</td></tr>
+        <tr><td>参数可调</td><td>关键参数（时长/延迟/颜色）抽成变量，便于修改</td></tr>
+      </tbody></table></div>
+      <ul class="boundary-list" style="margin-bottom:16px">
+        <li>不支持需要 JS 逻辑联动的复杂序列动效（→ F2/G1）</li>
+        <li>不做视频导出（纯 CSS，非 Lottie/视频格式）</li>
+      </ul>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — LLM 生成 CSS 动效是最成熟的能力之一</span></div>
+    </div>
+  </div>
+
+  <!-- VID-F2 -->
+  <div class="skill-card" style="border-top:3px solid var(--vid-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">VID-F2</span>
+      <span class="card-title">SVG 动效生成（SMIL / CSS）</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-yes">✅ 2天可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--vid-color)">输入图形描述和动效需求，生成带有动画的 SVG 文件，适用于 Logo 动效、品牌展示、Loading 图形等 L1-L2 场景。</div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>图形描述（或提供静态 SVG 源文件）</li>
+          <li>动效描述（如：「路径描边动画」「图标从无到有」「循环呼吸效果」）</li>
+          <li>循环方式（单次 / 循环 / hover 触发）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>带动画的完整 SVG 文件</li>
+          <li>可直接嵌入网页或用于移动端</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px"><strong>LLM 代码生成</strong> → SVG + CSS Animations / SMIL，竞品对标：CSS Tricks</div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — 依赖 LLM 对 SVG 动画语法的掌握，需测试边界</span></div>
+    </div>
+  </div>
+
+  <!-- VID-G2 -->
+  <div class="skill-card" style="border-top:3px solid var(--vid-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">VID-G2</span>
+      <span class="card-title">Figma 设计稿一键 Lottie 导出</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-yes">✅ 2天可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--vid-color)">输入 Figma 设计稿，通过 AI 自动为静态设计添加动效并导出 Lottie JSON，适用于已有设计资产的动效化。</div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>Figma 设计稿 Frame（通过插件直接访问）</li>
+          <li>动效类型选择（入场 / 循环 / 出场）</li>
+          <li>强度偏好（轻微 / 适中 / 夸张）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>Lottie JSON 文件</li>
+          <li>可选：MP4 / GIF 预览版</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px"><strong>Magic Animator / Lottielab AI</strong>（Figma 插件集成），竞品对标：Magic Animator Beta（2025.07 已进入 Beta）</div>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — 工具已可用，属于工作流集成</span></div>
+    </div>
+  </div>
+
+  <!-- VID-G1 -->
+  <div class="skill-card" style="border-top:3px solid var(--vid-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">VID-G1</span>
+      <span class="card-title">Lottie JSON 动效生成 🔬</span>
+      <div class="card-badges"><span class="badge badge-poc">PoC</span><span class="badge badge-no">❌ 需 PoC</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--vid-color)">输入动效描述，直接生成 Lottie JSON 文件，可在 iOS/Android/Web 直接渲染，适用于 App Loading、品牌动效、空状态动画等 L2 场景。</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:12.5px">
+        <strong>背景说明：</strong>Lottie 是 App 端动效的标准格式（JSON，约 50KB）。现有 Sora/Kling 等模型生成的是视频（MP4），无法直接在 App 内运行。<strong>OmniLottie（2026.03 发布，CVPR 2026）</strong>是首个能直接生成 Lottie JSON 的 AI 模型，已开源（arxiv 2603.02138）。
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px">OmniLottie 模型（CVPR 2026 开源）/ LottieFiles AI Prompt to Vector，需评估接入可行性和工程成本</div>
+      <div class="feasibility"><span class="stars">★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：中等 — 技术前沿，需要工程评审，建议先做 PoC</span></div>
+    </div>
+  </div>
+
+  <!-- VID-H 系列 -->
+  <div class="skill-card" style="border-top:3px solid var(--vid-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">VID-H1/H2/H3</span>
+      <span class="card-title">程序化视频 — Remotion 系列</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-yes">✅ H1/H2</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-section-title" style="margin-bottom:12px">三个子场景</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>场景</th><th>一句话定义</th><th>优先级</th></tr></thead><tbody>
+        <tr><td>VID-H1</td><td>数据可视化视频</td><td>输入 JSON/CSV 数据 + 叙事结构 → 生成排名变化/指标趋势 MP4，npx remotion render 直接渲染</td><td><span class="badge badge-p1">P1 ✅</span></td></tr>
+        <tr><td>VID-H2</td><td>汇报/年报叙事视频</td><td>输入 PPT 内容/大纲 → 带镜头切换/文字入场/数字增长的叙事视频，替代静态 PPT 播放</td><td><span class="badge badge-p1">P1 ✅</span></td></tr>
+        <tr><td>VID-H3</td><td>UI 原型演示视频</td><td>输入多张 UI 截图 + 流程描述 → 模拟用户操作的演示视频，含点击动效/页面转场/标注文字</td><td><span class="badge badge-p1">P1 ⚠️</span></td></tr>
+      </tbody></table></div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px"><strong>LLM 代码生成 → React + Remotion</strong>（+ ECharts / Recharts），竞品对标：Remotion Showcase</div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — 已有 Remotion Skill 基础，LLM 生成 React 成熟</span></div>
+    </div>
+  </div>
+
+  <!-- VID-I2 -->
+  <div class="skill-card" style="border-top:3px solid var(--vid-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">VID-I2</span>
+      <span class="card-title">图生视频（设计稿/效果图动起来）</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ 需评审</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--vid-color)">输入设计稿截图或产品效果图，通过 AI 视频模型为其添加自然运动，生成 5-10 秒的展示视频。</div>
+      <div class="card-section-title">当前最优模型推荐：Kling 3.0</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:12.5px">
+        4K@60fps，最长 20s，支持 6 段多镜头<br>
+        设计/建筑/营销场景评分全球第一（⭐ 4.9/5）<br>
+        内部可直接通过 Kling API 接入
+      </div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>维度</th><th>标准</th></tr></thead><tbody>
+        <tr><td>主体一致性</td><td>视频帧间主体形态保持，无异常变形</td></tr>
+        <tr><td>运动自然度</td><td>运动符合物理直觉，无突兀跳变</td></tr>
+        <tr><td>视觉质量</td><td>1080p 清晰，无明显压缩噪点</td></tr>
+      </tbody></table></div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — API 接入可行，成本需评估</span></div>
+    </div>
+  </div>
+
+  <!-- 全景表 -->
+  <div class="overview-section">
+    <div class="overview-title">视频/动效 Skill 全景图</div>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Skill ID</th><th>名称</th><th>优先级</th><th>技术路线</th><th>2天可交付</th><th>竞品对标</th></tr></thead>
+      <tbody>
+        <tr><td>VID-F1</td><td>HTML+CSS 微动效</td><td><span class="badge badge-p0">P0</span></td><td>LLM + CSS</td><td><span class="badge badge-yes">✅</span></td><td>Framer Motion 示例</td></tr>
+        <tr><td>VID-G2</td><td>Figma → Lottie 导出</td><td><span class="badge badge-p1">P1</span></td><td>Magic Animator 集成</td><td><span class="badge badge-yes">✅</span></td><td>Magic Animator</td></tr>
+        <tr><td>VID-F2</td><td>SVG 动效生成</td><td><span class="badge badge-p1">P1</span></td><td>LLM + SVG/SMIL</td><td><span class="badge badge-yes">✅</span></td><td>CSS Tricks</td></tr>
+        <tr><td>VID-H1</td><td>Remotion 数据可视化视频</td><td><span class="badge badge-p1">P1</span></td><td>LLM + Remotion</td><td><span class="badge badge-yes">✅</span></td><td>Remotion Showcase</td></tr>
+        <tr><td>VID-H2</td><td>Remotion 汇报/年报叙事视频</td><td><span class="badge badge-p1">P1</span></td><td>LLM + Remotion</td><td><span class="badge badge-yes">✅</span></td><td>Remotion Showcase</td></tr>
+        <tr><td>VID-H3</td><td>UI 原型演示视频</td><td><span class="badge badge-p1">P1</span></td><td>LLM + Remotion</td><td><span class="badge badge-warn">⚠️</span></td><td>Remotion Showcase</td></tr>
+        <tr><td>VID-I2</td><td>图生视频</td><td><span class="badge badge-p2">P2</span></td><td>Kling/Veo API</td><td><span class="badge badge-warn">⚠️</span></td><td>Kling 3.0</td></tr>
+        <tr><td>VID-G1</td><td>Lottie JSON 生成</td><td><span class="badge badge-poc">PoC</span></td><td>OmniLottie（前沿）</td><td><span class="badge badge-no">❌</span></td><td>OmniLottie</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
 <div id="doc"  style="max-width:1100px;margin:0 auto 40px;padding:0 48px">
   <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
     📄 方向四：文档生成 — 即将发布（Part 4）
