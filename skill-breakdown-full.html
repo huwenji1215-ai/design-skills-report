@@ -572,12 +572,159 @@ footer {
   </div>
 </section>
 
-<!-- placeholder for parts 2-5, will be filled in subsequent commits -->
-<div id="img"  style="max-width:1100px;margin:0 auto 40px;padding:0 48px">
-  <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
-    🎨 方向二：图片生成 — 即将发布（Part 2）
+<!-- ════════ 方向二：图片生成 ════════ -->
+<section class="section" id="img">
+  <div class="section-header">
+    <span class="index-badge">方向 02</span>
+    <h2 style="color:var(--img-color)">🎨 图片生成</h2>
+    <span class="count">8 个 Skill</span>
   </div>
-</div>
+  <div class="struct-block"><pre>图片生成
+├── C. LLM 直出代码型
+│   └── IMG-C1  SVG 矢量插画生成              P0 ✅  ← 最高优先级
+│
+├── D. 模型调用型（Diffusion / 多模态）
+│   ├── IMG-D1  文生图（通用）                P1 ✅  首选 Gemini 2.5 Flash Nano Banana
+│   ├── IMG-D2  文生图（品牌风格锁定）         P2 ❌
+│   ├── IMG-D3  图生图（风格迁移/改写）        P1 ✅
+│   └── IMG-D4  局部重绘（Inpainting）        P2 ⚠️
+│
+├── E. 文案驱动型
+│   ├── IMG-E1  文案驱动配图（路由型）         P1 ⚠️
+│   └── IMG-E2  长文自动插图                  P2 ❌
+│
+└── F. 运营裂变型
+    └── IMG-F1  图片裂变（多尺寸/多平台适配）  P1 ✅</pre></div>
+
+  <!-- IMG-C1 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">IMG-C1</span>
+      <span class="card-title">SVG 矢量插画生成</span>
+      <div class="card-badges"><span class="badge badge-p0">P0</span><span class="badge badge-yes">✅ 2天可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body open" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入主题描述，直接生成可编辑的 SVG 矢量插画代码，适用于 UI 配图、空状态页、品牌图形。</div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>主题描述（如：「空购物车」「上传成功」「团队协作」）</li>
+          <li>风格偏好（可选：Flat / Line / Isometric）</li>
+          <li>色板（可选，如品牌主色 #1677FF）</li>
+          <li>尺寸（可选，默认 400×300）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>完整 SVG 代码（可直接嵌入 HTML/React）</li>
+          <li>可在 Figma/Illustrator 中进一步编辑</li>
+          <li>文件大小通常 &lt;10KB</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">意图路由设计</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:12.5px">用户输入 → 意图判断层<br>├── 需要写实感 → IMG-D1（文生图）<br>├── 需要可编辑矢量 → IMG-C1（本 Skill）<br>└── 有现成图改风格 → IMG-D3（图生图）</div>
+      <div class="card-section-title">质量标准（竞品对标：GPT-4o SVG 输出）</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>维度</th><th>标准</th></tr></thead><tbody>
+        <tr><td>语义准确性</td><td>图形内容与主题描述匹配，一眼可识别</td></tr>
+        <tr><td>代码合法性</td><td>标准 SVG 语法，浏览器直接渲染无报错</td></tr>
+        <tr><td>视觉质量</td><td>构图平衡、颜色协调，不是纯线框</td></tr>
+        <tr><td>可编辑性</td><td>SVG 元素有语义化命名，便于后续调整</td></tr>
+      </tbody></table></div>
+      <ul class="boundary-list" style="margin-bottom:16px">
+        <li>不做照片级写实（那是 Diffusion 的工作）</li>
+        <li>复杂 3D 透视插画效果有限（Flat/Line 风格为主）</li>
+        <li>不保证每次生成一致（非精确复现场景）</li>
+      </ul>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — GPT-4o/Claude 3.5 SVG 能力已验证</span></div>
+    </div>
+  </div>
+
+  <!-- IMG-D1 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">IMG-D1</span>
+      <span class="card-title">文生图（通用场景）</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-yes">✅ 2天可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入文本描述，调用 AI 图像生成模型，产出适用于设计场景的高质量图片。</div>
+      <div class="card-section-title">模型选择策略（2026 Q1）</div>
+      <div class="table-wrap" style="margin-bottom:16px"><table class="data-table"><thead><tr><th>场景</th><th>推荐模型</th><th>原因</th></tr></thead><tbody>
+        <tr><td>综合质量最强</td><td style="color:var(--img-color);font-weight:600">Gemini 2.5 Flash（Nano Banana）</td><td>当前业内文生图综合评分第一</td></tr>
+        <tr><td>需要精确文字渲染</td><td>GPT-4o Image</td><td>文字渲染能力强，指令遵循精准</td></tr>
+        <tr><td>需要高度写实</td><td>Flux.1 Dev</td><td>开源最佳写实效果</td></tr>
+        <tr><td>需要快速出图迭代</td><td>Flux.1 Schnell</td><td>速度优先</td></tr>
+        <tr><td>有版权合规要求</td><td>Adobe Firefly</td><td>商用授权安全</td></tr>
+      </tbody></table></div>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — 多模型 API 均可直接调用</span></div>
+    </div>
+  </div>
+
+  <!-- IMG-D3 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">IMG-D3</span>
+      <span class="card-title">图生图（风格迁移/图片改写）</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-yes">✅ 2天可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入原始图片 + 改写指令，在保留主体结构的同时改变风格或内容细节。</div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>原始图片（上传）</li>
+          <li>改写指令（如：「改成扁平插画风格」「换成深色背景」）</li>
+          <li>改变强度（可选，0-100%，默认 50%）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>改写后的图片</li>
+          <li>自动展示前后对比</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px"><strong>GPT-4o Image</strong>（图生图）/ Stable Diffusion img2img，竞品对标：Adobe Firefly</div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高</span></div>
+    </div>
+  </div>
+
+  <!-- IMG-E1 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">IMG-E1</span>
+      <span class="card-title">文案驱动配图生成（路由型）</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-warn">⚠️ 需评审</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入一段文案或标题，自动选择最优图片生成方式（SVG / 文生图 / 图库检索），产出匹配配图。</div>
+      <div class="card-section-title">意图路由逻辑</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:12.5px">输入文案 → 意图分析（LLM）<br>├── 需要图形化/图标型 → IMG-C1（SVG生成）<br>├── 需要写实/摄影风 → IMG-D1（文生图）<br>└── 标准商业配图 → 图库检索（Unsplash/Pexels API）<br>↓ 多方案展示 → 用户选择</div>
+      <div class="inout-box" style="margin-bottom:16px"><ul>
+        <li>3个候选方案（不同技术路线各出1个）</li>
+        <li>每个方案：图片预览 + 生成方式说明 + 可编辑性说明</li>
+      </ul></div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — 路由层需工程化，技术可行</span></div>
+    </div>
+  </div>
+
+  <!-- 全景表 -->
+  <div class="overview-section">
+    <div class="overview-title">图片生成 Skill 全景图</div>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Skill ID</th><th>名称</th><th>优先级</th><th>技术路线</th><th>2天可交付</th><th>竞品对标</th></tr></thead>
+      <tbody>
+        <tr><td>IMG-C1</td><td>SVG 矢量插画生成</td><td><span class="badge badge-p0">P0</span></td><td>LLM 直出 SVG</td><td><span class="badge badge-yes">✅</span></td><td>GPT-4o SVG</td></tr>
+        <tr><td>IMG-D1</td><td>文生图（通用）</td><td><span class="badge badge-p1">P1</span></td><td>Gemini/GPT-4o/Flux</td><td><span class="badge badge-yes">✅</span></td><td>Midjourney v6</td></tr>
+        <tr><td>IMG-D3</td><td>图生图（风格迁移）</td><td><span class="badge badge-p1">P1</span></td><td>多模态模型</td><td><span class="badge badge-yes">✅</span></td><td>Adobe Firefly</td></tr>
+        <tr><td>IMG-E1</td><td>文案驱动配图（路由型）</td><td><span class="badge badge-p1">P1</span></td><td>意图路由+子Skill</td><td><span class="badge badge-warn">⚠️</span></td><td>无直接竞品</td></tr>
+        <tr><td>IMG-F1</td><td>图片裂变·多尺寸适配</td><td><span class="badge badge-p1">P1</span></td><td>主体检测+Outpainting</td><td><span class="badge badge-yes">✅</span></td><td>Adobe Express</td></tr>
+        <tr><td>IMG-D2</td><td>文生图（品牌风格锁定）</td><td><span class="badge badge-p2">P2</span></td><td>LoRA 微调</td><td><span class="badge badge-no">❌</span></td><td>Midjourney --sref</td></tr>
+        <tr><td>IMG-D4</td><td>局部重绘（Inpainting）</td><td><span class="badge badge-p2">P2</span></td><td>SD Inpainting</td><td><span class="badge badge-warn">⚠️</span></td><td>Adobe Firefly</td></tr>
+        <tr><td>IMG-E2</td><td>长文自动插图</td><td><span class="badge badge-p2">P2</span></td><td>多步流水线</td><td><span class="badge badge-no">❌</span></td><td>无直接竞品</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
 <div id="vid"  style="max-width:1100px;margin:0 auto 40px;padding:0 48px">
   <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
     🎬 方向三：视频/动效 — 即将发布（Part 3）
