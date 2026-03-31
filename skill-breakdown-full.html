@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计 Skill 深度拆解：五大方向全景</title>
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e29;
+  --bg4: #1e2435;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.15);
+  --text: #e8eaf0;
+  --text-muted: #7a8099;
+  --text-dim: #4a5168;
+  --accent:  #6c8fff;
+  --accent2: #a78bfa;
+  --accent3: #34d399;
+  --accent4: #f59e0b;
+  --accent5: #f472b6;
+  --red: #f87171;
+  --ui-color:   #6c8fff;
+  --img-color:  #34d399;
+  --vid-color:  #f87171;
+  --doc-color:  #f59e0b;
+  --eval-color: #a78bfa;
+  font-size: 15px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Segoe UI", sans-serif;
+  line-height: 1.7;
+}
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(13,15,20,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex; align-items: center; gap: 0;
+  height: 52px;
+}
+.nav-brand {
+  font-size: 13px; font-weight: 700; color: var(--accent);
+  letter-spacing: .03em; margin-right: 32px; white-space: nowrap;
+}
+.nav-links { display: flex; gap: 0; flex: 1; overflow-x: auto; }
+.nav-links a {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 14px; height: 52px;
+  font-size: 12px; font-weight: 500; white-space: nowrap;
+  color: var(--text-muted); text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links a.ui   { border-color: transparent; }
+.nav-links a.ui:hover   { color: var(--ui-color);   border-color: var(--ui-color); }
+.nav-links a.img:hover  { color: var(--img-color);  border-color: var(--img-color); }
+.nav-links a.vid:hover  { color: var(--vid-color);  border-color: var(--vid-color); }
+.nav-links a.doc:hover  { color: var(--doc-color);  border-color: var(--doc-color); }
+.nav-links a.eval:hover { color: var(--eval-color); border-color: var(--eval-color); }
+.nav-links a.sum:hover  { color: var(--accent2);    border-color: var(--accent2); }
+
+/* ── HERO ── */
+.hero {
+  padding: 64px 48px 48px;
+  max-width: 1100px; margin: 0 auto;
+}
+.hero h1 {
+  font-size: 2.2rem; font-weight: 800; letter-spacing: -.02em;
+  background: linear-gradient(120deg, #fff 30%, var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 16px;
+}
+.hero-meta {
+  display: flex; gap: 24px; flex-wrap: wrap;
+  font-size: 13px; color: var(--text-muted);
+}
+.hero-meta span { display: flex; align-items: center; gap: 6px; }
+.hero-meta strong { color: var(--text); }
+.direction-pills {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px;
+}
+.pill {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  padding: 8px 16px; border-radius: 40px;
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  transition: border-color .2s, color .2s;
+}
+.pill .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── SECTION ── */
+.section {
+  max-width: 1100px; margin: 0 auto 72px;
+  padding: 0 48px;
+}
+.section-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 24px 0 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+.section-header .index-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  padding: 3px 10px; border-radius: 4px;
+  background: var(--bg3); color: var(--text-muted);
+}
+.section-header h2 {
+  font-size: 1.5rem; font-weight: 800; letter-spacing: -.01em;
+}
+.section-header .count {
+  margin-left: auto; font-size: 12px; color: var(--text-muted);
+  background: var(--bg3); padding: 3px 10px; border-radius: 4px;
+}
+
+/* ── STRUCTURE BLOCK ── */
+.struct-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 32px;
+}
+.struct-block pre {
+  font-family: "SFMono-Regular", "Cascadia Code", Consolas, monospace;
+  font-size: 12.5px; line-height: 1.8;
+  color: #a0b0d0;
+  white-space: pre-wrap;
+}
+
+/* ── SKILL CARD ── */
+.skill-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.skill-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 24px rgba(0,0,0,.3);
+}
+.card-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.card-id {
+  font-size: 10px; font-weight: 700; letter-spacing: .06em;
+  padding: 3px 8px; border-radius: 4px;
+  background: var(--bg3); color: var(--text-muted);
+  flex-shrink: 0;
+}
+.card-title { font-size: 15px; font-weight: 700; flex: 1; }
+.card-badges { display: flex; gap: 6px; flex-shrink: 0; }
+.badge {
+  font-size: 10px; font-weight: 700; padding: 2px 7px;
+  border-radius: 4px; letter-spacing: .04em;
+}
+.badge-p0  { background: rgba(248,113,113,.15); color: #f87171; }
+.badge-p1  { background: rgba(245,158,11,.13);  color: #f59e0b; }
+.badge-p2  { background: rgba(122,128,153,.15);  color: #7a8099; }
+.badge-poc { background: rgba(52,211,153,.12);   color: #34d399; }
+.badge-yes  { background: rgba(52,211,153,.12);  color: #34d399; }
+.badge-warn { background: rgba(245,158,11,.13);  color: #f59e0b; }
+.badge-no   { background: rgba(248,113,113,.15); color: #f87171; }
+
+.card-body { padding: 20px; display: none; }
+.card-body.open { display: block; }
+
+.card-one-line {
+  font-size: 14px; color: var(--text-muted); margin-bottom: 20px;
+  padding: 10px 14px; background: var(--bg3);
+  border-left: 3px solid; border-radius: 0 6px 6px 0;
+}
+.card-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 700px) { .card-grid { grid-template-columns: 1fr; } }
+.card-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  color: var(--text-muted); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.inout-box {
+  background: var(--bg3); border-radius: 8px; padding: 12px 14px;
+}
+.inout-box ul { list-style: none; }
+.inout-box li {
+  font-size: 12.5px; color: var(--text);
+  padding: 3px 0; padding-left: 14px; position: relative;
+}
+.inout-box li::before {
+  content: "–"; position: absolute; left: 0; color: var(--text-dim);
+}
+
+.table-wrap { overflow-x: auto; margin-bottom: 20px; }
+.data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12.5px;
+}
+.data-table th {
+  background: var(--bg3); color: var(--text-muted);
+  padding: 8px 12px; text-align: left; font-weight: 600;
+  font-size: 11px; letter-spacing: .04em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 8px 12px; border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg3); }
+
+.feasibility {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; padding: 10px 14px;
+  background: var(--bg3); border-radius: 8px;
+}
+.stars { color: #f59e0b; letter-spacing: 2px; }
+
+.boundary-list {
+  list-style: none;
+}
+.boundary-list li {
+  font-size: 12.5px; padding: 3px 0 3px 18px; position: relative; color: var(--text-muted);
+}
+.boundary-list li::before {
+  content: "✗"; position: absolute; left: 0; color: var(--red); font-weight: 700;
+}
+
+/* ── OVERVIEW TABLE ── */
+.overview-section {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+.overview-title {
+  font-size: 13px; font-weight: 700; color: var(--text-muted);
+  letter-spacing: .06em; text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center; padding: 40px;
+  font-size: 12px; color: var(--text-dim);
+  border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">设计 Skill 全景</div>
+  <div class="nav-links">
+    <a href="#ui"   class="ui">🖥 UI 生成</a>
+    <a href="#img"  class="img">🎨 图片生成</a>
+    <a href="#vid"  class="vid">🎬 视频/动效</a>
+    <a href="#doc"  class="doc">📄 文档生成</a>
+    <a href="#eval" class="eval">🔍 评测</a>
+    <a href="#summary" class="sum">📊 汇总全景</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>设计 Skill 深度拆解：五大方向全景</h1>
+  <div class="hero-meta">
+    <span>版本 <strong>v2.0</strong></span>
+    <span>更新 <strong>2026-03-30</strong></span>
+    <span>覆盖 <strong>40+ Skill</strong></span>
+    <span>原则：每个 Skill 可独立评审，<strong>2天内可交付一个单元</strong></span>
+  </div>
+  <div class="direction-pills">
+    <div class="pill"><div class="dot" style="background:var(--ui-color)"></div>UI 生成 · 7个 Skill</div>
+    <div class="pill"><div class="dot" style="background:var(--img-color)"></div>图片生成 · 8个 Skill</div>
+    <div class="pill"><div class="dot" style="background:var(--vid-color)"></div>视频/动效 · 8个 Skill</div>
+    <div class="pill"><div class="dot" style="background:var(--doc-color)"></div>文档生成 · 9个 Skill</div>
+    <div class="pill"><div class="dot" style="background:var(--eval-color)"></div>评测 · 8个 Skill</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     方向一：UI 生成
+════════════════════════════════════════════ -->
+<section class="section" id="ui">
+  <div class="section-header">
+    <span class="index-badge">方向 01</span>
+    <h2 style="color:var(--ui-color)">🖥 UI 生成</h2>
+    <span class="count">7 个 Skill</span>
+  </div>
+
+  <!-- 结构树 -->
+  <div class="struct-block">
+    <pre>UI 生成
+├── A. 原型类
+│   ├── UI-A1  单页 HTML 原型          P1 ✅
+│   └── UI-A2  可交互多页原型          P2 ❌ 技术路线待评审
+│
+└── B. 生产类
+    ├── UI-B1  B端增删改查控制台       P0 ✅  ← 当前最高优先级
+    ├── UI-B2  B端数据可视化仪表盘      P1 ⚠️
+    ├── UI-B3  H5 / 营销落地页         P1 ✅
+    ├── UI-B4  移动端（Android/iOS）   P2 ❌ 路线待评审
+    └── UI-B5  图标智能选配            P1 ✅  轻量高频</pre>
+  </div>
+
+  <!-- UI-B1 -->
+  <div class="skill-card" style="border-top: 3px solid var(--ui-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">UI-B1</span>
+      <span class="card-title">B端增删改查控制台生成</span>
+      <div class="card-badges">
+        <span class="badge badge-p0">P0</span>
+        <span class="badge badge-yes">✅ 2天可交付</span>
+      </div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body open" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--ui-color)">
+        输入产品需求描述，直接输出可运行的 B 端管理后台页面代码（含列表、表单、详情三件套）。
+      </div>
+      <div class="card-grid">
+        <div>
+          <div class="card-section-title">输入</div>
+          <div class="inout-box">
+            <ul>
+              <li>业务实体描述（如：用户管理、订单管理）</li>
+              <li>字段列表（可选，未提供则 AI 自推断）</li>
+              <li>交互需求（可选，如：可筛选、可批量操作）</li>
+              <li>输出格式：React 组件代码 / 纯 HTML</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="card-section-title">输出</div>
+          <div class="inout-box">
+            <ul>
+              <li>列表页（含分页、搜索、筛选）</li>
+              <li>新增/编辑表单页（含字段校验）</li>
+              <li>详情页（可选）</li>
+              <li>可直接运行的完整代码（含样式）</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px">
+        LLM 代码生成 → <strong>React + Tailwind CSS + shadcn/ui</strong>
+      </div>
+      <div class="card-section-title">质量标准（竞品对标：v0.dev）</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>维度</th><th>标准</th></tr></thead>
+          <tbody>
+            <tr><td>视觉完整度</td><td>与 v0.dev 生成质量持平（布局合理、无明显错位）</td></tr>
+            <tr><td>代码可用性</td><td>直接粘贴到 React 项目可运行，0 报错</td></tr>
+            <tr><td>交互完整性</td><td>列表分页、表单提交、错误提示等基础交互覆盖</td></tr>
+            <tr><td>响应式</td><td>最低支持 1024px 宽屏</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-section-title">边界（不做什么）</div>
+      <ul class="boundary-list" style="margin-bottom:16px">
+        <li>不生成后端接口（只做前端 Mock 数据）</li>
+        <li>不支持 Vue/Angular（锁定 React 生态）</li>
+        <li>不做复杂权限体系（超出单页范围）</li>
+      </ul>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — 已有成熟技术路线（LLM + shadcn/ui），v0.dev 已验证</span></div>
+    </div>
+  </div>
+
+  <!-- UI-B2 -->
+  <div class="skill-card" style="border-top: 3px solid var(--ui-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">UI-B2</span>
+      <span class="card-title">B端数据可视化仪表盘生成</span>
+      <div class="card-badges">
+        <span class="badge badge-p1">P1</span>
+        <span class="badge badge-warn">⚠️ 需评审</span>
+      </div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--ui-color)">
+        输入数据结构或业务场景，输出含图表的数据监控/分析仪表盘页面代码。
+      </div>
+      <div class="card-grid">
+        <div>
+          <div class="card-section-title">输入</div>
+          <div class="inout-box"><ul>
+            <li>数据结构描述（JSON schema 或字段列表）</li>
+            <li>图表需求（可选，未提供则 AI 自推断）</li>
+            <li>业务场景（如：用户增长、GMV 趋势）</li>
+          </ul></div>
+        </div>
+        <div>
+          <div class="card-section-title">输出</div>
+          <div class="inout-box"><ul>
+            <li>含折线图/柱状图/饼图的仪表盘页面</li>
+            <li>数据筛选器（时间范围/维度切换）</li>
+            <li>可直接运行的 React 组件代码</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px">
+        LLM 代码生成 → <strong>React + ECharts / Recharts</strong>，竞品对标：Vercel AI
+      </div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — 图表库成熟，LLM 生成图表代码已验证</span></div>
+    </div>
+  </div>
+
+  <!-- UI-A1 -->
+  <div class="skill-card" style="border-top: 3px solid var(--ui-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">UI-A1</span>
+      <span class="card-title">单页 HTML 原型生成</span>
+      <div class="card-badges">
+        <span class="badge badge-p1">P1</span>
+        <span class="badge badge-yes">✅ 2天可交付</span>
+      </div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--ui-color)">
+        输入需求描述，快速生成一个可浏览器打开的单页静态 HTML 原型，用于走查和沟通。
+      </div>
+      <div class="card-grid">
+        <div>
+          <div class="card-section-title">输入</div>
+          <div class="inout-box"><ul>
+            <li>功能需求描述（自然语言）</li>
+            <li>设计风格参考（可选）</li>
+            <li>关键界面元素（可选）</li>
+          </ul></div>
+        </div>
+        <div>
+          <div class="card-section-title">输出</div>
+          <div class="inout-box"><ul>
+            <li>单一 HTML 文件（内嵌 CSS+JS）</li>
+            <li>浏览器直接打开可预览</li>
+            <li>可分享给设计师/PM 走查</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px">
+        <strong>LLM 直出纯 HTML</strong>，竞品对标：Claude Artifacts
+      </div>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — 最基础的 LLM 代码生成能力，零外部依赖</span></div>
+    </div>
+  </div>
+
+  <!-- UI-B5 -->
+  <div class="skill-card" style="border-top: 3px solid var(--ui-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">UI-B5</span>
+      <span class="card-title">UI 图标智能选配</span>
+      <div class="card-badges">
+        <span class="badge badge-p1">P1</span>
+        <span class="badge badge-yes">✅ 2天可交付</span>
+      </div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--ui-color)">
+        输入 UI 功能描述，自动推荐匹配图标，输出 SVG 代码片段，轻量高频。
+      </div>
+      <div class="card-grid">
+        <div>
+          <div class="card-section-title">输入</div>
+          <div class="inout-box"><ul>
+            <li>功能或页面描述（如：「用户个人中心」）</li>
+            <li>图标风格偏好（可选：线性/填充/双色）</li>
+          </ul></div>
+        </div>
+        <div>
+          <div class="card-section-title">输出</div>
+          <div class="inout-box"><ul>
+            <li>3-5 个候选图标推荐</li>
+            <li>每个图标的 SVG 代码</li>
+            <li>使用场景说明</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px">
+        <strong>语义检索 + SVG 输出</strong>，对标：Figma 图标插件
+      </div>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — 语义检索成熟，SVG 图标库丰富（Lucide/Heroicons）</span></div>
+    </div>
+  </div>
+
+  <!-- UI-B3 -->
+  <div class="skill-card" style="border-top: 3px solid var(--ui-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">UI-B3</span>
+      <span class="card-title">H5 营销落地页生成</span>
+      <div class="card-badges">
+        <span class="badge badge-p1">P1</span>
+        <span class="badge badge-yes">✅ 2天可交付</span>
+      </div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--ui-color)">
+        输入品牌信息和活动描述，生成可直接投放的 H5 营销落地页代码（移动端适配）。
+      </div>
+      <div class="card-grid">
+        <div>
+          <div class="card-section-title">输入</div>
+          <div class="inout-box"><ul>
+            <li>活动主题/品牌色/CTA 文案</li>
+            <li>关键卖点（可选，AI 自推断）</li>
+            <li>风格参考（可选）</li>
+          </ul></div>
+        </div>
+        <div>
+          <div class="card-section-title">输出</div>
+          <div class="inout-box"><ul>
+            <li>移动端 375px 适配的 H5 单页</li>
+            <li>含动效（入场/滚动触发）</li>
+            <li>含 CTA 按钮与表单</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px">
+        <strong>LLM + 移动端 HTML/CSS</strong>，竞品对标：Framer AI
+      </div>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — 移动端 HTML 生成成熟，无复杂外部依赖</span></div>
+    </div>
+  </div>
+
+  <!-- 全景表 -->
+  <div class="overview-section">
+    <div class="overview-title">UI 生成 Skill 全景图</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Skill ID</th><th>名称</th><th>优先级</th><th>技术路线</th>
+            <th>2天可交付</th><th>竞品对标</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>UI-B1</td><td>B端增删改查控制台</td><td><span class="badge badge-p0">P0</span></td><td>LLM + shadcn/ui</td><td><span class="badge badge-yes">✅</span></td><td>v0.dev</td></tr>
+          <tr><td>UI-B2</td><td>数据可视化仪表盘</td><td><span class="badge badge-p1">P1</span></td><td>LLM + ECharts</td><td><span class="badge badge-warn">⚠️</span></td><td>Vercel AI</td></tr>
+          <tr><td>UI-B3</td><td>H5 营销落地页</td><td><span class="badge badge-p1">P1</span></td><td>LLM + 移动端HTML</td><td><span class="badge badge-yes">✅</span></td><td>Framer AI</td></tr>
+          <tr><td>UI-B4</td><td>移动端 Android/iOS</td><td><span class="badge badge-p2">P2</span></td><td>待评审</td><td><span class="badge badge-no">❌</span></td><td>Bolt.new</td></tr>
+          <tr><td>UI-B5</td><td>图标智能选配</td><td><span class="badge badge-p1">P1</span></td><td>语义检索+SVG</td><td><span class="badge badge-yes">✅</span></td><td>Figma图标插件</td></tr>
+          <tr><td>UI-A1</td><td>单页 HTML 原型</td><td><span class="badge badge-p1">P1</span></td><td>LLM 直出HTML</td><td><span class="badge badge-yes">✅</span></td><td>Claude Artifacts</td></tr>
+          <tr><td>UI-A2</td><td>可交互多页原型</td><td><span class="badge badge-p2">P2</span></td><td>待定</td><td><span class="badge badge-no">❌</span></td><td>Figma Make</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- placeholder for parts 2-5, will be filled in subsequent commits -->
+<div id="img"  style="max-width:1100px;margin:0 auto 40px;padding:0 48px">
+  <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
+    🎨 方向二：图片生成 — 即将发布（Part 2）
+  </div>
+</div>
+<div id="vid"  style="max-width:1100px;margin:0 auto 40px;padding:0 48px">
+  <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
+    🎬 方向三：视频/动效 — 即将发布（Part 3）
+  </div>
+</div>
+<div id="doc"  style="max-width:1100px;margin:0 auto 40px;padding:0 48px">
+  <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
+    📄 方向四：文档生成 — 即将发布（Part 4）
+  </div>
+</div>
+<div id="eval" style="max-width:1100px;margin:0 auto 40px;padding:0 48px">
+  <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
+    🔍 方向五：评测 — 即将发布（Part 5）
+  </div>
+</div>
+<div id="summary" style="max-width:1100px;margin:0 auto 80px;padding:0 48px">
+  <div style="background:var(--bg2);border:1px dashed var(--border);border-radius:12px;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
+    📊 汇总全景表 — 即将发布（Part 5）
+  </div>
+</div>
+
+<footer>
+  设计 Skill 深度拆解 v2.0 &nbsp;·&nbsp; 五大方向全景 &nbsp;·&nbsp; Part 1/5 已发布 &nbsp;·&nbsp; 更多内容持续更新中
+</footer>
+
+<script>
+function toggleCard(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('span:last-child');
+  const isOpen = body.classList.toggle('open');
+  arrow.textContent = isOpen ? '▴' : '▾';
+}
+</script>
+</body>
+</html>
