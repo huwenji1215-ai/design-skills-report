@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计 Skill 全景表 — 五大方向</title>
+<style>
+  :root {
+    --bg:      #0d1117;
+    --bg2:     #161b22;
+    --bg3:     #1c2128;
+    --border:  #30363d;
+    --text:    #e6edf3;
+    --text-s:  #8b949e;
+    --text-d:  #484f58;
+
+    --c1: #58a6ff;   /* UI */
+    --c2: #f78166;   /* 图片 */
+    --c3: #a371f7;   /* 视频 */
+    --c4: #56d364;   /* 文档 */
+    --c5: #e3b341;   /* 评测 */
+
+    --p0: #f85149;
+    --p1: #d29922;
+    --p2: #388bfd;
+    --poc:#8b949e;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── 顶部 ── */
+  .header {
+    max-width: 1280px;
+    margin: 0 auto 36px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .header p {
+    font-size: 13px;
+    color: var(--text-s);
+    margin-top: 4px;
+  }
+  .legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-left: auto;
+  }
+  .leg-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-s);
+  }
+  .leg-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── 锚点导航 ── */
+  .nav {
+    max-width: 1280px;
+    margin: 0 auto 28px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .nav a {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    color: var(--text-s);
+    transition: all .15s;
+  }
+  .nav a:hover { color: var(--text); border-color: #58a6ff; }
+  .nav a.c1 { border-color: var(--c1); color: var(--c1); }
+  .nav a.c2 { border-color: var(--c2); color: var(--c2); }
+  .nav a.c3 { border-color: var(--c3); color: var(--c3); }
+  .nav a.c4 { border-color: var(--c4); color: var(--c4); }
+  .nav a.c5 { border-color: var(--c5); color: var(--c5); }
+
+  /* ── 大区块 ── */
+  .cat {
+    max-width: 1280px;
+    margin: 0 auto 40px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 24px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .cat-icon { font-size: 20px; }
+  .cat-title { flex: 1; }
+  .cat-count {
+    font-size: 12px;
+    font-weight: 400;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.06);
+    color: var(--text-s);
+  }
+
+  /* ── 表格 ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: var(--bg3);
+    color: var(--text-s);
+    font-weight: 600;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,.03); }
+
+  /* 子类分组行 */
+  .group-row td {
+    background: var(--bg3);
+    padding: 7px 16px 7px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .4px;
+    color: var(--text-s);
+    border-bottom: 1px solid var(--border);
+  }
+  .group-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 8px;
+    opacity: .85;
+  }
+
+  /* 数据单元格 */
+  td {
+    padding: 11px 16px;
+    vertical-align: middle;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .indent-1 td:first-child { padding-left: 28px; }
+  .indent-2 td:first-child { padding-left: 44px; }
+
+  /* Skill ID */
+  .sid {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+
+  /* 优先级 badge */
+  .badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .b-p0  { background: rgba(248,81,73,.15); color: var(--p0); border:1px solid rgba(248,81,73,.3); }
+  .b-p1  { background: rgba(210,153,34,.12); color: var(--p1); border:1px solid rgba(210,153,34,.3); }
+  .b-p2  { background: rgba(56,139,253,.12); color: var(--p2); border:1px solid rgba(56,139,253,.25); }
+  .b-poc { background: rgba(139,148,158,.1); color: var(--poc); border:1px solid rgba(139,148,158,.2); }
+  .b-yes { background: rgba(63,185,80,.1); color: #3fb950; border:1px solid rgba(63,185,80,.2); }
+  .b-warn{ background: rgba(210,153,34,.1); color: #d29922; border:1px solid rgba(210,153,34,.2); }
+  .b-no  { background: rgba(248,81,73,.08); color: var(--p0); border:1px solid rgba(248,81,73,.15); }
+
+  /* 红框产品目标标记 */
+  .goal-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: rgba(248,81,73,.12);
+    border: 1px solid rgba(248,81,73,.3);
+    color: var(--p0);
+    font-weight: 600;
+    margin-left: 6px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  /* 一句话定义列 */
+  .def { color: var(--text-s); font-size: 12.5px; max-width: 260px; }
+  /* 对标列 */
+  .bench {
+    font-size: 12px;
+    color: var(--text-s);
+    white-space: nowrap;
+  }
+  .bench strong { color: var(--text); }
+
+  /* 技术路线 */
+  .tech { font-size: 12px; color: var(--text-s); max-width: 180px; line-height: 1.4; }
+
+  /* 分割线标注 */
+  .col-name { min-width: 170px; }
+
+  /* 颜色区分各大类 */
+  .c1h { background: linear-gradient(90deg, rgba(88,166,255,.12) 0%, var(--bg2) 100%); }
+  .c2h { background: linear-gradient(90deg, rgba(247,129,102,.12) 0%, var(--bg2) 100%); }
+  .c3h { background: linear-gradient(90deg, rgba(163,113,247,.12) 0%, var(--bg2) 100%); }
+  .c4h { background: linear-gradient(90deg, rgba(86,211,100,.12) 0%, var(--bg2) 100%); }
+  .c5h { background: linear-gradient(90deg, rgba(227,179,65,.12) 0%, var(--bg2) 100%); }
+
+  .s1 { background: rgba(88,166,255,.08); color: var(--c1); }
+  .s2 { background: rgba(247,129,102,.08); color: var(--c2); }
+  .s3 { background: rgba(163,113,247,.08); color: var(--c3); }
+  .s4 { background: rgba(86,211,100,.08); color: var(--c4); }
+  .s5 { background: rgba(227,179,65,.08); color: var(--c5); }
+
+  .g1 { background: rgba(88,166,255,.05); }
+  .g2 { background: rgba(247,129,102,.05); }
+  .g3 { background: rgba(163,113,247,.05); }
+  .g4 { background: rgba(86,211,100,.05); }
+  .g5 { background: rgba(227,179,65,.05); }
+
+  /* P0 行高亮 */
+  .p0-row { background: rgba(248,81,73,.04) !important; }
+  .p0-row:hover { background: rgba(248,81,73,.07) !important; }
+
+  /* footer */
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-d);
+    margin-top: 60px;
+  }
+
+  /* 产品目标 banner */
+  .goal-banner {
+    max-width: 1280px;
+    margin: 0 auto 32px;
+    background: rgba(248,81,73,.07);
+    border: 1px solid rgba(248,81,73,.3);
+    border-radius: 12px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .goal-banner .label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--p0);
+    white-space: nowrap;
+  }
+  .goal-items {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .goal-item {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    background: rgba(248,81,73,.1);
+    border: 1px solid rgba(248,81,73,.25);
+    color: var(--text);
+  }
+  .goal-item em { color: var(--p0); font-style: normal; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- 顶部 -->
+<div class="header">
+  <div>
+    <h1>🗺 设计 Skill 全景表 — 五大方向</h1>
+    <p>版本 v2.0 · 2026-03-31 · 含 40+ Skill · 五级层级 · 优先级 × 技术路线 × 竞品对标</p>
+  </div>
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--p0)"></div>P0 最高优先级</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--p1)"></div>P1 正常优先级</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--p2)"></div>P2 待评审</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--poc)"></div>PoC 探索</div>
+  </div>
+</div>
+
+<!-- 0405 产品目标 banner -->
+<div class="goal-banner">
+  <span class="label">📌 0405 产品目标红框锁定</span>
+  <div class="goal-items">
+    <div class="goal-item"><em>①</em> 能做 PPT — DOC-J1 + J2</div>
+    <div class="goal-item"><em>②</em> 能做信息图 — IMG-C1 + InfoVis</div>
+    <div class="goal-item"><em>③</em> 能做产品 UI 原型 — UI-B1 + UI-A1</div>
+    <div class="goal-item"><em>④</em> 能做视频（Remotion）— VID-H1 + H2</div>
+  </div>
+</div>
+
+<!-- 锚点导航 -->
+<div class="nav">
+  <a href="#ui" class="c1">🖥 UI 生成</a>
+  <a href="#img" class="c2">🎨 图片生成</a>
+  <a href="#vid" class="c3">🎬 视频/动效</a>
+  <a href="#doc" class="c4">📄 文档生成</a>
+  <a href="#eval" class="c5">🔍 评测</a>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     方向一：UI 生成
+══════════════════════════════════════════ -->
+<div class="cat" id="ui">
+  <div class="cat-header c1h" style="border-bottom:1px solid var(--border)">
+    <span class="cat-icon">🖥</span>
+    <span class="cat-title" style="color:var(--c1)">方向一：UI 生成</span>
+    <span class="cat-count">7 个 Skill · 2 子路线</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:110px">Skill ID</th>
+        <th class="col-name">名称</th>
+        <th style="width:70px">优先级</th>
+        <th style="width:90px">2天可交付</th>
+        <th>技术路线</th>
+        <th>竞品对标</th>
+        <th class="def">一句话定义</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- A. 原型类 -->
+      <tr class="group-row">
+        <td colspan="7">
+          <span class="group-tag s1">A</span>
+          原型类 — 快速验证/走查用途，侧重速度与可点击性
+        </td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s1">UI-A1</span></td>
+        <td>单页 HTML 原型 <span class="goal-tag">③ 产品目标</span></td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM 直出 HTML/CSS/JS</td>
+        <td class="bench"><strong>Claude Artifacts</strong> · v0.dev</td>
+        <td class="def">输入描述→可运行单页面，走查最快路径</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s1">UI-A2</span></td>
+        <td>可交互多页原型</td>
+        <td><span class="badge b-p2">P2</span></td>
+        <td><span class="badge b-no">❌</span></td>
+        <td class="tech">待定（React Router / Framer）</td>
+        <td class="bench"><strong>Figma Make</strong> · Bolt.new</td>
+        <td class="def">跨页面跳转、状态流转的可交互原型</td>
+      </tr>
+
+      <!-- B. 生产类 -->
+      <tr class="group-row">
+        <td colspan="7">
+          <span class="group-tag s1">B</span>
+          生产类 — 可直接集成到工程的生产级代码
+        </td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s1">UI-B1</span></td>
+        <td>B端增删改查控制台 <span class="goal-tag">③ 产品目标</span></td>
+        <td><span class="badge b-p0">P0 🔴</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM + React + shadcn/ui + Tailwind</td>
+        <td class="bench"><strong>v0.dev</strong> · Vercel AI</td>
+        <td class="def">业务实体→列表/表单/详情三件套，0报错</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s1">UI-B2</span></td>
+        <td>数据可视化仪表盘</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">LLM + ECharts / Recharts</td>
+        <td class="bench"><strong>Vercel AI SDK</strong> · Observable</td>
+        <td class="def">数据结构→图表仪表盘，含趋势/排名/占比</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s1">UI-B3</span></td>
+        <td>H5 营销落地页</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM + 移动端 HTML/CSS + 动效</td>
+        <td class="bench"><strong>Framer AI</strong> · Webflow AI</td>
+        <td class="def">营销文案→视觉强烈的移动端落地页</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s1">UI-B4</span></td>
+        <td>移动端 Android/iOS</td>
+        <td><span class="badge b-p2">P2</span></td>
+        <td><span class="badge b-no">❌</span></td>
+        <td class="tech">待评审（React Native / Flutter）</td>
+        <td class="bench"><strong>Bolt.new</strong> · Expo Snack</td>
+        <td class="def">原生移动端 UI 组件代码生成</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s1">UI-B5</span></td>
+        <td>图标智能选配</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">语义向量检索 + SVG 图标库</td>
+        <td class="bench"><strong>Figma 图标插件</strong> · Iconify</td>
+        <td class="def">文字描述→最匹配的图标集，含批量替换</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     方向二：图片生成
+══════════════════════════════════════════ -->
+<div class="cat" id="img">
+  <div class="cat-header c2h" style="border-bottom:1px solid var(--border)">
+    <span class="cat-icon">🎨</span>
+    <span class="cat-title" style="color:var(--c2)">方向二：图片生成</span>
+    <span class="cat-count">8 个 Skill · 4 技术路线</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:110px">Skill ID</th>
+        <th class="col-name">名称</th>
+        <th style="width:70px">优先级</th>
+        <th style="width:90px">2天可交付</th>
+        <th>技术路线</th>
+        <th>竞品对标</th>
+        <th class="def">一句话定义</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- C. LLM 直出 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s2">C</span>LLM 直出代码型 — 无需外部模型调用，LLM直接输出可编辑矢量代码</td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s2">IMG-C1</span></td>
+        <td>SVG 矢量插画生成 <span class="goal-tag">② 产品目标</span></td>
+        <td><span class="badge b-p0">P0 🔴</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM 直出 SVG（GPT-4o / Claude 3.5）</td>
+        <td class="bench"><strong>GPT-4o SVG</strong> · Figma Autoname</td>
+        <td class="def">主题描述→可编辑 SVG，空状态页/品牌图形</td>
+      </tr>
+
+      <!-- D. 模型调用型 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s2">D</span>模型调用型（Diffusion / 多模态）— 调用外部图像生成模型</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IMG-D1</span></td>
+        <td>文生图（通用）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">Gemini 2.5 Flash / GPT-4o / Flux.1</td>
+        <td class="bench"><strong>Midjourney v6</strong> · Adobe Firefly</td>
+        <td class="def">文字→高质量图片，首选 Gemini 2.5 Flash Nano</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IMG-D2</span></td>
+        <td>文生图（品牌风格锁定）</td>
+        <td><span class="badge b-p2">P2</span></td>
+        <td><span class="badge b-no">❌</span></td>
+        <td class="tech">LoRA 微调 / 风格参考图</td>
+        <td class="bench"><strong>Midjourney --sref</strong></td>
+        <td class="def">固定品牌视觉DNA，批量出图风格统一</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IMG-D3</span></td>
+        <td>图生图（风格迁移/改写）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">GPT-4o Image / SD img2img</td>
+        <td class="bench"><strong>Adobe Firefly</strong> · Canva AI</td>
+        <td class="def">原图+指令→保留主体结构，改变风格/细节</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IMG-D4</span></td>
+        <td>局部重绘（Inpainting）</td>
+        <td><span class="badge b-p2">P2</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">SD Inpainting / DALL-E Inpaint</td>
+        <td class="bench"><strong>Adobe Firefly</strong></td>
+        <td class="def">选区→局部替换，其余区域保持不变</td>
+      </tr>
+
+      <!-- E. 文案驱动型 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s2">E</span>文案驱动型 — 以文案/内容为出发点，智能路由生成配图</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IMG-E1</span></td>
+        <td>文案驱动配图（路由型）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">意图分析 → SVG/文生图/图库三路路由</td>
+        <td class="bench">无直接竞品</td>
+        <td class="def">输入文案→自动选配图方式→3方案候选</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IMG-E2</span></td>
+        <td>长文自动插图</td>
+        <td><span class="badge b-p2">P2</span></td>
+        <td><span class="badge b-no">❌</span></td>
+        <td class="tech">多步流水线（段落分析→配图→排版）</td>
+        <td class="bench">无直接竞品</td>
+        <td class="def">长文档自动在合适位置插入匹配配图</td>
+      </tr>
+
+      <!-- F. 运营裂变型 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s2">F</span>运营裂变型 — 以平台适配与传播效率为核心</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IMG-F1</span></td>
+        <td>图片裂变·多尺寸适配</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">主体检测 + Outpainting + 裁切规则</td>
+        <td class="bench"><strong>Adobe Express</strong> · Canva Resize</td>
+        <td class="def">1图→多平台尺寸（朋友圈/Banner/封面/海报）</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     方向三：视频/动效
+══════════════════════════════════════════ -->
+<div class="cat" id="vid">
+  <div class="cat-header c3h" style="border-bottom:1px solid var(--border)">
+    <span class="cat-icon">🎬</span>
+    <span class="cat-title" style="color:var(--c3)">方向三：视频/动效生成</span>
+    <span class="cat-count">8 个 Skill · 4 技术路线</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:110px">Skill ID</th>
+        <th class="col-name">名称</th>
+        <th style="width:70px">优先级</th>
+        <th style="width:90px">2天可交付</th>
+        <th>技术路线</th>
+        <th>竞品对标</th>
+        <th class="def">一句话定义</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- F. 代码型 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s3">F</span>代码型动效（CSS/SVG）— LLM直出代码，无外部模型，设计系统直接可用</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s3">VID-F1</span></td>
+        <td>HTML+CSS 微动效（L1）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM → HTML + CSS Animations</td>
+        <td class="bench"><strong>Framer Motion 示例</strong> · CSS Tricks</td>
+        <td class="def">UI元素描述→按钮/Loading/背景动效代码片段</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s3">VID-F2</span></td>
+        <td>SVG 动效生成（L1-L2）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM → SVG + CSS / SMIL</td>
+        <td class="bench"><strong>CSS Tricks</strong> · SVGator</td>
+        <td class="def">图形+动效描述→带动画的完整 SVG 文件</td>
+      </tr>
+
+      <!-- G. Lottie 型 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s3">G</span>Lottie 型动效 — 移动端/跨平台标准格式，iOS/Android/Web 三端可用</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s3">VID-G1</span></td>
+        <td>Lottie JSON 动效生成 🔬</td>
+        <td><span class="badge b-poc">PoC</span></td>
+        <td><span class="badge b-no">❌ 需PoC</span></td>
+        <td class="tech">OmniLottie（CVPR 2026，已开源）</td>
+        <td class="bench"><strong>OmniLottie</strong> · LottieFiles AI</td>
+        <td class="def">动效描述→Lottie JSON，App端直接渲染，无需AE</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s3">VID-G2</span></td>
+        <td>Figma 设计稿一键 Lottie 导出</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">Magic Animator / Lottielab AI（Figma 插件）</td>
+        <td class="bench"><strong>Magic Animator</strong> Beta</td>
+        <td class="def">静态设计稿→AI自动加动效→导出Lottie JSON</td>
+      </tr>
+
+      <!-- H. 程序化视频 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s3">H</span>程序化视频（Remotion）— LLM生成React代码，npx remotion render直接输出MP4 <span class="goal-tag">④ 产品目标</span></td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s3">VID-H1</span></td>
+        <td>Remotion 数据可视化视频 <span class="goal-tag">④ 产品目标</span></td>
+        <td><span class="badge b-p0">P0 🔴</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM → React + Remotion + ECharts</td>
+        <td class="bench"><strong>Remotion Showcase</strong></td>
+        <td class="def">数据(JSON/CSV)→排名变化/指标趋势动态视频</td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s3">VID-H2</span></td>
+        <td>Remotion 汇报/年报叙事视频 <span class="goal-tag">④ 产品目标</span></td>
+        <td><span class="badge b-p0">P0 🔴</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM → React + Remotion + 动态排版</td>
+        <td class="bench"><strong>Remotion Showcase</strong></td>
+        <td class="def">PPT大纲→带镜头切换+数字增长的叙事视频</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s3">VID-H3</span></td>
+        <td>UI 原型演示视频</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">LLM → React + Remotion + UI 模拟组件</td>
+        <td class="bench"><strong>Remotion Showcase</strong></td>
+        <td class="def">UI截图序列→模拟操作流程演示视频</td>
+      </tr>
+
+      <!-- I. AI 视频 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s3">I</span>AI 视频生成（写实/营销型）— Kling/Veo 等大模型调用，适合写实内容</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s3">VID-I1</span></td>
+        <td>文生视频（营销素材）</td>
+        <td><span class="badge b-p2">P2</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">Kling 3.0 / Google Veo 3.1 API</td>
+        <td class="bench"><strong>Kling 3.0</strong> ⭐4.9</td>
+        <td class="def">文字描述→5-20s 写实风格营销视频素材</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s3">VID-I2</span></td>
+        <td>图生视频（设计稿动起来）</td>
+        <td><span class="badge b-p2">P2</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">Kling 3.0 / Veo 3.1 图生视频 API</td>
+        <td class="bench"><strong>Kling 3.0</strong> · Runway Gen-3</td>
+        <td class="def">静态设计稿/渲染图→添加自然运动的展示视频</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     方向四：文档生成
+══════════════════════════════════════════ -->
+<div class="cat" id="doc">
+  <div class="cat-header c4h" style="border-bottom:1px solid var(--border)">
+    <span class="cat-icon">📄</span>
+    <span class="cat-title" style="color:var(--c4)">方向四：文档生成</span>
+    <span class="cat-count">9 个 Skill · 3 子方向</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:110px">Skill ID</th>
+        <th class="col-name">名称</th>
+        <th style="width:70px">优先级</th>
+        <th style="width:90px">2天可交付</th>
+        <th>技术路线</th>
+        <th>竞品对标</th>
+        <th class="def">一句话定义</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- J. PPT 类 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s4">J</span>演示文档类（PPT）— 从美化到生成，全生命周期覆盖</td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s4">DOC-J1</span></td>
+        <td>PPT 美化/视觉优化 <span class="goal-tag">① 产品目标</span></td>
+        <td><span class="badge b-p0">P0 🔴</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM 内容理解 → PptxGenJS / python-pptx</td>
+        <td class="bench"><strong>Beautiful.ai</strong> · Gamma.app</td>
+        <td class="def">输入原始PPT→保留内容，大幅提升视觉表现</td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s4">DOC-J2</span></td>
+        <td>PPT 内容生成（信息架构型）<span class="goal-tag">① 产品目标</span></td>
+        <td><span class="badge b-p0">P0 🔴</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM 内容规划 → 结构化大纲 → PptxGenJS</td>
+        <td class="bench"><strong>Skywork Agent PPT</strong></td>
+        <td class="def">主题/大纲→信息架构完备的PPT，金字塔原理</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s4">DOC-J3</span></td>
+        <td>PPT 内容生成（美学表现型）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">LLM + AI配图 + 精选视觉模板 + PptxGenJS</td>
+        <td class="bench"><strong>Gamma.app</strong> · 张月光系产品</td>
+        <td class="def">主题描述→视觉高颜值PPT，适合对外演示</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s4">DOC-J4</span></td>
+        <td>PPT 图片化输出（不可编辑）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">HTML/CSS 排版 → Puppeteer 截图 → PDF</td>
+        <td class="bench">无直接竞品（差异化）</td>
+        <td class="def">内容→HTML排版→逐页截图→PDF/PNG，无需PPT</td>
+      </tr>
+
+      <!-- K. 研究报告类 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s4">K</span>UX 研究报告类 — 将用户研究数据结构化，输出可操作的研究报告</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s4">DOC-K1</span></td>
+        <td>竞品分析文档生成</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">Web 搜索 + 截图采集 → LLM 结构化分析</td>
+        <td class="bench">无直接竞品</td>
+        <td class="def">竞品名称→功能矩阵+截图说明+差异洞察报告</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s4">DOC-K2</span></td>
+        <td>可用性分析报告生成</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM + Nielsen 启发式评估规则</td>
+        <td class="bench">无直接竞品</td>
+        <td class="def">访谈/测试日志→P0-P2分级问题+改进建议报告</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s4">DOC-K3</span></td>
+        <td>用户体验地图（UX Map）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM + SVG 可视化输出</td>
+        <td class="bench">无直接竞品</td>
+        <td class="def">旅程描述→各触点情绪曲线+痛点+机会点SVG图</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s4">DOC-K4</span></td>
+        <td>满意度调研分析报告</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">数据分析 + LLM 洞察生成</td>
+        <td class="bench">无直接竞品</td>
+        <td class="def">NPS/CSAT原始数据→指标趋势+用户分群洞察报告</td>
+      </tr>
+
+      <!-- L. 规范文档类 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s4">L</span>规范文档类 — 设计规范、交互说明的自动化生产</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s4">DOC-L1</span></td>
+        <td>设计规范文档生成</td>
+        <td><span class="badge b-p2">P2</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">LLM + Markdown / Figma Token 解析</td>
+        <td class="bench"><strong>Zeroheight</strong> · Supernova</td>
+        <td class="def">设计 Token + 组件库→结构化设计规范文档</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     方向五：评测
+══════════════════════════════════════════ -->
+<div class="cat" id="eval">
+  <div class="cat-header c5h" style="border-bottom:1px solid var(--border)">
+    <span class="cat-icon">🔍</span>
+    <span class="cat-title" style="color:var(--c5)">方向五：评测</span>
+    <span class="cat-count">8 个 Skill · 4 子维度 · 既是质量门控也是自进化反馈入口</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:110px">Skill ID</th>
+        <th class="col-name">名称</th>
+        <th style="width:70px">优先级</th>
+        <th style="width:90px">2天可交付</th>
+        <th>技术路线</th>
+        <th>竞品对标</th>
+        <th class="def">评测对象 / 一句话定义</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- M. UI 评测 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s5">M</span>UI/界面评测 — 从可用性到规范合规，覆盖生成UI的全质量维度</td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s5">EVAL-M1</span></td>
+        <td>UI 可用性评测</td>
+        <td><span class="badge b-p0">P0</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">多模态视觉理解（GPT-4o Vision）+ 规则引擎</td>
+        <td class="bench"><strong>TRAIL 模型</strong> · 内部标准</td>
+        <td class="def">UI截图→可用性问题P0/P1/P2分级报告+改进建议</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s5">EVAL-M2</span></td>
+        <td>视觉规范合规评测（Design Token）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">色彩/字体提取 + Design Token 规范比对</td>
+        <td class="bench">内部规范库</td>
+        <td class="def">UI+规范文件→色彩/字体/间距违规清单+合规率</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s5">EVAL-M3</span></td>
+        <td>UI 还原度评测（设计稿→代码）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">图像对齐比对 + 多模态差异识别</td>
+        <td class="bench">内部稿-码对比标准</td>
+        <td class="def">Figma稿+前端页面→还原度评分+红线标注报告</td>
+      </tr>
+
+      <!-- N. 视觉/图片评测 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s5">N</span>视觉/图片评测 — 图片美学质量与品牌合规检测</td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s5">EVAL-N1</span></td>
+        <td>美学质量评测（AQE）</td>
+        <td><span class="badge b-p0">P0</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">AQE 框架（视觉和谐/构图/风格一致/细节）</td>
+        <td class="bench"><strong>内部 AQE 框架</strong></td>
+        <td class="def">设计稿/图片→AQE综合评分(0-10)，≥7分为合格</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s5">EVAL-N2</span></td>
+        <td>品牌合规评测</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">多模态视觉 + 品牌规范知识库比对</td>
+        <td class="bench">内部品牌规范</td>
+        <td class="def">图片/UI→品牌色/Logo使用/字体合规性检测</td>
+      </tr>
+
+      <!-- O. 文档评测 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s5">O</span>文档/PPT 评测 — 内容结构与表达质量的自动化检测</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s5">EVAL-O1</span></td>
+        <td>PPT 内容结构评测</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">python-pptx 结构提取 → LLM 评判</td>
+        <td class="bench">金字塔原理标准</td>
+        <td class="def">PPT文件→逻辑连贯性/信息密度/表达清晰度评测</td>
+      </tr>
+
+      <!-- P. 走查/自动化 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s5">P</span>自动化设计走查 — 整合多评测维度，形成可复用走查工作流</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s5">EVAL-P1</span></td>
+        <td>自动化设计走查</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-warn">⚠️</span></td>
+        <td class="tech">规则引擎 + 多模态视觉，People-in-Loop</td>
+        <td class="bench">内部走查规则体系</td>
+        <td class="def">设计稿+走查规则→自动执行走查+置信度分级报告</td>
+      </tr>
+
+      <!-- Q. 自进化 -->
+      <tr class="group-row">
+        <td colspan="7"><span class="group-tag s5">Q</span>自进化流水线 — 生成→评测→迭代闭环，驱动 Skill 自动优化</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s5">EVAL-Q1</span></td>
+        <td>生成-评测自进化流水线</td>
+        <td><span class="badge b-p2">P2</span></td>
+        <td><span class="badge b-no">❌ 需拆解</span></td>
+        <td class="tech">InfoVis-AutoEvo 模式，评分驱动迭代</td>
+        <td class="bench">InfoVis-AutoEvo 内部框架</td>
+        <td class="def">生成结果→评测→差异计算→变异反哺→再生成循环</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  设计 Skill 全景表 v2.0 &nbsp;·&nbsp; 五大方向 · 40+ Skill · 含层级/优先级/竞品对标 &nbsp;·&nbsp; 2026-03-31
+</footer>
+
+</body>
+</html>
