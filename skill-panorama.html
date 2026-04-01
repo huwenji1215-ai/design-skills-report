@@ -453,7 +453,7 @@
   <div class="cat-header c2h" style="border-bottom:1px solid var(--border)">
     <span class="cat-icon">🎨</span>
     <span class="cat-title" style="color:var(--c2)">方向二：图片生成</span>
-    <span class="cat-count">8 个 Skill · 4 技术路线</span>
+    <span class="cat-count">13 个 Skill · 5 子路线（含 InfoVis 独立路线）</span>
   </div>
 
   <!-- ── 分类逻辑关系图 ── -->
@@ -520,9 +520,23 @@
         </div>
 
         <!-- E 的下层箭头关系标注 -->
+        <!-- InfoVis 单独块 -->
+        <div style="margin-top:8px;background:rgba(248,81,73,.08);border:1.5px solid rgba(248,81,73,.3);border-radius:8px;padding:10px 14px">
+          <div style="font-size:10px;color:var(--p0);font-weight:700;margin-bottom:5px">⚠️ InfoVis — 独立路线，不是「图片生成」</div>
+          <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;margin-bottom:3px;color:var(--text)">IV-A5 信息图海报（叙事型）P0🔴</div>
+          <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;margin-bottom:3px;color:var(--text)">IV-A1 数据关系图</div>
+          <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;margin-bottom:3px;color:var(--text)">IV-A2 结构层级图</div>
+          <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;margin-bottom:3px;color:var(--text)">IV-A3 时序流程图</div>
+          <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;color:var(--text)">IV-A4 比较对比图</div>
+          <div style="font-size:10.5px;color:var(--text-s);margin-top:6px;line-height:1.5">
+            <span style="color:var(--p0)">数据/关系/结构</span> → 可视化表达<br>
+            <span style="color:#56d364">✓ 既不是「图片」也不是「文档」</span><br>
+            产品目标②「能做信息图」的核心载体
+          </div>
+        </div>
         <div style="margin-top:8px;padding:8px 12px;background:rgba(248,81,73,.05);border-radius:6px;border:1px dashed rgba(247,129,102,.2)">
           <span style="font-size:11px;color:var(--text-s)">
-            <span style="color:#f78166;font-weight:600">E类（文案驱动）</span>不是独立生成器，而是<span style="color:var(--text)">调度层</span>：分析文案意图 → 路由到 C/D/图库 → 返回候选方案。是C+D的上层封装。
+            <span style="color:#f78166;font-weight:600">E类（文案驱动）</span>不是独立生成器，而是<span style="color:var(--text)">调度层</span>：分析文案意图 → 路由到 C/D/InfoVis/图库 → 返回候选方案。是C+D+InfoVis的上层封装。
           </span>
         </div>
       </div>
@@ -666,6 +680,100 @@
         <td class="tech">多步流水线（段落分析→配图→排版）</td>
         <td class="bench">无直接竞品</td>
         <td class="def">长文档自动在合适位置插入匹配配图</td>
+      </tr>
+
+      <!-- InfoVis. 信息可视化 -->
+      <tr class="group-row">
+        <td colspan="7">
+          <span class="group-tag s2">InfoVis</span>
+          信息可视化 — <strong style="color:var(--p0)">独立路线，不属于「图片生成」</strong>，是数据/结构/关系的可视化表达；产品目标②「能做信息图」的核心
+          <span class="goal-tag">② 产品目标</span>
+        </td>
+      </tr>
+      <!-- InfoVis 子分类说明行 -->
+      <tr style="background:rgba(247,129,102,.03)">
+        <td colspan="7" style="padding:0">
+          <div style="margin:0;padding:14px 24px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;border-bottom:1px solid var(--border)">
+            <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border-top:2px solid #f78166">
+              <div style="font-size:11px;font-weight:700;color:#f78166;margin-bottom:5px">数据关系型</div>
+              <div style="font-size:11px;color:var(--text-s);line-height:1.6">柱状图 / 折线图<br>散点图 / 地图<br><span style="color:var(--text)">SK: IV-A1</span></div>
+            </div>
+            <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border-top:2px solid #f78166">
+              <div style="font-size:11px;font-weight:700;color:#f78166;margin-bottom:5px">结构层级型</div>
+              <div style="font-size:11px;color:var(--text-s);line-height:1.6">树图 / 组织架构<br>思维导图 / 旭日图<br><span style="color:var(--text)">SK: IV-A2</span></div>
+            </div>
+            <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border-top:2px solid #f78166">
+              <div style="font-size:11px;font-weight:700;color:#f78166;margin-bottom:5px">时序流程型</div>
+              <div style="font-size:11px;color:var(--text-s);line-height:1.6">时间轴 / 甘特图<br>桑基图 / 流程图<br><span style="color:var(--text)">SK: IV-A3</span></div>
+            </div>
+            <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border-top:2px solid #f78166">
+              <div style="font-size:11px;font-weight:700;color:#f78166;margin-bottom:5px">比较对比型</div>
+              <div style="font-size:11px;color:var(--text-s);line-height:1.6">雷达图 / 热力图<br>矩阵图 / 气泡图<br><span style="color:var(--text)">SK: IV-A4</span></div>
+            </div>
+            <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border-top:2px solid rgba(248,81,73,.8)">
+              <div style="font-size:11px;font-weight:700;color:var(--p0);margin-bottom:5px">叙事海报型 🔴</div>
+              <div style="font-size:11px;color:var(--text-s);line-height:1.6">数据故事 / 信息图海报<br>一图说清楚一件事<br><span style="color:var(--text)">SK: IV-A5</span></div>
+            </div>
+          </div>
+          <!-- 三条技术路线 -->
+          <div style="padding:12px 24px 14px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-s);font-weight:600;align-self:center;margin-right:4px">技术路线：</div>
+            <div style="font-size:11px;padding:4px 12px;background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);border-radius:6px;color:#58a6ff">
+              SK1 代码直出（LLM → SVG/Canvas）<br><span style="color:var(--text-s)">可编辑，无依赖，适合插图/流程</span>
+            </div>
+            <div style="font-size:11px;padding:4px 12px;background:rgba(163,113,247,.08);border:1px solid rgba(163,113,247,.2);border-radius:6px;color:#a371f7">
+              SK2 可视化库（ECharts / D3.js）<br><span style="color:var(--text-s)">交互性强，数据驱动，适合仪表盘</span>
+            </div>
+            <div style="font-size:11px;padding:4px 12px;background:rgba(86,211,100,.08);border:1px solid rgba(86,211,100,.2);border-radius:6px;color:#56d364">
+              SK3 设计工具（Figma → PNG 渲染）<br><span style="color:var(--text-s)">高颜值，适合对外发布的信息图海报</span>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr class="indent-1 p0-row">
+        <td><span class="sid s2">IV-A5</span></td>
+        <td>信息图海报生成（叙事型）<span class="goal-tag">② 产品目标</span></td>
+        <td><span class="badge b-p0">P0 🔴</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM 内容规划 → SVG/Canvas 布局渲染</td>
+        <td class="bench"><strong>Infogram</strong> · Canva Infographic</td>
+        <td class="def">主题/数据→「一图说清楚一件事」的叙事信息图</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IV-A1</span></td>
+        <td>数据关系图（柱/折/地图）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM → ECharts / D3.js 代码</td>
+        <td class="bench"><strong>Observable Plot</strong> · Flourish</td>
+        <td class="def">数据(JSON/CSV)→可嵌入的交互式图表代码</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IV-A2</span></td>
+        <td>结构层级图（树/组织架构/思维导图）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM → SVG / ECharts Tree</td>
+        <td class="bench"><strong>Mermaid</strong> · Whimsical AI</td>
+        <td class="def">层级关系描述→树图/组织架构图/思维导图</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IV-A3</span></td>
+        <td>时序流程图（时间轴/桑基图）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM → SVG / ECharts Sankey</td>
+        <td class="bench"><strong>Mermaid</strong> · Flourish</td>
+        <td class="def">流程/时序描述→时间轴/甘特图/桑基流向图</td>
+      </tr>
+      <tr class="indent-1">
+        <td><span class="sid s2">IV-A4</span></td>
+        <td>比较对比图（雷达/热力图）</td>
+        <td><span class="badge b-p1">P1</span></td>
+        <td><span class="badge b-yes">✅</span></td>
+        <td class="tech">LLM → ECharts Radar/Heatmap</td>
+        <td class="bench"><strong>Flourish</strong> · Datawrapper</td>
+        <td class="def">多维对比数据→雷达图/热力矩阵/气泡图</td>
       </tr>
 
       <!-- F. 运营裂变型 -->
