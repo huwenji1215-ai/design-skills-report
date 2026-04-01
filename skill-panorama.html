@@ -455,6 +455,128 @@
     <span class="cat-title" style="color:var(--c2)">方向二：图片生成</span>
     <span class="cat-count">8 个 Skill · 4 技术路线</span>
   </div>
+
+  <!-- ── 分类逻辑关系图 ── -->
+  <div style="padding:20px 24px;border-bottom:1px solid var(--border);background:var(--bg2)">
+    <div style="font-size:12px;font-weight:700;color:var(--text-s);margin-bottom:14px;letter-spacing:.5px">📐 SUB-CLASS ARCHITECTURE — 各子类的关系与层次</div>
+
+    <!-- 两栏布局：左图右说明 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+
+      <!-- 左：关系图 -->
+      <div>
+        <!-- 用户入口层 -->
+        <div style="display:flex;gap:8px;margin-bottom:6px">
+          <div style="flex:1;background:rgba(248,81,73,.1);border:1.5px solid rgba(248,81,73,.35);border-radius:8px;padding:10px 14px;text-align:center">
+            <div style="font-size:10px;color:var(--p0);font-weight:700;margin-bottom:3px">入口层 · 按用途触发</div>
+            <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+              <span style="font-size:11.5px;padding:3px 9px;background:rgba(247,129,102,.12);border-radius:5px;color:#f78166;font-weight:600">E 文案驱动型</span>
+              <span style="font-size:11px;color:var(--text-s);padding:3px 4px;align-self:center">→ 上层封装，按意图路由</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 向下箭头 -->
+        <div style="text-align:center;color:var(--text-d);font-size:18px;line-height:1;margin:2px 0">↓ 路由决策：意图分析选择最合适的生成方式</div>
+
+        <!-- 原子能力层 -->
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <!-- C -->
+          <div style="flex:1;background:rgba(247,129,102,.07);border:1px solid rgba(247,129,102,.25);border-radius:8px;padding:10px 12px">
+            <div style="font-size:10px;color:#f78166;font-weight:700;margin-bottom:6px">C 类 · 代码直出型</div>
+            <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;margin-bottom:4px;color:var(--text)">IMG-C1 SVG插画</div>
+            <div style="font-size:10.5px;color:var(--text-s);margin-top:6px;line-height:1.5">
+              LLM直接输出SVG代码<br>
+              <span style="color:#56d364">✓ 可编辑矢量</span><br>
+              <span style="color:#56d364">✓ 无需外部模型</span><br>
+              <span style="color:var(--text-s)">适合：插画/图标/信息图</span>
+            </div>
+          </div>
+          <!-- D -->
+          <div style="flex:1;background:rgba(247,129,102,.07);border:1px solid rgba(247,129,102,.25);border-radius:8px;padding:10px 12px">
+            <div style="font-size:10px;color:#f78166;font-weight:700;margin-bottom:6px">D 类 · 模型调用型</div>
+            <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;margin-bottom:3px;color:var(--text)">D1 文生图（通用）</div>
+            <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;margin-bottom:3px;color:var(--text)">D2 文生图（品牌锁定）</div>
+            <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;margin-bottom:3px;color:var(--text)">D3 图生图（风格迁移）</div>
+            <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;color:var(--text)">D4 局部重绘</div>
+            <div style="font-size:10.5px;color:var(--text-s);margin-top:6px;line-height:1.5">
+              调用外部图像模型<br>
+              <span style="color:#56d364">✓ 写实/高质量</span><br>
+              <span style="color:#f85149">✗ 不可直接编辑</span><br>
+              <span style="color:var(--text-s)">适合：配图/营销/改图</span>
+            </div>
+          </div>
+          <!-- F -->
+          <div style="flex:1;background:rgba(247,129,102,.07);border:1px solid rgba(247,129,102,.25);border-radius:8px;padding:10px 12px">
+            <div style="font-size:10px;color:#f78166;font-weight:700;margin-bottom:6px">F 类 · 加工裂变型</div>
+            <div style="font-size:11px;background:rgba(247,129,102,.1);border-radius:4px;padding:4px 8px;margin-bottom:4px;color:var(--text)">IMG-F1 多尺寸适配</div>
+            <div style="font-size:10.5px;color:var(--text-s);margin-top:6px;line-height:1.5">
+              基于已有图片加工<br>
+              <span style="color:#56d364">✓ 保持内容不变</span><br>
+              <span style="color:#56d364">✓ 批量多尺寸</span><br>
+              <span style="color:var(--text-s)">适合：运营多平台发布</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- E 的下层箭头关系标注 -->
+        <div style="margin-top:8px;padding:8px 12px;background:rgba(248,81,73,.05);border-radius:6px;border:1px dashed rgba(247,129,102,.2)">
+          <span style="font-size:11px;color:var(--text-s)">
+            <span style="color:#f78166;font-weight:600">E类（文案驱动）</span>不是独立生成器，而是<span style="color:var(--text)">调度层</span>：分析文案意图 → 路由到 C/D/图库 → 返回候选方案。是C+D的上层封装。
+          </span>
+        </div>
+      </div>
+
+      <!-- 右：三个关键区别 -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+
+        <div style="background:var(--bg3);border-radius:10px;padding:14px 16px;border-left:3px solid #f78166">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">C 类 vs D 类 — 同是「生成图片」，底层完全不同</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11.5px">
+            <div>
+              <div style="color:#f78166;font-weight:600;margin-bottom:4px">C 类（代码直出）</div>
+              <div style="color:var(--text-s);line-height:1.7">
+                输出物：SVG 代码文件<br>
+                可编辑：✅ 直接改代码<br>
+                依赖：无外部模型<br>
+                适合：设计稿插图
+              </div>
+            </div>
+            <div>
+              <div style="color:#f78166;font-weight:600;margin-bottom:4px">D 类（模型调用）</div>
+              <div style="color:var(--text-s);line-height:1.7">
+                输出物：PNG/JPG 图片<br>
+                可编辑：❌ 像素不可改<br>
+                依赖：外部图像模型<br>
+                适合：写实配图
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg3);border-radius:10px;padding:14px 16px;border-left:3px solid rgba(248,81,73,.5)">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">E 类 vs C/D 类 — 出发点完全不同</div>
+          <div style="font-size:11.5px;line-height:1.7;color:var(--text-s)">
+            <div style="margin-bottom:6px"><span style="color:#f78166;font-weight:600">C/D 类</span>：「我要生成一张<span style="color:var(--text)">图</span>」→ 知道要用什么技术，直接调用对应 Skill</div>
+            <div><span style="color:#f78166;font-weight:600">E 类</span>：「我有一段<span style="color:var(--text)">文案</span>，帮我配图」→ 不关心技术，让 Skill 自动决策路由</div>
+          </div>
+          <div style="margin-top:10px;padding:8px 10px;background:rgba(56,139,253,.08);border-radius:6px;font-size:11px;color:#388bfd">
+            💡 类比：C/D = 点菜，E = 告诉服务员「我今天想吃点清淡的」，由服务员帮你选菜
+          </div>
+        </div>
+
+        <div style="background:var(--bg3);border-radius:10px;padding:14px 16px;border-left:3px solid rgba(86,211,100,.4)">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">F 类 — 独立于生成，属于加工处理</div>
+          <div style="font-size:11.5px;line-height:1.7;color:var(--text-s)">
+            F 类的输入是<span style="color:var(--text)">已有图片</span>（不是从零生成），核心是尺寸/裁切/扩展等加工操作。<br>
+            与 C/D/E 不是同一个需求链，是独立的<span style="color:#56d364">「图片后处理」</span>路线。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <table>
     <thead>
       <tr>
@@ -470,7 +592,7 @@
     <tbody>
       <!-- C. LLM 直出 -->
       <tr class="group-row">
-        <td colspan="7"><span class="group-tag s2">C</span>LLM 直出代码型 — 无需外部模型调用，LLM直接输出可编辑矢量代码</td>
+        <td colspan="7"><span class="group-tag s2">C</span>LLM 直出代码型 — 无需外部模型，LLM直接输出可编辑矢量代码（SVG）</td>
       </tr>
       <tr class="indent-1 p0-row">
         <td><span class="sid s2">IMG-C1</span></td>
