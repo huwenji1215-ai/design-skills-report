@@ -577,11 +577,11 @@ footer {
   <div class="section-header">
     <span class="index-badge">方向 02</span>
     <h2 style="color:var(--img-color)">🎨 图片生成</h2>
-    <span class="count">8 个 Skill</span>
+    <span class="count">13 个 Skill（含 InfoVis 独立路线）</span>
   </div>
   <div class="struct-block"><pre>图片生成
-├── C. LLM 直出代码型
-│   └── IMG-C1  SVG 矢量插画生成              P0 ✅  ← 最高优先级
+├── C. LLM 直出代码型（SVG/代码，无需外部模型）
+│   └── IMG-C1  SVG 矢量插画生成              P0 🔴 ✅  ← 产品目标② 核心
 │
 ├── D. 模型调用型（Diffusion / 多模态）
 │   ├── IMG-D1  文生图（通用）                P1 ✅  首选 Gemini 2.5 Flash Nano Banana
@@ -589,12 +589,22 @@ footer {
 │   ├── IMG-D3  图生图（风格迁移/改写）        P1 ✅
 │   └── IMG-D4  局部重绘（Inpainting）        P2 ⚠️
 │
-├── E. 文案驱动型
+├── E. 文案驱动型（上层路由，调度 C/D/InfoVis）
 │   ├── IMG-E1  文案驱动配图（路由型）         P1 ⚠️
 │   └── IMG-E2  长文自动插图                  P2 ❌
 │
-└── F. 运营裂变型
-    └── IMG-F1  图片裂变（多尺寸/多平台适配）  P1 ✅</pre></div>
+├── F. 运营裂变型（基于已有图片的加工处理）
+│   └── IMG-F1  图片裂变（多尺寸/多平台适配）  P1 ✅
+│
+└── InfoVis. 信息可视化（独立路线，产品目标② 核心载体）
+    ├── IV-A5  信息图海报（叙事型）            P0 🔴 ✅  ← 产品目标② 首要
+    ├── IV-A1  数据关系图（柱/折线/地图）      P1 ✅
+    ├── IV-A2  结构层级图（树/组织架构/思维导图）P1 ✅
+    ├── IV-A3  时序流程图（时间轴/桑基图）      P1 ✅
+    └── IV-A4  比较对比图（雷达/热力图）        P1 ⚠️
+
+⚠️ 注意：InfoVis ≠ 图片生成，是独立能力路线
+    技术路线三选一：SK1 LLM→SVG/Canvas | SK2 ECharts/D3 | SK3 Figma→PNG渲染</pre></div>
 
   <!-- IMG-C1 -->
   <div class="skill-card" style="border-top:3px solid var(--img-color)">
@@ -686,6 +696,121 @@ footer {
     </div>
   </div>
 
+  <!-- InfoVis — 独立路线 -->
+  <div style="margin:8px 0 20px;padding:12px 20px;background:rgba(248,81,73,.06);border:1.5px solid rgba(248,81,73,.3);border-radius:10px;font-size:12.5px;color:var(--text-muted)">
+    <strong style="color:var(--p0)">⚠️ 以下 InfoVis 为独立路线</strong> — 不属于「图片生成」，是数据/结构/关系的<strong style="color:var(--text)">可视化表达</strong>；产品目标②「能做信息图」的核心载体。技术路线：SK1 LLM→SVG/Canvas | SK2 ECharts/D3 | SK3 Figma→PNG渲染
+  </div>
+
+  <!-- IV-A5 -->
+  <div class="skill-card" style="border-top:3px solid var(--p0)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id" style="background:rgba(248,81,73,.15);color:var(--p0)">IV-A5</span>
+      <span class="card-title">信息图海报生成（叙事型）</span>
+      <div class="card-badges"><span class="badge badge-p0">P0 🔴</span><span class="badge badge-yes">✅ 2天可交付</span><span style="font-size:11px;padding:2px 8px;background:rgba(248,81,73,.1);border-radius:10px;color:var(--p0);border:1px solid rgba(248,81,73,.3)">② 产品目标</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body open" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--p0)">输入主题/数据，生成「一图说清楚一件事」的叙事型信息图海报（SVG/Canvas），适用于数据故事、年报图表、对外发布。</div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>主题或数据（JSON/CSV/文字描述）</li>
+          <li>叙事结构（可选：时间轴 / 对比 / 流程 / 排名）</li>
+          <li>品牌色 + 风格（可选）</li>
+          <li>尺寸（常用：1080×1080 / A4 / 16:9）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>SVG 或 Canvas 渲染的信息图</li>
+          <li>可导出 PNG/PDF</li>
+          <li>关键数据自动标注，可读性 ≥ 90%</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">技术路线（三选一）</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>路线</th><th>实现</th><th>适用场景</th><th>可编辑性</th></tr></thead><tbody>
+        <tr><td><strong>SK1 代码直出</strong></td><td>LLM → SVG/Canvas</td><td>插图型、图标型、流程图</td><td>✅ 高</td></tr>
+        <tr><td><strong>SK2 可视化库</strong></td><td>ECharts / D3.js</td><td>数据驱动图表、交互仪表盘</td><td>⚠️ 需改代码</td></tr>
+        <tr><td><strong>SK3 设计工具</strong></td><td>Figma → PNG 渲染</td><td>高颜值对外发布</td><td>❌ 位图</td></tr>
+      </tbody></table></div>
+      <div class="card-section-title">质量标准（竞品对标：Infogram / Canva Infographic）</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>维度</th><th>标准</th></tr></thead><tbody>
+        <tr><td>信息密度</td><td>核心结论 3 秒内可读，无关信息 ≤30%</td></tr>
+        <tr><td>视觉层次</td><td>标题/数据/说明三层清晰，字号差≥4px</td></tr>
+        <tr><td>数据准确性</td><td>图表与原始数据完全一致，0 偏差</td></tr>
+        <tr><td>美学评分</td><td>AQE 评分 ≥ 7.0（内部美学质量评测框架）</td></tr>
+      </tbody></table></div>
+      <ul class="boundary-list" style="margin-bottom:16px">
+        <li>不做需要写实图片的信息图（→ IMG-D1）</li>
+        <li>超过 20 个数据点的复杂仪表盘推荐 SK2 路线</li>
+      </ul>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — LLM SVG 能力成熟，ECharts 链路现成，已有 visual-creator Skill 基础</span></div>
+    </div>
+  </div>
+
+  <!-- IV-A1 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id" style="background:rgba(247,129,102,.1);color:#f78166">IV-A1</span>
+      <span class="card-title">数据关系图（柱/折/地图类）</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-yes">✅ 2天可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入数据（JSON/CSV）+ 图表类型描述，生成可嵌入的交互式图表代码或静态图表图片。</div>
+      <div class="card-section-title">支持图表类型</div>
+      <div class="inout-box" style="font-size:12.5px;margin-bottom:16px">柱状图 / 折线图 / 面积图 / 散点图 / 气泡图 / 地图（省份/城市热力）</div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="font-size:13px;margin-bottom:16px"><strong>SK2 优先</strong>：LLM → ECharts 配置代码 → 可嵌入 HTML；静态截图需求走 SK1 → SVG</div>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — ECharts 配置生成是 LLM 最成熟的能力之一</span></div>
+    </div>
+  </div>
+
+  <!-- IV-A2 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id" style="background:rgba(247,129,102,.1);color:#f78166">IV-A2</span>
+      <span class="card-title">结构层级图（树图/组织架构/思维导图）</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-yes">✅ 2天可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入层级关系描述或 JSON 树结构，生成组织架构图、思维导图、产品功能树等。</div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="font-size:13px;margin-bottom:16px">LLM → SVG（SK1）/ Mermaid 语法 / ECharts Tree；竞品对标：Whimsical AI · Mermaid</div>
+      <div class="feasibility"><span class="stars">★★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：高 — Mermaid/ECharts Tree 链路已成熟</span></div>
+    </div>
+  </div>
+
+  <!-- IV-A3 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id" style="background:rgba(247,129,102,.1);color:#f78166">IV-A3</span>
+      <span class="card-title">时序流程图（时间轴/桑基图/流程图）</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-yes">✅ 2天可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入时序/流程描述，生成时间轴、甘特图、桑基图、用户旅程图等。</div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="font-size:13px;margin-bottom:16px">LLM → SVG（SK1）/ ECharts Sankey（SK2）；竞品对标：Flourish · Mermaid</div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — 桑基图稍复杂，需测试边界</span></div>
+    </div>
+  </div>
+
+  <!-- IV-A4 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id" style="background:rgba(247,129,102,.1);color:#f78166">IV-A4</span>
+      <span class="card-title">比较对比图（雷达图/热力图/矩阵图）</span>
+      <div class="card-badges"><span class="badge badge-p1">P1</span><span class="badge badge-warn">⚠️ 需评审</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入多维度对比数据，生成雷达图、热力矩阵、气泡对比图等，适用于竞品分析、能力评估。</div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="font-size:13px;margin-bottom:16px">LLM → ECharts Radar/Heatmap（SK2）；竞品对标：Flourish · Datawrapper</div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — 需评审维度映射的准确性</span></div>
+    </div>
+  </div>
+
   <!-- IMG-E1 -->
   <div class="skill-card" style="border-top:3px solid var(--img-color)">
     <div class="card-header" onclick="toggleCard(this)">
@@ -708,18 +833,23 @@ footer {
 
   <!-- 全景表 -->
   <div class="overview-section">
-    <div class="overview-title">图片生成 Skill 全景图</div>
+    <div class="overview-title">图片生成 + InfoVis Skill 全景图</div>
     <div class="table-wrap"><table class="data-table">
-      <thead><tr><th>Skill ID</th><th>名称</th><th>优先级</th><th>技术路线</th><th>2天可交付</th><th>竞品对标</th></tr></thead>
+      <thead><tr><th>Skill ID</th><th>名称</th><th>分类</th><th>优先级</th><th>技术路线</th><th>2天可交付</th><th>竞品对标</th></tr></thead>
       <tbody>
-        <tr><td>IMG-C1</td><td>SVG 矢量插画生成</td><td><span class="badge badge-p0">P0</span></td><td>LLM 直出 SVG</td><td><span class="badge badge-yes">✅</span></td><td>GPT-4o SVG</td></tr>
-        <tr><td>IMG-D1</td><td>文生图（通用）</td><td><span class="badge badge-p1">P1</span></td><td>Gemini/GPT-4o/Flux</td><td><span class="badge badge-yes">✅</span></td><td>Midjourney v6</td></tr>
-        <tr><td>IMG-D3</td><td>图生图（风格迁移）</td><td><span class="badge badge-p1">P1</span></td><td>多模态模型</td><td><span class="badge badge-yes">✅</span></td><td>Adobe Firefly</td></tr>
-        <tr><td>IMG-E1</td><td>文案驱动配图（路由型）</td><td><span class="badge badge-p1">P1</span></td><td>意图路由+子Skill</td><td><span class="badge badge-warn">⚠️</span></td><td>无直接竞品</td></tr>
-        <tr><td>IMG-F1</td><td>图片裂变·多尺寸适配</td><td><span class="badge badge-p1">P1</span></td><td>主体检测+Outpainting</td><td><span class="badge badge-yes">✅</span></td><td>Adobe Express</td></tr>
-        <tr><td>IMG-D2</td><td>文生图（品牌风格锁定）</td><td><span class="badge badge-p2">P2</span></td><td>LoRA 微调</td><td><span class="badge badge-no">❌</span></td><td>Midjourney --sref</td></tr>
-        <tr><td>IMG-D4</td><td>局部重绘（Inpainting）</td><td><span class="badge badge-p2">P2</span></td><td>SD Inpainting</td><td><span class="badge badge-warn">⚠️</span></td><td>Adobe Firefly</td></tr>
-        <tr><td>IMG-E2</td><td>长文自动插图</td><td><span class="badge badge-p2">P2</span></td><td>多步流水线</td><td><span class="badge badge-no">❌</span></td><td>无直接竞品</td></tr>
+        <tr style="background:rgba(248,81,73,.06)"><td style="color:var(--p0);font-weight:700">IV-A5</td><td>信息图海报（叙事型）</td><td>InfoVis</td><td><span class="badge badge-p0">P0 🔴</span></td><td>SK1/SK2/SK3 三路</td><td><span class="badge badge-yes">✅</span></td><td>Infogram · Canva</td></tr>
+        <tr><td>IMG-C1</td><td>SVG 矢量插画生成</td><td>LLM直出</td><td><span class="badge badge-p0">P0</span></td><td>LLM 直出 SVG</td><td><span class="badge badge-yes">✅</span></td><td>GPT-4o SVG</td></tr>
+        <tr><td>IV-A1</td><td>数据关系图（柱/折/地图）</td><td>InfoVis</td><td><span class="badge badge-p1">P1</span></td><td>ECharts / D3.js</td><td><span class="badge badge-yes">✅</span></td><td>Observable Plot</td></tr>
+        <tr><td>IV-A2</td><td>结构层级图（树/思维导图）</td><td>InfoVis</td><td><span class="badge badge-p1">P1</span></td><td>SVG / Mermaid</td><td><span class="badge badge-yes">✅</span></td><td>Whimsical AI</td></tr>
+        <tr><td>IV-A3</td><td>时序流程图（时间轴/桑基图）</td><td>InfoVis</td><td><span class="badge badge-p1">P1</span></td><td>SVG / ECharts Sankey</td><td><span class="badge badge-yes">✅</span></td><td>Flourish</td></tr>
+        <tr><td>IV-A4</td><td>比较对比图（雷达/热力图）</td><td>InfoVis</td><td><span class="badge badge-p1">P1</span></td><td>ECharts Radar/Heatmap</td><td><span class="badge badge-warn">⚠️</span></td><td>Flourish</td></tr>
+        <tr><td>IMG-D1</td><td>文生图（通用）</td><td>模型调用</td><td><span class="badge badge-p1">P1</span></td><td>Gemini/GPT-4o/Flux</td><td><span class="badge badge-yes">✅</span></td><td>Midjourney v6</td></tr>
+        <tr><td>IMG-D3</td><td>图生图（风格迁移）</td><td>模型调用</td><td><span class="badge badge-p1">P1</span></td><td>多模态模型</td><td><span class="badge badge-yes">✅</span></td><td>Adobe Firefly</td></tr>
+        <tr><td>IMG-E1</td><td>文案驱动配图（路由型）</td><td>路由层</td><td><span class="badge badge-p1">P1</span></td><td>意图路由+子Skill</td><td><span class="badge badge-warn">⚠️</span></td><td>无直接竞品</td></tr>
+        <tr><td>IMG-F1</td><td>图片裂变·多尺寸适配</td><td>加工</td><td><span class="badge badge-p1">P1</span></td><td>主体检测+Outpainting</td><td><span class="badge badge-yes">✅</span></td><td>Adobe Express</td></tr>
+        <tr><td>IMG-D2</td><td>文生图（品牌风格锁定）</td><td>模型调用</td><td><span class="badge badge-p2">P2</span></td><td>LoRA 微调</td><td><span class="badge badge-no">❌</span></td><td>Midjourney --sref</td></tr>
+        <tr><td>IMG-D4</td><td>局部重绘（Inpainting）</td><td>模型调用</td><td><span class="badge badge-p2">P2</span></td><td>SD Inpainting</td><td><span class="badge badge-warn">⚠️</span></td><td>Adobe Firefly</td></tr>
+        <tr><td>IMG-E2</td><td>长文自动插图</td><td>路由层</td><td><span class="badge badge-p2">P2</span></td><td>多步流水线</td><td><span class="badge badge-no">❌</span></td><td>无直接竞品</td></tr>
       </tbody>
     </table></div>
   </div>
