@@ -547,6 +547,80 @@ footer {
     </div>
   </div>
 
+  <!-- UI-A2 -->
+  <div class="skill-card" style="border-top:3px solid var(--ui-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">UI-A2</span>
+      <span class="card-title">可交互多页原型</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ 需模板沉淀</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--ui-color)">输入产品功能描述，生成支持页面跳转和状态流转的可交互多页原型，适用于用户测试、产品走查和开发需求确认。</div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>产品描述（功能模块 + 主要用户流程）</li>
+          <li>页面列表（可选，未提供则 AI 推断）</li>
+          <li>交互重点（登录流程 / 支付流程 / 核心操作路径）</li>
+          <li>技术框架（可选，默认 React）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>多页面 React 应用代码（可本地运行）</li>
+          <li>页面间路由跳转可用</li>
+          <li>核心状态（登录态、表单提交结果等）可模拟</li>
+          <li>README：如何本地启动</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">技术路线</div>
+      <div class="inout-box" style="margin-bottom:16px;font-size:13px"><strong>LLM 代码生成 → React Router + Zustand/useState → Vite 打包</strong>，竞品对标：Figma Make / Bolt.new</div>
+      <div class="card-section-title">与 UI-A1 的区别</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th></th><th>UI-A1 单页原型</th><th>UI-A2 多页原型</th></tr></thead><tbody>
+        <tr><td>复杂度</td><td>单文件，双击打开</td><td>需本地 npm 环境</td></tr>
+        <tr><td>适用场景</td><td>快速走查，1-2 分钟</td><td>用户测试，完整流程</td></tr>
+        <tr><td>交互深度</td><td>静态展示为主</td><td>路由跳转 + 状态流转</td></tr>
+        <tr><td>交付时间</td><td>30 分钟内</td><td>2-4 小时</td></tr>
+      </tbody></table></div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — React Router 生成成熟，多页面状态需模板化沉淀</span></div>
+    </div>
+  </div>
+
+  <!-- UI-B4 -->
+  <div class="skill-card" style="border-top:3px solid var(--ui-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">UI-B4</span>
+      <span class="card-title">移动端 UI 代码生成（Android/iOS）</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ 需 PoC</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--ui-color)">输入移动端产品描述，生成可在 React Native / Expo 环境运行的移动端 UI 代码，适用于产品原型验证和功能演示。</div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>功能描述（如：「用户个人中心页」「订单列表+详情」）</li>
+          <li>平台（iOS / Android / 两端通用，默认通用）</li>
+          <li>风格参考（可选，如：微信风格 / 抖音风格）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>React Native 组件代码（.tsx）</li>
+          <li>可在 Expo Go App 扫码预览</li>
+          <li>适配主流机型（iPhone 14 / Pixel 7）</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">技术选型</div>
+      <div class="table-wrap" style="margin-bottom:16px"><table class="data-table"><thead><tr><th>方案</th><th>适用</th><th>特点</th></tr></thead><tbody>
+        <tr><td><strong>React Native + Expo（推荐）</strong></td><td>原型 + 生产</td><td>热更新，Expo Go 直接预览</td></tr>
+        <tr><td>Flutter</td><td>性能敏感场景</td><td>LLM 生成质量稍低</td></tr>
+        <tr><td>纯 H5 套壳</td><td>快速验证</td><td>体验有限</td></tr>
+      </tbody></table></div>
+      <ul class="boundary-list" style="margin-bottom:16px">
+        <li>不做原生模块（相机/传感器等需单独封装）</li>
+        <li>不接真实接口（Mock 数据）</li>
+        <li><strong>当前限制</strong>：RN 代码生成质量低于 Web，建议先做 PoC 评估 LLM 输出质量</li>
+      </ul>
+      <div class="feasibility"><span class="stars">★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：中等 — LLM 移动端代码质量需工程评审，建议先 PoC，竞品对标：Bolt.new</span></div>
+    </div>
+  </div>
+
   <!-- 全景表 -->
   <div class="overview-section">
     <div class="overview-title">UI 生成 Skill 全景图</div>
@@ -562,10 +636,10 @@ footer {
           <tr><td>UI-B1</td><td>B端增删改查控制台</td><td><span class="badge badge-p0">P0</span></td><td>LLM + shadcn/ui</td><td><span class="badge badge-yes">✅</span></td><td>v0.dev</td></tr>
           <tr><td>UI-B2</td><td>数据可视化仪表盘</td><td><span class="badge badge-p1">P1</span></td><td>LLM + ECharts</td><td><span class="badge badge-warn">⚠️</span></td><td>Vercel AI</td></tr>
           <tr><td>UI-B3</td><td>H5 营销落地页</td><td><span class="badge badge-p1">P1</span></td><td>LLM + 移动端HTML</td><td><span class="badge badge-yes">✅</span></td><td>Framer AI</td></tr>
-          <tr><td>UI-B4</td><td>移动端 Android/iOS</td><td><span class="badge badge-p2">P2</span></td><td>待评审</td><td><span class="badge badge-no">❌</span></td><td>Bolt.new</td></tr>
           <tr><td>UI-B5</td><td>图标智能选配</td><td><span class="badge badge-p1">P1</span></td><td>语义检索+SVG</td><td><span class="badge badge-yes">✅</span></td><td>Figma图标插件</td></tr>
           <tr><td>UI-A1</td><td>单页 HTML 原型</td><td><span class="badge badge-p1">P1</span></td><td>LLM 直出HTML</td><td><span class="badge badge-yes">✅</span></td><td>Claude Artifacts</td></tr>
-          <tr><td>UI-A2</td><td>可交互多页原型</td><td><span class="badge badge-p2">P2</span></td><td>待定</td><td><span class="badge badge-no">❌</span></td><td>Figma Make</td></tr>
+          <tr><td>UI-A2</td><td>可交互多页原型</td><td><span class="badge badge-p2">P2</span></td><td>React Router + Expo</td><td><span class="badge badge-warn">⚠️</span></td><td>Figma Make</td></tr>
+          <tr><td>UI-B4</td><td>移动端 Android/iOS</td><td><span class="badge badge-p2">P2</span></td><td>React Native + Expo</td><td><span class="badge badge-warn">⚠️ 需PoC</span></td><td>Bolt.new</td></tr>
         </tbody>
       </table>
     </div>
@@ -847,11 +921,122 @@ footer {
         <tr><td>IMG-D3</td><td>图生图（风格迁移）</td><td>模型调用</td><td><span class="badge badge-p1">P1</span></td><td>多模态模型</td><td><span class="badge badge-yes">✅</span></td><td>Adobe Firefly</td></tr>
         <tr><td>IMG-E1</td><td>文案驱动配图（路由型）</td><td>路由层</td><td><span class="badge badge-p1">P1</span></td><td>意图路由+子Skill</td><td><span class="badge badge-warn">⚠️</span></td><td>无直接竞品</td></tr>
         <tr><td>IMG-F1</td><td>图片裂变·多尺寸适配</td><td>加工</td><td><span class="badge badge-p1">P1</span></td><td>主体检测+Outpainting</td><td><span class="badge badge-yes">✅</span></td><td>Adobe Express</td></tr>
-        <tr><td>IMG-D2</td><td>文生图（品牌风格锁定）</td><td>模型调用</td><td><span class="badge badge-p2">P2</span></td><td>LoRA 微调</td><td><span class="badge badge-no">❌</span></td><td>Midjourney --sref</td></tr>
-        <tr><td>IMG-D4</td><td>局部重绘（Inpainting）</td><td>模型调用</td><td><span class="badge badge-p2">P2</span></td><td>SD Inpainting</td><td><span class="badge badge-warn">⚠️</span></td><td>Adobe Firefly</td></tr>
-        <tr><td>IMG-E2</td><td>长文自动插图</td><td>路由层</td><td><span class="badge badge-p2">P2</span></td><td>多步流水线</td><td><span class="badge badge-no">❌</span></td><td>无直接竞品</td></tr>
+        <tr><td>IMG-D2</td><td>文生图（品牌风格锁定）</td><td>模型调用</td><td><span class="badge badge-p2">P2</span></td><td>LoRA 微调 / --sref</td><td><span class="badge badge-warn">⚠️ 需PoC</span></td><td>Midjourney --sref</td></tr>
+        <tr><td>IMG-D4</td><td>局部重绘（Inpainting）</td><td>模型调用</td><td><span class="badge badge-p2">P2</span></td><td>SD/DALL-E Inpainting</td><td><span class="badge badge-warn">⚠️</span></td><td>Adobe Firefly</td></tr>
+        <tr><td>IMG-E2</td><td>长文自动插图</td><td>路由层</td><td><span class="badge badge-p2">P2</span></td><td>多步流水线</td><td><span class="badge badge-warn">⚠️ 需工程化</span></td><td>无直接竞品</td></tr>
       </tbody>
     </table></div>
+  </div>
+
+  <!-- IMG-D2 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id" style="background:rgba(247,129,102,.1);color:#f78166">IMG-D2</span>
+      <span class="card-title">文生图（品牌风格锁定）</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ 需 PoC</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">在品牌视觉 DNA 约束下批量生成风格高度统一的图片，适用于品牌内容库、系列海报等需要多张统一风格图片的场景。</div>
+      <div class="card-section-title">两种实现方式对比</div>
+      <div class="table-wrap" style="margin-bottom:16px"><table class="data-table"><thead><tr><th>方式</th><th>实现</th><th>成本</th><th>效果</th><th>适用</th></tr></thead><tbody>
+        <tr><td><strong>风格参考（推荐）</strong></td><td>Midjourney --sref / GPT-4o image_guidance</td><td>零训练</td><td>70-80%</td><td>快速验证 PoC</td></tr>
+        <tr><td><strong>LoRA 微调</strong></td><td>品牌图 20+ 张 → 微调 → 推理</td><td>高（GPU）</td><td>90%+</td><td>长期大批量</td></tr>
+      </tbody></table></div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>图片描述（生成内容）</li>
+          <li>品牌风格参考图（1-5 张）</li>
+          <li>生成数量 + 尺寸比例</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>风格统一的图片批量输出</li>
+          <li>风格一致性评分（与参考图自动对比）</li>
+        </ul></div></div>
+      </div>
+      <ul class="boundary-list" style="margin-bottom:16px">
+        <li>LoRA 微调需额外计算资源，不是即插即用</li>
+        <li>免训练版（--sref）风格一致性 &lt; LoRA 版</li>
+        <li>对人脸/IP 角色一致性效果有限</li>
+      </ul>
+      <div class="feasibility"><span class="stars">★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：中等 — LoRA 需工程评估；--sref 模式可 2 天 PoC，竞品对标：Midjourney --sref</span></div>
+    </div>
+  </div>
+
+  <!-- IMG-D4 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id" style="background:rgba(247,129,102,.1);color:#f78166">IMG-D4</span>
+      <span class="card-title">局部重绘（Inpainting）</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ 需评审</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入原始图片 + 选区蒙版 + 改写描述，仅修改选中区域，其余区域像素级保持不变。</div>
+      <div class="card-section-title">典型场景</div>
+      <div class="table-wrap" style="margin-bottom:16px"><table class="data-table"><thead><tr><th>场景</th><th>说明</th></tr></thead><tbody>
+        <tr><td>背景替换</td><td>保留主体，只换背景</td></tr>
+        <tr><td>元素去除</td><td>抹去多余元素（如水印/杂物）</td></tr>
+        <tr><td>局部改色</td><td>只改产品颜色，不动其余部分</td></tr>
+        <tr><td>内容填充</td><td>在空白区域填充与上下文一致的内容</td></tr>
+      </tbody></table></div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>原始图片</li>
+          <li>蒙版（用户框选修改区域）</li>
+          <li>修改描述（如：「换成山脉背景」「去掉水印」）</li>
+          <li>改变强度（可选，0-100%）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>修改后的图片（修改区域与原图无缝融合）</li>
+          <li>自动展示前后对比</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">质量标准（竞品对标：Adobe Firefly Generative Fill）</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>维度</th><th>标准</th></tr></thead><tbody>
+        <tr><td>边界融合</td><td>修改区域与未修改区域边界无明显接缝</td></tr>
+        <tr><td>内容一致</td><td>填充内容光线/色调与原图匹配</td></tr>
+        <tr><td>指令执行</td><td>修改描述关键要素执行率 ≥ 85%</td></tr>
+      </tbody></table></div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — SD/DALL-E Inpaint API 均已可用</span></div>
+    </div>
+  </div>
+
+  <!-- IMG-E2 -->
+  <div class="skill-card" style="border-top:3px solid var(--img-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id" style="background:rgba(247,129,102,.1);color:#f78166">IMG-E2</span>
+      <span class="card-title">长文自动插图</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ 需工程化</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--img-color)">输入长篇文章/报告，自动分析各段落语义，在合适位置插入匹配的配图，输出图文混排的完整文档。</div>
+      <div class="card-section-title">实现流程（多步流水线）</div>
+      <div class="inout-box" style="font-family:monospace;font-size:12px;margin-bottom:16px">
+        Step 1: 解析文档结构（段落/标题层级）<br>
+        Step 2: 段落意图分析 → 是否适合插图 + 适合什么类型<br>
+        Step 3: 路由到子 Skill（IMG-C1 / IMG-D1 / IV-A 系列）<br>
+        Step 4: 生成图片 + 确定插入位置<br>
+        Step 5: 重新排版输出（Word/PDF/Markdown）
+      </div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>长文档（Word / Markdown / 纯文本，≥ 1000 字）</li>
+          <li>插图密度（可选：低/中/高，默认每3段1张）</li>
+          <li>风格偏好（可选）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>图文混排版本的文档（Word / PDF）</li>
+          <li>插图位置和理由说明</li>
+          <li>可替换的备选图片</li>
+        </ul></div></div>
+      </div>
+      <div style="background:rgba(255,211,61,.08);border:1px solid rgba(255,211,61,.25);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--text-muted);margin-bottom:16px">
+        ⚠️ 这是一条多步流水线 Skill，依赖 IMG-C1 + IMG-D1 + IV-A 系列作为底层能力，单步能力均已具备
+      </div>
+      <div class="feasibility"><span class="stars">★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：中等 — 多步流水线需要工程化，建议 Phase 1 先支持手动触发版本</span></div>
+    </div>
   </div>
 </section>
 
@@ -1020,6 +1205,50 @@ footer {
     </div>
   </div>
 
+  <!-- VID-I1 -->
+  <div class="skill-card" style="border-top:3px solid var(--vid-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">VID-I1</span>
+      <span class="card-title">文生视频（营销素材）</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ 需评审</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--vid-color)">输入文字描述，调用 AI 视频生成模型，产出 5-20 秒的高质量营销视频素材（写实/动效），适用于广告投放、产品宣传。</div>
+      <div class="card-section-title">模型选型（2026 Q1）</div>
+      <div class="table-wrap" style="margin-bottom:16px"><table class="data-table"><thead><tr><th>模型</th><th>优势</th><th>适用场景</th></tr></thead><tbody>
+        <tr><td><strong>Kling 3.0</strong></td><td>4K 60fps，全球评分第一（4.9/5）</td><td>设计/建筑/营销场景</td></tr>
+        <tr><td><strong>Veo 3.1</strong></td><td>物理模拟极强，长镜头稳定</td><td>写实人物/自然场景</td></tr>
+        <tr><td>Sora</td><td>创意性强</td><td>艺术视频/概念片</td></tr>
+      </tbody></table></div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>视频描述（支持中文）</li>
+          <li>视频时长（5s / 10s / 20s）</li>
+          <li>画幅比例（16:9 / 9:16 / 1:1）</li>
+          <li>镜头运动（可选：固定/推进/旋转/跟随）</li>
+          <li>风格参考图（可选）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>MP4 视频文件，分辨率 ≥ 1080p</li>
+          <li>Kling 3.0 支持 4K@60fps</li>
+          <li>多段镜头可合并（Kling 支持 6 段拼接）</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">质量标准</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>维度</th><th>标准</th></tr></thead><tbody>
+        <tr><td>内容一致性</td><td>视频内容与描述匹配度 ≥ 85%</td></tr>
+        <tr><td>帧间稳定性</td><td>主体无异常闪烁或形变</td></tr>
+        <tr><td>视觉质量</td><td>无明显压缩噪点，1080p 清晰</td></tr>
+      </tbody></table></div>
+      <ul class="boundary-list" style="margin-bottom:16px">
+        <li>不保证人脸一致性（同人多镜头需多次尝试）</li>
+        <li>不做实时视频（渲染时间 10-60s）</li>
+      </ul>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — Kling/Veo API 均可接入，成本需评估，竞品对标：Kling 3.0</span></div>
+    </div>
+  </div>
+
   <!-- VID-I2 -->
   <div class="skill-card" style="border-top:3px solid var(--vid-color)">
     <div class="card-header" onclick="toggleCard(this)">
@@ -1057,6 +1286,7 @@ footer {
         <tr><td>VID-H1</td><td>Remotion 数据可视化视频</td><td><span class="badge badge-p1">P1</span></td><td>LLM + Remotion</td><td><span class="badge badge-yes">✅</span></td><td>Remotion Showcase</td></tr>
         <tr><td>VID-H2</td><td>Remotion 汇报/年报叙事视频</td><td><span class="badge badge-p1">P1</span></td><td>LLM + Remotion</td><td><span class="badge badge-yes">✅</span></td><td>Remotion Showcase</td></tr>
         <tr><td>VID-H3</td><td>UI 原型演示视频</td><td><span class="badge badge-p1">P1</span></td><td>LLM + Remotion</td><td><span class="badge badge-warn">⚠️</span></td><td>Remotion Showcase</td></tr>
+        <tr><td>VID-I1</td><td>文生视频（营销素材）</td><td><span class="badge badge-p2">P2</span></td><td>Kling 3.0 / Veo 3.1 API</td><td><span class="badge badge-warn">⚠️</span></td><td>Kling 3.0</td></tr>
         <tr><td>VID-I2</td><td>图生视频</td><td><span class="badge badge-p2">P2</span></td><td>Kling/Veo API</td><td><span class="badge badge-warn">⚠️</span></td><td>Kling 3.0</td></tr>
         <tr><td>VID-G1</td><td>Lottie JSON 生成</td><td><span class="badge badge-poc">PoC</span></td><td>OmniLottie（前沿）</td><td><span class="badge badge-no">❌</span></td><td>OmniLottie</td></tr>
       </tbody>
@@ -1232,6 +1462,82 @@ footer {
         <tr><td>DOC-K4</td><td>满意度调研分析报告</td><td>输入 NPS/CSAT/满意度问卷原始数据 → 含核心指标/趋势对比/用户分群洞察的报告</td><td>数据分析 + LLM 洞察</td></tr>
       </tbody></table></div>
       <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — 搜索 + LLM 分析链路成熟，SVG 可视化已验证</span></div>
+    </div>
+  </div>
+
+  <!-- DOC-K3 -->
+  <div class="skill-card" style="border-top:3px solid var(--doc-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">DOC-K3</span>
+      <span class="card-title">品牌 MR 报告生成（月报/季报）</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ Phase 1 可交付</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--doc-color)">输入品牌监测数据（舆情/媒体投放/用户反馈），自动生成结构化的品牌 Monthly Report，适用于品牌部门定期汇报。</div>
+      <div class="card-section-title">分阶段实现路径</div>
+      <div class="inout-box" style="font-family:monospace;font-size:12px;margin-bottom:16px">
+        Phase 1（2天 PoC）: 支持手动输入结构化数据 → 生成文字报告<br>
+        Phase 2: 对接内部数据平台 API 自动拉取数据<br>
+        Phase 3: 全自动定期生成 + 推送
+      </div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>品牌数据（JSON/表格：媒体曝光/舆情情感/用户反馈）</li>
+          <li>报告周期（月报 / 季报）</li>
+          <li>品牌简介（用于生成上下文解读）</li>
+          <li>输出格式（PPT / PDF / Word）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>完整品牌报告（执行摘要 + 数据图表 + 趋势分析 + 建议）</li>
+          <li>自动生成配图（InfoVis 数据图）</li>
+          <li>15-25 页 PPT 或等量 PDF</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">质量标准</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>维度</th><th>标准</th></tr></thead><tbody>
+        <tr><td>数据准确性</td><td>所有图表数据与输入原始数据完全一致</td></tr>
+        <tr><td>分析深度</td><td>不只呈现数据，有趋势解读和洞察</td></tr>
+        <tr><td>可操作性</td><td>每部分末尾有 1-3 条具体行动建议</td></tr>
+      </tbody></table></div>
+      <div class="feasibility"><span class="stars">★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：中等 — 数据接入是瓶颈，LLM 报告生成本身可行，竞品对标：品牌咨询公司报告水平</span></div>
+    </div>
+  </div>
+
+  <!-- DOC-L1 -->
+  <div class="skill-card" style="border-top:3px solid var(--doc-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">DOC-L1</span>
+      <span class="card-title">设计规范文档生成</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ 需评审</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--doc-color)">输入 Design Token 文件或 Figma 链接，自动生成结构化的设计规范文档（Design System Documentation），适用于团队内部沉淀和设计-研发交接。</div>
+      <div class="card-section-title">输入方式（三选一）</div>
+      <div class="table-wrap" style="margin-bottom:16px"><table class="data-table"><thead><tr><th>输入方式</th><th>说明</th><th>精准度</th></tr></thead><tbody>
+        <tr><td><strong>Design Token JSON</strong></td><td>直接解析颜色/字体/间距变量</td><td>✅ 最精准</td></tr>
+        <tr><td><strong>Figma 链接</strong></td><td>通过 Figma API 提取 Token 和组件</td><td>✅ 精准</td></tr>
+        <tr><td>截图 + 标注描述</td><td>最灵活，但需人工辅助确认值</td><td>⚠️ 需校验</td></tr>
+      </tbody></table></div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>Design Token JSON / Figma 链接 / 截图</li>
+          <li>规范范围（可选：色彩 / 字体 / 间距 / 全量）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>设计规范文档（Markdown / HTML 可发布版）</li>
+          <li>包含：色彩系统 / 字体规范 / 间距系统 / 组件使用说明</li>
+          <li>每条规范附：用途说明 + 正确/错误用法示例</li>
+        </ul></div></div>
+      </div>
+      <div class="card-section-title">质量标准（竞品对标：Zeroheight / Supernova）</div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>维度</th><th>标准</th></tr></thead><tbody>
+        <tr><td>覆盖完整性</td><td>色彩/字体/间距三大体系 100% 覆盖</td></tr>
+        <tr><td>可读性</td><td>非设计背景的研发可以直接理解并按规范实现</td></tr>
+        <tr><td>可维护性</td><td>规范更新后可增量更新，不用全量重写</td></tr>
+      </tbody></table></div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — Design Token 解析技术成熟，LLM 生成说明质量好</span></div>
     </div>
   </div>
 
@@ -1442,6 +1748,94 @@ footer {
     </div>
   </div>
 
+  <!-- EVAL-P2 -->
+  <div class="skill-card" style="border-top:3px solid var(--eval-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">EVAL-P2</span>
+      <span class="card-title">人工辅助走查（People-in-Loop）</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-warn">⚠️ 需评审</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--eval-color)">作为 EVAL-P1 自动走查的补充，对 AI 置信度不足的模糊评测项引入认证设计师人工判断，形成「AI 走查 + 人工兜底」的闭环机制。</div>
+      <div class="card-section-title">触发条件</div>
+      <div class="inout-box" style="font-family:monospace;font-size:12.5px;margin-bottom:16px">
+        EVAL-P1 走查结束后，满足以下任一条件触发 P2：<br>
+        ├── AI 置信度 &lt; 70% 的评测项<br>
+        ├── 涉及「品牌感知/审美主观性」的评测项<br>
+        └── P0 级别问题（必须人工二次确认）
+      </div>
+      <div class="card-section-title">People-in-Loop 角色定义</div>
+      <div class="table-wrap" style="margin-bottom:16px"><table class="data-table"><thead><tr><th>角色</th><th>资质要求</th><th>职责</th></tr></thead><tbody>
+        <tr><td><strong>认证走查员</strong></td><td>内部晋级标准达到 P5+ 的设计师</td><td>复核模糊项，给出最终判断</td></tr>
+        <tr><td><strong>AI 协助员</strong></td><td>无门槛</td><td>使用 EVAL-P1 跑初步走查，标记需人工复核的项</td></tr>
+      </tbody></table></div>
+      <div class="card-section-title">工作流（4步）</div>
+      <div class="inout-box" style="font-family:monospace;font-size:12px;margin-bottom:16px">
+        Step 1: AI 走查（EVAL-P1）→ 初步报告 + 待复核清单<br>
+        Step 2: 认证走查员 复核待复核清单（预计 15-30 min）<br>
+        Step 3: 认证走查员 更新最终结论<br>
+        Step 4: 生成附人工确认印章的最终报告
+      </div>
+      <div class="card-grid">
+        <div><div class="card-section-title">输入</div><div class="inout-box"><ul>
+          <li>EVAL-P1 走查结果（含「待复核清单」）</li>
+          <li>认证走查员账号（用于签署确认）</li>
+        </ul></div></div>
+        <div><div class="card-section-title">输出</div><div class="inout-box"><ul>
+          <li>附认证签署的最终走查报告</li>
+          <li>区分「AI 判断」和「人工判断」两类结论</li>
+          <li>问题严重性最终裁定</li>
+        </ul></div></div>
+      </div>
+      <div class="feasibility"><span class="stars">★★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：较高 — 流程机制清晰，需结合内部工具实现分发和签署</span></div>
+    </div>
+  </div>
+
+  <!-- EVAL-Q1 -->
+  <div class="skill-card" style="border-top:3px solid var(--eval-color)">
+    <div class="card-header" onclick="toggleCard(this)">
+      <span class="card-id">EVAL-Q1</span>
+      <span class="card-title">生成-评测自进化流水线</span>
+      <div class="card-badges"><span class="badge badge-p2">P2</span><span class="badge badge-no">❌ 需拆解</span></div>
+      <span style="color:var(--text-dim);font-size:18px;margin-left:12px">▾</span>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <div class="card-one-line" style="border-color:var(--eval-color)">将「生成 Skill」和「评测 Skill」串联成自进化闭环：生成 → 评测打分 → 差距分析 → 变异重试 → 再评测，循环直到达标，实现 Skill 自动优化。</div>
+      <div class="card-section-title">核心理念</div>
+      <div style="background:rgba(148,96,248,.08);border:1px solid rgba(148,96,248,.2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--text-muted);margin-bottom:16px">
+        评测不只是终态质量检查，更是生成过程的反馈信号。当评分不达标时，自动分析原因并变异生成策略，驱动 Skill 持续进化。（来自 InfoVis-AutoEvo 框架）
+      </div>
+      <div class="card-section-title">流程架构</div>
+      <div class="inout-box" style="font-family:monospace;font-size:12px;margin-bottom:16px">
+        生成 Skill（任意方向）<br>
+            ↓ 输出结果<br>
+        评测 Skill（对应方向）<br>
+            ↓ 评分 + 差距报告<br>
+        差异计算层<br>
+            ├── 达标（≥ 阈值）→ 输出 ✅<br>
+            └── 未达标 → 变异策略生成（调整 Prompt/参数/路由）<br>
+                    ↓<br>
+                再次生成（最多 N 轮）<br>
+                    ↓<br>
+                最终输出（最高分版本）
+      </div>
+      <div class="card-section-title">联动 Skill 对（示例）</div>
+      <div class="table-wrap" style="margin-bottom:16px"><table class="data-table"><thead><tr><th>生成 Skill</th><th>评测 Skill</th><th>阈值</th></tr></thead><tbody>
+        <tr><td>IMG-C1 SVG插画</td><td>EVAL-N1 AQE</td><td>AQE ≥ 7.0</td></tr>
+        <tr><td>IV-A5 信息图海报</td><td>EVAL-N1 + EVAL-M1</td><td>AQE ≥ 7.0 + 可用性 ≥ 80</td></tr>
+        <tr><td>DOC-J1 PPT美化</td><td>EVAL-O1 内容结构</td><td>结构评分 ≥ 75</td></tr>
+        <tr><td>UI-B1 控制台</td><td>EVAL-M1 可用性</td><td>可用性 ≥ 85</td></tr>
+      </tbody></table></div>
+      <ul class="boundary-list" style="margin-bottom:16px">
+        <li>不是无限循环（最多 N 轮，防止资源消耗失控）</li>
+        <li>评测 Skill 本身的误差会传导（Garbage In Garbage Out）</li>
+        <li>初期需要人工设定合理阈值</li>
+      </ul>
+      <div class="feasibility"><span class="stars">★★★</span><span style="font-size:12px;color:var(--text-muted)">可行性：中等 — 单步流水线可 2 天 PoC，全量覆盖需逐步扩展，竞品对标：infovis-autoevo 框架</span></div>
+    </div>
+  </div>
+
   <!-- 全景表 -->
   <div class="overview-section">
     <div class="overview-title">评测 Skill 全景图</div>
@@ -1455,6 +1849,7 @@ footer {
         <tr><td>EVAL-O1</td><td>PPT 内容结构评测</td><td><span class="badge badge-p1">P1</span></td><td>PPT 文件</td><td><span class="badge badge-yes">✅</span></td><td>DOC-J2, DOC-J3</td></tr>
         <tr><td>EVAL-P1</td><td>自动化设计走查</td><td><span class="badge badge-p1">P1</span></td><td>设计稿</td><td><span class="badge badge-warn">⚠️</span></td><td>所有 UI Skill</td></tr>
         <tr><td>EVAL-N2</td><td>品牌合规评测</td><td><span class="badge badge-p1">P1</span></td><td>图片/UI</td><td><span class="badge badge-warn">⚠️</span></td><td>IMG-D1, UI-B3</td></tr>
+        <tr><td>EVAL-P2</td><td>人工辅助走查（PIL）</td><td><span class="badge badge-p2">P2</span></td><td>设计稿</td><td><span class="badge badge-warn">⚠️</span></td><td>EVAL-P1 配套</td></tr>
         <tr><td>EVAL-Q1</td><td>生成-评测自进化流水线</td><td><span class="badge badge-p2">P2</span></td><td>所有生成Skill</td><td><span class="badge badge-no">❌</span></td><td>全方向</td></tr>
       </tbody>
     </table></div>
