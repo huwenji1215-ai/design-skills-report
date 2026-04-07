@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计领域 Skill 全集图谱</title>
+<style>
+  /* ─── 设计令牌 ─── */
+  :root {
+    --bg:        #0d0f14;
+    --bg2:       #13161e;
+    --bg3:       #1a1e28;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.12);
+
+    /* 来源色 */
+    --c-team:    #34d399;   /* 团队自建 */
+    --c-team-bg: rgba(52,211,153,0.08);
+    --c-team-bd: rgba(52,211,153,0.25);
+    --c-personal:#60a5fa;   /* 个人已建 */
+    --c-personal-bg: rgba(96,165,250,0.08);
+    --c-personal-bd: rgba(96,165,250,0.25);
+    --c-pending: #f59e0b;   /* 待建 */
+    --c-pending-bg: rgba(245,158,11,0.08);
+    --c-pending-bd: rgba(245,158,11,0.25);
+
+    /* 域色 */
+    --d1: #a78bfa;
+    --d2: #38bdf8;
+    --d3: #f472b6;
+    --d4: #fb923c;
+    --d5: #4ade80;
+    --d6: #e879f9;
+
+    --text:      #e2e8f0;
+    --text2:     #94a3b8;
+    --text3:     #64748b;
+    --radius:    10px;
+    --radius-lg: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "PingFang SC", "SF Pro Text", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ─── 页头 ─── */
+  .page-header {
+    padding: 48px 40px 32px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(99,102,241,0.06) 0%, transparent 100%);
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .page-header .subtitle {
+    color: var(--text2);
+    font-size: 15px;
+  }
+  .page-header .meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .meta-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .meta-count {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  /* ─── 统计条 ─── */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    overflow-x: auto;
+  }
+  .stat-item {
+    padding: 18px 28px;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .stat-item:hover, .stat-item.active {
+    background: rgba(255,255,255,0.04);
+  }
+  .stat-item.active .stat-num { color: var(--text); }
+  .stat-num {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text2);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+  .stat-item.all .stat-num  { color: #e2e8f0; }
+  .stat-item.team .stat-num { color: var(--c-team); }
+  .stat-item.personal .stat-num { color: var(--c-personal); }
+  .stat-item.pending .stat-num  { color: var(--c-pending); }
+
+  /* ─── 图例 ─── */
+  .legend-bar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .legend-title { color: var(--text3); font-size: 12px; margin-right: 4px; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .legend-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .lb-team     { background: var(--c-team-bg);     color: var(--c-team);     border: 1px solid var(--c-team-bd); }
+  .lb-personal { background: var(--c-personal-bg); color: var(--c-personal); border: 1px solid var(--c-personal-bd); }
+  .lb-pending  { background: var(--c-pending-bg);  color: var(--c-pending);  border: 1px solid var(--c-pending-bd); }
+  .legend-sep { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
+  .legend-p {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .lp-p0 { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+  .lp-p1 { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+  .lp-p2 { background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.15); }
+
+  /* ─── 主内容 ─── */
+  .main { padding: 32px 40px 80px; }
+
+  /* ─── 域区块 ─── */
+  .domain-section {
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .domain-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .domain-header:hover { background: rgba(255,255,255,0.03); }
+  .domain-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .domain-info { flex: 1; }
+  .domain-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    margin-bottom: 2px;
+  }
+  .domain-desc { font-size: 12px; color: var(--text3); }
+  .domain-counts {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .dc-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 5px;
+  }
+  .domain-chevron {
+    color: var(--text3);
+    font-size: 12px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .domain-section.collapsed .domain-chevron { transform: rotate(-90deg); }
+  .domain-section.collapsed .domain-body { display: none; }
+
+  /* ─── 子域分组 ─── */
+  .domain-body { padding: 20px 24px; }
+  .subdomain {
+    margin-bottom: 24px;
+  }
+  .subdomain:last-child { margin-bottom: 0; }
+  .subdomain-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    padding-left: 2px;
+    border-left: 2px solid var(--border2);
+    padding-left: 8px;
+  }
+
+  /* ─── Skill 卡片网格 ─── */
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+  }
+
+  /* ─── Skill 卡片 ─── */
+  .skill-card {
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .skill-card:hover {
+    border-color: var(--border2);
+    background: var(--bg3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .skill-card.hidden { display: none; }
+
+  /* 来源色条 */
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .skill-card.src-team::before     { background: var(--c-team); }
+  .skill-card.src-personal::before { background: var(--c-personal); }
+  .skill-card.src-pending::before  { background: var(--c-pending); }
+
+  .skill-card.src-team     { border-color: var(--c-team-bd); }
+  .skill-card.src-personal { border-color: var(--c-personal-bd); }
+  .skill-card.src-pending  { border-color: rgba(245,158,11,0.15); background: rgba(245,158,11,0.03); }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card-name {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: "SF Mono", "Fira Code", monospace;
+    letter-spacing: -0.2px;
+    line-height: 1.3;
+    word-break: break-all;
+  }
+  .src-team .card-name     { color: var(--c-team); }
+  .src-personal .card-name { color: var(--c-personal); }
+  .src-pending .card-name  { color: var(--c-pending); opacity: 0.7; }
+
+  .card-badges {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+  .card-owner {
+    font-size: 11px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .card-owner::before {
+    content: '●';
+    font-size: 7px;
+    color: var(--text3);
+  }
+  .card-repo {
+    font-size: 10px;
+    color: var(--text3);
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    font-family: monospace;
+    text-decoration: none;
+  }
+  .card-repo:hover { border-color: var(--border2); color: var(--text2); }
+
+  /* ─── 关系连线图 ─── */
+  .flow-section {
+    margin: 40px 0;
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg2);
+  }
+  .flow-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .flow-title::before {
+    content: '';
+    width: 3px; height: 16px;
+    background: linear-gradient(180deg, #6366f1, #8b5cf6);
+    border-radius: 2px;
+  }
+
+  .flow-chain {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 16px;
+  }
+  .flow-node {
+    display: flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: monospace;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .fn-team     { background: var(--c-team-bg);     color: var(--c-team);     border-color: var(--c-team-bd); }
+  .fn-personal { background: var(--c-personal-bg); color: var(--c-personal); border-color: var(--c-personal-bd); }
+  .fn-pending  { background: var(--c-pending-bg);  color: var(--c-pending);  border-color: var(--c-pending-bd); }
+  .flow-arrow {
+    padding: 0 8px;
+    color: var(--text3);
+    font-size: 16px;
+  }
+  .flow-label {
+    font-size: 11px;
+    color: var(--text3);
+    padding: 2px 8px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .flow-label::before { content: '›'; color: var(--text3); }
+
+  /* ─── 空状态 ─── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+    font-size: 14px;
+  }
+
+  /* ─── 搜索框 ─── */
+  .search-wrap {
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 360px;
+    padding: 9px 14px 9px 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+  }
+  .search-input:focus { border-color: #6366f1; }
+  .search-input::placeholder { color: var(--text3); }
+
+  .filter-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .filter-label { font-size: 12px; color: var(--text3); }
+  .filter-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { background: rgba(255,255,255,0.04); border-color: var(--border2); }
+  .filter-btn.active-team     { background: var(--c-team-bg);     color: var(--c-team);     border-color: var(--c-team-bd); }
+  .filter-btn.active-personal { background: var(--c-personal-bg); color: var(--c-personal); border-color: var(--c-personal-bd); }
+  .filter-btn.active-pending  { background: var(--c-pending-bg);  color: var(--c-pending);  border-color: var(--c-pending-bd); }
+  .filter-btn.active-all { background: rgba(255,255,255,0.06); color: var(--text); border-color: var(--border2); }
+
+  /* ─── 滚动回顶 ─── */
+  .scroll-top {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+  }
+  .scroll-top.visible { opacity: 1; pointer-events: all; }
+  .scroll-top:hover { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.4); }
+
+  /* 响应式 */
+  @media(max-width: 768px) {
+    .page-header, .main, .search-wrap, .legend-bar, .stats-bar { padding-left: 20px; padding-right: 20px; }
+    .domain-body { padding: 16px; }
+    .skill-grid { grid-template-columns: 1fr; }
+    .flow-chain { flex-direction: column; align-items: flex-start; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ 页头 ═══ -->
+<header class="page-header">
+  <h1>设计领域 Skill 全集图谱</h1>
+  <p class="subtitle">设计职能工作场景下可 Skill 化的能力全集 · 按域分类 · 三来源标注</p>
+  <div class="meta">
+    <div class="meta-item">
+      <span class="meta-dot" style="background:var(--c-team)"></span>
+      <span class="meta-count" style="color:var(--c-team)">5</span>
+      <span style="color:var(--text2)">团队自建</span>
+      <span style="color:var(--text3);font-size:11px">designskill 仓库</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-dot" style="background:var(--c-personal)"></span>
+      <span class="meta-count" style="color:var(--c-personal)">21</span>
+      <span style="color:var(--text2)">个人已建</span>
+      <span style="color:var(--text3);font-size:11px">huwenji 本地</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-dot" style="background:var(--c-pending)"></span>
+      <span class="meta-count" style="color:var(--c-pending)">16</span>
+      <span style="color:var(--text2)">待建</span>
+      <span style="color:var(--text3);font-size:11px">P1×8 + P2×8</span>
+    </div>
+    <div class="meta-item" style="margin-left:8px;padding-left:16px;border-left:1px solid var(--border)">
+      <span class="meta-count" style="color:var(--text)">42</span>
+      <span style="color:var(--text2)">能力单元合计</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ 统计筛选条 ═══ -->
+<div class="stats-bar">
+  <div class="stat-item all active" onclick="filterBySource('all',this)">
+    <div class="stat-num">42</div>
+    <div class="stat-label">全部</div>
+  </div>
+  <div class="stat-item team" onclick="filterBySource('team',this)">
+    <div class="stat-num">5</div>
+    <div class="stat-label">✅ 团队自建</div>
+  </div>
+  <div class="stat-item personal" onclick="filterBySource('personal',this)">
+    <div class="stat-num">21</div>
+    <div class="stat-label">🔵 个人已建</div>
+  </div>
+  <div class="stat-item pending" onclick="filterBySource('pending',this)">
+    <div class="stat-num">16</div>
+    <div class="stat-label">⬜ 待建</div>
+  </div>
+</div>
+
+<!-- ═══ 搜索 & 筛选 ═══ -->
+<div class="search-wrap">
+  <input class="search-input" type="text" placeholder="搜索 skill 名称或描述…" oninput="handleSearch(this.value)" id="searchInput">
+  <div class="filter-group">
+    <span class="filter-label">优先级：</span>
+    <button class="filter-btn active-all" onclick="filterByPriority('all',this)">全部</button>
+    <button class="filter-btn" onclick="filterByPriority('p0',this)">P0 已建</button>
+    <button class="filter-btn" onclick="filterByPriority('p1',this)">P1 待建</button>
+    <button class="filter-btn" onclick="filterByPriority('p2',this)">P2 待建</button>
+  </div>
+</div>
+
+<!-- ═══ 图例 ═══ -->
+<div class="legend-bar">
+  <span class="legend-title">来源：</span>
+  <div class="legend-item"><span class="legend-badge lb-team">✅ 团队自建</span>designskill 仓库已发布或提案已批准</div>
+  <div class="legend-item"><span class="legend-badge lb-personal">🔵 个人已建</span>huwenji 本地安装，未进团队仓库</div>
+  <div class="legend-item"><span class="legend-badge lb-pending">⬜ 待建</span>有明确场景需求，尚无 skill</div>
+  <div class="legend-sep"></div>
+  <span class="legend-title">待建优先级：</span>
+  <div class="legend-item"><span class="legend-p lp-p1">P1</span>立即建设</div>
+  <div class="legend-item"><span class="legend-p lp-p2">P2</span>计划建设</div>
+</div>
+
+<!-- ═══ 主内容（Skill 卡片域） ═══ -->
+<main class="main" id="mainContent">
+  <!-- 内容由 JS 动态渲染 -->
+</main>
+
+<!-- ═══ 滚动回顶 ═══ -->
+<div class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  数据层：42 个 Skill 全集
+//  source: 'team' | 'personal' | 'pending'
+//  priority: 'p0'(已建) | 'p1'(待建高) | 'p2'(待建中)
+// ══════════════════════════════════════════════════
+const SKILLS = [
+
+  // ─── D1 设计生产域 ───────────────────────────────
+
+  // D1.1 视觉图形生成
+  { id:'infographic-generator', domain:'d1', subdomain:'D1.1 视觉图形生成',
+    source:'team', priority:'p0',
+    name:'infographic-generator',
+    desc:'任意内容（文本/URL/图片/数据表）→ 精美信息图，17种视觉风格，双路线并行出图',
+    owner:'luzifeng', repo:'designskill', version:'v3.2.0',
+    deps:[], tags:['生成','信息图','图片'] },
+
+  { id:'visual-creator', domain:'d1', subdomain:'D1.1 视觉图形生成',
+    source:'personal', priority:'p0',
+    name:'visual-creator',
+    desc:'数据图表/流程图/概念图/时间轴 智能生成，自动路由到最佳可视化方案',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['生成','图表','可视化'] },
+
+  { id:'canvas-design', domain:'d1', subdomain:'D1.1 视觉图形生成',
+    source:'personal', priority:'p0',
+    name:'canvas-design',
+    desc:'海报/视觉艺术/静态设计，先生成设计哲学宣言，再视觉表达。输出 PNG/PDF',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['生成','海报','艺术'] },
+
+  { id:'ai-image-generator', domain:'d1', subdomain:'D1.1 视觉图形生成',
+    source:'personal', priority:'p0',
+    name:'ai-image-generator',
+    desc:'以文生图/以图生图，调用 Siliconflow/OpenAI API，支持图生图变体',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['生成','AI生图','图片'] },
+
+  { id:'chart-beautifier', domain:'d1', subdomain:'D1.1 视觉图形生成',
+    source:'pending', priority:'p1',
+    name:'chart-beautifier',
+    desc:'业务数据图表美观度提升，注入品牌规范 Token，输出符合设计系统的图表代码',
+    deps:['color-system-designer','infovis-evaluator'], tags:['美化','图表','品牌'] },
+
+  // D1.2 界面设计生成
+  { id:'frontend-design', domain:'d1', subdomain:'D1.2 界面设计生成',
+    source:'personal', priority:'p0',
+    name:'frontend-design',
+    desc:'生产级前端界面/组件，主动选择大胆设计方向，避免"AI 审美"通病',
+    owner:'huwenji', repo:'local',
+    deps:['ui-ux-pro-max'], tags:['生成','UI','前端'] },
+
+  { id:'ui-ux-pro-max', domain:'d1', subdomain:'D1.2 界面设计生成',
+    source:'personal', priority:'p0',
+    name:'ui-ux-pro-max',
+    desc:'UI/UX 设计规范库：50种风格、21调色板、57字体配对、9技术栈，规范即武器',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['规范','UI/UX','设计系统'] },
+
+  { id:'zelda-style', domain:'d1', subdomain:'D1.2 界面设计生成',
+    source:'personal', priority:'p0',
+    name:'zelda-style',
+    desc:'塞尔达旷野之息风格网页主题规范，毛玻璃+希卡科技配色+水彩背景，v4.0 Glassmorphism',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['风格','主题','游戏'] },
+
+  { id:'pixel-action-game', domain:'d1', subdomain:'D1.2 界面设计生成',
+    source:'personal', priority:'p0',
+    name:'pixel-action-game',
+    desc:'像素风游戏 UI + 完整动作游戏框架，8-bit 音效合成，CRT 滤镜，纯 HTML/JS',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['游戏','像素','UI'] },
+
+  { id:'personal-homepage-template', domain:'d1', subdomain:'D1.2 界面设计生成',
+    source:'personal', priority:'p0',
+    name:'personal-homepage-template',
+    desc:'个人 AI 助手首页模板，自动扫描 skill/记忆/知识生成角色面板，一键部署',
+    owner:'huwenji', repo:'local',
+    deps:['zelda-style'], tags:['模板','主页','个人'] },
+
+  { id:'mobile-ui-generator', domain:'d1', subdomain:'D1.2 界面设计生成',
+    source:'pending', priority:'p2',
+    name:'mobile-ui-generator',
+    desc:'Mobile 端 UI 设计生成，内置 iOS HIG / Material Design 3 规范检查',
+    deps:['ui-ux-pro-max'], tags:['移动端','UI','生成'] },
+
+  // D1.3 演示文稿生成
+  { id:'ppt-from-vision', domain:'d1', subdomain:'D1.3 演示文稿生成',
+    source:'team', priority:'p0',
+    name:'ppt-from-vision',
+    desc:'文档/URL/话题 → 高设计感演示文稿，三阶段工作流，15套配色，批量并行生图',
+    owner:'luzifeng', repo:'designskill', version:'v2.0.0',
+    deps:['ai-image-generator'], tags:['PPT','生成','演示'] },
+
+  { id:'work-report-ppt', domain:'d1', subdomain:'D1.3 演示文稿生成',
+    source:'personal', priority:'p0',
+    name:'work-report-ppt',
+    desc:'企业汇报/研发分享 PPT 风格规范，温暖渐变+深色标题页+数据可视化强调',
+    owner:'huwenji', repo:'local',
+    deps:['theme-factory'], tags:['PPT','企业','风格'] },
+
+  { id:'artistic-ppt', domain:'d1', subdomain:'D1.3 演示文稿生成',
+    source:'personal', priority:'p0',
+    name:'artistic-ppt',
+    desc:'艺术/创意/纪念册 PPT，AI 生成精美背景 + 宝丽来照片排版 + 手写体文字',
+    owner:'huwenji', repo:'local',
+    deps:['ai-image-generator','theme-factory'], tags:['PPT','艺术','创意'] },
+
+  { id:'deck-creator', domain:'d1', subdomain:'D1.3 演示文稿生成',
+    source:'pending', priority:'p1',
+    name:'deck-creator',
+    desc:'产品提案/设计提案 Deck 专用，强叙事结构：问题→洞察→方案→验证→价值',
+    deps:['work-report-ppt'], tags:['提案','PPT','叙事'] },
+
+  // D1.4 文档排版
+  { id:'docx', domain:'d1', subdomain:'D1.4 文档排版',
+    source:'personal', priority:'p0',
+    name:'docx',
+    desc:'Word 文档创建/读取/编辑，支持目录/页眉/表格/图片/样式全套操作',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['Word','文档','排版'] },
+
+  { id:'pdf', domain:'d1', subdomain:'D1.4 文档排版',
+    source:'personal', priority:'p0',
+    name:'pdf',
+    desc:'PDF 全套操作：合并/拆分/旋转/水印/填表/加密/图片提取/OCR 扫描件',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['PDF','文档','操作'] },
+
+  { id:'design-spec-doc-gen', domain:'d1', subdomain:'D1.4 文档排版',
+    source:'pending', priority:'p1',
+    name:'design-spec-doc-gen',
+    desc:'设计规范文档生成：交互说明/标注说明/组件规范文档，输出结构化 Markdown/Word',
+    deps:['docx'], tags:['规范','文档','交付'] },
+
+  // ─── D2 设计研究域 ───────────────────────────────
+
+  { id:'industry-research', domain:'d2', subdomain:'D2.1 行业 & 竞品研究',
+    source:'personal', priority:'p0',
+    name:'industry-research',
+    desc:'行业调研/市场分析/竞品对比通用方法论，多维度比较+基准分析+洞察提炼',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['调研','竞品','市场'] },
+
+  { id:'wechat-research', domain:'d2', subdomain:'D2.1 行业 & 竞品研究',
+    source:'personal', priority:'p0',
+    name:'wechat-research',
+    desc:'微信公众号内容调研/批量抓取/关键词搜索，支持设计趋势内容追踪',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['调研','公众号','内容'] },
+
+  { id:'apify-trend-analysis', domain:'d2', subdomain:'D2.1 行业 & 竞品研究',
+    source:'personal', priority:'p0',
+    name:'apify-trend-analysis',
+    desc:'Google Trends/Instagram/YouTube/TikTok 设计趋势多平台交叉追踪',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['趋势','调研','社交媒体'] },
+
+  { id:'competitor-design-analyzer', domain:'d2', subdomain:'D2.1 行业 & 竞品研究',
+    source:'pending', priority:'p1',
+    name:'competitor-design-analyzer',
+    desc:'竞品设计风格拆解：截图/URL → 色彩系统/字体/布局/视觉调性 结构化报告',
+    deps:['industry-research'], tags:['竞品','设计分析','调研'] },
+
+  { id:'ia-mapper', domain:'d2', subdomain:'D2.2 信息架构 & 用户研究',
+    source:'pending', priority:'p1',
+    name:'ia-mapper',
+    desc:'信息架构梳理：功能列表 → IA 树状图/卡片分类/导航结构建议，可视化输出',
+    deps:['visual-creator'], tags:['IA','信息架构','结构'] },
+
+  { id:'journey-map-gen', domain:'d2', subdomain:'D2.2 信息架构 & 用户研究',
+    source:'pending', priority:'p1',
+    name:'journey-map-gen',
+    desc:'用户旅程地图生成：用户目标+场景 → Journey Map 可视化（含情绪曲线/痛点/机会点）',
+    deps:['visual-creator'], tags:['用研','旅程地图','可视化'] },
+
+  { id:'user-persona-gen', domain:'d2', subdomain:'D2.2 信息架构 & 用户研究',
+    source:'pending', priority:'p2',
+    name:'user-persona-gen',
+    desc:'用研数据/访谈记录 → 用户画像 Persona 卡片，含典型场景/行为/诉求/痛点',
+    deps:[], tags:['用研','Persona','用户画像'] },
+
+  // ─── D3 设计评审域 ───────────────────────────────
+
+  { id:'design-evaluator', domain:'d3', subdomain:'D3.1 通用质量评测',
+    source:'team', priority:'p0',
+    name:'design-evaluator',
+    desc:'通用设计评测总调度：Layer 0-4 分层架构，识别类型(PPT/InfoVis/报告/海报)并分发，支持自进化迭代',
+    owner:'huwenji', repo:'designskill', version:'v2.0.0',
+    deps:['infovis-evaluator'], tags:['评测','质量','设计'] },
+
+  { id:'infovis-evaluator', domain:'d3', subdomain:'D3.1 通用质量评测',
+    source:'team', priority:'p0',
+    name:'infovis-evaluator',
+    desc:'信息可视化专项评测：信息路由×盲测解码×认知摩擦力 三维矩阵，输出拓扑差异分析',
+    owner:'huwenji', repo:'designskill', version:'v1.1.0',
+    deps:[], tags:['评测','图表','可视化'] },
+
+  { id:'web-design-guidelines', domain:'d3', subdomain:'D3.1 通用质量评测',
+    source:'personal', priority:'p0',
+    name:'web-design-guidelines',
+    desc:'网页设计规范合规检查，实时拉取 Vercel Web Interface Guidelines 最新规则',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['评测','规范','Web'] },
+
+  { id:'ux-heuristic-evaluator', domain:'d3', subdomain:'D3.2 专项评审',
+    source:'pending', priority:'p1',
+    name:'ux-heuristic-evaluator',
+    desc:'基于 Nielsen 10条启发式原则的 UI 可用性评审，截图 → 结构化问题清单 + 优先级',
+    deps:['design-evaluator'], tags:['可用性','启发式','UI评审'] },
+
+  { id:'accessibility-checker', domain:'d3', subdomain:'D3.2 专项评审',
+    source:'pending', priority:'p1',
+    name:'accessibility-checker',
+    desc:'无障碍可访问性专项检查（WCAG 2.1 AA），色彩对比/键盘导航/屏幕阅读器 全项扫描',
+    deps:['web-design-guidelines'], tags:['无障碍','Accessibility','规范'] },
+
+  { id:'brand-compliance-checker', domain:'d3', subdomain:'D3.2 专项评审',
+    source:'pending', priority:'p2',
+    name:'brand-compliance-checker',
+    desc:'品牌规范合规性检查：色彩/字体/Logo使用 对照品牌规范文档自动核验',
+    deps:['brand-kit-builder'], tags:['品牌','合规','检查'] },
+
+  // ─── D4 设计系统域 ───────────────────────────────
+
+  { id:'theme-factory', domain:'d4', subdomain:'D4.1 主题 & 风格原子',
+    source:'personal', priority:'p0',
+    name:'theme-factory',
+    desc:'主题/配色/字体原子能力，10套预设专业主题，可应用于 Slides/文档/网页等任意产物',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['主题','配色','字体'] },
+
+  { id:'color-system-designer', domain:'d4', subdomain:'D4.1 主题 & 风格原子',
+    source:'pending', priority:'p1',
+    name:'color-system-designer',
+    desc:'输入品牌色 → 输出完整色彩 Token 体系（主色/中性色/语义色/渐变/深浅模式）',
+    deps:[], tags:['色彩系统','Token','设计系统'] },
+
+  { id:'component-doc-gen', domain:'d4', subdomain:'D4.2 组件库管理',
+    source:'pending', priority:'p1',
+    name:'component-doc-gen',
+    desc:'组件代码/截图 → 标准组件使用文档（Props API/状态矩阵/使用示例/Dos & Don\'ts）',
+    deps:[], tags:['组件','文档','设计系统'] },
+
+  { id:'token-manager', domain:'d4', subdomain:'D4.2 组件库管理',
+    source:'pending', priority:'p2',
+    name:'token-manager',
+    desc:'跨平台 Design Token 映射与管理（Web/iOS/Android），JSON/Style Dictionary 输出',
+    deps:['color-system-designer'], tags:['Token','设计系统','多平台'] },
+
+  { id:'brand-kit-builder', domain:'d4', subdomain:'D4.3 品牌管理',
+    source:'pending', priority:'p2',
+    name:'brand-kit-builder',
+    desc:'品牌调性定义 + 视觉规范文档生成，输入公司背景 → 品牌关键词/规范手册/示例',
+    deps:['color-system-designer'], tags:['品牌','规范','手册'] },
+
+  // ─── D5 设计协同域 ───────────────────────────────
+
+  { id:'promotion-coaching', domain:'d5', subdomain:'D5.1 汇报 & 提案',
+    source:'personal', priority:'p0',
+    name:'promotion-coaching',
+    desc:'晋升材料/PPT/答辩策略全流程辅导（含设计师晋升叙事结构）',
+    owner:'huwenji', repo:'local',
+    deps:['work-report-ppt'], tags:['晋升','汇报','材料'] },
+
+  { id:'yuque-publisher', domain:'d5', subdomain:'D5.1 汇报 & 提案',
+    source:'personal', priority:'p0',
+    name:'yuque-publisher',
+    desc:'语雀知识库双向同步：发布/读取/删除文档，设计说明/规范文档协作利器',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['语雀','协同','文档'] },
+
+  { id:'handoff-doc-gen', domain:'d5', subdomain:'D5.2 交付 & 协同',
+    source:'pending', priority:'p1',
+    name:'handoff-doc-gen',
+    desc:'设计→研发 交付说明文档生成：标注规范/切图说明/状态矩阵/动效参数 标准化输出',
+    deps:['design-spec-doc-gen'], tags:['交付','标注','研发协同'] },
+
+  { id:'design-proposal-writer', domain:'d5', subdomain:'D5.2 交付 & 协同',
+    source:'pending', priority:'p1',
+    name:'design-proposal-writer',
+    desc:'设计方案说明文档生成：背景/竞品参考/方案对比/决策依据/风险说明 结构化撰写',
+    deps:[], tags:['提案','方案','文档'] },
+
+  { id:'design-weekly-report', domain:'d5', subdomain:'D5.2 交付 & 协同',
+    source:'pending', priority:'p2',
+    name:'design-weekly-report',
+    desc:'设计周报/月报自动生成，整合项目进度/产出统计/下周计划，输出结构化报告',
+    deps:['yuque-publisher'], tags:['周报','报告','协同'] },
+
+  // ─── D6 设计进化域 ───────────────────────────────
+
+  { id:'infovis-autoevo', domain:'d6', subdomain:'D6.1 自进化引擎',
+    source:'team', priority:'p0',
+    name:'infovis-autoevo',
+    desc:'可视化生成-评测 自进化闭环引擎，生成→评测→差异→变异→再生成，迭代至 ≥9.6分',
+    owner:'huwenji', repo:'designskill', version:'v1.1.0',
+    deps:['visual-creator','infovis-evaluator'], tags:['自进化','闭环','可视化'] },
+
+  { id:'learn-from-mistakes', domain:'d6', subdomain:'D6.2 能力沉淀',
+    source:'personal', priority:'p0',
+    name:'learn-from-mistakes',
+    desc:'复盘与举一反三：四层递进框架（项目复盘→即时修复→防止复发→泛化进化）',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['复盘','学习','进化'] },
+
+  { id:'skill-creator', domain:'d6', subdomain:'D6.2 能力沉淀',
+    source:'personal', priority:'p0',
+    name:'skill-creator',
+    desc:'创建/优化 Skill 本身，运行 Eval 测试 Skill 质量，Benchmark 性能分析',
+    owner:'huwenji', repo:'local',
+    deps:[], tags:['元能力','Skill管理','评测'] },
+
+  { id:'ab-test-designer', domain:'d6', subdomain:'D6.3 数据驱动',
+    source:'pending', priority:'p1',
+    name:'ab-test-designer',
+    desc:'A/B 测试方案设计：设计假设→测试指标→分组方案→样本量计算→结果解读',
+    deps:[], tags:['A/B测试','数据','迭代'] },
+
+  { id:'design-autoevo', domain:'d6', subdomain:'D6.1 自进化引擎',
+    source:'pending', priority:'p2',
+    name:'design-autoevo',
+    desc:'通用设计自进化引擎（PPT/UI/海报）：仿 infovis-autoevo 架构，多产物类型通用',
+    deps:['design-evaluator','infovis-autoevo'], tags:['自进化','闭环','通用'] },
+
+];
+
+// ══════════════════════════════════════════════════
+//  域配置
+// ══════════════════════════════════════════════════
+const DOMAINS = {
+  d1: { name:'D1 · 设计生产', desc:'做出来 — 图形/界面/演示/文档', icon:'🎨', color:'#a78bfa', colorVar:'--d1' },
+  d2: { name:'D2 · 设计研究', desc:'搞清楚 — 竞品/趋势/用研/信息架构', icon:'🔍', color:'#38bdf8', colorVar:'--d2' },
+  d3: { name:'D3 · 设计评审', desc:'好不好 — 质量评测/规范检查/专项评审', icon:'✅', color:'#f472b6', colorVar:'--d3' },
+  d4: { name:'D4 · 设计系统', desc:'统一规范 — 主题/组件/Token/品牌', icon:'🔧', color:'#fb923c', colorVar:'--d4' },
+  d5: { name:'D5 · 设计协同', desc:'说清楚 — 汇报/交付/提案/协同', icon:'🤝', color:'#4ade80', colorVar:'--d5' },
+  d6: { name:'D6 · 设计进化', desc:'越来越好 — 复盘/自进化/数据驱动', icon:'🚀', color:'#e879f9', colorVar:'--d6' },
+};
+
+// ══════════════════════════════════════════════════
+//  关键流图配置
+// ══════════════════════════════════════════════════
+const FLOWS = [
+  {
+    title: '🔁 核心链路 1 · 生成主链（最高频）',
+    desc: '用户提需求 → 选合适生成 skill → 产出设计物 → 评测质量 → 改进反哺',
+    chain: [
+      { name:'用户需求', type:'node', style:'' },
+      { type:'arrow' },
+      { name:'生成层 skill\n(infographic / ppt-from-vision / frontend-design…)', type:'node', style:'fn-personal' },
+      { type:'arrow' },
+      { name:'设计产物', type:'node', style:'' },
+      { type:'arrow' },
+      { name:'design-evaluator', type:'node', style:'fn-team' },
+      { type:'arrow' },
+      { name:'评分报告 + 改进建议', type:'node', style:'fn-team' },
+    ]
+  },
+  {
+    title: '♻️ 核心链路 2 · InfoVis 自进化闭环（最高价值）',
+    desc: '生成 → 评测 → 差异计算 → 变异反哺 → 再生成，直到评分 ≥ 9.6',
+    chain: [
+      { name:'visual-creator', type:'node', style:'fn-personal' },
+      { type:'arrow' },
+      { name:'infovis-evaluator', type:'node', style:'fn-team' },
+      { type:'arrow' },
+      { name:'拓扑差异计算', type:'node', style:'' },
+      { type:'arrow' },
+      { name:'infovis-autoevo\n(变异引擎)', type:'node', style:'fn-team' },
+      { type:'arrow' },
+      { name:'迭代反哺 → 分数 ≥ 9.6 ✓', type:'node', style:'fn-team' },
+    ]
+  },
+  {
+    title: '⚛️ 核心链路 3 · 原子工具横切注入',
+    desc: 'theme-factory / color-system-designer 为所有生成 skill 提供风格一致性保障',
+    chain: [
+      { name:'theme-factory', type:'node', style:'fn-personal' },
+      { type:'arrow' },
+      { name:'work-report-ppt\nartistic-ppt\ndeck-creator', type:'node', style:'fn-personal' },
+      { type:'pipe' },
+      { name:'color-system-designer\n(待建 P1)', type:'node', style:'fn-pending' },
+      { type:'arrow' },
+      { name:'frontend-design\nui-ux-pro-max\nchart-beautifier', type:'node', style:'fn-personal' },
+    ]
+  },
+];
+
+// ══════════════════════════════════════════════════
+//  状态
+// ══════════════════════════════════════════════════
+let activeSource = 'all';
+let activePriority = 'all';
+let searchQuery = '';
+
+// ══════════════════════════════════════════════════
+//  渲染函数
+// ══════════════════════════════════════════════════
+function renderAll() {
+  const container = document.getElementById('mainContent');
+  let html = '';
+
+  // 流图区
+  html += renderFlows();
+
+  // 按域渲染
+  Object.entries(DOMAINS).forEach(([domainKey, domainCfg]) => {
+    const domainSkills = SKILLS.filter(s => s.domain === domainKey);
+    if (!domainSkills.length) return;
+
+    // 按子域分组
+    const subdomains = {};
+    domainSkills.forEach(s => {
+      if (!subdomains[s.subdomain]) subdomains[s.subdomain] = [];
+      subdomains[s.subdomain].push(s);
+    });
+
+    // 统计
+    const counts = {
+      team: domainSkills.filter(s=>s.source==='team').length,
+      personal: domainSkills.filter(s=>s.source==='personal').length,
+      pending: domainSkills.filter(s=>s.source==='pending').length,
+    };
+
+    html += `
+    <section class="domain-section" id="section-${domainKey}" data-domain="${domainKey}">
+      <div class="domain-header" onclick="toggleDomain('${domainKey}')">
+        <div class="domain-icon" style="background:${domainCfg.color}18;color:${domainCfg.color}">${domainCfg.icon}</div>
+        <div class="domain-info">
+          <div class="domain-name" style="color:${domainCfg.color}">${domainCfg.name}</div>
+          <div class="domain-desc">${domainCfg.desc}</div>
+        </div>
+        <div class="domain-counts">
+          ${counts.team ? `<span class="dc-badge" style="background:var(--c-team-bg);color:var(--c-team);border:1px solid var(--c-team-bd)">✅ ${counts.team}</span>` : ''}
+          ${counts.personal ? `<span class="dc-badge" style="background:var(--c-personal-bg);color:var(--c-personal);border:1px solid var(--c-personal-bd)">🔵 ${counts.personal}</span>` : ''}
+          ${counts.pending ? `<span class="dc-badge" style="background:var(--c-pending-bg);color:var(--c-pending);border:1px solid var(--c-pending-bd)">⬜ ${counts.pending}</span>` : ''}
+        </div>
+        <span class="domain-chevron">▾</span>
+      </div>
+      <div class="domain-body">
+        ${Object.entries(subdomains).map(([sub, skills]) => `
+          <div class="subdomain">
+            <div class="subdomain-title">${sub}</div>
+            <div class="skill-grid">
+              ${skills.map(s => renderCard(s)).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </section>`;
+  });
+
+  container.innerHTML = html;
+  applyFilters();
+}
+
+function renderCard(s) {
+  const srcLabel = { team:'✅ 团队自建', personal:'🔵 个人已建', pending:'⬜ 待建' }[s.source];
+  const srcClass = `lb-${s.source}`;
+
+  let badges = `<span class="legend-badge ${srcClass}" style="font-size:10px">${srcLabel}</span>`;
+
+  if (s.source === 'pending') {
+    const pClass = s.priority === 'p1' ? 'lp-p1' : 'lp-p2';
+    const pLabel = s.priority === 'p1' ? 'P1' : 'P2';
+    badges += ` <span class="legend-p ${pClass}" style="font-size:10px">${pLabel}</span>`;
+  }
+
+  const ownerStr = s.owner ? `<span class="card-owner">${s.owner}</span>` : '';
+  const repoStr = s.repo && s.repo !== 'local'
+    ? `<a class="card-repo" href="https://git.corp.kuaishou.com/design/designskill" target="_blank">${s.repo}</a>`
+    : (s.repo === 'local' ? `<span class="card-repo">local</span>` : '');
+  const versionStr = s.version ? `<span style="font-size:10px;color:var(--text3)">${s.version}</span>` : '';
+  const depsStr = s.deps && s.deps.length
+    ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">依赖: ${s.deps.map(d=>`<code style="background:rgba(255,255,255,0.05);padding:1px 4px;border-radius:3px">${d}</code>`).join(' ')}</div>`
+    : '';
+
+  const pendingOverlay = s.source === 'pending'
+    ? `<div style="position:absolute;bottom:10px;right:12px;font-size:18px;opacity:0.15">🔲</div>` : '';
+
+  return `
+  <div class="skill-card src-${s.source}"
+       data-source="${s.source}"
+       data-priority="${s.priority}"
+       data-name="${s.name}"
+       data-desc="${s.desc}"
+       data-id="${s.id}">
+    ${pendingOverlay}
+    <div class="card-top">
+      <div class="card-name">${s.source === 'pending' ? '⬜ ' : ''}${s.name}</div>
+      <div class="card-badges">${badges}</div>
+    </div>
+    <div class="card-desc">${s.desc}</div>
+    <div class="card-meta">
+      ${ownerStr}
+      ${repoStr}
+      ${versionStr}
+    </div>
+    ${depsStr}
+  </div>`;
+}
+
+function renderFlows() {
+  let html = `<div class="flow-section">
+    <div class="flow-title">核心调用链路</div>`;
+
+  FLOWS.forEach(f => {
+    html += `<div style="margin-bottom:20px">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">${f.title}</div>
+      <div class="flow-label">${f.desc}</div>
+      <div class="flow-chain">`;
+
+    f.chain.forEach(n => {
+      if (n.type === 'arrow') {
+        html += `<span class="flow-arrow">→</span>`;
+      } else if (n.type === 'pipe') {
+        html += `<span class="flow-arrow" style="color:var(--text3);font-size:13px;padding:0 16px">┊</span>`;
+      } else {
+        const cls = n.style ? `flow-node ${n.style}` : `flow-node` ;
+        const styleExtra = n.style ? '' : 'background:rgba(255,255,255,0.04);color:var(--text2);border-color:var(--border2)';
+        const nameHtml = n.name.replace(/\n/g, '<br><span style="font-weight:400;opacity:0.7">');
+        const nameClose = (n.name.match(/\n/g)||[]).map(()=>'</span>').join('');
+        html += `<div class="${cls}" style="${styleExtra};white-space:nowrap">${nameHtml}${nameClose}</div>`;
+      }
+    });
+
+    html += `</div></div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+// ══════════════════════════════════════════════════
+//  筛选 & 搜索
+// ══════════════════════════════════════════════════
+function applyFilters() {
+  const cards = document.querySelectorAll('.skill-card');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const src = card.dataset.source;
+    const pri = card.dataset.priority;
+    const name = (card.dataset.name || '').toLowerCase();
+    const desc = (card.dataset.desc || '').toLowerCase();
+    const q = searchQuery.toLowerCase();
+
+    const srcMatch = activeSource === 'all' || src === activeSource;
+    const priMatch = activePriority === 'all'
+      || (activePriority === 'p0' && src !== 'pending')
+      || (activePriority === 'p1' && src === 'pending' && pri === 'p1')
+      || (activePriority === 'p2' && src === 'pending' && pri === 'p2');
+    const searchMatch = !q || name.includes(q) || desc.includes(q);
+
+    if (srcMatch && priMatch && searchMatch) {
+      card.classList.remove('hidden');
+      visible++;
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+
+  // 隐藏空域
+  document.querySelectorAll('.domain-section').forEach(sec => {
+    const visibleCards = sec.querySelectorAll('.skill-card:not(.hidden)').length;
+    sec.style.display = visibleCards ? '' : 'none';
+  });
+}
+
+function filterBySource(src, el) {
+  activeSource = src;
+  document.querySelectorAll('.stat-item').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function filterByPriority(pri, el) {
+  activePriority = pri;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.className = 'filter-btn';
+  });
+  el.classList.add(`active-${pri === 'all' ? 'all' : 'pending'}`);
+  applyFilters();
+}
+
+function handleSearch(val) {
+  searchQuery = val;
+  applyFilters();
+}
+
+function toggleDomain(key) {
+  const sec = document.getElementById('section-' + key);
+  sec.classList.toggle('collapsed');
+}
+
+// ══════════════════════════════════════════════════
+//  滚动回顶
+// ══════════════════════════════════════════════════
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('scrollTop');
+  btn.classList.toggle('visible', window.scrollY > 400);
+});
+
+// ══════════════════════════════════════════════════
+//  Init
+// ══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', renderAll);
+</script>
+
+</body>
+</html>

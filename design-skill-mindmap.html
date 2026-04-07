@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>设计 Skill 体系 · 思维脑图 · 五大方向</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0d1117;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+#toolbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 48px;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  display: flex; align-items: center; padding: 0 20px; gap: 12px;
+  z-index: 100;
+}
+#toolbar h1 { font-size: 14px; font-weight: 700; color: #f0f6fc; }
+#toolbar span { font-size: 12px; color: #8b949e; }
+.toolbar-badge {
+  font-size: 11px; padding: 2px 9px; border-radius: 10px;
+  font-weight: 600;
+}
+.tb-blue   { background: #388bfd22; color: #79c0ff; border: 1px solid #388bfd44; }
+.tb-green  { background: #3fb95022; color: #56d364; border: 1px solid #3fb95044; }
+.tb-orange { background: #d2993022; color: #e3b341; border: 1px solid #d2993044; }
+
+.hint { margin-left: auto; font-size: 12px; color: #484f58; }
+
+#canvas-wrap {
+  position: fixed; top: 48px; left: 0; right: 0; bottom: 0;
+  overflow: hidden; cursor: grab;
+}
+#canvas-wrap:active { cursor: grabbing; }
+#canvas { position: absolute; transform-origin: 0 0; }
+
+svg.mind-svg { overflow: visible; }
+
+/* ── Node styles ── */
+.node { cursor: pointer; }
+.node rect, .node path { transition: filter 0.15s; }
+.node:hover rect, .node:hover ellipse { filter: brightness(1.25); }
+
+/* ── Edge lines ── */
+.edge { fill: none; stroke-width: 1.5; opacity: 0.55; }
+.edge-ui    { stroke: #388bfd; }
+.edge-img   { stroke: #3fb950; }
+.edge-vid   { stroke: #f78166; }
+.edge-doc   { stroke: #e3b341; }
+.edge-eval  { stroke: #d2a8ff; }
+.edge-root  { stroke: #8b949e; }
+
+/* ── Tooltip ── */
+#tooltip {
+  position: fixed;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #c9d1d9;
+  max-width: 300px;
+  pointer-events: none;
+  display: none;
+  z-index: 200;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  line-height: 1.6;
+}
+#tooltip .tt-id   { font-family: monospace; font-size: 11px; color: #8b949e; margin-bottom: 4px; }
+#tooltip .tt-name { font-size: 14px; font-weight: 700; color: #f0f6fc; margin-bottom: 6px; }
+#tooltip .tt-desc { font-size: 12px; color: #8b949e; margin-bottom: 8px; }
+#tooltip .tt-row  { display: flex; gap: 6px; font-size: 11px; flex-wrap: wrap; }
+#tooltip .tt-tag  { padding: 2px 7px; border-radius: 6px; }
+.tt-p0  { background: #da363322; color: #ff7b72; }
+.tt-p1  { background: #388bfd22; color: #79c0ff; }
+.tt-p2  { background: #48444422; color: #8b949e; }
+.tt-poc { background: #3fb95022; color: #56d364; }
+.tt-yes { background: #3fb95022; color: #56d364; }
+.tt-warn{ background: #d2993022; color: #e3b341; }
+.tt-no  { background: #da363322; color: #ff7b72; }
+
+/* Legend */
+#legend {
+  position: fixed; bottom: 20px; left: 20px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 12px; color: #8b949e;
+  z-index: 100;
+}
+#legend .leg-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+#legend .leg-row:last-child { margin-bottom: 0; }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* Zoom controls */
+#zoom-ctrl {
+  position: fixed; bottom: 20px; right: 20px;
+  display: flex; flex-direction: column; gap: 4px;
+  z-index: 100;
+}
+.zoom-btn {
+  width: 32px; height: 32px;
+  background: #161b22; border: 1px solid #30363d;
+  border-radius: 6px; cursor: pointer;
+  color: #c9d1d9; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.zoom-btn:hover { background: #21262d; }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>设计 Skill 体系 · 思维脑图</h1>
+  <span class="toolbar-badge tb-blue">UI 生成</span>
+  <span class="toolbar-badge tb-green">图片生成</span>
+  <span class="toolbar-badge tb-orange">视频/动效</span>
+  <span class="toolbar-badge" style="background:#d2993022;color:#e3b341;border:1px solid #d2993044">文档生成</span>
+  <span class="toolbar-badge" style="background:#8957e522;color:#d2a8ff;border:1px solid #8957e544">评测</span>
+  <span class="hint">滚轮缩放 · 拖拽平移 · 悬停查看详情</span>
+</div>
+
+<div id="canvas-wrap">
+  <div id="canvas">
+    <svg class="mind-svg" id="svg-main" width="2400" height="1600"></svg>
+  </div>
+</div>
+
+<div id="tooltip"></div>
+
+<div id="legend">
+  <div class="leg-row"><div class="leg-dot" style="background:#ff7b72"></div> P0 首批交付</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#79c0ff"></div> P1 计划</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#8b949e"></div> P2 待评审</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#56d364"></div> 待 PoC</div>
+</div>
+
+<div id="zoom-ctrl">
+  <button class="zoom-btn" id="zoom-in">+</button>
+  <button class="zoom-btn" id="zoom-out">−</button>
+  <button class="zoom-btn" id="zoom-reset" style="font-size:12px">⊙</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const data = {
+  id: "root",
+  label: "设计 Skill 体系",
+  sub: "五大方向 · 35个 Skill",
+  color: "#f0f6fc",
+  bg: "#21262d",
+  border: "#58a6ff",
+  children: [
+    {
+      id: "ui",
+      label: "🖥️ UI 生成",
+      sub: "7个 Skill",
+      color: "#79c0ff",
+      bg: "#1c2e4a",
+      border: "#388bfd",
+      edgeClass: "edge-ui",
+      children: [
+        {
+          id: "ui-proto",
+          label: "A. 原型类",
+          sub: "低保真 → 走查",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-ui",
+          children: [
+            { id: "UI-A1", label: "单页 HTML 原型", priority: "P1", deliverable: "yes", tech: "LLM + 纯HTML", benchmark: "Claude Artifacts", desc: "快速生成单文件HTML原型，浏览器直接打开，用于走查沟通", edgeClass: "edge-ui" },
+            { id: "UI-A2", label: "可交互多页原型", priority: "P2", deliverable: "no", tech: "待定", benchmark: "Figma Make", desc: "多页流转可点击原型，技术路线待评审", edgeClass: "edge-ui" }
+          ]
+        },
+        {
+          id: "ui-prod",
+          label: "B. 生产类",
+          sub: "直达生产代码",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-ui",
+          children: [
+            { id: "UI-B1", label: "B端增删改查控制台", priority: "P0", deliverable: "yes", tech: "LLM + shadcn/ui + Tailwind", benchmark: "v0.dev", desc: "输入业务实体描述，输出列表页+表单页+详情页完整 React 代码", edgeClass: "edge-ui" },
+            { id: "UI-B2", label: "数据可视化仪表盘", priority: "P1", deliverable: "warn", tech: "LLM + ECharts/Recharts", benchmark: "Vercel AI", desc: "输入数据结构，输出含折线/柱状/饼图的监控仪表盘页面", edgeClass: "edge-ui" },
+            { id: "UI-B3", label: "H5 营销落地页", priority: "P1", deliverable: "yes", tech: "LLM + 移动端HTML", benchmark: "Framer AI", desc: "输入活动主题/品牌色/CTA，输出移动端375px适配的H5落地页", edgeClass: "edge-ui" },
+            { id: "UI-B4", label: "移动端 Android/iOS", priority: "P2", deliverable: "no", tech: "待评审", benchmark: "Bolt.new", desc: "Android Compose / iOS SwiftUI，技术路线需评审", edgeClass: "edge-ui" },
+            { id: "UI-B5", label: "图标智能选配", priority: "P1", deliverable: "yes", tech: "语义检索 + SVG输出", benchmark: "Figma图标插件", desc: "输入功能描述，推荐3-5个候选图标，输出SVG代码片段", edgeClass: "edge-ui" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "img",
+      label: "🎨 图片生成",
+      sub: "7个 Skill",
+      color: "#56d364",
+      bg: "#1c3a2a",
+      border: "#3fb950",
+      edgeClass: "edge-img",
+      children: [
+        {
+          id: "img-route",
+          label: "⚡ 意图路由层",
+          sub: "先评估再分发",
+          color: "#e3b341", bg: "#2a2010", border: "#d29930",
+          edgeClass: "edge-img",
+          children: []
+        },
+        {
+          id: "img-code",
+          label: "C. LLM代码型",
+          sub: "可编辑矢量",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-img",
+          children: [
+            { id: "IMG-C1", label: "SVG 矢量插画生成", priority: "P0", deliverable: "yes", tech: "LLM直出SVG (GPT-4o/Claude)", benchmark: "GPT-4o SVG输出", desc: "输入主题描述，生成可在Figma编辑的SVG矢量插画，<10KB，适合空状态页/UI配图", edgeClass: "edge-img" }
+          ]
+        },
+        {
+          id: "img-model",
+          label: "D. 模型调用型",
+          sub: "Diffusion / 多模态",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-img",
+          children: [
+            { id: "IMG-D1", label: "文生图（通用）", priority: "P1", deliverable: "yes", tech: "Gemini 2.5 Flash(Nano Banana)/Flux.1按场景选", benchmark: "Gemini 2.5 Flash Image", desc: "文本→图片，综合质量首选Gemini 2.5 Flash(Nano Banana)，文字渲染→GPT-4o，写实→Flux.1，合规→Firefly", edgeClass: "edge-img" },
+            { id: "IMG-D2", label: "文生图（品牌风格锁定）", priority: "P2", deliverable: "no", tech: "LoRA微调/风格参考", benchmark: "Midjourney --sref", desc: "品牌色+风格参考图锁定生成风格，需工程评审", edgeClass: "edge-img" },
+            { id: "IMG-D3", label: "图生图（风格迁移）", priority: "P1", deliverable: "yes", tech: "GPT-4o Image / SD img2img", benchmark: "Adobe Firefly", desc: "原图+改写指令→保留结构改变风格，如「改成扁平插画风」「换深色背景」", edgeClass: "edge-img" },
+            { id: "IMG-D4", label: "局部重绘 Inpainting", priority: "P2", deliverable: "warn", tech: "SD Inpainting", benchmark: "Adobe Firefly", desc: "遮罩指定区域局部重绘，技术可行需评审", edgeClass: "edge-img" }
+          ]
+        },
+        {
+          id: "img-text",
+          label: "E. 文案驱动型",
+          sub: "文案→配图",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-img",
+          children: [
+            { id: "IMG-E1", label: "文案驱动配图（路由型）", priority: "P1", deliverable: "warn", tech: "意图路由+多子Skill并行", benchmark: "无直接竞品", desc: "输入文案，并行评估SVG/文生图/图库三条路线，展示3个候选方案", edgeClass: "edge-img" },
+            { id: "IMG-E2", label: "长文自动插图", priority: "P2", deliverable: "no", tech: "多步流水线", benchmark: "无直接竞品", desc: "从长文中判断插图位置并自动生成，需拆解成多步流水线", edgeClass: "edge-img" }
+          ]
+        },
+        {
+          id: "img-fission",
+          label: "F. 运营裂变型",
+          sub: "一图多尺寸",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-img",
+          children: [
+            { id: "IMG-F1", label: "图片裂变·多尺寸适配", priority: "P1", deliverable: "yes", tech: "主体检测+Outpainting+批量导出", benchmark: "Adobe Express / 即时设计", desc: "一张主图→自动裁切/补全为App Banner/方图/微信封面/抖音竖版等多尺寸，运营批量生产场景", edgeClass: "edge-img" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "vid",
+      label: "🎬 视频/动效生成",
+      sub: "8个 Skill",
+      color: "#f78166",
+      bg: "#3a1c1c",
+      border: "#da3633",
+      edgeClass: "edge-vid",
+      children: [
+        {
+          id: "vid-code",
+          label: "F. 代码型动效",
+          sub: "L1-L2 · 设计系统可用",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-vid",
+          children: [
+            { id: "VID-F1", label: "HTML+CSS 微动效（L1）", priority: "P0", deliverable: "yes", tech: "LLM + CSS Animations", benchmark: "Framer Motion示例", desc: "按钮涟漪/骨架屏/页面入场/背景动效/数字滚动，优先GPU加速属性", edgeClass: "edge-vid" },
+            { id: "VID-F2", label: "SVG 动效（SMIL/CSS）", priority: "P1", deliverable: "yes", tech: "LLM + SVG Animations", benchmark: "CSS Tricks", desc: "带动画的SVG文件，适合Logo动效/品牌Reveal/Loading图形，L1-L2", edgeClass: "edge-vid" }
+          ]
+        },
+        {
+          id: "vid-lottie",
+          label: "G. Lottie型动效",
+          sub: "移动端/跨平台",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-vid",
+          children: [
+            { id: "VID-G1", label: "Lottie JSON 生成 🔬", priority: "PoC", deliverable: "no", tech: "OmniLottie（CVPR 2026，已开源）", benchmark: "OmniLottie arXiv:2603.02138", desc: "AI直接生成Lottie JSON，可在iOS/Android/Web原生渲染，约50KB。首个填补MP4→矢量动效空白的模型", edgeClass: "edge-vid" },
+            { id: "VID-G2", label: "Figma→Lottie 一键导出", priority: "P1", deliverable: "yes", tech: "Magic Animator Beta（2025.07）", benchmark: "Magic Animator/Lottielab", desc: "Figma设计稿一键添加动效并导出Lottie JSON/MP4/GIF，工具已成熟直接封装", edgeClass: "edge-vid" }
+          ]
+        },
+        {
+          id: "vid-remotion",
+          label: "H. 程序化视频（Remotion）",
+          sub: "数据·叙事·演示 P1",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-vid",
+          children: [
+            { id: "VID-H1", label: "数据可视化视频", priority: "P1", deliverable: "yes", tech: "LLM + React + Remotion", benchmark: "Remotion Showcase", desc: "输入数据(JSON/CSV)+叙事结构，生成可渲染为MP4的数据可视化视频，排名变化/指标趋势/数据年报", edgeClass: "edge-vid" },
+            { id: "VID-H2", label: "汇报/年报叙事视频", priority: "P1", deliverable: "yes", tech: "LLM + Remotion + 动态排版", benchmark: "Remotion Showcase", desc: "输入PPT内容/文字大纲，生成带镜头切换/文字入场/数字增长的汇报型叙事视频，替代静态PPT播放", edgeClass: "edge-vid" },
+            { id: "VID-H3", label: "UI原型演示视频", priority: "P1", deliverable: "warn", tech: "LLM + Remotion + UI模拟组件", benchmark: "Remotion Showcase", desc: "输入多张UI截图+交互流程描述，生成模拟用户操作的演示视频，含点击动效/页面转场/标注文字", edgeClass: "edge-vid" }
+          ]
+        },
+        {
+          id: "vid-ai",
+          label: "I. AI视频生成",
+          sub: "写实/营销型",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-vid",
+          children: [
+            { id: "VID-I1", label: "文生视频（营销素材）", priority: "P2", deliverable: "warn", tech: "Kling 3.0 / Veo 3.1 API", benchmark: "Kling 3.0 ⭐4.9", desc: "文本描述→5-20秒视频，营销场景，API接入成本待评估", edgeClass: "edge-vid" },
+            { id: "VID-I2", label: "图生视频（设计稿动起来）", priority: "P2", deliverable: "warn", tech: "Kling 3.0 / Veo 3.1 API", benchmark: "Kling 3.0 ⭐4.9", desc: "设计稿截图→加自然运动的展示视频，Kling 3.0支持4K@60fps最长20s", edgeClass: "edge-vid" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "doc",
+      label: "📄 文档生成",
+      sub: "9个 Skill",
+      color: "#e3b341",
+      bg: "#2a1f00",
+      border: "#d29930",
+      edgeClass: "edge-doc",
+      children: [
+        {
+          id: "doc-ppt",
+          label: "J. PPT 演示文档",
+          sub: "高频设计场景",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-doc",
+          children: [
+            { id: "DOC-J1", label: "PPT 美化/视觉优化", priority: "P0", deliverable: "yes", tech: "LLM + PptxGenJS", benchmark: "Beautiful.ai / Gamma", desc: "输入已有PPT，在保留内容的前提下大幅提升视觉层次、字体规范、色彩体系，输出可编辑.pptx", edgeClass: "edge-doc" },
+            { id: "DOC-J2", label: "PPT 生成（信息架构型）", priority: "P1", deliverable: "yes", tech: "LLM + 结构化模板", benchmark: "Skywork Agent", desc: "输入主题/大纲，生成逻辑严谨、信息架构完备的PPT，符合金字塔原理/SCQA结构", edgeClass: "edge-doc" },
+            { id: "DOC-J3", label: "PPT 生成（美学表现型）", priority: "P1", deliverable: "warn", tech: "LLM + AI配图 + 模板", benchmark: "Gamma / 张月光系", desc: "输入主题，生成视觉冲击力强的高颜值PPT，每页配图≥30%，适合对外展示/品牌提案", edgeClass: "edge-doc" },
+            { id: "DOC-J4", label: "PPT图片化输出(不可编辑)", priority: "P1", deliverable: "yes", tech: "HTML/CSS + Puppeteer截图", benchmark: "无直接竞品", desc: "输入内容/大纲→HTML排版→Puppeteer逐页截图→PDF/PNG打包，适合直接分发/社媒分享/无PPT环境场景", edgeClass: "edge-doc" }
+          ]
+        },
+        {
+          id: "doc-report",
+          label: "K. UX研究报告类",
+          sub: "可用性/体验/满意度",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-doc",
+          children: [
+            { id: "DOC-K1", label: "竞品分析文档生成", priority: "P1", deliverable: "yes", tech: "搜索 + LLM 结构化分析", benchmark: "无直接竞品", desc: "输入竞品名称，自动调研生成功能矩阵+截图说明+差异洞察，输出PPT/Word/Markdown", edgeClass: "edge-doc" },
+            { id: "DOC-K2", label: "可用性分析报告", priority: "P1", deliverable: "yes", tech: "LLM + Nielsen启发式", benchmark: "无直接竞品", desc: "输入用户研究数据(访谈/测试日志/问卷)，生成含P0-P2问题分级+用户原话引用+改进建议的可用性报告", edgeClass: "edge-doc" },
+            { id: "DOC-K3", label: "用户体验地图(UX Map)", priority: "P1", deliverable: "yes", tech: "LLM + SVG可视化输出", benchmark: "无直接竞品", desc: "输入用户旅程描述/访谈数据，生成各触点情绪曲线+痛点+机会点的可视化UX Map，输出SVG/PPT", edgeClass: "edge-doc" },
+            { id: "DOC-K4", label: "满意度调研分析报告", priority: "P1", deliverable: "yes", tech: "数据分析+LLM洞察", benchmark: "无直接竞品", desc: "输入NPS/CSAT/满意度问卷原始数据，自动清洗分析，生成含核心指标/趋势对比/用户分群洞察的报告", edgeClass: "edge-doc" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "eval",
+      label: "🔍 评测",
+      sub: "8个 Skill",
+      color: "#d2a8ff",
+      bg: "#1e1133",
+      border: "#8957e5",
+      edgeClass: "edge-eval",
+      children: [
+        {
+          id: "eval-ui",
+          label: "M. UI/界面评测",
+          sub: "可用性 + 规范 + 还原",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-eval",
+          children: [
+            { id: "EVAL-M1", label: "UI 可用性评测", priority: "P0", deliverable: "yes", tech: "GPT-4o Vision + 规则引擎", benchmark: "TRAIL模型 + Nielsen十原则", desc: "输入UI截图，评估信息层级/视觉引导/交互一致性/可读性，输出P0-P2问题清单+综合评分", edgeClass: "edge-eval" },
+            { id: "EVAL-M2", label: "视觉规范合规评测", priority: "P1", deliverable: "yes", tech: "颜色/字体/间距提取+Token比对", benchmark: "内部 Design Token 规范", desc: "检查UI是否符合Design Token规范（色彩/字号/间距），输出违规点清单+合规率百分比", edgeClass: "edge-eval" },
+            { id: "EVAL-M3", label: "UI 还原度评测", priority: "P1", deliverable: "warn", tech: "图像对齐比对+多模态差异识别", benchmark: "内部稿-码对比标准", desc: "Figma设计稿 vs 前端实现截图，自动识别颜色/间距/字体偏差，输出红线标注报告", edgeClass: "edge-eval" }
+          ]
+        },
+        {
+          id: "eval-visual",
+          label: "N. 视觉/图片评测",
+          sub: "AQE 美学评测",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-eval",
+          children: [
+            { id: "EVAL-N1", label: "美学质量评测（AQE）", priority: "P0", deliverable: "yes", tech: "多模态视觉模型 + AQE矩阵", benchmark: "内部 AQE 框架", desc: "图片美学多维评分：视觉和谐度30%+构图平衡25%+风格一致20%+细节精致15%+品牌契合10%，≥7分合格", edgeClass: "edge-eval" },
+            { id: "EVAL-N2", label: "品牌合规评测", priority: "P1", deliverable: "warn", tech: "品牌规范库 + 视觉比对", benchmark: "内部品牌规范", desc: "检查设计稿/图片是否符合品牌色/Logo使用/字体规范，输出违规标注", edgeClass: "edge-eval" }
+          ]
+        },
+        {
+          id: "eval-doc",
+          label: "O/P. 文档+走查评测",
+          sub: "PPT结构 + 设计走查",
+          color: "#c9d1d9", bg: "#161b22", border: "#30363d",
+          edgeClass: "edge-eval",
+          children: [
+            { id: "EVAL-O1", label: "PPT 内容结构评测", priority: "P1", deliverable: "yes", tech: "python-pptx + LLM评判", benchmark: "金字塔原理标准", desc: "评估PPT信息架构/逻辑连贯性/信息密度/表达清晰度/视觉规范，输出结构优化建议", edgeClass: "edge-eval" },
+            { id: "EVAL-P1", label: "自动化设计走查", priority: "P1", deliverable: "warn", tech: "规则引擎 + 多模态视觉", benchmark: "内部走查规则集", desc: "输入设计稿+走查规则，自动执行视觉规范/可用性/无障碍/业务逻辑四类走查，支持People-in-Loop", edgeClass: "edge-eval" },
+            { id: "EVAL-Q1", label: "生成-评测自进化流水线", priority: "P2", deliverable: "no", tech: "生成Skill + 评测Skill 串联", benchmark: "infovis-autoevo模式", desc: "生成→评测→差异计算→重新生成的闭环，评分≥阈值才通过，参考infovis-autoevo架构推广到全方向", edgeClass: "edge-eval" }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+// ─────────────────────────────────────────────
+// LAYOUT CONFIG
+// ─────────────────────────────────────────────
+const ROOT_X = 1200, ROOT_Y = 780;
+
+const BRANCH_CONFIG = {
+  "ui":   { angle: -72,  spread: 200, dist: 260 },
+  "img":  { angle: -144, spread: 220, dist: 260 },
+  "vid":  { angle: 144,  spread: 220, dist: 260 },
+  "doc":  { angle: 72,   spread: 200, dist: 260 },
+  "eval": { angle: 0,    spread: 200, dist: 260 }
+};
+
+const GROUP_DIST    = 200;
+const LEAF_DIST     = 195;
+const LEAF_SPREAD   = 58;
+
+// ─────────────────────────────────────────────
+// NODE DIMENSIONS
+// ─────────────────────────────────────────────
+function getNodeSize(node) {
+  if (node.id === "root") return { w: 160, h: 56, r: 12 };
+  if (["ui","img","vid"].includes(node.id)) return { w: 140, h: 46, r: 10 };
+  if (node.children && node.children.length > 0) return { w: 130, h: 40, r: 8 };
+  return { w: 148, h: 44, r: 8 };
+}
+
+// ─────────────────────────────────────────────
+// PRIORITY COLORS
+// ─────────────────────────────────────────────
+const P_BG    = { P0: "#3d1a1a", P1: "#1a2d3d", P2: "#1e1e1e", PoC: "#122310" };
+const P_BORDER= { P0: "#da3633", P1: "#388bfd", P2: "#484f58", PoC: "#3fb950" };
+const P_TEXT  = { P0: "#ff7b72", P1: "#79c0ff", P2: "#8b949e", PoC: "#56d364" };
+
+// ─────────────────────────────────────────────
+// POSITION CALCULATION
+// ─────────────────────────────────────────────
+function calcPositions() {
+  const pos = {};
+  pos["root"] = { x: ROOT_X, y: ROOT_Y };
+
+  data.children.forEach(branch => {
+    const cfg = BRANCH_CONFIG[branch.id];
+    const bx = ROOT_X + cfg.dist * Math.cos(cfg.angle * Math.PI / 180);
+    const by = ROOT_Y + cfg.dist * Math.sin(cfg.angle * Math.PI / 180);
+    pos[branch.id] = { x: bx, y: by };
+
+    const groups = branch.children;
+    const total = groups.length;
+    const halfSpread = (total - 1) * cfg.spread / 2;
+
+    groups.forEach((grp, gi) => {
+      const perpAngle = (cfg.angle + 90) * Math.PI / 180;
+      const offset = gi * cfg.spread - halfSpread;
+      const gx = bx + Math.cos(cfg.angle * Math.PI / 180) * GROUP_DIST + Math.cos(perpAngle) * offset;
+      const gy = by + Math.sin(cfg.angle * Math.PI / 180) * GROUP_DIST + Math.sin(perpAngle) * offset;
+      pos[grp.id] = { x: gx, y: gy };
+
+      const leaves = grp.children || [];
+      const lTotal = leaves.length;
+      const lHalf = (lTotal - 1) * LEAF_SPREAD / 2;
+
+      leaves.forEach((leaf, li) => {
+        const lPerpAngle = perpAngle;
+        const lOffset = li * LEAF_SPREAD - lHalf;
+        const lx = gx + Math.cos(cfg.angle * Math.PI / 180) * LEAF_DIST + Math.cos(lPerpAngle) * lOffset;
+        const ly = gy + Math.sin(cfg.angle * Math.PI / 180) * LEAF_DIST + Math.sin(lPerpAngle) * lOffset;
+        pos[leaf.id] = { x: lx, y: ly };
+      });
+    });
+  });
+  return pos;
+}
+
+// ─────────────────────────────────────────────
+// SVG RENDERING
+// ─────────────────────────────────────────────
+const svg = document.getElementById("svg-main");
+const pos = calcPositions();
+
+function makeSVGEl(tag, attrs) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+function drawEdge(fromId, toId, cls) {
+  const from = pos[fromId], to = pos[toId];
+  const mid_x = (from.x + to.x) / 2;
+  const path = makeSVGEl("path", {
+    d: `M ${from.x} ${from.y} C ${mid_x} ${from.y}, ${mid_x} ${to.y}, ${to.x} ${to.y}`,
+    class: `edge ${cls || "edge-root"}`
+  });
+  svg.appendChild(path);
+}
+
+function drawNode(node, p) {
+  const { w, h, r } = getNodeSize(node);
+  const isLeaf = !node.children || node.children.length === 0;
+  const isRoot = node.id === "root";
+  const isBranch = ["ui","img","vid","doc","eval"].includes(node.id);
+
+  // Priority override colors for leaves
+  let bg = node.bg || "#161b22";
+  let border = node.border || "#30363d";
+  let textColor = node.color || "#c9d1d9";
+  if (isLeaf && node.priority) {
+    bg = P_BG[node.priority] || bg;
+    border = P_BORDER[node.priority] || border;
+  }
+
+  const g = makeSVGEl("g", {
+    class: "node",
+    transform: `translate(${p.x - w/2}, ${p.y - h/2})`
+  });
+  g.dataset.id = node.id;
+
+  // Shadow
+  if (isRoot || isBranch) {
+    const defs = svg.querySelector("defs") || svg.insertBefore(makeSVGEl("defs", {}), svg.firstChild);
+    const filterId = `shadow-${node.id}`;
+    if (!document.getElementById(filterId)) {
+      const filter = makeSVGEl("filter", { id: filterId, x: "-20%", y: "-20%", width: "140%", height: "140%" });
+      const feDropShadow = makeSVGEl("feDropShadow", {
+        dx: "0", dy: "2", stdDeviation: "4",
+        "flood-color": border, "flood-opacity": "0.3"
+      });
+      filter.appendChild(feDropShadow);
+      defs.appendChild(filter);
+    }
+  }
+
+  const rect = makeSVGEl("rect", {
+    width: w, height: h, rx: r,
+    fill: bg, stroke: border,
+    "stroke-width": isRoot ? 2.5 : isBranch ? 2 : 1.5,
+    filter: (isRoot || isBranch) ? `url(#shadow-${node.id})` : ""
+  });
+  g.appendChild(rect);
+
+  // Label
+  const labelY = node.sub && !isLeaf ? h/2 - 7 : h/2 + 5;
+  const text = makeSVGEl("text", {
+    x: w/2, y: labelY,
+    "text-anchor": "middle",
+    fill: textColor,
+    "font-size": isRoot ? 14 : isBranch ? 13 : isLeaf ? 12 : 12,
+    "font-weight": isRoot || isBranch ? 700 : isLeaf ? 600 : 500,
+    "font-family": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif"
+  });
+  text.textContent = node.label;
+  g.appendChild(text);
+
+  // Sub label
+  if (node.sub) {
+    const sub = makeSVGEl("text", {
+      x: w/2, y: h/2 + 12,
+      "text-anchor": "middle",
+      fill: "#484f58",
+      "font-size": 10,
+      "font-family": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif"
+    });
+    sub.textContent = node.sub;
+    g.appendChild(sub);
+  }
+
+  // Priority dot for leaves
+  if (isLeaf && node.priority) {
+    const dotColor = P_TEXT[node.priority];
+    const dot = makeSVGEl("circle", {
+      cx: w - 8, cy: 8, r: 4,
+      fill: dotColor
+    });
+    g.appendChild(dot);
+  }
+
+  // Tooltip
+  g.addEventListener("mouseenter", (e) => {
+    if (!node.desc && !node.priority) return;
+    const tip = document.getElementById("tooltip");
+    const pTag = node.priority ? `<span class="tt-tag tt-${node.priority.toLowerCase()}">${node.priority}</span>` : "";
+    const delClass = { yes: "tt-yes", warn: "tt-warn", no: "tt-no" }[node.deliverable] || "";
+    const delText = { yes: "✅ 2天可交付", warn: "⚠️ 需评审", no: "❌ 需PoC" }[node.deliverable] || "";
+    const delTag = delText ? `<span class="tt-tag ${delClass}">${delText}</span>` : "";
+    tip.innerHTML = `
+      <div class="tt-id">${node.id}</div>
+      <div class="tt-name">${node.label}</div>
+      ${node.desc ? `<div class="tt-desc">${node.desc}</div>` : ""}
+      <div class="tt-row">
+        ${pTag}
+        ${delTag}
+        ${node.tech ? `<span class="tt-tag" style="background:#21262d;color:#8b949e">⚙️ ${node.tech}</span>` : ""}
+      </div>
+      ${node.benchmark ? `<div style="margin-top:6px;font-size:11px;color:#484f58">🎯 对标：${node.benchmark}</div>` : ""}
+    `;
+    tip.style.display = "block";
+    tip.style.left = (e.clientX + 16) + "px";
+    tip.style.top  = (e.clientY - 10) + "px";
+  });
+  g.addEventListener("mousemove", (e) => {
+    const tip = document.getElementById("tooltip");
+    tip.style.left = (e.clientX + 16) + "px";
+    tip.style.top  = (e.clientY - 10) + "px";
+  });
+  g.addEventListener("mouseleave", () => {
+    document.getElementById("tooltip").style.display = "none";
+  });
+
+  svg.appendChild(g);
+}
+
+// ─────────────────────────────────────────────
+// RENDER ALL
+// ─────────────────────────────────────────────
+function renderAll() {
+  // Draw edges first (behind nodes)
+  function drawEdgesRecursive(node) {
+    (node.children || []).forEach(child => {
+      drawEdge(node.id, child.id, child.edgeClass || node.edgeClass);
+      drawEdgesRecursive(child);
+    });
+  }
+  drawEdgesRecursive(data);
+
+  // Draw nodes
+  function drawNodesRecursive(node) {
+    if (pos[node.id]) drawNode(node, pos[node.id]);
+    (node.children || []).forEach(child => drawNodesRecursive(child));
+  }
+  drawNodesRecursive(data);
+}
+
+renderAll();
+
+// ─────────────────────────────────────────────
+// PAN & ZOOM
+// ─────────────────────────────────────────────
+const canvasWrap = document.getElementById("canvas-wrap");
+const canvas = document.getElementById("canvas");
+let scale = 0.48, tx = -380, ty = -290;
+
+function applyTransform() {
+  canvas.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+}
+applyTransform();
+
+let dragging = false, lastX, lastY;
+canvasWrap.addEventListener("mousedown", e => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+});
+window.addEventListener("mouseup", () => { dragging = false; });
+window.addEventListener("mousemove", e => {
+  if (!dragging) return;
+  tx += e.clientX - lastX; ty += e.clientY - lastY;
+  lastX = e.clientX; lastY = e.clientY;
+  applyTransform();
+});
+canvasWrap.addEventListener("wheel", e => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? 0.9 : 1.1;
+  const newScale = Math.max(0.2, Math.min(2.5, scale * delta));
+  const rect = canvasWrap.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  tx = mouseX - (mouseX - tx) * (newScale / scale);
+  ty = mouseY - (mouseY - ty) * (newScale / scale);
+  scale = newScale;
+  applyTransform();
+}, { passive: false });
+
+document.getElementById("zoom-in").onclick = () => { scale = Math.min(2.5, scale * 1.15); applyTransform(); };
+document.getElementById("zoom-out").onclick = () => { scale = Math.max(0.2, scale * 0.85); applyTransform(); };
+document.getElementById("zoom-reset").onclick = () => { scale = 0.48; tx = -380; ty = -290; applyTransform(); };
+</script>
+</body>
+</html>

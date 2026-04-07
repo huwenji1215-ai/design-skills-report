@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>部门评分监控 - 迭代 v1</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+  .chart-wrapper {
+    background: #16213e;
+    border-radius: 16px;
+    padding: 40px 50px 50px;
+    width: 900px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .chart-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 8px;
+  }
+  .chart-subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 40px;
+  }
+  .bars-area {
+    position: relative;
+    height: 300px;
+    display: flex;
+    align-items: flex-end;
+    gap: 30px;
+    padding-bottom: 30px;
+  }
+  .bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    position: relative;
+  }
+  .bar {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    position: relative;
+    transition: all 0.3s;
+    background: #3b82f6;
+  }
+  .bar-value {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: 700;
+    color: #e2e8f0;
+    white-space: nowrap;
+  }
+  .bar-label {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #94a3b8;
+    text-align: center;
+  }
+  .y-axis {
+    position: absolute;
+    left: -50px;
+    top: 0;
+    height: 270px;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+  }
+  .y-tick {
+    font-size: 12px;
+    color: #475569;
+  }
+</style>
+</head>
+<body>
+<div class="chart-wrapper">
+  <div class="chart-title">各部门 2024-Q1 服务评分</div>
+  <div class="chart-subtitle">数据周期：2024年第一季度 | 参评部门：5个</div>
+
+  <div style="position: relative; padding-left: 50px;">
+    <div class="y-axis">
+      <span class="y-tick">0</span>
+      <span class="y-tick">1</span>
+      <span class="y-tick">2</span>
+      <span class="y-tick">3</span>
+      <span class="y-tick">4</span>
+      <span class="y-tick">5</span>
+    </div>
+
+    <div class="bars-area">
+      <!-- 电商 2.8 -->
+      <div class="bar-group">
+        <div class="bar" style="height: calc(2.8/5 * 270px); background:#3b82f6;">
+          <span class="bar-value">2.8</span>
+        </div>
+        <div class="bar-label">电商</div>
+      </div>
+      <!-- 物流 4.1 -->
+      <div class="bar-group">
+        <div class="bar" style="height: calc(4.1/5 * 270px); background:#3b82f6;">
+          <span class="bar-value">4.1</span>
+        </div>
+        <div class="bar-label">物流</div>
+      </div>
+      <!-- 客服 3.2 -->
+      <div class="bar-group">
+        <div class="bar" style="height: calc(3.2/5 * 270px); background:#3b82f6;">
+          <span class="bar-value">3.2</span>
+        </div>
+        <div class="bar-label">客服</div>
+      </div>
+      <!-- 运营 4.7 -->
+      <div class="bar-group">
+        <div class="bar" style="height: calc(4.7/5 * 270px); background:#3b82f6;">
+          <span class="bar-value">4.7</span>
+        </div>
+        <div class="bar-label">运营</div>
+      </div>
+      <!-- 技术 3.9 -->
+      <div class="bar-group">
+        <div class="bar" style="height: calc(3.9/5 * 270px); background:#3b82f6;">
+          <span class="bar-value">3.9</span>
+        </div>
+        <div class="bar-label">技术</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

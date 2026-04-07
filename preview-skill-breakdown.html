@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计 Skill 深度拆解 — UI × 图片 × 视频动效</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    line-height: 1.7;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #1a1f2e 0%, #16213e 100%);
+    border-bottom: 1px solid #2d3748;
+    padding: 32px 48px 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #63b3ed, #a78bfa, #f687b3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .header p { font-size: 13px; color: #718096; }
+  .badges { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .badge {
+    font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-blue   { background: #1e40af22; color: #60a5fa; border: 1px solid #1e40af55; }
+  .badge-purple { background: #7c3aed22; color: #a78bfa; border: 1px solid #7c3aed55; }
+  .badge-pink   { background: #9d174d22; color: #f9a8d4; border: 1px solid #9d174d55; }
+
+  /* ── Layout ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 48px 80px; }
+
+  /* ── TOC ── */
+  .toc {
+    background: #161b2e;
+    border: 1px solid #2d3748;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 40px;
+  }
+  .toc-title { font-size: 13px; color: #718096; font-weight: 600; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  .toc-list { list-style: none; }
+  .toc-list li { margin: 6px 0; }
+  .toc-list a {
+    color: #90cdf4; text-decoration: none; font-size: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toc-list a:hover { color: #63b3ed; }
+  .toc-list .toc-icon { font-size: 16px; }
+
+  /* ── Section Cards ── */
+  .section-card {
+    background: #161b2e;
+    border: 1px solid #2d3748;
+    border-radius: 16px;
+    padding: 32px 36px;
+    margin-bottom: 32px;
+    transition: border-color 0.2s;
+  }
+  .section-card:hover { border-color: #4a5568; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 20px; margin-bottom: 24px;
+    border-bottom: 1px solid #2d3748;
+  }
+  .section-icon { font-size: 28px; }
+  .section-title { font-size: 20px; font-weight: 700; color: #f7fafc; }
+  .section-subtitle { font-size: 13px; color: #718096; margin-top: 2px; }
+
+  /* ── Skill Cards ── */
+  .skill-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+  .skill-card {
+    background: #1a2035;
+    border: 1px solid #2d3748;
+    border-radius: 12px;
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .skill-card.p0::before { background: linear-gradient(90deg, #ef4444, #f97316); }
+  .skill-card.p1::before { background: linear-gradient(90deg, #3b82f6, #8b5cf6); }
+  .skill-card.p2::before { background: linear-gradient(90deg, #6b7280, #9ca3af); }
+  .skill-card.poc::before { background: linear-gradient(90deg, #10b981, #06b6d4); }
+
+  .skill-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .skill-id { font-family: monospace; font-size: 12px; color: #718096; background: #0f1117; padding: 2px 8px; border-radius: 6px; }
+  .priority-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+  .priority-p0 { background: #7f1d1d33; color: #fca5a5; }
+  .priority-p1 { background: #1e3a8a33; color: #93c5fd; }
+  .priority-p2 { background: #37415133; color: #9ca3af; }
+  .priority-poc { background: #06402133; color: #6ee7b7; }
+
+  .skill-name { font-size: 16px; font-weight: 700; color: #f7fafc; margin-bottom: 8px; }
+  .skill-desc { font-size: 13px; color: #a0aec0; line-height: 1.6; margin-bottom: 14px; }
+
+  .skill-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; }
+  .meta-item { display: flex; align-items: center; gap: 5px; color: #718096; }
+  .meta-item .meta-icon { font-size: 14px; }
+
+  /* ── Table ── */
+  .full-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .full-table th {
+    background: #1e2d4a;
+    color: #90cdf4;
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid #2d3748;
+    white-space: nowrap;
+  }
+  .full-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #1a2035;
+    color: #cbd5e0;
+    vertical-align: middle;
+  }
+  .full-table tr:hover td { background: #1a2035; }
+  .deliverable-yes { color: #68d391; font-weight: 600; }
+  .deliverable-no  { color: #fc8181; }
+  .deliverable-warn{ color: #f6e05e; }
+
+  /* ── Summary ── */
+  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .summary-item {
+    background: #1a2035;
+    border: 1px solid #2d3748;
+    border-radius: 10px;
+    padding: 16px 18px;
+    text-align: center;
+  }
+  .summary-num { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #63b3ed, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .summary-label { font-size: 12px; color: #718096; margin-top: 4px; }
+
+  /* ── April 5 Delivery ── */
+  .delivery-card {
+    background: linear-gradient(135deg, #1e3a8a22, #7c3aed22);
+    border: 1px solid #3b82f633;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-top: 32px;
+  }
+  .delivery-title { font-size: 16px; font-weight: 700; color: #93c5fd; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .delivery-row {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid #2d374833;
+  }
+  .delivery-row:last-child { border-bottom: none; }
+  .delivery-direction { font-size: 13px; color: #a78bfa; font-weight: 600; }
+  .delivery-skill { font-size: 13px; color: #f7fafc; }
+  .delivery-benchmark { font-size: 12px; color: #718096; white-space: nowrap; }
+
+  .tree-block {
+    background: #0f1117;
+    border: 1px solid #2d3748;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: monospace;
+    font-size: 13px;
+    color: #a0aec0;
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+  .tree-block .hl { color: #68d391; }
+  .tree-block .p0-hl { color: #fca5a5; }
+
+  @media (max-width: 640px) {
+    .container { padding: 24px 20px; }
+    .header { padding: 20px; }
+    .summary-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>设计 Skill 深度拆解</h1>
+  <p>UI 生成 × 图片生成 × 视频 / 动效生成 | 三方向全景卡片</p>
+  <div class="badges">
+    <span class="badge badge-blue">v1.0 · 2026-03-30</span>
+    <span class="badge badge-purple">P0 共 3 个</span>
+    <span class="badge badge-pink">4月5日首批交付</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">目录</div>
+    <ul class="toc-list">
+      <li><a href="#summary"><span class="toc-icon">📊</span> 全景汇总</a></li>
+      <li><a href="#ui"><span class="toc-icon">🖥️</span> 方向一：UI 生成（7个 Skill）</a></li>
+      <li><a href="#img"><span class="toc-icon">🎨</span> 方向二：图片生成（7个 Skill）</a></li>
+      <li><a href="#vid"><span class="toc-icon">🎬</span> 方向三：视频 / 动效生成（7个 Skill）</a></li>
+      <li><a href="#delivery"><span class="toc-icon">🚀</span> 4月5日交付计划</a></li>
+    </ul>
+  </div>
+
+  <!-- Summary -->
+  <div id="summary" class="section-card">
+    <div class="section-header">
+      <span class="section-icon">📊</span>
+      <div>
+        <div class="section-title">全景汇总</div>
+        <div class="section-subtitle">三方向 × 21个 Skill 单元</div>
+      </div>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-num">21</div>
+        <div class="summary-label">Skill 总数</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-num">3</div>
+        <div class="summary-label">P0 首批</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-num">9</div>
+        <div class="summary-label">P1 计划</div>
+      </div>
+    </div>
+
+    <table class="full-table">
+      <thead>
+        <tr><th>优先级</th><th>Skill ID</th><th>名称</th><th>方向</th><th>技术路线</th><th>2天可交付？</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="priority-tag priority-p0">P0</span></td><td>UI-B1</td><td>B端增删改查控制台</td><td>UI 生成</td><td>LLM + shadcn/ui</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p0">P0</span></td><td>IMG-C1</td><td>SVG 矢量插画生成</td><td>图片生成</td><td>LLM 直出 SVG</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p0">P0</span></td><td>VID-F1</td><td>HTML+CSS 微动效</td><td>视频/动效</td><td>LLM + CSS</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p1">P1</span></td><td>UI-B5</td><td>图标智能选配</td><td>UI 生成</td><td>语义检索 + SVG</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p1">P1</span></td><td>UI-A1</td><td>单页 HTML 原型</td><td>UI 生成</td><td>LLM + 纯HTML</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p1">P1</span></td><td>UI-B3</td><td>H5 营销落地页</td><td>UI 生成</td><td>LLM + 移动端HTML</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p1">P1</span></td><td>IMG-D1</td><td>文生图（通用）</td><td>图片生成</td><td>GPT-4o/Flux API</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p1">P1</span></td><td>IMG-D3</td><td>图生图（风格迁移）</td><td>图片生成</td><td>多模态模型</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p1">P1</span></td><td>VID-G2</td><td>Figma→Lottie 导出</td><td>视频/动效</td><td>Magic Animator 集成</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p1">P1</span></td><td>VID-F2</td><td>SVG 动效生成</td><td>视频/动效</td><td>LLM + SVG/SMIL</td><td class="deliverable-yes">✅</td></tr>
+        <tr><td><span class="priority-tag priority-p2">P2</span></td><td>UI-B2</td><td>数据可视化仪表盘</td><td>UI 生成</td><td>LLM + ECharts</td><td class="deliverable-warn">⚠️ 需评审</td></tr>
+        <tr><td><span class="priority-tag priority-p2">P2</span></td><td>IMG-E1</td><td>文案驱动配图（路由型）</td><td>图片生成</td><td>意图路由+子Skill</td><td class="deliverable-warn">⚠️ 需评审</td></tr>
+        <tr><td><span class="priority-tag priority-p2">P2</span></td><td>VID-H1</td><td>Remotion 数据视频</td><td>视频/动效</td><td>LLM + Remotion</td><td class="deliverable-warn">⚠️ 需评审</td></tr>
+        <tr><td><span class="priority-tag priority-p2">P2</span></td><td>VID-I2</td><td>图生视频</td><td>视频/动效</td><td>Kling/Veo API</td><td class="deliverable-warn">⚠️ 需评审</td></tr>
+        <tr><td><span class="priority-tag priority-poc">待PoC</span></td><td>VID-G1</td><td>Lottie JSON 生成</td><td>视频/动效</td><td>OmniLottie（前沿）</td><td class="deliverable-no">❌ 需工程验证</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- UI Generation -->
+  <div id="ui" class="section-card">
+    <div class="section-header">
+      <span class="section-icon">🖥️</span>
+      <div>
+        <div class="section-title">方向一：UI 生成</div>
+        <div class="section-subtitle">按交付物类型拆解 · 7个 Skill · 技术栈锁定 React + Tailwind + shadcn/ui</div>
+      </div>
+    </div>
+
+    <div class="tree-block" style="margin-bottom: 24px;">
+UI 生成
+├── A. 原型类
+│   ├── A1. 单页 HTML 原型
+│   └── A2. 可交互多页原型（P2）
+│
+└── B. 生产类
+    ├── <span class="p0-hl">B1. B端增删改查控制台  ← P0 首批</span>
+    ├── B2. B端数据可视化仪表盘（P1）
+    ├── B3. H5 / 营销落地页（P1）
+    ├── B4. 移动端 Android/iOS（P2）
+    └── <span class="hl">B5. 组件原子能力 · 图标选配（P1）</span>
+    </div>
+
+    <div class="skill-grid">
+
+      <!-- UI-B1 -->
+      <div class="skill-card p0">
+        <div class="skill-card-header">
+          <span class="skill-id">UI-B1</span>
+          <span class="priority-tag priority-p0">P0 · 首批</span>
+        </div>
+        <div class="skill-name">B端增删改查控制台生成</div>
+        <div class="skill-desc">输入产品需求描述，直接输出可运行的 B 端管理后台页面代码（含列表、表单、详情三件套）。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> LLM + shadcn/ui + Tailwind CSS</span>
+          <span class="meta-item"><span class="meta-icon">🎯</span> 对标 v0.dev</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+          <span class="meta-item"><span class="meta-icon">⭐</span> 可行性：高</span>
+        </div>
+        <div style="margin-top: 14px; font-size: 12px; color: #718096;">
+          <strong style="color: #90cdf4;">输出：</strong> 列表页（分页/搜索/筛选）+ 表单页（字段校验）+ 可直接运行 React 代码 &nbsp;|&nbsp;
+          <strong style="color: #90cdf4;">边界：</strong> 不做后端接口、不支持 Vue
+        </div>
+      </div>
+
+      <!-- UI-B5 -->
+      <div class="skill-card p1">
+        <div class="skill-card-header">
+          <span class="skill-id">UI-B5</span>
+          <span class="priority-tag priority-p1">P1</span>
+        </div>
+        <div class="skill-name">UI 图标智能选配</div>
+        <div class="skill-desc">输入 UI 元素功能描述，自动推荐匹配图标（Lucide/Heroicons），输出 SVG 代码和使用片段。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> 语义理解 + 图标库检索</span>
+          <span class="meta-item"><span class="meta-icon">🎯</span> Top-1 命中率 ≥ 85%</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+        </div>
+      </div>
+
+      <!-- UI-A1 -->
+      <div class="skill-card p1">
+        <div class="skill-card-header">
+          <span class="skill-id">UI-A1</span>
+          <span class="priority-tag priority-p1">P1</span>
+        </div>
+        <div class="skill-name">单页 HTML 原型生成</div>
+        <div class="skill-desc">快速生成单文件 HTML 原型，浏览器直接打开，用于走查和沟通，无外部依赖。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> LLM + 纯 HTML</span>
+          <span class="meta-item"><span class="meta-icon">🎯</span> 对标 Claude Artifacts</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+        </div>
+      </div>
+
+      <!-- UI-B3 -->
+      <div class="skill-card p1">
+        <div class="skill-card-header">
+          <span class="skill-id">UI-B3</span>
+          <span class="priority-tag priority-p1">P1</span>
+        </div>
+        <div class="skill-name">H5 营销落地页生成</div>
+        <div class="skill-desc">输入品牌/活动信息，生成移动端适配的 H5 营销落地页代码（375px 宽度，CTA 完整）。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> LLM + 移动端 HTML</span>
+          <span class="meta-item"><span class="meta-icon">🎯</span> 对标 Framer AI</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Image Generation -->
+  <div id="img" class="section-card">
+    <div class="section-header">
+      <span class="section-icon">🎨</span>
+      <div>
+        <div class="section-title">方向二：图片生成</div>
+        <div class="section-subtitle">按技术路线拆解 · 7个 Skill · 含意图路由层设计</div>
+      </div>
+    </div>
+
+    <div class="tree-block" style="margin-bottom: 24px;">
+图片生成
+├── C. LLM 直出代码型
+│   └── <span class="p0-hl">C1. SVG 矢量插画生成  ← P0 首批</span>
+├── D. 模型调用型（Diffusion / 多模态）
+│   ├── <span class="hl">D1. 文生图（通用）</span>
+│   ├── D2. 文生图（品牌风格锁定）（P2）
+│   ├── <span class="hl">D3. 图生图（风格迁移/改写）</span>
+│   └── D4. 局部重绘 Inpainting（P2）
+└── E. 文案驱动型
+    ├── <span class="hl">E1. 指定配图需求生成图</span>
+    └── E2. 长文自动插图（P2）
+
+⚡ 关键：意图路由层先判断走 SVG / 文生图 / 图库，再分发到子 Skill
+    </div>
+
+    <!-- Routing diagram -->
+    <div style="background: #0f1117; border: 1px solid #2d3748; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; font-size: 13px; color: #a0aec0;">
+      <div style="color: #f6e05e; font-weight: 600; margin-bottom: 10px;">⚡ 意图路由层（所有图片 Skill 的前置）</div>
+      <div style="font-family: monospace; line-height: 2;">
+        用户输入<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+        意图分析（LLM）<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;├── 需要可编辑矢量 → <span style="color: #68d391;">C1 SVG 生成</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;├── 需要写实/摄影风 → <span style="color: #60a5fa;">D1 文生图</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;└── 有现成图改风格 → <span style="color: #a78bfa;">D3 图生图</span>
+      </div>
+    </div>
+
+    <div class="skill-grid">
+
+      <!-- IMG-C1 -->
+      <div class="skill-card p0">
+        <div class="skill-card-header">
+          <span class="skill-id">IMG-C1</span>
+          <span class="priority-tag priority-p0">P0 · 首批</span>
+        </div>
+        <div class="skill-name">SVG 矢量插画生成</div>
+        <div class="skill-desc">输入主题描述，直接生成可编辑的 SVG 矢量插画代码，适用于空状态页、UI 配图、品牌图形等场景。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> LLM 直出 SVG (GPT-4o / Claude 3.5)</span>
+          <span class="meta-item"><span class="meta-icon">🎯</span> 对标 GPT-4o SVG 输出</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+        </div>
+        <div style="margin-top: 12px; font-size: 12px; color: #718096;">
+          <strong style="color: #90cdf4;">优势：</strong>轻量 &lt;10KB、可在 Figma 编辑、无版权风险 &nbsp;|&nbsp;
+          <strong style="color: #90cdf4;">边界：</strong>不做写实照片级（用 D1）
+        </div>
+      </div>
+
+      <!-- IMG-D1 -->
+      <div class="skill-card p1">
+        <div class="skill-card-header">
+          <span class="skill-id">IMG-D1</span>
+          <span class="priority-tag priority-p1">P1</span>
+        </div>
+        <div class="skill-name">文生图（通用场景）</div>
+        <div class="skill-desc">文本描述→AI图像生成，按场景自动选最优模型（文字渲染→GPT-4o / 写实→Flux.1 / 合规→Firefly）。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> GPT-4o / Flux.1 / Adobe Firefly</span>
+          <span class="meta-item"><span class="meta-icon">🎯</span> 对标 Midjourney v6</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+        </div>
+      </div>
+
+      <!-- IMG-D3 -->
+      <div class="skill-card p1">
+        <div class="skill-card-header">
+          <span class="skill-id">IMG-D3</span>
+          <span class="priority-tag priority-p1">P1</span>
+        </div>
+        <div class="skill-name">图生图（风格迁移/改写）</div>
+        <div class="skill-desc">输入原图+改写指令，在保留主体结构的同时改变风格（如「改成扁平插画风」、「换成深色背景」）。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> GPT-4o Image / SD img2img</span>
+          <span class="meta-item"><span class="meta-icon">🎯</span> 对标 Adobe Firefly</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+        </div>
+      </div>
+
+      <!-- IMG-E1 -->
+      <div class="skill-card p1">
+        <div class="skill-card-header">
+          <span class="skill-id">IMG-E1</span>
+          <span class="priority-tag priority-p1">P1</span>
+        </div>
+        <div class="skill-name">文案驱动配图生成（路由型）</div>
+        <div class="skill-desc">输入一段文案，自动评估 SVG / 文生图 / 图库三条路线，展示3个候选方案供用户选择。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> 意图路由 + 多子 Skill 并行</span>
+          <span class="meta-item"><span class="meta-icon">⚠️</span> 需要工程评审</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Video/Motion -->
+  <div id="vid" class="section-card">
+    <div class="section-header">
+      <span class="section-icon">🎬</span>
+      <div>
+        <div class="section-title">方向三：视频 / 动效生成</div>
+        <div class="section-subtitle">按技术路线 × 复杂度分级 · 7个 Skill · OmniLottie 学术前沿机会</div>
+      </div>
+    </div>
+
+    <div class="tree-block" style="margin-bottom: 24px;">
+视频 / 动效生成
+├── F. 代码型动效（设计系统可用，L1-L2）
+│   ├── <span class="p0-hl">F1. HTML+CSS 微动效（L1）  ← P0 首批</span>
+│   └── <span class="hl">F2. SVG 动效（SMIL/CSS）（P1）</span>
+├── G. Lottie 型动效（移动端/跨平台可用）
+│   ├── G1. Lottie JSON 生成（OmniLottie，待PoC）
+│   └── <span class="hl">G2. Figma→Lottie 导出优化（P1）</span>
+├── H. 程序化视频（数据/信息型）
+│   └── H1. Remotion 数据可视化视频（P2）
+└── I. AI 视频生成（写实/营销型）
+    ├── I1. 文生视频（P2）
+    └── I2. 图生视频（P2，Kling 3.0 ⭐4.9）
+    </div>
+
+    <!-- OmniLottie highlight -->
+    <div style="background: linear-gradient(135deg, #06402211, #0891b211); border: 1px solid #10b98133; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; font-size: 13px;">
+      <div style="color: #6ee7b7; font-weight: 700; margin-bottom: 6px;">🔬 最大机会窗口：VID-G1 Lottie JSON 生成</div>
+      <div style="color: #a0aec0; line-height: 1.6;">
+        Sora/Kling 等模型生成的是 MP4 视频，但设计师/工程师日常使用的是 <strong style="color: #f7fafc;">Lottie JSON</strong>（可在 iOS/Android/Web 原生渲染，约 50KB）。<br>
+        <strong style="color: #6ee7b7;">OmniLottie（CVPR 2026，已开源）</strong> 是首个能直接生成 Lottie JSON 的 AI 模型。这是目前无竞品占位的稀缺能力。
+      </div>
+      <div style="margin-top: 8px; font-size: 12px; color: #718096;">📄 arXiv: 2603.02138 · 建议先做 PoC 验证，由杨帆评估工程接入成本</div>
+    </div>
+
+    <div class="skill-grid">
+
+      <!-- VID-F1 -->
+      <div class="skill-card p0">
+        <div class="skill-card-header">
+          <span class="skill-id">VID-F1</span>
+          <span class="priority-tag priority-p0">P0 · 首批</span>
+        </div>
+        <div class="skill-name">HTML+CSS 微动效生成（L1）</div>
+        <div class="skill-desc">输入 UI 元素描述（如「按钮点击涟漪」「骨架屏加载」），生成可内嵌的 CSS 动效代码，优先 transform/opacity 触发 GPU 加速。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> LLM + CSS Animations</span>
+          <span class="meta-item"><span class="meta-icon">🎯</span> 对标 Framer Motion 示例</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+        </div>
+        <div style="margin-top: 12px; font-size: 12px; color: #718096;">
+          覆盖：悬停反馈 / 加载状态 / 页面入场 / 背景动效 / 数字滚动
+        </div>
+      </div>
+
+      <!-- VID-G2 -->
+      <div class="skill-card p1">
+        <div class="skill-card-header">
+          <span class="skill-id">VID-G2</span>
+          <span class="priority-tag priority-p1">P1</span>
+        </div>
+        <div class="skill-name">Figma 设计稿一键 Lottie 导出</div>
+        <div class="skill-desc">接入 Magic Animator/Lottielab，AI 自动为 Figma 静态设计添加动效并导出 Lottie JSON / MP4 / GIF。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> Magic Animator Beta（2025.07上线）</span>
+          <span class="meta-item"><span class="meta-icon">🎯</span> 现成工具封装</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+        </div>
+      </div>
+
+      <!-- VID-F2 -->
+      <div class="skill-card p1">
+        <div class="skill-card-header">
+          <span class="skill-id">VID-F2</span>
+          <span class="priority-tag priority-p1">P1</span>
+        </div>
+        <div class="skill-name">SVG 动效生成（SMIL/CSS）</div>
+        <div class="skill-desc">输入图形 + 动效需求，生成带动画的完整 SVG，适用于 Logo 动效、品牌 Reveal、Loading 图形等 L1-L2 场景。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> LLM + SVG Animations / SMIL</span>
+          <span class="meta-item"><span class="meta-icon">✅</span> 2天可交付</span>
+        </div>
+      </div>
+
+      <!-- VID-G1 -->
+      <div class="skill-card poc">
+        <div class="skill-card-header">
+          <span class="skill-id">VID-G1</span>
+          <span class="priority-tag priority-poc">待 PoC</span>
+        </div>
+        <div class="skill-name">Lottie JSON 动效直接生成</div>
+        <div class="skill-desc">基于 OmniLottie（CVPR 2026）生成标准 Lottie JSON，可直接在 iOS/Android/Web 渲染，填补 AI 视频→矢量动效的空白。</div>
+        <div class="skill-meta">
+          <span class="meta-item"><span class="meta-icon">⚙️</span> OmniLottie（已开源）</span>
+          <span class="meta-item"><span class="meta-icon">⚠️</span> 需杨帆评估工程接入</span>
+          <span class="meta-item"><span class="meta-icon">🔬</span> 学术前沿</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- April 5 Delivery -->
+  <div id="delivery" class="delivery-card">
+    <div class="delivery-title">🚀 4月5日首批交付（三方向各1个示范 Skill）</div>
+    <div class="delivery-row">
+      <div class="delivery-direction">🖥️ UI 生成</div>
+      <div class="delivery-skill"><strong>UI-B1</strong> · B端增删改查控制台</div>
+      <div class="delivery-benchmark">对标 v0.dev</div>
+    </div>
+    <div class="delivery-row">
+      <div class="delivery-direction">🎨 图片生成</div>
+      <div class="delivery-skill"><strong>IMG-C1</strong> · SVG 矢量插画生成</div>
+      <div class="delivery-benchmark">对标 GPT-4o SVG</div>
+    </div>
+    <div class="delivery-row">
+      <div class="delivery-direction">🎬 视频/动效</div>
+      <div class="delivery-skill"><strong>VID-F1</strong> · HTML+CSS 微动效</div>
+      <div class="delivery-benchmark">对标 Framer Motion</div>
+    </div>
+    <div style="margin-top: 14px; font-size: 12px; color: #718096; line-height: 1.8;">
+      ⚠️ 每个 Skill 交付前需杨帆 + 子宏技术评审 · 评审通过才开始开发 · 2天内完成一个可交付单元
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

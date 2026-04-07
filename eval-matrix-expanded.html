@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfoVis 评测矩阵 — 拓充版</title>
+<style>
+  :root {
+    --bg: #0e1117;
+    --bg2: #161b22;
+    --bg3: #1c2230;
+    --border: #2a3348;
+    --border-accent: #3d4f6a;
+    --text: #c9d1d9;
+    --text-dim: #6e7f96;
+    --text-muted: #4a5568;
+    --blue: #58a6ff;
+    --blue-dim: #1c3a5c;
+    --green: #3fb950;
+    --green-dim: #1a3828;
+    --red: #f85149;
+    --red-dim: #3d1a1a;
+    --orange: #e3843c;
+    --orange-dim: #3d2a10;
+    --purple: #bc8cff;
+    --purple-dim: #2d1f4a;
+    --cyan: #39d0d8;
+    --cyan-dim: #0d2a2e;
+    --yellow: #f0c040;
+    --yellow-dim: #2e2510;
+    --label-font: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ─── Header ─── */
+  .page-header {
+    padding: 24px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    background: linear-gradient(135deg, #0e1117 0%, #12192a 100%);
+  }
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+  .page-subtitle {
+    color: var(--text-dim);
+    font-family: var(--label-font);
+    font-size: 11px;
+    margin-top: 4px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: var(--label-font);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-matrix { background: var(--orange-dim); color: var(--orange); border: 1px solid var(--orange); }
+  .badge-running { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .dot.pulse { animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ─── Pipeline Overview Strip ─── */
+  .pipeline-strip {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    font-family: var(--label-font);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .pipe-node {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    white-space: nowrap;
+    transition: border-color .2s;
+  }
+  .pipe-node.active { border-color: var(--orange); color: var(--orange); }
+  .pipe-arrow { color: var(--text-muted); flex-shrink: 0; }
+
+  /* ─── Main Layout ─── */
+  .main { padding: 28px 32px 60px; }
+
+  /* ─── Section Label ─── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-family: var(--label-font);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-label span { padding: 2px 8px; border-radius: 4px; }
+  .sl-input span  { background: var(--blue-dim); color: var(--blue); }
+  .sl-matrix span { background: var(--orange-dim); color: var(--orange); }
+  .sl-output span { background: var(--red-dim); color: var(--red); }
+
+  /* ─── IO Strip ─── */
+  .io-strip {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .io-card {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .io-card-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--label-font);
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .io-card-title svg { flex-shrink: 0; }
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: var(--label-font);
+    font-size: 11px;
+    color: #a8c0e0;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.7;
+  }
+  .code-key   { color: var(--purple); }
+  .code-str   { color: var(--green); }
+  .code-num   { color: var(--orange); }
+  .code-bool  { color: var(--cyan); }
+  .code-punct { color: var(--text-dim); }
+  .code-comment { color: #4a5a70; }
+  .code-add   { color: var(--green); }
+  .code-del   { color: var(--red); }
+
+  /* ─── Matrix Grid ─── */
+  .matrix-header {
+    display: grid;
+    grid-template-columns: 180px 1fr 48px 1fr 48px 1fr 48px 1fr;
+    gap: 0;
+    margin-bottom: 0;
+  }
+
+  .matrix-container {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg2);
+    margin-bottom: 28px;
+  }
+
+  /* Column headers */
+  .col-headers {
+    display: grid;
+    grid-template-columns: 180px 1fr 64px 1fr 64px 1fr 64px 1fr;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+  }
+  .col-header {
+    padding: 10px 8px;
+    font-family: var(--label-font);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .col-header.ch-skill { color: var(--blue); }
+  .col-header.ch-input { color: var(--purple); }
+  .col-header.ch-step { color: var(--cyan); }
+  .col-header.ch-output { color: var(--green); }
+  .col-header.ch-result { color: var(--orange); }
+
+  /* Rows */
+  .skill-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 64px 1fr 64px 1fr 64px 1fr;
+    border-bottom: 1px solid var(--border);
+    align-items: stretch;
+    transition: background .15s;
+  }
+  .skill-row:last-child { border-bottom: none; }
+  .skill-row:hover { background: rgba(255,255,255,.015); }
+
+  .cell {
+    padding: 14px 12px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+  }
+  .cell:last-child { border-right: none; }
+
+  /* Skill name cell */
+  .cell-skill-name {
+    padding: 14px 16px;
+  }
+  .skill-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .skill-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #dce8ff;
+    line-height: 1.3;
+  }
+  .skill-meta {
+    font-family: var(--label-font);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* Arrow cell */
+  .cell-arrow {
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border-right: none;
+  }
+  .arrow-svg { color: var(--text-muted); }
+
+  /* Tag pills */
+  .tag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: var(--label-font);
+    font-size: 10px;
+    font-weight: 600;
+    width: fit-content;
+  }
+  .tag-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid #4a3570; }
+  .tag-cyan   { background: var(--cyan-dim);   color: var(--cyan);   border: 1px solid #1a4a50; }
+  .tag-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid #1e4a2e; }
+  .tag-orange { background: var(--orange-dim); color: var(--orange); border: 1px solid #4a3218; }
+  .tag-red    { background: var(--red-dim);    color: var(--red);    border: 1px solid #4a1a1a; }
+  .tag-blue   { background: var(--blue-dim);   color: var(--blue);   border: 1px solid #1a3a5e; }
+  .tag-yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid #3a2e10; }
+
+  /* Step list */
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1px solid var(--border-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--label-font);
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+  .step-text {
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .step-sub {
+    font-family: var(--label-font);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* Output result badge */
+  .result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 5px;
+    font-family: var(--label-font);
+    font-size: 11px;
+    font-weight: 700;
+    width: fit-content;
+  }
+  .result-fail  { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+  .result-warn  { background: var(--orange-dim); color: var(--orange); border: 1px solid var(--orange); }
+  .result-pass  { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
+  .result-info  { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue); }
+
+  .output-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: var(--label-font);
+    letter-spacing: .5px;
+  }
+
+  /* ─── Diff Result Panel ─── */
+  .diff-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .diff-panel-header {
+    background: var(--bg3);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .diff-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--label-font);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--orange);
+  }
+  .diff-panel-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .diff-col-title {
+    font-family: var(--label-font);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── Mutation Panel ─── */
+  .mutation-panel {
+    background: var(--bg2);
+    border: 1px solid #3d2a10;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .mutation-header {
+    background: linear-gradient(90deg, #2a1a08 0%, var(--bg3) 100%);
+    padding: 12px 20px;
+    border-bottom: 1px solid #3d2a10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mutation-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--label-font);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--orange);
+  }
+  .mutation-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* ─── Flow connector ─── */
+  .flow-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 0;
+    color: var(--text-muted);
+    font-family: var(--label-font);
+    font-size: 10px;
+    gap: 8px;
+  }
+  .flow-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* ─── Score Table ─── */
+  .score-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  .score-table th {
+    font-family: var(--label-font);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .score-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(42,51,72,.5);
+    vertical-align: top;
+  }
+  .score-table tr:last-child td { border-bottom: none; }
+  .score-bar {
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 4px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  .score-fill { height: 100%; border-radius: 2px; }
+
+  /* ─── Summary bar ─── */
+  .summary-bar {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .summary-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+  }
+  .summary-value {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: var(--label-font);
+    line-height: 1;
+  }
+  .summary-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: var(--label-font);
+  }
+  .summary-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+  }
+
+  /* responsive */
+  @media (max-width: 1100px) {
+    .matrix-container { overflow-x: auto; }
+    .col-headers, .skill-row { min-width: 900px; }
+    .diff-panel-body { grid-template-columns: 1fr 1fr; }
+    .mutation-body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════ HEADER ════════════ -->
+<div class="page-header">
+  <div>
+    <div class="page-title">⚡ 评测矩阵 — 拓充版 · InfoVis 元技能自进化引擎</div>
+    <div class="page-subtitle">系统流水线: 生成阶段 → 多维交叉评测 → 差异计算 (Diff) → 技能变异 (Mutation)</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+    <span class="badge badge-matrix">评测矩阵_MATRIX v2.0</span>
+    <span class="badge badge-running"><span class="dot pulse"></span> 系统运行中</span>
+  </div>
+</div>
+
+<!-- ════════════ PIPELINE STRIP ════════════ -->
+<div class="pipeline-strip">
+  <div class="pipe-node">📥 INPUT</div>
+  <span class="pipe-arrow">──▶</span>
+  <div class="pipe-node">⚙️ Meta_Router</div>
+  <span class="pipe-arrow">──▶</span>
+  <div class="pipe-node">🖥️ Generator_Skill</div>
+  <span class="pipe-arrow">──▶</span>
+  <div class="pipe-node">🎨 Visual_Output</div>
+  <span class="pipe-arrow">──▶</span>
+  <div class="pipe-node active">🔬 MATRIX 评测层</div>
+  <span class="pipe-arrow">──▶</span>
+  <div class="pipe-node">⚖️ Diff 差异引擎</div>
+  <span class="pipe-arrow">──▶</span>
+  <div class="pipe-node">🔀 Mutation 变异</div>
+</div>
+
+<!-- ════════════ MAIN ════════════ -->
+<div class="main">
+
+  <!-- ── INPUT ── -->
+  <div class="section-label sl-input"><span>INPUT  →  评测矩阵入口</span></div>
+  <div class="io-strip" style="margin-bottom:20px">
+    <div class="io-card">
+      <div class="io-card-title">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="#a78bfa"><path d="M2 3a1 1 0 011-1h10a1 1 0 011 1v2a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm0 5a1 1 0 011-1h10a1 1 0 011 1v2a1 1 0 01-1 1H3a1 1 0 01-1-1V8zm0 5a1 1 0 011-1h10a1 1 0 011 1v2a1 1 0 01-1 1H3a1 1 0 01-1-1v-2z"/></svg>
+        原始数据负载 (Payload)
+      </div>
+      <div class="code-block"><span class="code-punct">{</span>
+  <span class="code-key">"部门"</span><span class="code-punct">:</span> <span class="code-str">"电商"</span><span class="code-punct">,</span>
+  <span class="code-key">"评分"</span><span class="code-punct">:</span> <span class="code-num">3.4</span><span class="code-punct">,</span>
+  <span class="code-key">"维度"</span><span class="code-punct">:</span> <span class="code-str">"用户满意度"</span><span class="code-punct">,</span>
+  <span class="code-key">"时间范围"</span><span class="code-punct">:</span> <span class="code-str">"Q4-2024"</span>
+<span class="code-punct">}</span></div>
+    </div>
+    <div class="io-card">
+      <div class="io-card-title">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="#58a6ff"><path d="M8 0C5.67 0 4 1.67 4 4c0 1.1.37 2.1 1 2.83V8H4a2 2 0 00-2 2v4a2 2 0 002 2h8a2 2 0 002-2v-4a2 2 0 00-2-2H9V6.83A4 4 0 008 0zm0 2a2 2 0 010 4 2 2 0 010-4z"/></svg>
+        意图配置 (Config)
+      </div>
+      <div class="code-block"><span class="code-comment">// 触发意图列表</span>
+<span class="code-punct">[</span>
+  <span class="code-str">"高管汇报"</span><span class="code-punct">,</span>
+  <span class="code-str">"预警聚焦"</span>
+<span class="code-punct">]</span>
+<span class="code-comment">// → 激活 Generator_Skill</span>
+<span class="code-comment">// → 约束视觉拓扑期望</span></div>
+    </div>
+    <div class="io-card">
+      <div class="io-card-title">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="#39d0d8"><rect x="1" y="2" width="14" height="11" rx="2" ry="2" stroke="#39d0d8" stroke-width="1.5" fill="none"/><path d="M1 5h14" stroke="#39d0d8" stroke-width="1.5"/></svg>
+        视觉产物 (Visual_Output)
+      </div>
+      <div class="code-block"><span class="code-comment">// Generator_Skill 输出</span>
+<span class="code-key">format</span><span class="code-punct">:</span> <span class="code-str">"DOM / SVG / Binary"</span>
+<span class="code-key">chart_type</span><span class="code-punct">:</span> <span class="code-str">"RadarChart"</span>
+<span class="code-key">theme</span><span class="code-punct">:</span> <span class="code-str">"trendy"</span>
+<span class="code-comment">// ⚠ 当前存在缺陷</span></div>
+    </div>
+    <div class="io-card">
+      <div class="io-card-title">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="#e3843c"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2a5 5 0 110 10A5 5 0 018 3zm.5 2.5h-1v4l3.5 2.1.5-.85-3-1.75V7.5z"/></svg>
+        Expected Topology (Config 推导)
+      </div>
+      <div class="code-block"><span class="code-comment">// 由 Info_Router 推导</span>
+<span class="code-punct">{</span>
+  <span class="code-key">"类型"</span><span class="code-punct">:</span> <span class="code-str">"数据对比"</span><span class="code-punct">,</span>
+  <span class="code-key">"核心洞察"</span><span class="code-punct">:</span>
+    <span class="code-str">"评分&lt;3.5 触发预警"</span>
+<span class="code-punct">}</span></div>
+    </div>
+  </div>
+
+  <!-- ── MATRIX ── -->
+  <div class="section-label sl-matrix"><span>评测矩阵_MATRIX — 三技能 × 输入 / 中间步骤 / 输出</span></div>
+
+  <div class="matrix-container">
+    <!-- Column Headers -->
+    <div class="col-headers">
+      <div class="col-header ch-skill">🔬 评测技能</div>
+      <div class="col-header ch-input">⬇️ INPUT</div>
+      <div class="col-header" style="justify-content:center"></div>
+      <div class="col-header ch-step">⚙️ STEP</div>
+      <div class="col-header" style="justify-content:center"></div>
+      <div class="col-header ch-step" style="color:var(--yellow)">📋 INTERMEDIATE</div>
+      <div class="col-header" style="justify-content:center"></div>
+      <div class="col-header ch-output">✅ OUTPUT</div>
+    </div>
+
+    <!-- ─── ROW 1: 信息路由技能 ─── -->
+    <div class="skill-row">
+      <!-- Skill -->
+      <div class="cell cell-skill-name">
+        <div class="skill-icon" style="background:#1a2a4a">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="#58a6ff"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.22 3.22l1.41 1.41M11.37 11.37l1.41 1.41M3.22 12.78l1.41-1.41M11.37 4.63l1.41-1.41" stroke="#58a6ff" stroke-width="1.5"/></svg>
+        </div>
+        <div class="skill-name">信息路由技能</div>
+        <div class="skill-meta">文本大模型 (LLM)</div>
+        <div style="margin-top:6px">
+          <span class="tag tag-blue">🔍 语义解析</span>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Intermediate -->
+      <div class="cell">
+        <div class="code-block" style="font-size:10px;padding:8px 10px"><span class="code-comment">// 中间态: 摩擦力分解</span>
+<span class="code-key">"noise_score"</span>: <span class="code-num">0.72</span>,
+<span class="code-key">"contrast_ratio"</span>: <span class="code-num">1.8</span>,
+<span class="code-key">"density_idx"</span>: <span class="code-num">0.65</span>,
+<span class="code-key">"bg_lines"</span>: <span class="code-num">17</span>  <span class="code-comment">// ⚠ 过多</span></div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Output -->
+      <div class="cell">
+        <div class="output-label">OUTPUT</div>
+        <div class="code-block" style="font-size:10px;padding:8px 10px"><span class="code-key">"friction_level"</span>: <span class="code-str" style="color:var(--red)">"高"</span>,
+<span class="code-key">"detail"</span>:
+  <span class="code-str">"存在多余背景干扰线"</span>,
+<span class="code-key">"score"</span>: <span class="code-num">0.71</span></div>
+        <div style="margin-top:8px">
+          <span class="result-badge result-warn">Friction: HIGH</span>
+        </div>
+        <div style="margin-top:6px">
+          <span class="tag tag-orange">→ 加权 Diff 评分</span>
+        </div>
+      </div>
+    </div><!-- /ROW 3 -->
+
+  </div><!-- /matrix-container -->
+
+  <!-- ── DIFF ENGINE ── -->
+  <div class="section-label sl-output" style="margin-top:8px"><span>拓扑差异计算引擎 — Diff 汇聚 + 评分</span></div>
+
+  <div class="diff-panel">
+    <div class="diff-panel-header">
+      <div class="diff-panel-title">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.5 3.5v4.25l3.5 2.08-.75 1.25L7.5 9.5V4.5h1z"/></svg>
+        拓扑差异计算引擎 (Diff_Engine)
+      </div>
+      <span class="result-badge result-fail">状态: FAIL → 触发技能变异</span>
+    </div>
+    <div class="diff-panel-body">
+      <!-- Col 1: 聚合输入 -->
+      <div>
+        <div class="diff-col-title">⬇ 聚合输入 (3 技能产物)</div>
+        <div class="code-block" style="font-size:10px;line-height:1.8"><span class="code-comment">// 来自 信息路由技能</span>
+<span class="code-key">expected</span> <span class="code-punct">=</span> <span class="code-punct">{</span>
+  <span class="code-key">"类型"</span>: <span class="code-str">"数据对比"</span><span class="code-punct">,</span>
+  <span class="code-key">"核心洞察"</span>: <span class="code-str">"评分&lt;3.5"</span>
+<span class="code-punct">}</span>
+
+<span class="code-comment">// 来自 盲测解码技能</span>
+<span class="code-key">perceived</span> <span class="code-punct">=</span> <span class="code-punct">{</span>
+  <span class="code-key">"类型"</span>: <span class="code-str">"雷达图"</span><span class="code-punct">,</span>
+  <span class="code-key">"核心洞察"</span>: <span class="code-str" style="color:var(--red)">"未找到"</span>
+<span class="code-punct">}</span>
+
+<span class="code-comment">// 来自 认知摩擦力技能</span>
+<span class="code-key">friction</span> <span class="code-punct">=</span> <span class="code-punct">{</span>
+  <span class="code-key">"level"</span>: <span class="code-str" style="color:var(--orange)">"高"</span><span class="code-punct">,</span>
+  <span class="code-key">"score"</span>: <span class="code-num">0.71</span>
+<span class="code-punct">}</span></div>
+      </div>
+      <!-- Col 2: Diff 计算步骤 -->
+      <div>
+        <div class="diff-col-title">⚙ Diff 计算步骤</div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num" style="background:var(--red-dim);border-color:var(--red);color:var(--red)">1</div>
+            <div>
+              <div class="step-text">类型匹配检查</div>
+              <div class="step-sub">"数据对比" ≠ "雷达图" → <span style="color:var(--red)">MISMATCH</span></div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num" style="background:var(--red-dim);border-color:var(--red);color:var(--red)">2</div>
+            <div>
+              <div class="step-text">核心洞察检测</div>
+              <div class="step-sub">expected "评分&lt;3.5" not found → <span style="color:var(--red)">MISSING</span></div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num" style="background:var(--orange-dim);border-color:var(--orange);color:var(--orange)">3</div>
+            <div>
+              <div class="step-text">摩擦力加权惩罚</div>
+              <div class="step-sub">friction=0.71 → penalty ×1.3</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div>
+              <div class="step-text">综合评分计算</div>
+              <div class="step-sub">topology_score = 0.0 / 10</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">5</div>
+            <div>
+              <div class="step-text">阈值判断 → 触发变异</div>
+              <div class="step-sub">score &lt; 6.0 → FAIL → Mutator</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Col 3: 评分详情 + 输出 -->
+      <div>
+        <div class="diff-col-title">✅ Diff 输出 + 评分详情</div>
+        <table class="score-table">
+          <tr>
+            <th>维度</th>
+            <th>期望</th>
+            <th>感知</th>
+            <th>得分</th>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim)">图表类型</td>
+            <td style="color:var(--purple);font-family:var(--label-font);font-size:10px">数据对比</td>
+            <td style="color:var(--red);font-family:var(--label-font);font-size:10px">雷达图</td>
+            <td>
+              <span style="color:var(--red);font-family:var(--label-font);font-weight:700">0/3</span>
+              <div class="score-bar"><div class="score-fill" style="width:0%;background:var(--red)"></div></div>
+            </td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim)">核心洞察</td>
+            <td style="color:var(--purple);font-family:var(--label-font);font-size:10px">评分&lt;3.5预警</td>
+            <td style="color:var(--red);font-family:var(--label-font);font-size:10px">未找到</td>
+            <td>
+              <span style="color:var(--red);font-family:var(--label-font);font-weight:700">0/4</span>
+              <div class="score-bar"><div class="score-fill" style="width:0%;background:var(--red)"></div></div>
+            </td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim)">视觉层次</td>
+            <td style="color:var(--purple);font-family:var(--label-font);font-size:10px">清晰对比</td>
+            <td style="color:var(--orange);font-family:var(--label-font);font-size:10px">噪声干扰</td>
+            <td>
+              <span style="color:var(--orange);font-family:var(--label-font);font-weight:700">1/3</span>
+              <div class="score-bar"><div class="score-fill" style="width:33%;background:var(--orange)"></div></div>
+            </td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim);font-weight:700">总分</td>
+            <td colspan="2"></td>
+            <td>
+              <span style="color:var(--red);font-family:var(--label-font);font-weight:700;font-size:14px">1/10</span>
+              <div class="score-bar"><div class="score-fill" style="width:10%;background:var(--red)"></div></div>
+            </td>
+          </tr>
+        </table>
+        <div style="margin-top:12px;padding:10px;background:var(--red-dim);border:1px solid var(--red);border-radius:6px">
+          <div style="font-family:var(--label-font);font-size:10px;color:var(--red);font-weight:700;margin-bottom:4px">🚨 严重不匹配</div>
+          <div style="font-size:11px;color:#e8a0a0">缺失对「评分 &lt; 3.5」预警条件的视觉强调。拓扑类型错误：期望"数据对比"，实际渲染"雷达图"。认知摩擦力过高，触发加权惩罚。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MUTATION ── -->
+  <div class="section-label sl-output" style="--red:#f85149"><span style="background:var(--orange-dim);color:var(--orange)">技能变异层_MUTATION — 补丁生成 + 版本迭代</span></div>
+
+  <div class="mutation-panel">
+    <div class="mutation-header">
+      <div class="mutation-title">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.5 3.5h1v5h-1V4.5zm0 6h1v1h-1v-1z"/></svg>
+        技能变异器 (Mutator_Skill) — 接收 Diff 差异报告，自动重写 AST / Prompt
+      </div>
+      <span class="badge badge-running"><span class="dot pulse"></span> 补丁生成中</span>
+    </div>
+    <div class="mutation-body">
+      <!-- Left: Input + Steps -->
+      <div>
+        <div style="font-family:var(--label-font);font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">⬇ MUTATOR INPUT</div>
+        <div class="code-block" style="margin-bottom:12px;font-size:10px"><span class="code-comment">// Diff 差异报告输入</span>
+<span class="code-key">"missing_elements"</span>: [
+  <span class="code-str">"alert_threshold_visual"</span>,
+  <span class="code-str">"contrast_emphasis"</span>
+],
+<span class="code-key">"wrong_chart_type"</span>: <span class="code-bool">true</span>,
+<span class="code-key">"friction_penalty"</span>: <span class="code-num">1.3</span>,
+<span class="code-key">"skill_version"</span>: <span class="code-str">"v1.0"</span></div>
+        <div style="font-family:var(--label-font);font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">⚙ MUTATOR STEPS</div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num" style="background:var(--orange-dim);border-color:var(--orange);color:var(--orange)">1</div>
+            <div>
+              <div class="step-text">解析 Diff 报告 → 定位缺陷节点</div>
+              <div class="step-sub">AST 语法树定位 render() 函数</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num" style="background:var(--orange-dim);border-color:var(--orange);color:var(--orange)">2</div>
+            <div>
+              <div class="step-text">生成补丁策略</div>
+              <div class="step-sub">filter + alertTheme + noiseRemoval</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num" style="background:var(--orange-dim);border-color:var(--orange);color:var(--orange)">3</div>
+            <div>
+              <div class="step-text">重写 Generator_Skill AST</div>
+              <div class="step-sub">注入三条修复代码</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div>
+              <div class="step-text">发布新版本 v1.1</div>
+              <div class="step-sub">版本号递增，写回 skill registry</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Right: Output patch -->
+      <div>
+        <div style="font-family:var(--label-font);font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">✅ MUTATOR OUTPUT — 编译补丁发布: v1.1</div>
+        <div class="code-block" style="font-size:11px;line-height:1.9"><span class="code-comment">// 变异后 Generator_Skill v1.1</span>
+<span style="color:#4a5a70">const render = (data) => {</span>
+<span class="code-add">+  const alerts = data.filter(d => d.评分 &lt; 3.5);</span>
+<span class="code-add">+  applyAlertTheme(alerts, 'high_contrast');</span>
+<span class="code-add">+  disableBackgroundNoise();</span>
+  <span class="code-key">return</span> &lt;<span style="color:var(--cyan)">BarChart</span> <span class="code-key">data</span>={data}
+    <span class="code-key">highlight</span>={alerts}
+    <span class="code-key">theme</span>=<span class="code-str">"alert_focus"</span> /&gt;;
+<span style="color:#4a5a70">}</span></div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="tag tag-green">✓ 修复: 预警视觉强调</span>
+            <span class="tag tag-green">✓ 修复: 背景噪声清除</span>
+            <span class="tag tag-green">✓ 修复: 对比度提升</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="tag tag-blue">RadarChart → BarChart</span>
+            <span class="tag tag-blue">trendy → alert_focus</span>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:#1a2e1a;border:1px solid var(--green);border-radius:6px">
+          <div style="font-family:var(--label-font);font-size:10px;color:var(--green);font-weight:700;margin-bottom:4px">🔁 下一轮评测触发</div>
+          <div style="font-size:11px;color:#90c090">v1.1 写入 Generator_Skill → 重新执行 MATRIX 评测 → 预期得分 ≥ 8/10</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUMMARY ── -->
+  <div class="section-label sl-input" style="margin-top:4px"><span>评测汇总 — 本轮结果</span></div>
+  <div class="summary-bar">
+    <div class="summary-metric">
+      <div class="summary-value" style="color:var(--red)">FAIL</div>
+      <div class="summary-label">本轮评测结果</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-metric">
+      <div class="summary-value" style="color:var(--red)">1/10</div>
+      <div class="summary-label">拓扑匹配分</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-metric">
+      <div class="summary-value" style="color:var(--orange)">0.71</div>
+      <div class="summary-label">认知摩擦力</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-metric">
+      <div class="summary-value" style="color:var(--blue)">3</div>
+      <div class="summary-label">评测技能数</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-metric">
+      <div class="summary-value" style="color:var(--purple)">2</div>
+      <div class="summary-label">缺失拓扑节点</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-metric">
+      <div class="summary-value" style="color:var(--orange)">v1.0</div>
+      <div class="summary-label">当前技能版本</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-metric">
+      <div class="summary-value" style="color:var(--green)">v1.1</div>
+      <div class="summary-label">变异后版本</div>
+    </div>
+    <div class="summary-divider"></div>
+    <div style="padding:6px 16px;background:var(--orange-dim);border:1px solid var(--orange);border-radius:8px;font-family:var(--label-font);font-size:11px;color:var(--orange);font-weight:700">
+      🔀 触发 Mutator_Skill → 重写 AST → 循环迭代
+    </div>
+  </div>
+
+</div><!-- /main -->
+</body>
+</html>nejoin="round"/></svg>
+      </div>
+      <!-- Input -->
+      <div class="cell">
+        <div class="tag-list">
+          <span class="tag tag-purple">payload JSON</span>
+          <span class="tag tag-purple">intent config[]</span>
+          <span class="tag tag-blue">Expected Topology</span>
+        </div>
+        <div style="margin-top:6px" class="code-block" style="font-size:10px"><span class="code-comment">// prompt template</span>
+<span class="code-key">role</span>: <span class="code-str">"analyst"</span>
+<span class="code-key">context</span>: <span class="code-str">"高管汇报"</span></div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Steps -->
+      <div class="cell">
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div>
+              <div class="step-text">解析意图向量</div>
+              <div class="step-sub">intent → semantic embedding</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div>
+              <div class="step-text">推导期望拓扑结构</div>
+              <div class="step-sub">config → Expected_Topology</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div>
+              <div class="step-text">提取核心洞察条件</div>
+              <div class="step-sub">评分 &lt; 3.5 → 预警节点</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div>
+              <div class="step-text">结构验证与序列化</div>
+              <div class="step-sub">JSON schema check</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Intermediate -->
+      <div class="cell">
+        <div class="code-block" style="font-size:10px;padding:8px 10px"><span class="code-comment">// 中间态: 语义槽位</span>
+<span class="code-punct">{</span>
+  <span class="code-key">"intent"</span>: <span class="code-str">"预警聚焦"</span>,
+  <span class="code-key">"threshold"</span>: <span class="code-num">3.5</span>,
+  <span class="code-key">"chart_hint"</span>: <span class="code-str">"contrast"</span>,
+  <span class="code-key">"emphasis"</span>: [<span class="code-str">"alert"</span>]
+<span class="code-punct">}</span></div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Output -->
+      <div class="cell">
+        <div class="output-label">OUTPUT</div>
+        <div class="code-block" style="font-size:10px;padding:8px 10px"><span class="code-punct">{</span>
+  <span class="code-key">"类型"</span>: <span class="code-str">"数据对比"</span>,
+  <span class="code-key">"核心洞察"</span>:
+    <span class="code-str">"评分&lt;3.5→预警"</span>
+<span class="code-punct">}</span></div>
+        <div style="margin-top:8px">
+          <span class="result-badge result-info">Expected_Topology ✓</span>
+        </div>
+        <div style="margin-top:6px">
+          <span class="tag tag-green">→ 传入 Diff 引擎</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── ROW 2: 盲测解码技能 ─── -->
+    <div class="skill-row">
+      <!-- Skill -->
+      <div class="cell cell-skill-name">
+        <div class="skill-icon" style="background:#1f2a1a">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="#3fb950"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zm0 2a4 4 0 110 8A4 4 0 018 4zm0 1.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z"/></svg>
+        </div>
+        <div class="skill-name">盲测解码技能</div>
+        <div class="skill-meta">视觉大模型 (VLM)</div>
+        <div style="margin-top:6px">
+          <span class="tag tag-cyan">👁 视觉感知</span>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Input -->
+      <div class="cell">
+        <div class="tag-list">
+          <span class="tag tag-cyan">Visual_Output (DOM/SVG)</span>
+          <span class="tag tag-cyan">渲染截图 (PNG)</span>
+          <span class="tag tag-purple">盲测 prompt</span>
+        </div>
+        <div style="margin-top:6px" class="code-block" style="font-size:10px"><span class="code-comment">// no topology hint</span>
+<span class="code-key">mode</span>: <span class="code-str">"blind"</span>
+<span class="code-comment">// 无先验结构信息</span></div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Steps -->
+      <div class="cell">
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div>
+              <div class="step-text">视觉渲染 → PNG 截图</div>
+              <div class="step-sub">headless browser render</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div>
+              <div class="step-text">VLM 图像描述解析</div>
+              <div class="step-sub">caption → structure tokens</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div>
+              <div class="step-text">提取感知拓扑</div>
+              <div class="step-sub">Perceived_Topology</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div>
+              <div class="step-text">核心洞察可读性评分</div>
+              <div class="step-sub">insight detectability ∈[0,1]</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Intermediate -->
+      <div class="cell">
+        <div class="code-block" style="font-size:10px;padding:8px 10px"><span class="code-comment">// VLM 中间态输出</span>
+<span class="code-key">"raw_caption"</span>:
+  <span class="code-str">"雷达图，含多边形"</span>,
+<span class="code-key">"elements"</span>: [
+  <span class="code-str">"RadarChart"</span>
+],
+<span class="code-key">"insight_found"</span>:
+  <span class="code-bool">false</span>  <span class="code-comment">// 关键</span></div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Output -->
+      <div class="cell">
+        <div class="output-label">OUTPUT</div>
+        <div class="code-block" style="font-size:10px;padding:8px 10px"><span class="code-punct">{</span>
+  <span class="code-key">"类型"</span>: <span class="code-str">"雷达图"</span>,
+  <span class="code-key">"核心洞察"</span>:
+    <span class="code-str" style="color:var(--red)">"未找到/视觉不清晰"</span>
+<span class="code-punct">}</span></div>
+        <div style="margin-top:8px">
+          <span class="result-badge result-fail">Perceived ≠ Expected</span>
+        </div>
+        <div style="margin-top:6px">
+          <span class="tag tag-red">→ 触发 Diff 差异</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── ROW 3: 认知摩擦力技能 ─── -->
+    <div class="skill-row">
+      <!-- Skill -->
+      <div class="cell cell-skill-name">
+        <div class="skill-icon" style="background:#2a1f10">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="#e3843c"><path d="M8 1L1 14h14L8 1zm0 3l4.5 8H3.5L8 4zm-.5 3v3h1V7h-1zm0 4v1h1v-1h-1z"/></svg>
+        </div>
+        <div class="skill-name">认知摩擦力技能</div>
+        <div class="skill-meta">感知负荷评估器</div>
+        <div style="margin-top:6px">
+          <span class="tag tag-orange">⚡ 噪声检测</span>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Input -->
+      <div class="cell">
+        <div class="tag-list">
+          <span class="tag tag-cyan">Visual_Output (DOM)</span>
+          <span class="tag tag-cyan">渲染截图 (PNG)</span>
+          <span class="tag tag-orange">视觉复杂度阈值</span>
+        </div>
+        <div style="margin-top:6px" class="code-block" style="font-size:10px"><span class="code-key">threshold_noise</span>: <span class="code-num">0.3</span>
+<span class="code-key">focus_region</span>: <span class="code-str">"center"</span></div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <!-- Steps -->
+      <div class="cell">
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div>
+              <div class="step-text">背景干扰线检测</div>
+              <div class="step-sub">edge density → noise score</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div>
+              <div class="step-text">色彩对比度分析</div>
+              <div class="step-sub">WCAG contrast ratio check</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div>
+              <div class="step-text">信息密度评分</div>
+              <div class="step-sub">element count / viewport area</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div>
+              <div class="step-text">综合摩擦力指数</div>
+              <div class="step-sub">friction = f(noise, contrast, density)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div class="cell cell-arrow">
+        <svg class="arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-li

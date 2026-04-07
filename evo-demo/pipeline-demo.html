@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfoVis 自进化引擎 — 完整演示</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #060d1f;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    max-width: 1200px;
+    margin: 0 auto 48px;
+    text-align: center;
+  }
+  .page-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #38bdf8;
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.3);
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .page-title {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #f1f5f9, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  .page-desc {
+    font-size: 15px;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ── PIPELINE FLOW ── */
+  .pipeline-flow {
+    max-width: 1200px;
+    margin: 0 auto 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .flow-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    background: #0f172a;
+    border: 1px solid #1e3a5f;
+    border-radius: 12px;
+    min-width: 120px;
+    text-align: center;
+  }
+  .flow-stage.active { border-color: #38bdf8; background: rgba(56,189,248,0.06); }
+  .flow-stage.pass { border-color: #22c55e; background: rgba(34,197,94,0.06); }
+  .flow-icon { font-size: 24px; }
+  .flow-name { font-size: 12px; font-weight: 600; color: #94a3b8; }
+  .flow-sub { font-size: 10px; color: #475569; }
+  .flow-arrow {
+    font-size: 20px;
+    color: #334155;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+  .flow-arrow.loop { color: #f59e0b; }
+
+  /* ── ITERATIONS ── */
+  .iterations {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .iteration-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .iter-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .iter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #0f172a;
+    border: 1px solid #1e3a5f;
+    border-radius: 10px;
+    padding: 12px 20px;
+    width: fit-content;
+  }
+  .iter-badge .num {
+    font-size: 28px;
+    font-weight: 800;
+    color: #38bdf8;
+    line-height: 1;
+  }
+  .iter-badge .label { font-size: 13px; color: #64748b; }
+
+  .score-display {
+    background: #0f172a;
+    border-radius: 12px;
+    padding: 20px 24px;
+    border-left: 3px solid #ef4444;
+  }
+  .score-display.warn { border-left-color: #f59e0b; }
+  .score-display.pass { border-left-color: #22c55e; }
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .score-big { font-size: 42px; font-weight: 800; color: #ef4444; line-height: 1; }
+  .score-big.warn { color: #f59e0b; }
+  .score-big.pass { color: #22c55e; }
+  .score-label { font-size: 13px; color: #64748b; }
+  .score-bar-bg {
+    height: 6px;
+    background: #1e293b;
+    border-radius: 3px;
+    margin: 12px 0 8px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .score-dims {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .dim-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+  }
+  .dim-name { color: #475569; }
+  .dim-val { color: #94a3b8; font-weight: 600; }
+
+  .mutation-list {
+    background: #0c1420;
+    border-radius: 12px;
+    padding: 16px 20px;
+    border: 1px solid #1e3a5f;
+  }
+  .mutation-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #f59e0b;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .patch {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+  .patch-priority {
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+    height: fit-content;
+    margin-top: 1px;
+  }
+  .p0 { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .p1 { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .p2 { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
+  .patch-content { color: #94a3b8; line-height: 1.6; }
+  .patch-content strong { color: #cbd5e1; }
+
+  /* ── CHART PREVIEW ── */
+  .chart-preview-wrap {
+    background: #0f172a;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #1e3a5f;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+  }
+  .preview-label {
+    font-size: 11px;
+    color: #475569;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .status-pill {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .pill-fail { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .pill-pass { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+
+  /* Mini chart inside preview */
+  .mini-chart { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+  /* ── FINAL RESULT ── */
+  .final-result {
+    max-width: 1200px;
+    margin: 48px auto 0;
+    background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(56,189,248,0.06));
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 20px;
+    padding: 40px 48px;
+  }
+  .final-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .final-icon { font-size: 40px; }
+  .final-title { font-size: 24px; font-weight: 800; color: #22c55e; }
+  .final-sub { font-size: 14px; color: #64748b; margin-top: 4px; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: rgba(15,23,42,0.8);
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 1px solid #1e3a5f;
+  }
+  .stat-label { font-size: 11px; color: #475569; margin-bottom: 8px; }
+  .stat-value { font-size: 32px; font-weight: 800; line-height: 1; }
+  .stat-desc { font-size: 12px; color: #475569; margin-top: 6px; }
+
+  .evo-trajectory {
+    background: rgba(15,23,42,0.8);
+    border-radius: 12px;
+    padding: 20px 24px;
+    border: 1px solid #1e3a5f;
+    margin-bottom: 20px;
+  }
+  .traj-title { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 16px; }
+  .traj-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .traj-iter { font-size: 12px; color: #475569; width: 50px; flex-shrink: 0; }
+  .traj-bar-bg { flex: 1; height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; }
+  .traj-bar-fill { height: 100%; border-radius: 4px; }
+  .traj-score { font-size: 13px; font-weight: 700; width: 50px; text-align: right; flex-shrink: 0; }
+  .traj-status { font-size: 11px; width: 50px; flex-shrink: 0; }
+
+  .insights-box {
+    background: rgba(15,23,42,0.8);
+    border-radius: 12px;
+    padding: 20px 24px;
+    border: 1px solid #1e3a5f;
+  }
+  .insights-title { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 14px; }
+  .insight-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+  .insight-tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+    height: fit-content;
+  }
+  .tag-type { background: rgba(56,189,248,0.15); color: #38bdf8; }
+  .tag-insight { background: rgba(168,85,247,0.15); color: #a855f7; }
+  .tag-friction { background: rgba(245,158,11,0.15); color: #f59e0b; }
+
+  /* DIVIDER */
+  .iter-divider {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #1e3a5f;
+    font-size: 12px;
+  }
+  .divider-line { flex: 1; height: 1px; background: #1e3a5f; }
+  .divider-arrow { color: #f59e0b; font-size: 20px; }
+
+  /* Inline bar chart component */
+  .inline-chart { width: 100%; }
+  .ic-bar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+  .ic-label { font-size: 12px; color: #94a3b8; width: 36px; flex-shrink: 0; text-align: right; }
+  .ic-bar-wrap { flex: 1; height: 28px; background: #0f172a; border-radius: 6px; overflow: hidden; position: relative; }
+  .ic-bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 10px; }
+  .ic-val { font-size: 13px; font-weight: 700; }
+  .ic-threshold {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: #f59e0b;
+    opacity: 0.7;
+  }
+  .ic-warning-badge {
+    font-size: 10px;
+    background: #ef4444;
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-tag">InfoVis AutoEvo Engine · Session evo-20260318</div>
+  <div class="page-title">自进化流水线完整演示</div>
+  <div class="page-desc">Case #1：电商部门评分预警 · 通过阈值 9.6 分 · 自动迭代直到达标</div>
+</div>
+
+<!-- Pipeline Flow -->
+<div class="pipeline-flow">
+  <div class="flow-stage active">
+    <div class="flow-icon">📥</div>
+    <div class="flow-name">INPUT</div>
+    <div class="flow-sub">数据 + 意图</div>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-stage active">
+    <div class="flow-icon">⚙️</div>
+    <div class="flow-name">Generator</div>
+    <div class="flow-sub">visual-creator</div>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-stage active">
+    <div class="flow-icon">🔬</div>
+    <div class="flow-name">Evaluator</div>
+    <div class="flow-sub">infovis-evaluator</div>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-stage active">
+    <div class="flow-icon">📊</div>
+    <div class="flow-name">Diff Engine</div>
+    <div class="flow-sub">拓扑差异</div>
+  </div>
+  <div class="flow-arrow loop">↩</div>
+  <div class="flow-stage active">
+    <div class="flow-icon">🧬</div>
+    <div class="flow-name">Mutator</div>
+    <div class="flow-sub">变异反哺</div>
+  </div>
+  <div class="flow-arrow" style="color:#22c55e;">→</div>
+  <div class="flow-stage pass">
+    <div class="flow-icon">✅</div>
+    <div class="flow-name">PASS</div>
+    <div class="flow-sub">≥ 9.6 分</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ ITERATION 1 ═══════════════════ -->
+<div class="iterations">
+
+<div class="iteration-block">
+  <!-- Left: Meta + Score + Mutation -->
+  <div class="iter-meta">
+    <div class="iter-badge">
+      <div class="num">01</div>
+      <div class="label">第 1 轮迭代<br><span style="color:#64748b;font-size:11px;">Generator v1.0 — 初始生成</span></div>
+    </div>
+
+    <div class="score-display">
+      <div class="score-row">
+        <div>
+          <div class="score-label">本轮综合评分</div>
+          <div class="score-big">5.35</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="score-label">状态</div>
+          <span class="status-pill pill-fail">❌ FAIL</span>
+        </div>
+      </div>
+      <div class="score-bar-bg">
+        <div class="score-bar-fill" style="width:53.5%; background:linear-gradient(90deg,#ef4444,#f97316);"></div>
+      </div>
+      <div style="font-size:11px; color:#475569; margin-top:4px;">目标 9.6 · 差距 4.25</div>
+      <div class="score-dims">
+        <div class="dim-item"><span class="dim-name">图表类型匹配</span><span class="dim-val">2.0</span></div>
+        <div class="dim-item"><span class="dim-name">核心洞察可读</span><span class="dim-val">1.23</span></div>
+        <div class="dim-item"><span class="dim-name">必要元素覆盖</span><span class="dim-val">0.63</span></div>
+        <div class="dim-item"><span class="dim-name">认知摩擦惩罚</span><span class="dim-val">1.5</span></div>
+      </div>
+    </div>
+
+    <div class="mutation-list">
+      <div class="mutation-title">🔧 自动生成变异补丁</div>
+      <div class="patch">
+        <span class="patch-priority p0">P0</span>
+        <div class="patch-content"><strong>[INSIGHT]</strong> 缺少预警阈值线。指令：添加 y=3.5 黄色虚线，标注"预警线 3.5"</div>
+      </div>
+      <div class="patch">
+        <span class="patch-priority p0">P0</span>
+        <div class="patch-content"><strong>[COLOR]</strong> 所有柱子同色，无法识别预警状态。指令：低于3.5 → 红色 #ef4444，高于3.5 → 绿色 #22c55e</div>
+      </div>
+      <div class="patch">
+        <span class="patch-priority p1">P1</span>
+        <div class="patch-content"><strong>[ELEMENT]</strong> 缺少预警标识。指令：预警柱子顶部添加 "⚠ 预警" 标签</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Chart Preview V1 -->
+  <div class="chart-preview-wrap">
+    <div class="preview-label">
+      可视化产物 v1.0
+      <span class="status-pill pill-fail">FAIL 5.35</span>
+    </div>
+    <div class="mini-chart">
+      <div style="font-size:13px;color:#f1f5f9;font-weight:600;margin-bottom:4px;">各部门 2024-Q1 服务评分</div>
+      <div style="font-size:11px;color:#64748b;margin-bottom:20px;">问题：无阈值线 · 全蓝无区分 · 无预警标识</div>
+      <div class="inline-chart">
+        <div class="ic-bar-row">
+          <span class="ic-label">电商</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:56%; background:#3b82f6;">
+              <span class="ic-val" style="color:#bfdbfe;">2.8</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label">物流</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:82%; background:#3b82f6;">
+              <span class="ic-val" style="color:#bfdbfe;">4.1</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label">客服</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:64%; background:#3b82f6;">
+              <span class="ic-val" style="color:#bfdbfe;">3.2</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label">运营</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:94%; background:#3b82f6;">
+              <span class="ic-val" style="color:#bfdbfe;">4.7</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label">技术</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:78%; background:#3b82f6;">
+              <span class="ic-val" style="color:#bfdbfe;">3.9</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div style="font-size:10px; color:#475569; margin-top:8px;">* 黄线为隐藏的阈值位置，图中未显示预警状态</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Divider with mutation arrow -->
+<div class="iter-divider">
+  <div class="divider-line"></div>
+  <span class="divider-arrow">🧬 变异反哺 → 第 2 轮迭代</span>
+  <div class="divider-line"></div>
+</div>
+
+
+<!-- ═══════════════════ ITERATION 2 ═══════════════════ -->
+<div class="iteration-block">
+  <div class="iter-meta">
+    <div class="iter-badge">
+      <div class="num">02</div>
+      <div class="label">第 2 轮迭代<br><span style="color:#64748b;font-size:11px;">注入变异补丁后重新生成</span></div>
+    </div>
+
+    <div class="score-display warn">
+      <div class="score-row">
+        <div>
+          <div class="score-label">本轮综合评分</div>
+          <div class="score-big warn">8.30</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="score-label">状态</div>
+          <span class="status-pill" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">⚠️ WARN</span>
+        </div>
+      </div>
+      <div class="score-bar-bg">
+        <div class="score-bar-fill" style="width:83%; background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div>
+      </div>
+      <div style="font-size:11px; color:#475569; margin-top:4px;">目标 9.6 · 差距 1.30 · 提升 +2.95</div>
+      <div class="score-dims">
+        <div class="dim-item"><span class="dim-name">图表类型匹配</span><span class="dim-val">2.0</span></div>
+        <div class="dim-item"><span class="dim-name">核心洞察可读</span><span class="dim-val">2.87</span></div>
+        <div class="dim-item"><span class="dim-name">必要元素覆盖</span><span class="dim-val">1.88</span></div>
+        <div class="dim-item"><span class="dim-name">认知摩擦惩罚</span><span class="dim-val">1.56</span></div>
+      </div>
+    </div>
+
+    <div class="mutation-list">
+      <div class="mutation-title">🔧 第 2 轮变异补丁</div>
+      <div class="patch">
+        <span class="patch-priority p1">P1</span>
+        <div class="patch-content"><strong>[INSIGHT]</strong> 缺少差距量化标注。指令：预警柱标注 "差 -0.7" / "差 -0.3"</div>
+      </div>
+      <div class="patch">
+        <span class="patch-priority p1">P1</span>
+        <div class="patch-content"><strong>[ELEMENT]</strong> 缺少底部统计摘要。指令：添加 "2/5部门预警" 等汇总信息栏</div>
+      </div>
+      <div class="patch">
+        <span class="patch-priority p2">P2</span>
+        <div class="patch-content"><strong>[FRICTION]</strong> 柱子渐变色轻微增加噪声。指令：改为纯色填充</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Preview V2 -->
+  <div class="chart-preview-wrap">
+    <div class="preview-label">
+      可视化产物 v2.0
+      <span class="status-pill" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">WARN 8.30</span>
+    </div>
+    <div class="mini-chart">
+      <div style="font-size:13px;color:#f1f5f9;font-weight:600;margin-bottom:4px;">各部门 2024-Q1 服务评分</div>
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:16px;">改进：✅ 阈值线 · ✅ 双色预警 · ✅ 预警标签</div>
+      <div class="inline-chart">
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#fca5a5;">电商</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:56%; background:linear-gradient(90deg,#ef4444,#dc2626);">
+              <span class="ic-val" style="color:#fca5a5;">2.8</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+            <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:10px;color:#ef4444;background:rgba(239,68,68,0.15);padding:1px 5px;border-radius:3px;">⚠ 预警</span>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#bbf7d0;">物流</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:82%; background:linear-gradient(90deg,#22c55e,#16a34a);">
+              <span class="ic-val" style="color:#bbf7d0;">4.1</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#fca5a5;">客服</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:64%; background:linear-gradient(90deg,#ef4444,#dc2626);">
+              <span class="ic-val" style="color:#fca5a5;">3.2</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+            <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:10px;color:#ef4444;background:rgba(239,68,68,0.15);padding:1px 5px;border-radius:3px;">⚠ 预警</span>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#bbf7d0;">运营</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:94%; background:linear-gradient(90deg,#22c55e,#16a34a);">
+              <span class="ic-val" style="color:#bbf7d0;">4.7</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#bbf7d0;">技术</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:78%; background:linear-gradient(90deg,#22c55e,#16a34a);">
+              <span class="ic-val" style="color:#bbf7d0;">3.9</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div style="font-size:10px; color:#64748b; margin-top:8px;">仍缺：差距量化标注 · 底部统计摘要</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Divider -->
+<div class="iter-divider">
+  <div class="divider-line"></div>
+  <span class="divider-arrow">🧬 变异反哺 → 第 3 轮迭代（最终轮）</span>
+  <div class="divider-line"></div>
+</div>
+
+
+<!-- ═══════════════════ ITERATION 3 ═══════════════════ -->
+<div class="iteration-block">
+  <div class="iter-meta">
+    <div class="iter-badge">
+      <div class="num">03</div>
+      <div class="label">第 3 轮迭代<br><span style="color:#22c55e;font-size:11px;">最终轮 · 达标通过</span></div>
+    </div>
+
+    <div class="score-display pass">
+      <div class="score-row">
+        <div>
+          <div class="score-label">本轮综合评分</div>
+          <div class="score-big pass">9.60</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="score-label">状态</div>
+          <span class="status-pill pill-pass">✅ PASS</span>
+        </div>
+      </div>
+      <div class="score-bar-bg">
+        <div class="score-bar-fill" style="width:96%; background:linear-gradient(90deg,#22c55e,#4ade80);"></div>
+      </div>
+      <div style="font-size:11px; color:#475569; margin-top:4px;">达标 ≥ 9.6 · 本轮提升 +1.30</div>
+      <div class="score-dims">
+        <div class="dim-item"><span class="dim-name">图表类型匹配</span><span class="dim-val" style="color:#4ade80;">2.0</span></div>
+        <div class="dim-item"><span class="dim-name">核心洞察可读</span><span class="dim-val" style="color:#4ade80;">3.40</span></div>
+        <div class="dim-item"><span class="dim-name">必要元素覆盖</span><span class="dim-val" style="color:#4ade80;">2.50</span></div>
+        <div class="dim-item"><span class="dim-name">认知摩擦惩罚</span><span class="dim-val" style="color:#4ade80;">1.70</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Preview V3 Final -->
+  <div class="chart-preview-wrap" style="border-color:rgba(34,197,94,0.3);">
+    <div class="preview-label">
+      可视化产物 v3.0 — 最终版
+      <span class="status-pill pill-pass">PASS 9.60</span>
+    </div>
+    <div class="mini-chart">
+      <div style="font-size:13px;color:#f1f5f9;font-weight:600;margin-bottom:4px;">各部门 2024-Q1 服务评分监控</div>
+      <div style="font-size:11px;color:#22c55e;margin-bottom:16px;">✅ 阈值线 · ✅ 双色 · ✅ 预警标签 · ✅ 差距标注 · ✅ 统计摘要</div>
+      <div class="inline-chart">
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#fca5a5;">电商</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:56%; background:#ef4444;">
+              <span class="ic-val" style="color:#fca5a5;">2.8</span>
+              <span style="font-size:10px;color:#fca5a5;margin-left:6px;">差−0.7</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+            <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:10px;color:#fff;background:#ef4444;padding:1px 5px;border-radius:3px;">⚠ 预警</span>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#bbf7d0;">物流</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:82%; background:#22c55e;">
+              <span class="ic-val" style="color:#bbf7d0;">4.1</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#fca5a5;">客服</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:64%; background:#ef4444;">
+              <span class="ic-val" style="color:#fca5a5;">3.2</span>
+              <span style="font-size:10px;color:#fca5a5;margin-left:6px;">差−0.3</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+            <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:10px;color:#fff;background:#ef4444;padding:1px 5px;border-radius:3px;">⚠ 预警</span>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#bbf7d0;">运营</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:94%; background:#22c55e;">
+              <span class="ic-val" style="color:#bbf7d0;">4.7</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <div class="ic-bar-row">
+          <span class="ic-label" style="color:#bbf7d0;">技术</span>
+          <div class="ic-bar-wrap">
+            <div class="ic-bar-fill" style="width:78%; background:#22c55e;">
+              <span class="ic-val" style="color:#bbf7d0;">3.9</span>
+            </div>
+            <div class="ic-threshold" style="left:70%;"></div>
+          </div>
+        </div>
+        <!-- summary row -->
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <div style="flex:1;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:6px 10px;font-size:11px;">
+            <span style="color:#ef4444;font-weight:700;">2/5</span> <span style="color:#64748b;">部门预警</span>
+          </div>
+          <div style="flex:1;background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:6px;padding:6px 10px;font-size:11px;">
+            <span style="color:#22c55e;font-weight:700;">3/5</span> <span style="color:#64748b;">部门达标</span>
+          </div>
+          <div style="flex:1;background:rgba(148,163,184,0.07);border:1px solid #334155;border-radius:6px;padding:6px 10px;font-size:11px;">
+            均分 <span style="color:#94a3b8;font-weight:700;">3.74</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /iterations -->
+
+
+<!-- ═══════════════════ FINAL RESULT ═══════════════════ -->
+<div class="final-result">
+  <div class="final-header">
+    <div class="final-icon">✅</div>
+    <div>
+      <div class="final-title">自进化完成 — 评测通过</div>
+      <div class="final-sub">Session evo-20260318-case001 · Case #1 电商部门评分预警</div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">最终得分</div>
+      <div class="stat-value" style="color:#22c55e;">9.60</div>
+      <div class="stat-desc">满分 10.0 · 通过 ≥9.6</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">迭代轮数</div>
+      <div class="stat-value" style="color:#38bdf8;">3</div>
+      <div class="stat-desc">最大上限 5 轮</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">总分提升</div>
+      <div class="stat-value" style="color:#a855f7;">+4.25</div>
+      <div class="stat-desc">5.35 → 9.60</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">变异补丁</div>
+      <div class="stat-value" style="color:#f59e0b;">6</div>
+      <div class="stat-desc">P0×2 · P1×3 · P2×1</div>
+    </div>
+  </div>
+
+  <!-- Evolution Trajectory -->
+  <div class="evo-trajectory">
+    <div class="traj-title">迭代进化轨迹</div>
+    <div class="traj-row">
+      <span class="traj-iter">第 1 轮</span>
+      <div class="traj-bar-bg">
+        <div class="traj-bar-fill" style="width:53.5%; background:linear-gradient(90deg,#ef4444,#f97316);"></div>
+      </div>
+      <span class="traj-score" style="color:#ef4444;">5.35</span>
+      <span class="traj-status" style="color:#ef4444;">❌ FAIL</span>
+    </div>
+    <div class="traj-row">
+      <span class="traj-iter">第 2 轮</span>
+      <div class="traj-bar-bg">
+        <div class="traj-bar-fill" style="width:83%; background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div>
+      </div>
+      <span class="traj-score" style="color:#f59e0b;">8.30</span>
+      <span class="traj-status" style="color:#f59e0b;">⚠ WARN</span>
+    </div>
+    <div class="traj-row">
+      <span class="traj-iter">第 3 轮</span>
+      <div class="traj-bar-bg">
+        <div class="traj-bar-fill" style="width:96%; background:linear-gradient(90deg,#22c55e,#4ade80);"></div>
+      </div>
+      <span class="traj-score" style="color:#22c55e;">9.60</span>
+      <span class="traj-status" style="color:#22c55e;">✅ PASS</span>
+    </div>
+    <!-- threshold indicator -->
+    <div style="margin-top:10px;display:flex;align-items:center;gap:8px;font-size:11px;color:#475569;">
+      <div style="width:20px;height:2px;border-top:1px dashed #f59e0b;"></div>
+      通过线 9.6（对应进度条 96%）
+    </div>
+  </div>
+
+  <!-- Insights -->
+  <div class="insights-box">
+    <div class="insights-title">📖 本次迭代沉淀的进化洞察</div>
+    <div class="insight-item">
+      <span class="insight-tag tag-type">类型陷阱</span>
+      "高管汇报-预警聚焦"意图下，BarChart 是正确选型，不要误用 RadarChart
+    </div>
+    <div class="insight-item">
+      <span class="insight-tag tag-insight">洞察盲区</span>
+      预警类图表必须包含 threshold_line + alert_color_encoding，缺失任一项导致 P0 级失分
+    </div>
+    <div class="insight-item">
+      <span class="insight-tag tag-insight">洞察盲区</span>
+      底部统计摘要（"2/5部门预警"）显著提升核心洞察可读性分数
+    </div>
+    <div class="insight-item">
+      <span class="insight-tag tag-friction">摩擦源</span>
+      柱状图渐变色在深色背景下引入轻微摩擦，建议改用纯色填充
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
