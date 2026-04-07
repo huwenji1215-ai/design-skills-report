@@ -465,6 +465,231 @@ chart.setOption({
 
 ---
 
+## Vizro 专业级视觉设计原则（麦肯锡标准）
+
+> 以下原则来自 mckinsey/vizro 开源框架——"beautiful by default"的设计哲学，直接内化为本 Skill 的质量标准。
+
+### 核心理念：视觉一致性三要素
+
+Vizro 认为专业数据报告的视觉品质来自三个核心要素：
+
+1. **视觉一致性（Visual Consistency）** —— 报告中所有元素遵循同一套规则，不是"一张图好看"而是"整体协调"
+2. **美学专业性（Professional Aesthetics）** —— 颜色经过科学筛选，字体经过可读性验证，间距遵循数学比例
+3. **可访问性（Accessibility）** —— 所有配色方案必须对色盲用户友好
+
+---
+
+### 色板分类设计：三类色板系统
+
+Vizro 将数据可视化配色分为三类，kwaibool 报告应同样遵循此分类逻辑：
+
+**① 定性色板（Qualitative） —— 分类数据**
+用于区分不同类别，每种颜色含义上"平等"，无序无轻重。
+
+```css
+/* kwaibool 定性色板（10色，循环使用）*/
+--q-1: #1A6FFF;   /* 主蓝 */
+--q-2: #FF5C00;   /* 快手橙 */
+--q-3: #00B96B;   /* 正向绿 */
+--q-4: #FAAD14;   /* 警示黄 */
+--q-5: #722ED1;   /* 分析紫 */
+--q-6: #13C2C2;   /* 青绿 */
+--q-7: #EB2F96;   /* 粉红 */
+--q-8: #2F54EB;   /* 深蓝 */
+--q-9: #52C41A;   /* 浅绿 */
+--q-10: #FA8C16;  /* 橙黄 */
+```
+
+**② 连续色板（Sequential） —— 有序/连续数据**
+用于热力图、面积密度图、单维度强度表达，颜色从浅到深代表数值从低到高。
+
+```css
+/* 蓝色连续（流量/规模类指标）*/
+--seq-blue-0: rgba(26, 111, 255, 0.08);   /* 极低 */
+--seq-blue-1: rgba(26, 111, 255, 0.20);
+--seq-blue-2: rgba(26, 111, 255, 0.40);
+--seq-blue-3: rgba(26, 111, 255, 0.65);
+--seq-blue-4: rgba(26, 111, 255, 0.85);
+--seq-blue-5: #1A6FFF;                    /* 极高 */
+
+/* 橙色连续（活跃度/热度类指标）*/
+--seq-orange-0: rgba(255, 92, 0, 0.08);
+--seq-orange-5: #FF5C00;
+```
+
+**③ 发散色板（Diverging） —— 有正负意义的数据**
+用于对比偏差，中心为中性灰/白，两端分别为正向色（绿）和负向色（红）。
+
+```css
+/* 正负发散色板（环比/同比偏差）*/
+/* 负极端 → 中性 → 正极端 */
+/* #F5222D → #FFF1F0 → #FFFFFF → #F6FFED → #00B96B */
+```
+
+**Vizro 核心原则：所有配色必须通过色盲安全测试（colorblind-safe）。**
+kwaibool 报告实践：定性色板中避免仅靠红绿区分，必须同时配合形状/数字/标签。
+
+---
+
+### 双主题架构：Dark/Light 两套方案
+
+Vizro 默认提供 `vizro_dark`（深色）和 `vizro_light`（浅色）两套主题，支持用户一键切换。这里将此设计思想转化为 kwaibool 报告的两套 CSS 变量方案：
+
+**主题 A：Dark（深色专业版）** —— 默认，适合大屏展示/高管汇报
+```css
+.theme-dark {
+  --bg-page: #111111;
+  --bg-card: #1A1A1A;
+  --bg-card-hover: #222222;
+  --border-color: rgba(255,255,255,0.08);
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255,255,255,0.65);
+  --text-muted: rgba(255,255,255,0.35);
+  --axis-line: rgba(255,255,255,0.12);
+  --grid-line: rgba(255,255,255,0.06);
+  --chart-bg: transparent;
+}
+```
+
+**主题 B：Light（浅色清晰版）** —— 适合文档输出/打印/日常周报
+```css
+.theme-light {
+  --bg-page: #F5F5F5;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FAFAFA;
+  --border-color: #E8E8E8;
+  --text-primary: #1A1A1A;
+  --text-secondary: #595959;
+  --text-muted: #8C8C8C;
+  --axis-line: #E8E8E8;
+  --grid-line: #F0F0F0;
+  --chart-bg: transparent;
+}
+```
+
+**主题选择规则（来自 Vizro 最佳实践）：**
+- 数字指标报告（KPI看板）→ 优先 Dark，数字更突出
+- 详细数据分析报告 → 优先 Light，文字更易读
+- 对外客户报告 → 强制 Light，避免打印变黑
+- 大屏/投影演示 → 强制 Dark，对比度更高
+
+---
+
+### 图表坐标轴的 Vizro 标准
+
+Vizro 对图表坐标轴有明确规范，将其转化为 ECharts 配置：
+
+```javascript
+// Vizro 启发的坐标轴规范
+const vizroAxisStyle = {
+  // 仅显示必要轴线，减少视觉噪音
+  xAxis: {
+    axisLine: { 
+      show: true,
+      lineStyle: { color: 'var(--axis-line)', width: 1 } 
+    },
+    axisTick: { show: false },  // Vizro: 不显示刻度线，减少干扰
+    axisLabel: { 
+      color: 'var(--text-muted)', 
+      fontSize: 11,
+      margin: 8
+    },
+    splitLine: { show: false }  // X轴不显示网格线
+  },
+  yAxis: {
+    axisLine: { show: false },  // Y轴不显示轴线
+    axisTick: { show: false },
+    axisLabel: { 
+      color: 'var(--text-muted)', 
+      fontSize: 11 
+    },
+    splitLine: { 
+      show: true,               // 只有Y轴水平网格线
+      lineStyle: { 
+        color: 'var(--grid-line)', 
+        type: 'solid',           // Vizro: 实线，不用虚线
+        width: 1 
+      } 
+    }
+  }
+};
+```
+
+**Vizro 坐标轴黄金原则：**
+- 去除所有装饰性元素，保留必要功能
+- 轴标签颜色要比数据颜色淡 30%+
+- Y轴只保留水平辅助线，X轴不要垂直辅助线
+- 数值标签统一格式（万/亿/K/M 统一缩写）
+
+---
+
+### 报告布局的 Vizro Grid 思想
+
+Vizro 使用 Grid 系统管理布局，kwaibool 报告参考此原则：
+
+```
+报告页面布局结构（12列网格）：
+
+全宽组件：      [  1  ][  2  ][  3  ][  4  ][  5  ][  6  ][  7  ][  8  ][  9  ][ 10  ][ 11  ][ 12  ]
+KPI 4列布局：   [  1  2  3  ][  4  5  6  ][  7  8  9  ][ 10  11  12  ]
+图表 2列布局：  [    1    2    3    4    5    6    ][    7    8    9    10   11   12   ]
+图表 3列布局：  [    1  2  3  4  ][  5  6  7  8  ][ 9  10  11  12  ]
+```
+
+CSS Grid 实现：
+```css
+/* 主布局容器 */
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+/* 组件跨列 */
+.col-12 { grid-column: span 12; }  /* 全宽 */
+.col-6  { grid-column: span 6; }   /* 半宽 */
+.col-4  { grid-column: span 4; }   /* 三分之一 */
+.col-3  { grid-column: span 3; }   /* 四分之一 */
+.col-8  { grid-column: span 8; }   /* 三分之二 */
+```
+
+---
+
+### Vizro 启发的图表最佳实践
+
+**① 始终包含图表标题（Vizro 强制要求）**
+每个图表必须有清晰的标题，说明"这张图在看什么"，而非仅仅描述数据本身。
+
+- ❌ 错误："日活用户数" 
+- ✅ 正确："日活用户数持续回升，近7日增速加快"
+
+**② 数据标注原则**
+- 折线图：在终点标注最新值
+- 柱图：在柱顶标注数值（数量少于 8 根时）
+- 饼/环图：在图外标注百分比 + 绝对值
+
+**③ 图例位置原则（Vizro 实践）**
+- 图例放在图表正上方或右侧，不放底部（底部易被截断）
+- 图例项超过 5 个时，考虑改用直接标注（Direct Label）代替
+
+**④ Tooltip 设计规范**
+```javascript
+tooltip: {
+  trigger: 'axis',           // 轴触发，不用 'item'（数据点触发噪音大）
+  backgroundColor: 'rgba(26,26,26,0.92)',
+  borderColor: 'transparent',
+  borderRadius: 8,
+  padding: [12, 16],
+  textStyle: { color: '#FFF', fontSize: 13, lineHeight: 20 },
+  formatter: function(params) {
+    // 格式：日期/类目 + 各系列名:值（带单位）
+    // 高亮当前 hover 的系列
+  }
+}
+```
+
+---
+
 ## 执行工作流
 
 当用户需要美化/生成数据报告时，按以下步骤执行：
