@@ -696,6 +696,279 @@ tooltip: {
 
 ---
 
+## 图表质感规范（参考 kwaibool 平台原生风格）
+
+从参考图提炼出 kwaibool 数据报告平台的图表视觉质感标准：
+
+### 折线图质感
+- **线条**：宽度 2px，smooth 曲线，终点加 symbol（圆点 r=4）
+- **面积填充**：线条色 15%→0% 渐变透明填充，营造"托底"感（参考图1/图5蓝绿渐变）
+- **数据点**：hover 时显示空心圆 + tooltip，平时隐藏
+- **多系列**：各系列颜色不同，但面积填充统一半透明，避免遮挡
+
+```javascript
+// 折线图标准质感配置
+{
+  type: 'line',
+  smooth: true,
+  symbol: 'circle',
+  symbolSize: 6,
+  showSymbol: false,       // 平时隐藏，hover 才显示
+  lineStyle: { width: 2 },
+  areaStyle: {
+    color: {
+      type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+      colorStops: [
+        { offset: 0, color: 'rgba(34,97,245,0.15)' },
+        { offset: 1, color: 'rgba(34,97,245,0)' }
+      ]
+    }
+  },
+  emphasis: {
+    focus: 'series',
+    lineStyle: { width: 3 }
+  }
+}
+```
+
+### 柱状图质感
+- **圆角**：`borderRadius: [4, 4, 0, 0]`（顶部圆角，底部直角）
+- **间距**：`barCategoryGap: '40%'`，柱子不要太胖
+- **多系列并排**：`barGap: '8%'`，组间留白
+- **堆叠柱图**：底层无圆角，顶层有圆角（`borderRadius: [4,4,0,0]` 只给最顶层系列）
+- **渐变柱子**（高亮主系列用）：
+
+```javascript
+itemStyle: {
+  borderRadius: [4, 4, 0, 0],
+  color: {
+    type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+    colorStops: [
+      { offset: 0, color: '#2261F5' },
+      { offset: 1, color: 'rgba(34,97,245,0.6)' }
+    ]
+  }
+}
+```
+
+### 环形图质感
+- **半径**：`radius: ['52%', '72%']`（内外圆比例黄金值）
+- **图例**：放在右侧，`orient: 'vertical'`，文字 + 数值两行
+- **中心标注**：在 graphic 里加总量数字，字号 24px
+- **hover**：`emphasis: { scale: true, scaleSize: 6 }`
+
+### KPI 迷你趋势图（Sparkline）质感
+参考图中 KPI 卡片右下角的小折线图：
+```javascript
+// 迷你折线（高度仅 40px）
+{
+  type: 'line',
+  smooth: true,
+  showSymbol: false,
+  lineStyle: { width: 1.5, color: '#2261F5' },
+  areaStyle: {
+    color: { type: 'linear', x:0, y:0, x2:0, y2:1,
+      colorStops: [
+        { offset: 0, color: 'rgba(34,97,245,0.2)' },
+        { offset: 1, color: 'rgba(34,97,245,0)' }
+      ]
+    }
+  },
+  grid: { top: 4, bottom: 4, left: 4, right: 4 },
+  xAxis: { show: false },
+  yAxis: { show: false }
+}
+```
+
+---
+
+## 五套视觉风格系统
+
+> 从 kwaibool 平台参考图提炼的五套完整风格方案，涵盖背景、卡片、图表色序、头部设计、交互质感。
+> 用户未明确指定时，**默认使用 Theme 1（清朗蓝）**。
+
+---
+
+### Theme 1：清朗蓝（默认）`theme-azure`
+
+**适用场景**：日常运营周报、常规数据分析、对外客户报告
+**视觉风格**：白底浅灰，蓝绿主色，干净商务，信息密度高可读性强
+
+```css
+/* Theme 1 - 清朗蓝 */
+--t-bg-page:    #F5F7FA;
+--t-bg-card:    #FFFFFF;
+--t-bg-header:  linear-gradient(135deg, #F0F5FF 0%, #E8F0FE 100%);
+--t-border:     #E8EAED;
+--t-text-pri:   #1A1A1A;
+--t-text-sec:   #5F6368;
+--t-accent:     #2261F5;
+--t-accent-sec: #2DCB8D;
+--t-text-pri:   #1A1A1A;
+--t-text-sec:   #5F6368;
+--t-text-muted: #9AA0A6;
+--t-chart-colors: #2261F5, #2DCB8D, #F5C518, #F5622D, #7B61FF, #00BDD6;
+/* 图表：白色卡片，蓝色/绿色主配，浅灰辅助线 */
+```
+
+**头部风格**：浅蓝渐变背景 + 蓝色品牌标签 + 深色标题
+**KPI卡片**：白底，顶部品牌蓝细线，数字深色大字
+**图表背景**：纯白，淡灰网格线
+**折线**：蓝绿双色，带渐变填充
+
+---
+
+### Theme 2：促销紫（大促活动）`theme-festival`
+
+**适用场景**：大促业绩看板、活动报告、购物节数据
+**视觉风格**：深紫渐变头部，紫粉玫红主配色，活跃感强（参考图2）
+
+```css
+/* Theme 2 - 促销紫 */
+--t-bg-page:    #F8F5FF;
+--t-bg-card:    #FFFFFF;
+--t-bg-header:  linear-gradient(135deg, #6B2FD9 0%, #A855F7 50%, #EC4899 100%);
+--t-border:     #E9D8FD;
+--t-accent:     #7B61FF;
+--t-accent-sec: #FF4081;
+--t-text-pri:   #1A1A1A;
+--t-text-sec:   #4B3A70;
+--t-text-muted: #9A85B8;
+--t-chart-colors: #7B61FF, #FF4081, #B44FE8, #2DCB8D, #F5C518, #00BDD6;
+/* 图表：紫粉玫红配色，带轻微紫色调网格 */
+```
+
+**头部风格**：深紫→玫红渐变，白色文字，活动标签徽章
+**KPI卡片**：白底，顶部紫色渐变线，数字黑色大字
+**图表背景**：纯白，淡紫网格线
+**折线**：紫蓝+玫红双系列，带半透明渐变面积
+
+---
+
+### Theme 3：暖橙活力（运营/增长）`theme-energy`
+
+**适用场景**：增长报告、运营大盘、商业化分析
+**视觉风格**：橙紫对比配色，饱和度高，活力感强（参考图3）
+
+```css
+/* Theme 3 - 暖橙活力 */
+--t-bg-page:    #FFFAF5;
+--t-bg-card:    #FFFFFF;
+--t-bg-header:  linear-gradient(135deg, #FF6B35 0%, #F5622D 50%, #FF8C42 100%);
+--t-border:     #FFE4D0;
+--t-accent:     #F5622D;
+--t-accent-sec: #7B61FF;
+--t-text-pri:   #1A1A1A;
+--t-text-sec:   #5C3D2A;
+--t-text-muted: #A07060;
+--t-chart-colors: #F5622D, #7B61FF, #F5C518, #2DCB8D, #2261F5, #FF4081;
+/* 图表：橙紫主配，暖橙渐变面积 */
+```
+
+**头部风格**：橙红渐变，白色文字，橙色系品牌标签
+**KPI卡片**：白底，顶部橙色渐变线，数字橙红色强调
+**图表背景**：纯白，淡橙网格
+**柱图**：橙紫交替，顶部橙色渐变
+
+---
+
+### Theme 4：深夜科技（大屏/高管汇报）`theme-dark-tech`
+
+**适用场景**：大屏可视化、高管战略汇报、数据中台监控
+**视觉风格**：深黑底色，金黄/青色发光感，科技感强（参考图4）
+
+```css
+/* Theme 4 - 深夜科技 */
+--t-bg-page:    #0D1117;
+--t-bg-card:    #161B22;
+--t-bg-header:  linear-gradient(135deg, #0D1117 0%, #1C2736 100%);
+--t-border:     rgba(255,255,255,0.08);
+--t-accent:     #F5C518;
+--t-accent-sec: #00BDD6;
+--t-text-pri:   #F0F6FC;
+--t-text-sec:   rgba(240,246,252,0.65);
+--t-text-muted: rgba(240,246,252,0.35);
+--t-chart-colors: #F5C518, #F5622D, #FF8C42, #2DCB8D, #00BDD6, #7B61FF;
+/* 图表：金黄/橙红暖色系，深色背景，发光效果 */
+```
+
+**头部风格**：深黑背景，白色大标题，金色/青色装饰元素，科技感图形
+**KPI卡片**：深灰卡片（#161B22），金色/橙色数字，发光投影
+**图表背景**：深色，极细浅色网格线
+**折线**：金黄/橙红配色，带渐变发光效果
+
+ECharts 深色配置：
+```javascript
+// Theme 4 深色图表配色
+const darkTechTheme = {
+  backgroundColor: 'transparent',
+  color: ['#F5C518', '#F5622D', '#FF8C42', '#2DCB8D', '#00BDD6', '#7B61FF'],
+  textStyle: { color: 'rgba(240,246,252,0.65)' },
+  tooltip: {
+    backgroundColor: 'rgba(13,17,23,0.95)',
+    borderColor: 'rgba(255,255,255,0.12)',
+    textStyle: { color: '#F0F6FC' }
+  },
+  xAxis: {
+    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+    axisLabel: { color: 'rgba(240,246,252,0.45)' }
+  },
+  yAxis: {
+    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'solid' } },
+    axisLabel: { color: 'rgba(240,246,252,0.45)' }
+  }
+};
+```
+
+---
+
+### Theme 5：静谧冰蓝（数据分析/研究报告）`theme-ice`
+
+**适用场景**：数据深度分析、用户研究报告、横向对比分析
+**视觉风格**：极浅蓝白底，蓝色系渐变，清爽高信息密度（参考图5）
+
+```css
+/* Theme 5 - 静谧冰蓝 */
+--t-bg-page:    #EEF4FF;
+--t-bg-card:    #FFFFFF;
+--t-bg-header:  linear-gradient(135deg, #DBEAFE 0%, #EDE9FE 100%);
+--t-border:     #DBEAFE;
+--t-accent:     #2261F5;
+--t-accent-sec: #2DCB8D;
+--t-text-pri:   #1E3A5F;
+--t-text-sec:   #3B6395;
+--t-text-muted: #7EA3C4;
+--t-chart-colors: #2261F5, #5585F8, #2DCB8D, #7B61FF, #00BDD6, #8899B2;
+/* 图表：蓝色系主配，同色系深浅变化，高辨识度 */
+```
+
+**头部风格**：浅蓝紫渐变背景，蓝色深色标题，简洁精致
+**KPI卡片**：白底，左侧蓝色竖线，蓝色数字
+**图表背景**：纯白，浅蓝网格
+**折线**：品牌蓝系列，面积渐变蓝
+
+---
+
+## 风格选择决策表
+
+| 场景 | 推荐主题 | 关键词 |
+|------|---------|--------|
+| 日常运营/周报 | Theme 1 清朗蓝（默认）| 清晰、专业、可读 |
+| 大促/节日活动 | Theme 2 促销紫 | 活跃、热烈、节日感 |
+| 增长/商业化 | Theme 3 暖橙活力 | 活力、增长、运营 |
+| 高管汇报/大屏 | Theme 4 深夜科技 | 专业、震撼、高密度 |
+| 数据分析/研究 | Theme 5 静谧冰蓝 | 冷静、分析、高信息密度 |
+| 对外客户/白皮书 | Theme 1 清朗蓝 | 干净、通用、可打印 |
+
+**用户表达与主题映射：**
+- "高端/大气/深色" → Theme 4
+- "活动/大促/购物节" → Theme 2
+- "橙色/活力/增长" → Theme 3
+- "分析/研究/蓝色" → Theme 5
+- 其他（默认）→ Theme 1
+
+---
+
 ## 执行工作流
 
 当用户需要美化/生成数据报告时，按以下步骤执行：
@@ -708,8 +981,16 @@ tooltip: {
 - 是否有图表需求（如有，确认图表类型和数据）
 - 特殊设计要求（如品牌色、特定风格）
 
-### Step 2：选择报告模板方向
-根据报告类型选择页面结构：
+### Step 2：选择视觉主题 + 报告模板方向
+
+**主题选择（依据场景或用户偏好）：**
+- 用户未指定 → 默认 **Theme 1 清朗蓝**
+- "大促/活动/购物节" → **Theme 2 促销紫**
+- "增长/运营/橙色" → **Theme 3 暖橙活力**
+- "深色/大屏/高管" → **Theme 4 深夜科技**
+- "分析/研究/蓝色系" → **Theme 5 静谧冰蓝**
+
+**报告结构方向：**
 - **简洁版**：Header + 4个KPI卡片 + 2-3个图表 + 分析段落
 - **完整版**：Header + KPI看板 + 多图表区 + 深度分析区 + 附录
 - **总结版**：Header + 核心数字 + 一图一文 + 结论建议
