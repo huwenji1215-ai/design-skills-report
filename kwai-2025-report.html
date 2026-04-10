@@ -60,18 +60,50 @@ body {
 /* ── Main ── */
 .main { padding: 52px 52px 96px 56px; min-width: 0; }
 
-/* ── Header ── */
-.report-header { margin-bottom: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--g200); }
-.header-eyebrow { font-size: 11px; color: var(--g400); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 18px; }
+/* ── Header Banner ── */
+.report-header {
+  margin-bottom: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--g200);
+  /* 头部 Banner 装饰区 */
+  background: linear-gradient(135deg, #f0f4ff 0%, #f9faff 40%, #f5f9f5 80%, #fafafa 100%);
+  border-radius: 12px;
+  padding: 36px 40px 40px;
+  margin-left: -8px; margin-right: -8px;
+  position: relative;
+  overflow: hidden;
+}
+/* Banner 装饰：右上角几何图形 */
+.report-header::before {
+  content: '';
+  position: absolute; top: -60px; right: -40px;
+  width: 260px; height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34,97,245,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.report-header::after {
+  content: '';
+  position: absolute; bottom: -20px; right: 120px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,185,107,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.header-eyebrow {
+  font-size: 11px; color: var(--primary); letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.header-eyebrow::before {
+  content: '';
+  display: inline-block; width: 16px; height: 2px;
+  background: var(--primary); border-radius: 1px; flex-shrink: 0;
+}
 .header-title { font-size: 44px; font-weight: 700; color: var(--g900); line-height: 1.08; letter-spacing: -0.025em; margin-bottom: 16px; }
 .header-desc { font-size: 14px; color: var(--g500); line-height: 1.7; max-width: 560px; }
 
 /* ═══════════════════════════════════════════
-   KPI 卡片 — KwaiBI 渐变样式
-   结构：顶部色条 + 渐变底色 + 数字+标签
+   KPI 卡片 — 左竖条 + 渐变底色（无顶部横条）
 ═══════════════════════════════════════════ */
-
-/* 卡片行容器：均匀网格，最小宽度保证不压缩 */
 .kpi-row {
   display: grid;
   gap: 12px;
@@ -81,43 +113,33 @@ body {
 .kpi-row-4 { grid-template-columns: repeat(4, 1fr); }
 .kpi-row-3 { grid-template-columns: repeat(3, 1fr); }
 
-/* 单张卡片 */
+/* 单张卡片：左边 3px 竖条 via box-shadow，无顶部横条 */
 .kc {
   border-radius: 8px;
   border: 1px solid var(--g200);
-  overflow: hidden;
-  background: var(--white);
+  background: linear-gradient(160deg, #ffffff 50%, rgba(34,97,245,0.04) 100%);
   position: relative;
-  /* 微渐变底色：从纯白到极浅品牌色 */
-  background: linear-gradient(160deg, #ffffff 55%, rgba(34,97,245,0.045) 100%);
+  box-shadow: inset 3px 0 0 #2261F5;
 }
-
-/* 顶部 3px 渐变色条 */
-.kc::before {
-  content: '';
-  display: block;
-  height: 3px;
-  background: linear-gradient(90deg, #2261F5 0%, #7B61FF 100%);
+.kc.pos {
+  background: linear-gradient(160deg, #ffffff 50%, rgba(0,185,107,0.04) 100%);
+  box-shadow: inset 3px 0 0 #00B96B;
 }
-
-/* 正向/成长指标：绿色调 */
-.kc.pos { background: linear-gradient(160deg, #ffffff 55%, rgba(0,185,107,0.05) 100%); }
-.kc.pos::before { background: linear-gradient(90deg, #00B96B 0%, #2DCB8D 100%); }
-
-/* 负向/风险指标：红色调 */
-.kc.neg { background: linear-gradient(160deg, #ffffff 55%, rgba(232,67,45,0.05) 100%); }
-.kc.neg::before { background: linear-gradient(90deg, #E8432D 0%, #F87171 100%); }
-
-/* 紫色调（电商/用时） */
-.kc.purple { background: linear-gradient(160deg, #ffffff 55%, rgba(123,97,255,0.05) 100%); }
-.kc.purple::before { background: linear-gradient(90deg, #7B61FF 0%, #A78BFA 100%); }
-
-/* 橙色调（警示/外部预测） */
-.kc.warm { background: linear-gradient(160deg, #ffffff 55%, rgba(217,119,6,0.05) 100%); }
-.kc.warm::before { background: linear-gradient(90deg, #D97706 0%, #F59E0B 100%); }
+.kc.neg {
+  background: linear-gradient(160deg, #ffffff 50%, rgba(232,67,45,0.04) 100%);
+  box-shadow: inset 3px 0 0 #E8432D;
+}
+.kc.purple {
+  background: linear-gradient(160deg, #ffffff 50%, rgba(123,97,255,0.04) 100%);
+  box-shadow: inset 3px 0 0 #7B61FF;
+}
+.kc.warm {
+  background: linear-gradient(160deg, #ffffff 50%, rgba(217,119,6,0.04) 100%);
+  box-shadow: inset 3px 0 0 #D97706;
+}
 
 /* 卡片内容区 */
-.kc-body { padding: 14px 16px 16px; }
+.kc-body { padding: 14px 16px 16px 18px; }
 
 .kc-label {
   font-size: 11px; font-weight: 500;
@@ -141,9 +163,23 @@ body {
 
 /* ── Section ── */
 .section { margin-bottom: 60px; }
-.section-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--g200); }
-.section-num { font-size: 11px; font-weight: 700; color: var(--g300); letter-spacing: 0.06em; font-variant-numeric: tabular-nums; flex-shrink: 0; }
-.section-title { font-size: 15px; font-weight: 600; color: var(--g900); }
+.section-head {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--g200);
+}
+/* 章节序号徽章 */
+.section-num {
+  font-size: 10px; font-weight: 700; color: var(--primary);
+  letter-spacing: 0.06em; font-variant-numeric: tabular-nums; flex-shrink: 0;
+  background: rgba(34,97,245,0.08); border-radius: 4px;
+  padding: 2px 6px; line-height: 1.5;
+}
+/* 章节标题左侧竖条 */
+.section-title {
+  font-size: 15px; font-weight: 600; color: var(--g900);
+  padding-left: 10px;
+  border-left: 3px solid var(--primary);
+}
 .section-summary { font-size: 12px; color: var(--g400); line-height: 1.5; margin-left: auto; text-align: right; max-width: 280px; }
 
 /* ── Chart card ── */
@@ -175,9 +211,27 @@ body {
 /* ── Info cards ── */
 .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
 .info-card { background: var(--white); border: 1px solid var(--g200); border-radius: 6px; padding: 18px 20px; }
-.info-card h4 { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g500); margin-bottom: 14px; }
+.info-card h4 {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--g700); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.info-card h4::before {
+  content: '';
+  display: inline-block; width: 3px; height: 12px;
+  background: var(--primary); border-radius: 2px; flex-shrink: 0;
+}
 .info-card ul { list-style: none; }
-.info-card ul li { font-size: 13px; color: var(--g700); padding: 6px 0; border-bottom: 1px solid var(--g100); line-height: 1.5; }
+.info-card ul li {
+  font-size: 13px; color: var(--g700); padding: 6px 0 6px 10px;
+  border-bottom: 1px solid var(--g100); line-height: 1.5;
+  position: relative;
+}
+.info-card ul li::before {
+  content: '';
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 3px; border-radius: 50%; background: var(--g300);
+}
 .info-card ul li:last-child { border-bottom: none; }
 
 /* ── Forecast ── */
@@ -197,7 +251,13 @@ body {
 .fc-row span:last-child { font-weight: 600; color: var(--g900); }
 
 /* ── Quote & notice ── */
-.quote { border-left: 2px solid var(--primary); padding: 10px 18px; margin: 18px 0; }
+.quote {
+  border-left: 3px solid var(--primary);
+  padding: 12px 18px;
+  margin: 18px 0;
+  background: rgba(34,97,245,0.025);
+  border-radius: 0 6px 6px 0;
+}
 .quote p { font-size: 13px; color: var(--g700); line-height: 1.75; }
 .notice { border: 1px solid var(--g200); border-radius: 6px; padding: 12px 18px; margin-bottom: 14px; }
 .notice-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warning); margin-bottom: 4px; }
@@ -243,6 +303,17 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
 
     <!-- Header -->
     <header class="report-header" id="s0">
+      <!-- Banner 装饰 SVG（网格线 + 圆弧） -->
+      <svg style="position:absolute;top:0;right:0;width:320px;height:200px;pointer-events:none;opacity:0.45" viewBox="0 0 320 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- 网格点阵 -->
+        <defs><pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#2261F5" opacity="0.25"/></pattern></defs>
+        <rect x="160" y="0" width="160" height="200" fill="url(#dots)"/>
+        <!-- 弧线装饰 -->
+        <circle cx="300" cy="0" r="120" stroke="#2261F5" stroke-width="0.6" opacity="0.2" fill="none"/>
+        <circle cx="300" cy="0" r="80" stroke="#7B61FF" stroke-width="0.5" opacity="0.15" fill="none"/>
+        <!-- 右下角绿点 -->
+        <circle cx="210" cy="160" r="28" stroke="#00B96B" stroke-width="0.6" opacity="0.18" fill="none"/>
+      </svg>
       <div class="header-eyebrow">财务深度分析报告 · 快手科技 1024.HK · 数据截止 2025 Q1</div>
       <h1 class="header-title">快手科技<br>2025 年财报深度分析</h1>
       <p class="header-desc">涵盖整体财务、用户质量、电商增长、AI 战略、海外扩张、盈利释放、竞争对比及投资展望九大维度，基于官方财报整理。</p>
@@ -292,7 +363,8 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
     <section class="section" id="s1">
       <div class="section-head">
         <span class="section-num">01</span>
-        <h2 class="section-title">整体财务表现</h2>
+        <h2 class="section-title">
+          <svg style="display:inline;vertical-align:middle;margin-right:6px;margin-bottom:2px" width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="3" height="9" rx="1" fill="#2261F5"/><rect x="5.5" y="2" width="3" height="11" rx="1" fill="#2261F5" opacity="0.6"/><rect x="10" y="6" width="3" height="7" rx="1" fill="#2261F5" opacity="0.35"/></svg>整体财务表现</h2>
         <span class="section-summary">收入利润双双加速，盈利能力创历史新高</span>
       </div>
 
@@ -345,7 +417,8 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
     <section class="section" id="s2">
       <div class="section-head">
         <span class="section-num">02</span>
-        <h2 class="section-title">用户规模与质量</h2>
+        <h2 class="section-title">
+          <svg style="display:inline;vertical-align:middle;margin-right:6px;margin-bottom:2px" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="4" r="2.5" stroke="#2261F5" stroke-width="1.4"/><circle cx="9.5" cy="3.5" r="2" stroke="#2261F5" stroke-width="1.2" opacity="0.5"/><path d="M1 11.5C1 9.567 2.791 8 5 8s4 1.567 4 3.5" stroke="#2261F5" stroke-width="1.4" stroke-linecap="round"/><path d="M9.5 7.5c1.5 0 3 1 3 2.5" stroke="#2261F5" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/></svg>用户规模与质量</h2>
         <span class="section-summary">DAU 时长创新高，ARPU 增速领先用户增速近 10 倍</span>
       </div>
 
@@ -395,7 +468,8 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
     <section class="section" id="s3">
       <div class="section-head">
         <span class="section-num">03</span>
-        <h2 class="section-title">电商与直播购物</h2>
+        <h2 class="section-title">
+          <svg style="display:inline;vertical-align:middle;margin-right:6px;margin-bottom:2px" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.5 2h1.8l1.8 6.5h5.4l1.5-4.5H4.5" stroke="#7B61FF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.2" cy="11.2" r="1.1" fill="#7B61FF"/><circle cx="10" cy="11.2" r="1.1" fill="#7B61FF"/></svg>电商与直播购物</h2>
         <span class="section-summary">GMV 高速增长，2024 年全年超 6800 亿</span>
       </div>
 
@@ -434,7 +508,8 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
     <section class="section" id="s4">
       <div class="section-head">
         <span class="section-num">04</span>
-        <h2 class="section-title">AI 战略布局</h2>
+        <h2 class="section-title">
+          <svg style="display:inline;vertical-align:middle;margin-right:6px;margin-bottom:2px" width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3" y="2" width="8" height="8" rx="2" stroke="#2261F5" stroke-width="1.3"/><path d="M3 12h8" stroke="#2261F5" stroke-width="1.3" stroke-linecap="round" opacity="0.5"/><circle cx="7" cy="6" r="1.5" fill="#2261F5" opacity="0.7"/></svg>AI 战略布局</h2>
         <span class="section-summary">广告技术 + 内容生成双轮驱动</span>
       </div>
       <div class="grid-2">
@@ -454,7 +529,8 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
     <section class="section" id="s5">
       <div class="section-head">
         <span class="section-num">05</span>
-        <h2 class="section-title">海外业务进展</h2>
+        <h2 class="section-title">
+          <svg style="display:inline;vertical-align:middle;margin-right:6px;margin-bottom:2px" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#00BDD6" stroke-width="1.3"/><ellipse cx="7" cy="7" rx="2.5" ry="5.5" stroke="#00BDD6" stroke-width="1" opacity="0.5"/><path d="M1.5 7h11" stroke="#00BDD6" stroke-width="1" opacity="0.5"/></svg>海外业务进展</h2>
         <span class="section-summary">亏损大幅收窄，盈亏平衡在望</span>
       </div>
       <div class="card-row">
@@ -477,7 +553,8 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
     <section class="section" id="s6">
       <div class="section-head">
         <span class="section-num">06</span>
-        <h2 class="section-title">盈利能力与费用控制</h2>
+        <h2 class="section-title">
+          <svg style="display:inline;vertical-align:middle;margin-right:6px;margin-bottom:2px" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10.5L5 7l2.5 2.5 2-2.5L12 4" stroke="#00B96B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 4h2v2" stroke="#00B96B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>盈利能力与费用控制</h2>
         <span class="section-summary">毛利率 + 净利率双提升，费用率三项下降</span>
       </div>
       <div class="chart-card">
@@ -502,7 +579,8 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
     <section class="section" id="s7">
       <div class="section-head">
         <span class="section-num">07</span>
-        <h2 class="section-title">竞争格局与风险</h2>
+        <h2 class="section-title">
+          <svg style="display:inline;vertical-align:middle;margin-right:6px;margin-bottom:2px" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L8.5 5.5H12L9.2 7.8L10.3 11.5L7 9.5L3.7 11.5L4.8 7.8L2 5.5H5.5L7 2Z" stroke="#F5C518" stroke-width="1.3" stroke-linejoin="round" fill="rgba(245,197,24,0.12)"/></svg>竞争格局与风险</h2>
         <span class="section-summary">第二大短视频平台，商业化效率快速追赶抖音</span>
       </div>
       <div class="tbl-wrap">
@@ -526,7 +604,8 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
     <section class="section" id="s8">
       <div class="section-head">
         <span class="section-num">08</span>
-        <h2 class="section-title">投资展望与目标价格</h2>
+        <h2 class="section-title">
+          <svg style="display:inline;vertical-align:middle;margin-right:6px;margin-bottom:2px" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#D97706" stroke-width="1.3"/><path d="M7 4v3.5l2 2" stroke="#D97706" stroke-width="1.3" stroke-linecap="round"/></svg>投资展望与目标价格</h2>
         <span class="section-summary">机构目标价中位 62–68 HK$，估值具备弹性</span>
       </div>
 
