@@ -71,14 +71,37 @@ body {
 
 /* ── Header ── */
 .report-header {
-  margin-bottom: 56px;
-  padding-bottom: 40px;
-  border-bottom: 1px solid var(--g200);
+  margin-bottom: 48px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #f9faff 40%, #f0f6ff 80%, #fafbff 100%);
+  border-radius: 10px;
+  padding: 36px 40px 40px;
+  margin-left: -8px; margin-right: -8px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: none;
+}
+.report-header::before {
+  content: '';
+  position: absolute; top: -60px; right: -40px;
+  width: 280px; height: 280px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(34,97,245,0.09) 0%, transparent 68%);
+  pointer-events: none;
+}
+.report-header::after {
+  content: '';
+  position: absolute; bottom: -24px; right: 130px;
+  width: 150px; height: 150px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,185,107,0.07) 0%, transparent 68%);
+  pointer-events: none;
 }
 .header-eyebrow {
-  font-size: 11px; font-weight: 500;
-  color: var(--g500); letter-spacing: 0.08em;
-  text-transform: uppercase; margin-bottom: 20px;
+  font-size: 11px; color: var(--primary); letter-spacing: 0.10em;
+  text-transform: uppercase; margin-bottom: 18px;
+  display: flex; align-items: center; gap: 8px;
+}
+.header-eyebrow::before {
+  content: ''; display: inline-block; width: 16px; height: 2px;
+  background: var(--primary); border-radius: 1px; flex-shrink: 0;
 }
 .header-title {
   font-size: 40px; font-weight: 700;
@@ -114,26 +137,43 @@ body {
 .hm-delta.up { color: var(--success); }
 .hm-delta.dn { color: var(--danger); }
 
-/* ── KPI Grid (gap=1px dividers) ── */
+/* ── KPI Grid — 独立卡片 + 微质感底色 ── */
 .kpi-grid {
   display: grid;
-  gap: 1px;
-  background: var(--g200);
-  border: 1px solid var(--g200);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 32px;
+  gap: 10px;
+  margin-bottom: 28px;
 }
 .kpi-grid-4 { grid-template-columns: repeat(4, 1fr); }
 .kpi-grid-3 { grid-template-columns: repeat(3, 1fr); }
 .kpi-grid-5 { grid-template-columns: repeat(5, 1fr); }
 
+/* 默认：蓝色微质感 */
 .kc {
-  background: var(--white);
+  border-radius: 8px;
+  border: 1px solid var(--g200);
+  background: linear-gradient(160deg, #ffffff 48%, rgba(34,97,245,0.05) 100%);
   padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+}
+/* 正向指标：绿色调 */
+.kc.pos {
+  background: linear-gradient(160deg, #ffffff 48%, rgba(0,185,107,0.05) 100%);
+}
+/* 负向指标：红色调 */
+.kc.neg {
+  background: linear-gradient(160deg, #ffffff 48%, rgba(232,67,45,0.05) 100%);
+}
+/* 紫色调（次要指标） */
+.kc.purple {
+  background: linear-gradient(160deg, #ffffff 48%, rgba(123,97,255,0.05) 100%);
+  border-color: rgba(123,97,255,0.15);
+}
+/* 暖色调（电商/大促场景） */
+.kc.warm {
+  background: linear-gradient(160deg, #ffffff 48%, rgba(217,119,6,0.05) 100%);
+  border-color: rgba(217,119,6,0.15);
 }
 .kc-left { flex: 1; min-width: 0; }
 .kc-label {
@@ -389,7 +429,7 @@ svg.arr { display: inline-block; vertical-align: middle; }
           </div>
           <canvas class="kc-spark" id="sp-rev" width="80" height="52"></canvas>
         </div>
-        <div class="kc">
+        <div class="kc pos">
           <div class="kc-left">
             <div class="kc-label">毛利润（亿元）</div>
             <div class="kc-num">162</div>
@@ -397,7 +437,7 @@ svg.arr { display: inline-block; vertical-align: middle; }
           </div>
           <canvas class="kc-spark" id="sp-gp" width="80" height="52"></canvas>
         </div>
-        <div class="kc">
+        <div class="kc pos">
           <div class="kc-left">
             <div class="kc-label">经调整净利润（亿元）</div>
             <div class="kc-num">53</div>
@@ -405,7 +445,7 @@ svg.arr { display: inline-block; vertical-align: middle; }
           </div>
           <canvas class="kc-spark" id="sp-np" width="80" height="52"></canvas>
         </div>
-        <div class="kc">
+        <div class="kc purple">
           <div class="kc-left">
             <div class="kc-label">毛利率</div>
             <div class="kc-num">48.2<span class="u">%</span></div>
@@ -535,7 +575,7 @@ svg.arr { display: inline-block; vertical-align: middle; }
       </div>
 
       <div class="kpi-grid kpi-grid-3">
-        <div class="kc">
+        <div class="kc warm">
           <div class="kc-left">
             <div class="kc-label">2024 年电商 GMV（亿）</div>
             <div class="kc-num">6800<span class="u">+</span></div>
