@@ -8,26 +8,21 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Theme 4: Dark ── */
 :root {
   --primary:  #60A5FA;
   --success:  #34D399;
   --danger:   #F87171;
   --warning:  #FCD34D;
+  --purple:   #A78BFA;
+  --cyan:     #22D3EE;
 
   --g900: #F1F5F9;
   --g700: #CBD5E1;
   --g500: #64748B;
   --g400: #475569;
-  --g300: rgba(255,255,255,0.12);
-  --g200: rgba(255,255,255,0.08);
-  --g100: rgba(255,255,255,0.04);
-  --g50:  #0F172A;
-  --white: #1E293B;
-
-  --page-bg: #0F172A;
-  --card-bg: #1E293B;
-  --border:  1px solid rgba(255,255,255,0.08);
+  --page-bg: #0B1120;
+  --card-bg: #161F35;
+  --border: rgba(255,255,255,0.07);
 }
 
 html { scroll-behavior: smooth; }
@@ -41,297 +36,152 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Layout ── */
 .layout {
   display: grid;
-  grid-template-columns: 192px 1fr;
+  grid-template-columns: 184px 1fr;
   min-height: 100vh;
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
 /* ── Sidebar ── */
 .sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  padding: 48px 0 48px 28px;
-  border-right: 1px solid rgba(255,255,255,0.06);
-  background: rgba(15,23,42,0.6);
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  padding: 48px 0 48px 24px;
+  border-right: 1px solid var(--border);
+  background: rgba(11,17,32,0.7);
   backdrop-filter: blur(8px);
 }
-
-.sidebar-brand {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--g400);
-  margin-bottom: 32px;
-}
-
+.sidebar-brand { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g400); margin-bottom: 32px; }
 .nav-list { list-style: none; }
 .nav-item { margin-bottom: 2px; }
-
-.nav-link {
-  display: block;
-  padding: 6px 0;
-  font-size: 12px;
-  color: var(--g500);
-  text-decoration: none;
-  transition: color 0.15s;
-  line-height: 1.4;
-}
-
+.nav-link { display: block; padding: 6px 0; font-size: 12px; color: var(--g500); text-decoration: none; transition: color 0.15s; line-height: 1.4; }
 .nav-link:hover { color: var(--g700); }
 .nav-link.active { color: var(--primary); font-weight: 600; }
-
-.nav-num {
-  font-size: 10px;
-  color: var(--g400);
-  margin-right: 6px;
-  font-variant-numeric: tabular-nums;
-}
+.nav-num { font-size: 10px; color: var(--g400); margin-right: 6px; font-variant-numeric: tabular-nums; }
 
 /* ── Main ── */
-.main {
-  padding: 56px 56px 96px 64px;
-  min-width: 0;
-}
+.main { padding: 52px 52px 96px 56px; min-width: 0; }
 
 /* ── Header ── */
-.report-header {
-  margin-bottom: 64px;
-  padding-bottom: 48px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
+.report-header { margin-bottom: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--border); }
+.header-eyebrow { font-size: 11px; color: var(--g400); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 18px; }
+.header-title { font-size: 44px; font-weight: 700; color: var(--g900); line-height: 1.08; letter-spacing: -0.025em; margin-bottom: 16px; }
+.header-desc { font-size: 14px; color: var(--g500); line-height: 1.7; max-width: 560px; }
 
-.header-eyebrow {
-  font-size: 11px;
-  color: var(--g400);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-}
-
-.header-title {
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--g900);
-  line-height: 1.08;
-  letter-spacing: -0.025em;
-  margin-bottom: 24px;
-}
-
-.header-desc {
-  font-size: 15px;
-  color: var(--g500);
-  line-height: 1.7;
-  max-width: 600px;
-  margin-bottom: 48px;
-}
-
-.header-metrics {
+/* ═══════════════════════════════════════════
+   KPI 卡片 — Dark 渐变样式
+   顶部发光色条 + 深色渐变底色
+═══════════════════════════════════════════ */
+.kpi-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  border-top: 1px solid rgba(255,255,255,0.08);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  padding: 28px 0;
-}
-
-.hm-item {
-  padding: 0 24px 0 0;
-  border-right: 1px solid rgba(255,255,255,0.08);
-}
-.hm-item:last-child { border-right: none; padding-right: 0; }
-.hm-item + .hm-item { padding-left: 24px; }
-
-.hm-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--g400);
-  margin-bottom: 8px;
-}
-
-.hm-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--g900);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
-}
-
-.hm-value sup {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--g500);
-  margin-left: 2px;
-  letter-spacing: 0;
-  vertical-align: baseline;
-  line-height: 1;
-}
-
-.hm-delta { font-size: 12px; font-weight: 500; }
-.hm-delta.up   { color: var(--success); }
-.hm-delta.dn   { color: var(--danger); }
-.hm-delta.note { color: var(--g400); }
-
-/* ── Section ── */
-.section { margin-bottom: 72px; }
-
-.section-head {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.section-num {
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.15);
-  letter-spacing: 0.06em;
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--g900);
-}
-
-.section-summary {
-  font-size: 13px;
-  color: var(--g500);
-  line-height: 1.5;
-  margin-left: auto;
-  text-align: right;
-  max-width: 320px;
-}
-
-/* ── KPI strip (KwaiBI style: left number + right sparkline) ── */
-.kpi-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  overflow: hidden;
+  gap: 12px;
   margin-bottom: 28px;
 }
-.kpi-strip-5 { grid-template-columns: repeat(5, 1fr); }
-.kpi-strip-3 { grid-template-columns: repeat(3, 1fr); }
+.kpi-row-5 { grid-template-columns: repeat(5, 1fr); }
+.kpi-row-4 { grid-template-columns: repeat(4, 1fr); }
+.kpi-row-3 { grid-template-columns: repeat(3, 1fr); }
 
-.kpi-card {
-  background: var(--card-bg);
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
+.kc {
+  border-radius: 8px;
+  border: 1px solid rgba(96,165,250,0.15);
+  overflow: hidden;
+  background: linear-gradient(145deg, #1a2540 0%, #111827 100%);
+  position: relative;
 }
 
-.kpi-left { flex: 1; min-width: 0; }
-
-.kpi-name {
-  font-size: 12px; color: var(--g500); margin-bottom: 6px;
-  display: flex; justify-content: space-between; align-items: center;
+/* 顶部发光色条 */
+.kc::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, #60A5FA 0%, #818CF8 100%);
+  box-shadow: 0 0 8px rgba(96,165,250,0.5);
 }
-.kpi-more { font-size: 13px; color: var(--g400); cursor: pointer; letter-spacing: 0.1em; flex-shrink: 0; }
 
-.kpi-num {
-  font-size: 22px; font-weight: 700; color: var(--g900);
-  line-height: 1; margin-bottom: 6px; letter-spacing: -0.01em;
+.kc.pos {
+  border-color: rgba(52,211,153,0.15);
+  background: linear-gradient(145deg, #152b24 0%, #0d1f1a 100%);
 }
-.kpi-num .u { font-size: 12px; font-weight: 500; color: var(--g500); margin-left: 2px; }
+.kc.pos::before {
+  background: linear-gradient(90deg, #34D399 0%, #6EE7B7 100%);
+  box-shadow: 0 0 8px rgba(52,211,153,0.4);
+}
 
-.kpi-delta { display: flex; align-items: center; gap: 4px; font-size: 11px; flex-wrap: wrap; }
-.kpi-delta .label { color: var(--g400); }
-.kpi-delta .val { font-weight: 600; display: flex; align-items: center; gap: 2px; }
-.kpi-delta .val.up   { color: var(--success); }
-.kpi-delta .val.dn   { color: var(--danger); }
-.kpi-delta .val.flat { color: var(--g400); }
+.kc.neg {
+  border-color: rgba(248,113,113,0.15);
+  background: linear-gradient(145deg, #2a1515 0%, #1a0d0d 100%);
+}
+.kc.neg::before {
+  background: linear-gradient(90deg, #F87171 0%, #FCA5A5 100%);
+  box-shadow: 0 0 8px rgba(248,113,113,0.4);
+}
 
-.kpi-spark { width: 76px; height: 44px; flex-shrink: 0; margin-top: 2px; }
+.kc.purple {
+  border-color: rgba(167,139,250,0.15);
+  background: linear-gradient(145deg, #1e1535 0%, #130f24 100%);
+}
+.kc.purple::before {
+  background: linear-gradient(90deg, #A78BFA 0%, #C4B5FD 100%);
+  box-shadow: 0 0 8px rgba(167,139,250,0.4);
+}
+
+.kc.warm {
+  border-color: rgba(252,211,77,0.12);
+  background: linear-gradient(145deg, #271e0d 0%, #1a1408 100%);
+}
+.kc.warm::before {
+  background: linear-gradient(90deg, #FCD34D 0%, #FDE68A 100%);
+  box-shadow: 0 0 8px rgba(252,211,77,0.3);
+}
+
+.kc-body { padding: 14px 16px 16px; }
+
+.kc-label {
+  font-size: 11px; font-weight: 500;
+  color: var(--g500); margin-bottom: 10px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.kc-num {
+  font-size: 28px; font-weight: 700; color: var(--g900);
+  line-height: 1; letter-spacing: -0.02em; margin-bottom: 8px;
+}
+.kc-num .u { font-size: 13px; font-weight: 500; color: var(--g500); margin-left: 2px; }
+
+.kc-delta {
+  font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; gap: 3px;
+  color: var(--g400);
+}
+.kc-delta.up { color: var(--success); }
+.kc-delta.dn { color: var(--danger); }
+
+/* ── Section ── */
+.section { margin-bottom: 60px; }
+.section-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.section-num { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.12); letter-spacing: 0.06em; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.section-title { font-size: 15px; font-weight: 600; color: var(--g900); }
+.section-summary { font-size: 12px; color: var(--g500); line-height: 1.5; margin-left: auto; text-align: right; max-width: 280px; }
 
 /* ── Chart card ── */
-.chart-card {
-  background: var(--card-bg);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  padding: 24px;
-  margin-bottom: 16px;
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
-  gap: 16px;
-}
-
-.chart-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--g900);
-  line-height: 1.4;
-  margin-bottom: 3px;
-}
-
+.chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 20px 22px; margin-bottom: 14px; }
+.chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 16px; }
+.chart-title { font-size: 13px; font-weight: 600; color: var(--g900); line-height: 1.4; margin-bottom: 2px; }
 .chart-sub { font-size: 11px; color: var(--g400); }
 .chart-aside { font-size: 11px; color: var(--g400); white-space: nowrap; flex-shrink: 0; }
+.chart-foot { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.04); font-size: 11px; color: var(--g400); }
 
-.chart-foot {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  font-size: 11px;
-  color: var(--g400);
-}
-
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
 
 /* ── Table ── */
-.tbl-wrap {
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 32px;
-}
-
+.tbl-wrap { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 22px; }
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-
 .tbl thead tr { background: rgba(255,255,255,0.04); }
-
-.tbl th {
-  padding: 10px 16px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--g400);
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  text-align: left;
-}
+.tbl th { padding: 9px 14px; font-size: 10px; font-weight: 700; color: var(--g400); letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--border); text-align: left; }
 .tbl th.r { text-align: right; }
-
-.tbl td {
-  padding: 11px 16px;
-  color: var(--g700);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  vertical-align: middle;
-}
-
+.tbl td { padding: 10px 14px; color: var(--g700); border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
 .tbl tbody tr:last-child td { border-bottom: none; }
 .tbl tbody tr:hover td { background: rgba(255,255,255,0.03); }
 .tbl td.r { text-align: right; }
@@ -341,138 +191,55 @@ body {
 .tbl td.hi { color: var(--primary); font-weight: 700; }
 
 /* ── Info cards ── */
-.card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-
-.info-card {
-  background: var(--card-bg);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  padding: 20px 24px;
-}
-
-.info-card h4 {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--g500);
-  margin-bottom: 16px;
-}
-
+.card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+.info-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 18px 20px; }
+.info-card h4 { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g500); margin-bottom: 14px; }
 .info-card ul { list-style: none; }
-.info-card ul li {
-  font-size: 13px;
-  color: var(--g700);
-  padding: 7px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  line-height: 1.5;
-}
+.info-card ul li { font-size: 13px; color: var(--g700); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); line-height: 1.5; }
 .info-card ul li:last-child { border-bottom: none; }
 
 /* ── Forecast ── */
-.forecast-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
-
-.fc-card {
-  background: var(--card-bg);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  padding: 20px 24px;
-}
-.fc-card.is-base { border-color: var(--primary); }
-
-.fc-tag {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 2px 7px;
-  border-radius: 3px;
-  margin-bottom: 14px;
-}
-.fc-tag.base { background: rgba(96,165,250,0.15); color: var(--primary); }
-.fc-tag.bull { background: rgba(52,211,153,0.15); color: var(--success); }
-.fc-tag.bear { background: rgba(248,113,113,0.15); color: var(--danger); }
-
-.fc-num {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--g900);
-  letter-spacing: -0.02em;
-  line-height: 1;
-  margin-bottom: 3px;
-}
-.fc-num .u { font-size: 13px; font-weight: 500; color: var(--g500); margin-left: 2px; }
-.fc-meta { font-size: 11px; color: var(--g400); margin-bottom: 16px; }
-
-.fc-rows { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; }
-.fc-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--g500);
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
+.forecast-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+.fc-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 18px 20px; }
+.fc-card.is-base { border-color: rgba(96,165,250,0.35); }
+.fc-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; margin-bottom: 12px; }
+.fc-tag.base { background: rgba(96,165,250,0.12); color: var(--primary); }
+.fc-tag.bull { background: rgba(52,211,153,0.12); color: var(--success); }
+.fc-tag.bear { background: rgba(248,113,113,0.12); color: var(--danger); }
+.fc-num { font-size: 26px; font-weight: 700; color: var(--g900); letter-spacing: -0.02em; line-height: 1; margin-bottom: 2px; }
+.fc-num .u { font-size: 12px; font-weight: 500; color: var(--g500); margin-left: 2px; }
+.fc-meta { font-size: 11px; color: var(--g400); margin-bottom: 14px; }
+.fc-rows { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; }
+.fc-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--g500); padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
 .fc-row:last-child { border-bottom: none; }
 .fc-row span:last-child { font-weight: 600; color: var(--g900); }
 
 /* ── Quote & notice ── */
-.quote {
-  border-left: 2px solid var(--primary);
-  padding: 12px 20px;
-  margin: 24px 0;
-}
-.quote p { font-size: 14px; color: var(--g700); line-height: 1.75; }
+.quote { border-left: 2px solid var(--primary); padding: 10px 18px; margin: 18px 0; }
+.quote p { font-size: 13px; color: var(--g700); line-height: 1.75; }
+.notice { border: 1px solid var(--border); border-radius: 6px; padding: 12px 18px; margin-bottom: 14px; }
+.notice-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warning); margin-bottom: 4px; }
+.notice p { font-size: 13px; color: var(--g700); line-height: 1.6; }
 
-.notice {
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px;
-  padding: 14px 20px;
-  margin-bottom: 16px;
-}
-.notice-tag {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--warning);
-  margin-bottom: 5px;
-}
-.notice p { font-size: 13px; color: var(--g700); line-height: 1.65; }
+svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
 
-/* ── Footer ── */
-.report-footer {
-  margin-top: 80px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  font-size: 11px;
-  color: var(--g400);
-  line-height: 1.8;
-}
+.report-footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--g400); }
 
-/* ── Responsive ── */
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .layout { grid-template-columns: 1fr; }
   .sidebar { display: none; }
-  .main { padding: 32px 20px 64px; }
-  .header-title { font-size: 32px; }
-  .header-metrics { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px 0; }
-  .hm-item { border: none; padding: 0 !important; }
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .grid-2 { grid-template-columns: 1fr; }
-  .grid-3 { grid-template-columns: 1fr; }
-  .card-row { grid-template-columns: 1fr; }
-  .forecast-grid { grid-template-columns: 1fr; }
+  .main { padding: 24px 16px 64px; }
+  .header-title { font-size: 30px; }
+  .kpi-row-5, .kpi-row-4 { grid-template-columns: repeat(2, 1fr); }
+  .kpi-row-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2, .grid-3, .card-row, .forecast-grid { grid-template-columns: 1fr; }
   .section-summary { display: none; }
 }
 </style>
 </head>
 <body>
-
 <div class="layout">
 
-  <!-- ── Sidebar ── -->
   <nav class="sidebar">
     <div class="sidebar-brand">快手科技 · 2025</div>
     <ul class="nav-list">
@@ -488,56 +255,75 @@ body {
     </ul>
   </nav>
 
-  <!-- ── Main ── -->
   <main class="main">
 
     <header class="report-header" id="s0">
       <div class="header-eyebrow">财务深度分析报告 · 快手科技 1024.HK · 数据截止 2025 Q1</div>
       <h1 class="header-title">快手科技<br>2025 年财报深度分析</h1>
-      <p class="header-desc">涵盖整体财务表现、用户质量、电商增长、AI 战略、海外扩张、盈利释放、竞争对比及投资展望九大维度，基于官方财报及公开数据整理。</p>
+      <p class="header-desc">涵盖整体财务、用户质量、电商增长、AI 战略、海外扩张、盈利释放、竞争对比及投资展望九大维度，基于官方财报整理。</p>
 
-      <div class="header-metrics">
-        <div class="hm-item">
-          <div class="hm-label">Q1 总收入</div>
-          <div class="hm-value">336<sup>亿</sup></div>
-          <div class="hm-delta up">+15.6% YoY</div>
-        </div>
-        <div class="hm-item">
-          <div class="hm-label">月活用户</div>
-          <div class="hm-value">7.08<sup>亿</sup></div>
-          <div class="hm-delta up">+1.6% YoY</div>
-        </div>
-        <div class="hm-item">
-          <div class="hm-label">日活用户</div>
-          <div class="hm-value">4.14<sup>亿</sup></div>
-          <div class="hm-delta up">+2.7% YoY</div>
-        </div>
-        <div class="hm-item">
-          <div class="hm-label">经调净利率</div>
-          <div class="hm-value">15.8<sup>%</sup></div>
-          <div class="hm-delta up">历史新高 +2.2ppt</div>
-        </div>
-        <div class="hm-item">
-          <div class="hm-label">电商 GMV（2024）</div>
-          <div class="hm-value">6800<sup>亿</sup></div>
-          <div class="hm-delta up">+43.6% YoY</div>
+      <div style="margin-top:28px">
+        <div class="kpi-row kpi-row-5">
+          <div class="kc">
+            <div class="kc-body">
+              <div class="kc-label">Q1 总收入（亿元）</div>
+              <div class="kc-num">336</div>
+              <div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+15.6% 同比</div>
+            </div>
+          </div>
+          <div class="kc pos">
+            <div class="kc-body">
+              <div class="kc-label">MAU 月活（亿）</div>
+              <div class="kc-num">7.08</div>
+              <div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+1.6% 同比</div>
+            </div>
+          </div>
+          <div class="kc pos">
+            <div class="kc-body">
+              <div class="kc-label">DAU 日活（亿）</div>
+              <div class="kc-num">4.14</div>
+              <div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+2.7% 同比</div>
+            </div>
+          </div>
+          <div class="kc pos">
+            <div class="kc-body">
+              <div class="kc-label">经调净利率（%）</div>
+              <div class="kc-num">15.8<span class="u">%</span></div>
+              <div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+2.2ppt · 历史新高</div>
+            </div>
+          </div>
+          <div class="kc purple">
+            <div class="kc-body">
+              <div class="kc-label">电商 GMV 2024（亿）</div>
+              <div class="kc-num">6800<span class="u">+</span></div>
+              <div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+43.6% 同比</div>
+            </div>
+          </div>
         </div>
       </div>
     </header>
 
-    <!-- 01 -->
+    <!-- 01 整体财务 -->
     <section class="section" id="s1">
       <div class="section-head">
         <span class="section-num">01</span>
         <h2 class="section-title">整体财务表现</h2>
-        <span class="section-summary">收入、利润双双加速，盈利能力创历史新高</span>
+        <span class="section-summary">收入利润双双加速，盈利能力创历史新高</span>
       </div>
 
-      <div class="kpi-grid">
-        <div class="kpi-cell"><div class="kc-label">总收入</div><div class="kc-value">336<span class="u">亿</span></div><div class="kc-delta up">+15.6% YoY</div></div>
-        <div class="kpi-cell"><div class="kc-label">毛利润</div><div class="kc-value">162<span class="u">亿</span></div><div class="kc-delta up">+21.8% YoY</div></div>
-        <div class="kpi-cell"><div class="kc-label">经调整净利润</div><div class="kc-value">53<span class="u">亿</span></div><div class="kc-delta up">+39.5% YoY</div></div>
-        <div class="kpi-cell"><div class="kc-label">毛利率</div><div class="kc-value">48.2<span class="u">%</span></div><div class="kc-delta up">+1.6ppt YoY</div></div>
+      <div class="kpi-row kpi-row-4">
+        <div class="kc">
+          <div class="kc-body"><div class="kc-label">总收入（亿元）</div><div class="kc-num">336</div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+15.6% YoY</div></div>
+        </div>
+        <div class="kc pos">
+          <div class="kc-body"><div class="kc-label">毛利润（亿元）</div><div class="kc-num">162</div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+21.8% YoY</div></div>
+        </div>
+        <div class="kc pos">
+          <div class="kc-body"><div class="kc-label">经调整净利润（亿元）</div><div class="kc-num">53</div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+39.5% YoY</div></div>
+        </div>
+        <div class="kc pos">
+          <div class="kc-body"><div class="kc-label">毛利率</div><div class="kc-num">48.2<span class="u">%</span></div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+1.6ppt YoY</div></div>
+        </div>
       </div>
 
       <div class="tbl-wrap">
@@ -558,36 +344,39 @@ body {
 
       <div class="grid-2">
         <div class="chart-card">
-          <div class="chart-header">
-            <div><div class="chart-title">总收入连续三年增长，2025 Q1 增速提升至 +15.6%</div><div class="chart-sub">2022—2025 Q1 · 亿元</div></div>
-            <span class="chart-aside">亿元 / 增速%</span>
-          </div>
-          <div id="c-revenue" style="height:256px"></div>
+          <div class="chart-header"><div><div class="chart-title">总收入连续三年增长，2025 Q1 增速提升至 +15.6%</div><div class="chart-sub">2022—2025 Q1 · 亿元</div></div><span class="chart-aside">亿元 / 增速%</span></div>
+          <div id="c-revenue" style="height:240px"></div>
           <div class="chart-foot">来源：快手科技官方财报</div>
         </div>
         <div class="chart-card">
-          <div class="chart-header">
-            <div><div class="chart-title">线上营销占比升至 58.6%，直播份额持续收缩</div><div class="chart-sub">2025 Q1 收入结构</div></div>
-          </div>
-          <div id="c-mix" style="height:256px"></div>
+          <div class="chart-header"><div><div class="chart-title">线上营销占比升至 58.6%，直播份额持续收缩</div><div class="chart-sub">2025 Q1 收入结构</div></div></div>
+          <div id="c-mix" style="height:240px"></div>
           <div class="chart-foot">来源：快手科技官方财报</div>
         </div>
       </div>
     </section>
 
-    <!-- 02 -->
+    <!-- 02 用户 -->
     <section class="section" id="s2">
       <div class="section-head">
         <span class="section-num">02</span>
         <h2 class="section-title">用户规模与质量</h2>
-        <span class="section-summary">DAU 时长创新高，ARPU 增速大幅跑赢用户增速</span>
+        <span class="section-summary">DAU 时长创新高，ARPU 增速领先用户增速近 10 倍</span>
       </div>
 
-      <div class="kpi-grid">
-        <div class="kpi-cell"><div class="kc-label">MAU 月活</div><div class="kc-value">7.08<span class="u">亿</span></div><div class="kc-delta up">+1.6% YoY</div></div>
-        <div class="kpi-cell"><div class="kc-label">DAU 日活</div><div class="kc-value">4.14<span class="u">亿</span></div><div class="kc-delta up">+2.7% YoY</div></div>
-        <div class="kpi-cell"><div class="kc-label">日均使用时长</div><div class="kc-value">124<span class="u">min</span></div><div class="kc-delta up">+5.1% YoY · 新高</div></div>
-        <div class="kpi-cell"><div class="kc-label">单用户日广告收入</div><div class="kc-value">12.8<span class="u">元</span></div><div class="kc-delta up">+25.5% YoY</div></div>
+      <div class="kpi-row kpi-row-4">
+        <div class="kc pos">
+          <div class="kc-body"><div class="kc-label">MAU 月活（亿）</div><div class="kc-num">7.08</div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+1.6% YoY</div></div>
+        </div>
+        <div class="kc pos">
+          <div class="kc-body"><div class="kc-label">DAU 日活（亿）</div><div class="kc-num">4.14</div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+2.7% YoY</div></div>
+        </div>
+        <div class="kc purple">
+          <div class="kc-body"><div class="kc-label">日均使用时长（min）</div><div class="kc-num">124</div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+5.1% · 历史新高</div></div>
+        </div>
+        <div class="kc">
+          <div class="kc-body"><div class="kc-label">单用户日广告收入（元）</div><div class="kc-num">12.8</div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+25.5% YoY</div></div>
+        </div>
       </div>
 
       <div class="tbl-wrap">
@@ -606,20 +395,18 @@ body {
       <div class="grid-2">
         <div class="chart-card">
           <div class="chart-header"><div><div class="chart-title">DAU 稳步增长，日均使用时长连续创新高</div><div class="chart-sub">2022—2025 Q1 · DAU 亿人</div></div></div>
-          <div id="c-dau" style="height:232px"></div>
+          <div id="c-dau" style="height:216px"></div>
         </div>
         <div class="chart-card">
           <div class="chart-header"><div><div class="chart-title">广告 ARPU 增速（+25.5%）领先用户增速近 10 倍</div><div class="chart-sub">单用户日均广告收入 · 元</div></div></div>
-          <div id="c-arpu" style="height:232px"></div>
+          <div id="c-arpu" style="height:216px"></div>
         </div>
       </div>
 
-      <div class="quote">
-        <p>商业化效率提升是 2025 年最确定的增长路径——ARPU 同比增长 25.5% 与 DAU 增速 2.7% 的剪刀差表明，单用户价值仍有大量空间可挖，天花板远未触及。</p>
-      </div>
+      <div class="quote"><p>商业化效率提升是 2025 年最确定的增长路径——ARPU 同比增长 25.5% 与 DAU 增速 2.7% 的剪刀差表明，单用户价值仍有大量空间可挖，天花板远未触及。</p></div>
     </section>
 
-    <!-- 03 -->
+    <!-- 03 电商 -->
     <section class="section" id="s3">
       <div class="section-head">
         <span class="section-num">03</span>
@@ -627,18 +414,21 @@ body {
         <span class="section-summary">GMV 高速增长，2024 年全年超 6800 亿</span>
       </div>
 
-      <div class="kpi-strip kpi-strip-3">
-        <div class="kpi-card"><div class="kpi-left"><div class="kpi-name">2024 年电商 GMV（亿）<span class="kpi-more">···</span></div><div class="kpi-num">6800<span class="u">+</span></div><div class="kpi-delta"><span class="label">同比:</span><span class="val up"><svg width="7" height="7" viewBox="0 0 7 7"><path d="M3.5 1L6.5 6H.5L3.5 1Z" fill="currentColor"/></svg>+43.6%</span></div></div><canvas class="kpi-spark" id="de0"></canvas></div>
-        <div class="kpi-card"><div class="kpi-left"><div class="kpi-name">2025 Q1 GMV（亿预估）<span class="kpi-more">···</span></div><div class="kpi-num">1800<span class="u">+</span></div><div class="kpi-delta"><span class="label">同比:</span><span class="val up"><svg width="7" height="7" viewBox="0 0 7 7"><path d="M3.5 1L6.5 6H.5L3.5 1Z" fill="currentColor"/></svg>+35%+</span></div></div><canvas class="kpi-spark" id="de1"></canvas></div>
-        <div class="kpi-card"><div class="kpi-left"><div class="kpi-name">月均购买用户（亿）<span class="kpi-more">···</span></div><div class="kpi-num">1.5<span class="u">+</span></div><div class="kpi-delta"><span class="label">同比:</span><span class="val up"><svg width="7" height="7" viewBox="0 0 7 7"><path d="M3.5 1L6.5 6H.5L3.5 1Z" fill="currentColor"/></svg>+20%+</span></div></div><canvas class="kpi-spark" id="de2"></canvas></div>
+      <div class="kpi-row kpi-row-3">
+        <div class="kc purple">
+          <div class="kc-body"><div class="kc-label">2024 年电商 GMV（亿）</div><div class="kc-num">6800<span class="u">+</span></div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+43.6% YoY</div></div>
+        </div>
+        <div class="kc purple">
+          <div class="kc-body"><div class="kc-label">2025 Q1 GMV（亿预估）</div><div class="kc-num">1800<span class="u">+</span></div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+35%+ YoY</div></div>
+        </div>
+        <div class="kc pos">
+          <div class="kc-body"><div class="kc-label">月均购买用户（亿）</div><div class="kc-num">1.5<span class="u">+</span></div><div class="kc-delta up"><svg class="arr" width="8" height="8" viewBox="0 0 8 8"><path d="M4 1L7.5 7H.5L4 1Z" fill="currentColor"/></svg>+20%+ YoY</div></div>
+        </div>
       </div>
 
       <div class="chart-card">
-        <div class="chart-header">
-          <div><div class="chart-title">电商 GMV 持续高速增长，2025 年全年基准预测 9000 亿</div><div class="chart-sub">2022—2025 预测 · 亿元</div></div>
-          <span class="chart-aside">亿元</span>
-        </div>
-        <div id="c-gmv" style="height:256px"></div>
+        <div class="chart-header"><div><div class="chart-title">电商 GMV 持续高速增长，2025 年全年基准预测 9000 亿</div><div class="chart-sub">2022—2025 预测 · 亿元</div></div><span class="chart-aside">亿元</span></div>
+        <div id="c-gmv" style="height:240px"></div>
         <div class="chart-foot">2025 年为市场基准预测值</div>
       </div>
 
@@ -655,120 +445,81 @@ body {
       </div>
     </section>
 
-    <!-- 04 -->
+    <!-- 04 AI -->
     <section class="section" id="s4">
       <div class="section-head">
         <span class="section-num">04</span>
         <h2 class="section-title">AI 战略布局</h2>
         <span class="section-summary">广告技术 + 内容生成双轮驱动</span>
       </div>
-
       <div class="grid-2">
         <div class="chart-card">
           <div class="chart-header"><div><div class="chart-title">AI 五维能力评估</div><div class="chart-sub">内容生成 / 分发推荐 / 广告技术 / 电商赋能 / B 端工具</div></div></div>
-          <div id="c-radar" style="height:272px"></div>
+          <div id="c-radar" style="height:256px"></div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:16px">
-          <div class="info-card">
-            <h4>AI 内容生成（AIGC）</h4>
-            <ul>
-              <li>广告素材生产效率提升 3 倍+</li>
-              <li>AI 剪辑工具活跃用户突破 5000 万</li>
-              <li>短剧 AI 辅助创作采用率 30%+</li>
-            </ul>
-          </div>
-          <div class="info-card">
-            <h4>AI 广告技术</h4>
-            <ul>
-              <li>智能出价系统（oCPM / oCPC）广泛应用</li>
-              <li>广告 CTR 提升，ROI 改善明显</li>
-              <li>AI 创意自动化降低广告商成本</li>
-            </ul>
-          </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="info-card"><h4>AI 内容生成（AIGC）</h4><ul><li>广告素材生产效率提升 3 倍+</li><li>AI 剪辑工具活跃用户突破 5000 万</li><li>短剧 AI 辅助创作采用率 30%+</li></ul></div>
+          <div class="info-card"><h4>AI 广告技术</h4><ul><li>智能出价系统（oCPM / oCPC）广泛应用</li><li>广告 CTR 提升，ROI 改善明显</li><li>AI 创意自动化降低广告商成本</li></ul></div>
         </div>
       </div>
-
-      <div class="quote">
-        <p>预计 AI 相关收入贡献将从 2024 年约 10% 升至 2025 年 15%+，主要拉动力为广告技术升级与电商 AI 赋能两条主线。</p>
-      </div>
+      <div class="quote"><p>预计 AI 相关收入贡献将从 2024 年约 10% 升至 2025 年 15%+，主要拉动力为广告技术升级与电商 AI 赋能两条主线。</p></div>
     </section>
 
-    <!-- 05 -->
+    <!-- 05 海外 -->
     <section class="section" id="s5">
       <div class="section-head">
         <span class="section-num">05</span>
         <h2 class="section-title">海外业务进展</h2>
         <span class="section-summary">亏损大幅收窄，盈亏平衡在望</span>
       </div>
-
       <div class="card-row">
-        <div class="info-card">
-          <h4>SnackVideo — 巴西 / 东南亚</h4>
-          <ul>
-            <li>MAU 超过 1 亿，巴西短视频 MAU 第一</li>
-            <li>电商商业化试点已开启</li>
-            <li>广告商业化展开，加载率持续优化</li>
-            <li>内容生态本土化程度加深</li>
-          </ul>
-        </div>
-        <div class="info-card">
-          <h4>Kwai — 拉美市场</h4>
-          <ul>
-            <li>已实现单季盈利，广告 ARPU 持续提升</li>
-            <li>商业化路径逐渐成熟</li>
-            <li>直播打赏收入稳步贡献</li>
-            <li>巴西电商活动推动 GMV 增长</li>
-          </ul>
-        </div>
+        <div class="info-card"><h4>SnackVideo — 巴西 / 东南亚</h4><ul><li>MAU 超过 1 亿，巴西短视频 MAU 第一</li><li>电商商业化试点已开启</li><li>广告商业化展开，加载率持续优化</li><li>内容生态本土化程度加深</li></ul></div>
+        <div class="info-card"><h4>Kwai — 拉美市场</h4><ul><li>已实现单季盈利，广告 ARPU 持续提升</li><li>商业化路径逐渐成熟</li><li>直播打赏收入稳步贡献</li><li>巴西电商活动推动 GMV 增长</li></ul></div>
       </div>
-
       <div class="grid-2">
         <div class="chart-card">
           <div class="chart-header"><div><div class="chart-title">海外亏损从 125 亿缩减至 68 亿，收窄幅度 46%</div><div class="chart-sub">2023—2025 预测 · 亿元</div></div></div>
-          <div id="c-overseas" style="height:216px"></div>
+          <div id="c-overseas" style="height:200px"></div>
         </div>
         <div class="chart-card">
           <div class="chart-header"><div><div class="chart-title">海外 MAU 稳步扩张，2025 年预计突破 3.8 亿</div><div class="chart-sub">2023—2025 预测 · 亿人</div></div></div>
-          <div id="c-intl" style="height:216px"></div>
+          <div id="c-intl" style="height:200px"></div>
         </div>
       </div>
     </section>
 
-    <!-- 06 -->
+    <!-- 06 盈利 -->
     <section class="section" id="s6">
       <div class="section-head">
         <span class="section-num">06</span>
         <h2 class="section-title">盈利能力与费用控制</h2>
         <span class="section-summary">毛利率 + 净利率双提升，费用率三项下降</span>
       </div>
-
       <div class="chart-card">
         <div class="chart-header"><div><div class="chart-title">毛利率与经调净利率双双提升，盈利能力加速释放</div><div class="chart-sub">2022—2025 Q1 · 百分比</div></div></div>
-        <div id="c-margin" style="height:256px"></div>
+        <div id="c-margin" style="height:240px"></div>
         <div class="chart-foot">来源：快手科技官方财报</div>
       </div>
-
       <div class="tbl-wrap">
         <table class="tbl">
           <thead><tr><th>成本科目</th><th class="r">2024 年占收入%</th><th class="r">2025 Q1 占收入%</th><th class="r">趋势</th></tr></thead>
           <tbody>
             <tr><td>收入成本</td><td class="r">53.4%</td><td class="r">51.8%</td><td class="r up">持续优化</td></tr>
             <tr><td>营销费用</td><td class="r">22.8%</td><td class="r">21.3%</td><td class="r up">提效降费</td></tr>
-            <tr><td>研发费用</td><td class="r">27.5%</td><td class="r">27.0%</td><td class="r flat">稳定投入</td></tr>
+            <tr><td>研发费用</td><td class="r">27.5%</td><td class="r">27.0%</td><td class="r" style="color:var(--g400)">稳定投入</td></tr>
             <tr><td>行政及一般</td><td class="r">8.3%</td><td class="r">7.9%</td><td class="r up">继续优化</td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- 07 -->
+    <!-- 07 竞争 -->
     <section class="section" id="s7">
       <div class="section-head">
         <span class="section-num">07</span>
         <h2 class="section-title">竞争格局与风险</h2>
         <span class="section-summary">第二大短视频平台，商业化效率快速追赶抖音</span>
       </div>
-
       <div class="tbl-wrap">
         <table class="tbl">
           <thead><tr><th>指标</th><th class="r">快手 2025 Q1</th><th class="r">抖音 2025 Q1（预估）</th><th>判断</th></tr></thead>
@@ -780,30 +531,13 @@ body {
           </tbody>
         </table>
       </div>
-
       <div class="card-row">
-        <div class="info-card">
-          <h4>核心竞争优势</h4>
-          <ul>
-            <li>下沉市场用户基盘稳固，粘性高</li>
-            <li>快手点 + 快手购物流量闭环成熟</li>
-            <li>下沉广告主投放性价比高</li>
-            <li>直播生态在内容行业地位稳固</li>
-          </ul>
-        </div>
-        <div class="info-card">
-          <h4>主要风险</h4>
-          <ul>
-            <li>抖音广告市场份额竞争压力持续</li>
-            <li>直播行业监管调整风险常态化</li>
-            <li>拼多多 / 淘宝电商竞争加剧</li>
-            <li>宏观不确定性影响广告市场需求</li>
-          </ul>
-        </div>
+        <div class="info-card"><h4>核心竞争优势</h4><ul><li>下沉市场用户基盘稳固，粘性高</li><li>快手点 + 快手购物流量闭环成熟</li><li>下沉广告主投放性价比高</li><li>直播生态在内容行业地位稳固</li></ul></div>
+        <div class="info-card"><h4>主要风险</h4><ul><li>抖音广告市场份额竞争压力持续</li><li>直播行业监管调整风险常态化</li><li>拼多多 / 淘宝电商竞争加剧</li><li>宏观不确定性影响广告市场需求</li></ul></div>
       </div>
     </section>
 
-    <!-- 08 -->
+    <!-- 08 投资 -->
     <section class="section" id="s8">
       <div class="section-head">
         <span class="section-num">08</span>
@@ -811,10 +545,16 @@ body {
         <span class="section-summary">机构目标价中位 62–68 HK$，估值具备弹性</span>
       </div>
 
-      <div class="kpi-strip kpi-strip-3" style="margin-bottom:20px">
-        <div class="kpi-card"><div class="kpi-left"><div class="kpi-name">机构目标价中位<span class="kpi-more">···</span></div><div class="kpi-num" style="font-size:18px">62–68<span class="u">HK$</span></div><div class="kpi-delta"><span class="val flat">基于 2025 年综合预测</span></div></div></div>
-        <div class="kpi-card"><div class="kpi-left"><div class="kpi-name">2025 年 P/S<span class="kpi-more">···</span></div><div class="kpi-num">~2.8<span class="u">x</span></div><div class="kpi-delta"><span class="val flat">相对行业小幅折价</span></div></div></div>
-        <div class="kpi-card"><div class="kpi-left"><div class="kpi-name">EV/EBITDA<span class="kpi-more">···</span></div><div class="kpi-num" style="font-size:18px">12–15<span class="u">x</span></div><div class="kpi-delta"><span class="val flat">合理区间</span></div></div></div>
+      <div class="kpi-row kpi-row-3" style="margin-bottom:20px">
+        <div class="kc warm">
+          <div class="kc-body"><div class="kc-label">机构目标价中位</div><div class="kc-num" style="font-size:22px">62–68<span class="u">HK$</span></div><div class="kc-delta">基于 2025 年综合预测</div></div>
+        </div>
+        <div class="kc">
+          <div class="kc-body"><div class="kc-label">2025 年 P/S</div><div class="kc-num">~2.8<span class="u">x</span></div><div class="kc-delta">相对行业小幅折价</div></div>
+        </div>
+        <div class="kc">
+          <div class="kc-body"><div class="kc-label">EV/EBITDA</div><div class="kc-num" style="font-size:22px">12–15<span class="u">x</span></div><div class="kc-delta">合理区间</div></div>
+        </div>
       </div>
 
       <div class="forecast-grid">
@@ -824,315 +564,144 @@ body {
       </div>
 
       <div class="card-row">
-        <div class="info-card">
-          <h4>确定性因素</h4>
-          <ul>
-            <li>MAU 7 亿+ 用户基盘稳固</li>
-            <li>商业化效率提升路径清晰</li>
-            <li>电商 GMV 高速增长，差异化路径确立</li>
-            <li>AI 投入在广告与内容端已见实效</li>
-          </ul>
-        </div>
-        <div class="info-card">
-          <h4>需关注要素</h4>
-          <ul>
-            <li>直播打赏收入趋势转折点</li>
-            <li>抖音广告市场份额竞争演变</li>
-            <li>全年经调净利率 15%+ 可持续性</li>
-            <li>海外业务亏损收窄进度</li>
-          </ul>
-        </div>
+        <div class="info-card"><h4>确定性因素</h4><ul><li>MAU 7 亿+ 用户基盘稳固</li><li>商业化效率提升路径清晰，ARPU 增速远超用户增速</li><li>电商 GMV 高速增长，差异化竞争路径确立</li><li>AI 投入在广告与内容端已见实效</li></ul></div>
+        <div class="info-card"><h4>需关注要素</h4><ul><li>直播打赏收入趋势转折点</li><li>抖音广告市场份额竞争演变</li><li>全年经调净利率 15%+ 可持续性</li><li>海外业务亏损收窄进度</li></ul></div>
       </div>
 
-      <div class="quote">
-        <p>快手 2025 年处于盈利能力释放、AI 加持商业化提升的黄金周期。在用户规模稳定的前提下，单用户商业化价值持续提升是最确定的增长路径。目前估值具备弹性，长期投资价值逐渐显现。</p>
-      </div>
-
-      <div class="notice">
-        <div class="notice-tag">风险提示</div>
-        <p>本报告基于公开财报数据及市场预测，仅供内部交流参考，不构成任何投资建议。实际投资决策请结合专业投资顾问意见及最新公开信息。证券投资有风险，入市需谨慎。</p>
-      </div>
+      <div class="quote"><p>快手 2025 年处于盈利能力释放、AI 加持商业化提升的黄金周期。在用户规模稳定的前提下，单用户商业化价值持续提升是最确定的增长路径。目前估值具备弹性，长期投资价值逐渐显现。</p></div>
+      <div class="notice"><div class="notice-tag">风险提示</div><p>本报告基于公开财报数据及市场预测，仅供内部交流参考，不构成任何投资建议。证券投资有风险，入市需谨慎。</p></div>
     </section>
 
-    <footer class="report-footer">
-      <p>快手科技（1024.HK）财报深度分析报告 · 数据截止 2025 年 Q1 · Theme 4 Dark</p>
-    </footer>
-
+    <footer class="report-footer">快手科技（1024.HK）财报深度分析 · 数据截止 2025 Q1 · Dark Theme</footer>
   </main>
 </div>
 
 <script>
-// Dark theme chart palette
-const C = ['#60A5FA','#34D399','#FCD34D','#F87171','#A78BFA','#22D3EE','#94A3B8'];
+const C = ['#60A5FA','#34D399','#FCD34D','#F87171','#A78BFA','#22D3EE'];
 const F = '"Inter", -apple-system, "PingFang SC", sans-serif';
-const GRID  = 'rgba(255,255,255,0.06)';
-const AXIS  = 'rgba(255,255,255,0.1)';
-const LABEL = 'rgba(255,255,255,0.3)';
+const GRID = 'rgba(255,255,255,0.06)';
+const AXIS = 'rgba(255,255,255,0.10)';
+const LBL  = 'rgba(255,255,255,0.30)';
 
 function base() {
   return {
-    backgroundColor: 'transparent',
-    color: C,
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: '#0F172A',
-      borderColor: 'rgba(255,255,255,0.1)',
-      borderRadius: 4,
-      padding: [10, 14],
-      textStyle: { color: '#F1F5F9', fontSize: 12, fontFamily: F }
-    },
-    legend: {
-      top: 0, right: 0,
-      textStyle: { fontSize: 11, color: LABEL, fontFamily: F },
-      icon: 'circle', itemWidth: 6, itemHeight: 6, itemGap: 16
-    },
-    grid: { left: 0, right: 0, bottom: 0, top: 36, containLabel: true },
-    xAxis: {
-      type: 'category',
-      axisLine: { lineStyle: { color: AXIS } },
-      axisTick: { show: false },
-      axisLabel: { color: LABEL, fontSize: 11, fontFamily: F },
-      splitLine: { show: false }
-    },
-    yAxis: {
-      axisLine: { show: false }, axisTick: { show: false },
-      axisLabel: { color: LABEL, fontSize: 11, fontFamily: F },
-      splitLine: { lineStyle: { color: GRID } }
-    }
+    backgroundColor: 'transparent', color: C,
+    tooltip: { trigger:'axis', backgroundColor:'#0B1120', borderColor:'rgba(255,255,255,0.1)', borderRadius:4, padding:[10,14], textStyle:{color:'#F1F5F9',fontSize:12,fontFamily:F} },
+    legend: { top:0, right:0, textStyle:{fontSize:11,color:LBL,fontFamily:F}, icon:'circle', itemWidth:6, itemHeight:6, itemGap:16 },
+    grid: { left:0, right:0, bottom:0, top:36, containLabel:true },
+    xAxis: { type:'category', axisLine:{lineStyle:{color:AXIS}}, axisTick:{show:false}, axisLabel:{color:LBL,fontSize:11,fontFamily:F}, splitLine:{show:false} },
+    yAxis: { axisLine:{show:false}, axisTick:{show:false}, axisLabel:{color:LBL,fontSize:11,fontFamily:F}, splitLine:{lineStyle:{color:GRID}} }
   };
 }
-
-function line(name, data, color, area = true) {
-  return {
-    name, type: 'line', data, smooth: 0.4,
-    symbol: 'circle', symbolSize: 4, showSymbol: false,
-    lineStyle: { color, width: 1.5 },
-    itemStyle: { color },
-    areaStyle: area ? {
-      color: { type: 'linear', x:0, y:0, x2:0, y2:1,
-        colorStops: [{ offset:0, color: color+'26' }, { offset:1, color: color+'00' }] }
-    } : null
-  };
+function ln(name,data,color,area=true) {
+  return { name, type:'line', data, smooth:0.4, symbol:'circle', symbolSize:4, showSymbol:false,
+    lineStyle:{color,width:1.5}, itemStyle:{color},
+    areaStyle: area ? { color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:color+'26'},{offset:1,color:color+'00'}]} } : null };
+}
+function br(name,data,color) {
+  return { name, type:'bar', data, itemStyle:{color,borderRadius:[2,2,0,0]}, barMaxWidth:48 };
 }
 
-function bar(name, data, color) {
-  return { name, type: 'bar', data, itemStyle: { color, borderRadius: [2,2,0,0] }, barMaxWidth: 48 };
-}
-
-// Header sparklines
-spark('dh0', [280,310,290,340,420,380,410,336], '#60A5FA', 'rgba(96,165,250,0.12)');
-spark('dh1', [6.44,6.55,6.68,6.97,7.0,7.02,7.08], '#60A5FA', 'rgba(96,165,250,0.12)');
-spark('dh2', [3.46,3.6,3.74,3.85,4.03,4.1,4.14], '#60A5FA', 'rgba(96,165,250,0.12)');
-spark('dh3', [-2.3,3.2,6.8,9.0,11.2,13.6,15.8], '#34D399', 'rgba(52,211,153,0.12)');
-spark('dh4', [2500,3200,4700,5500,6800], '#60A5FA', 'rgba(96,165,250,0.12)');
-
-// Revenue
 echarts.init(document.getElementById('c-revenue')).setOption({
   ...base(),
-  xAxis: { ...base().xAxis, data: ['2022','2023','2024','2025 Q1'] },
-  yAxis: [
-    { ...base().yAxis },
-    { ...base().yAxis, axisLabel: { ...base().yAxis.axisLabel, formatter: '{value}%' }, splitLine: { show:false } }
-  ],
-  series: [
-    { ...bar('总收入', [901,1135,1278,336], '#60A5FA'), yAxisIndex:0 },
-    { ...line('YoY%', [null,26.0,12.6,15.6], '#34D399', false),
-      yAxisIndex:1, showSymbol:true, symbolSize:5 }
+  xAxis:{...base().xAxis,data:['2022','2023','2024','2025 Q1']},
+  yAxis:[{...base().yAxis},{...base().yAxis,axisLabel:{...base().yAxis.axisLabel,formatter:'{value}%'},splitLine:{show:false}}],
+  series:[
+    {...br('总收入',[901,1135,1278,336],'#60A5FA'),yAxisIndex:0},
+    {...ln('YoY%',[null,26.0,12.6,15.6],'#34D399',false),yAxisIndex:1,showSymbol:true,symbolSize:5}
   ]
 });
 
-// Mix donut
 echarts.init(document.getElementById('c-mix')).setOption({
-  backgroundColor: 'transparent',
-  color: ['#60A5FA','#A78BFA','#34D399'],
-  tooltip: { trigger:'item', backgroundColor:'#0F172A', borderColor:'rgba(255,255,255,0.1)',
-    borderRadius:4, padding:[10,14], textStyle:{ color:'#F1F5F9', fontSize:12 } },
-  legend: { orient:'vertical', right:10, top:'middle',
-    textStyle:{ fontSize:11, color: LABEL }, icon:'circle', itemWidth:6, itemHeight:6 },
-  series: [{
-    type: 'pie', radius: ['48%','68%'], center: ['38%','50%'], padAngle: 2,
-    data: [
-      { value:58.6, name:'线上营销  58.6%' },
-      { value:22.6, name:'直播打赏  22.6%' },
-      { value:18.8, name:'其他服务  18.8%' }
-    ],
-    label:{ show:false }, emphasis:{ scale:false }
-  }]
+  backgroundColor:'transparent', color:['#60A5FA','#A78BFA','#34D399'],
+  tooltip:{trigger:'item',backgroundColor:'#0B1120',borderColor:'rgba(255,255,255,0.1)',borderRadius:4,padding:[10,14],textStyle:{color:'#F1F5F9',fontSize:12}},
+  legend:{orient:'vertical',right:10,top:'middle',textStyle:{fontSize:11,color:LBL},icon:'circle',itemWidth:6,itemHeight:6},
+  series:[{type:'pie',radius:['48%','68%'],center:['38%','50%'],padAngle:2,
+    data:[{value:58.6,name:'线上营销  58.6%'},{value:22.6,name:'直播打赏  22.6%'},{value:18.8,name:'其他服务  18.8%'}],
+    label:{show:false},emphasis:{scale:false}}]
 });
 
-// DAU
 echarts.init(document.getElementById('c-dau')).setOption({
   ...base(),
-  xAxis: { ...base().xAxis, data: ['2022 Q1','2023 Q1','2024 Q1','2025 Q1'] },
-  yAxis: { ...base().yAxis, min: 3.2 },
-  series: [{ ...line('DAU（亿）', [3.46,3.74,4.03,4.14], '#60A5FA'),
-    showSymbol:true, symbolSize:5,
-    label:{ show:true, position:'top', color:'#60A5FA', fontSize:11, fontWeight:600,
-      fontFamily:F, formatter:'{c}亿' }
-  }]
+  xAxis:{...base().xAxis,data:['2022 Q1','2023 Q1','2024 Q1','2025 Q1']},
+  yAxis:{...base().yAxis,min:3.2},
+  series:[{...ln('DAU（亿）',[3.46,3.74,4.03,4.14],'#60A5FA'),showSymbol:true,symbolSize:5,
+    label:{show:true,position:'top',color:'#60A5FA',fontSize:11,fontWeight:600,fontFamily:F,formatter:'{c}亿'}}]
 });
 
-// ARPU
 echarts.init(document.getElementById('c-arpu')).setOption({
   ...base(),
-  xAxis: { ...base().xAxis, data: ['2023 全年','2024 全年','2025 Q1（年化）'] },
-  series: [{ ...bar('单用户日广告收入（元）', [null,10.2,12.8], '#60A5FA'),
-    label:{ show:true, position:'top', color:'#60A5FA', fontSize:12,
-      fontWeight:700, fontFamily:F, formatter:'{c} 元' }
-  }]
+  xAxis:{...base().xAxis,data:['2023 全年','2024 全年','2025 Q1（年化）']},
+  series:[{...br('单用户日广告收入（元）',[null,10.2,12.8],'#60A5FA'),
+    label:{show:true,position:'top',color:'#60A5FA',fontSize:12,fontWeight:700,fontFamily:F,formatter:'{c} 元'}}]
 });
 
-// GMV
 echarts.init(document.getElementById('c-gmv')).setOption({
   ...base(),
-  xAxis: { ...base().xAxis, data: ['2022','2023','2024','2025 预测'] },
-  yAxis: [
-    { ...base().yAxis },
-    { ...base().yAxis, axisLabel: { ...base().yAxis.axisLabel, formatter:'{value}%' }, splitLine:{ show:false } }
-  ],
-  series: [
-    { ...bar('电商 GMV', [2500,4700,6800,9000], '#60A5FA'),
-      yAxisIndex:0,
-      label:{ show:true, position:'top', color:'#60A5FA', fontSize:11,
-        fontWeight:700, fontFamily:F, formatter: p => p.value+'亿' }
-    },
-    { ...line('YoY%', [null,88,44.7,32.4], '#34D399', false),
-      yAxisIndex:1, showSymbol:true, symbolSize:5 }
+  xAxis:{...base().xAxis,data:['2022','2023','2024','2025 预测']},
+  yAxis:[{...base().yAxis},{...base().yAxis,axisLabel:{...base().yAxis.axisLabel,formatter:'{value}%'},splitLine:{show:false}}],
+  series:[
+    {...br('电商 GMV',[2500,4700,6800,9000],'#A78BFA'),yAxisIndex:0,
+      label:{show:true,position:'top',color:'#A78BFA',fontSize:11,fontWeight:700,fontFamily:F,formatter:p=>p.value+'亿'}},
+    {...ln('YoY%',[null,88,44.7,32.4],'#34D399',false),yAxisIndex:1,showSymbol:true,symbolSize:5}
   ]
 });
 
-// Radar
 echarts.init(document.getElementById('c-radar')).setOption({
-  backgroundColor: 'transparent', color: ['#60A5FA'],
-  tooltip: { backgroundColor:'#0F172A', borderColor:'rgba(255,255,255,0.1)',
-    borderRadius:4, textStyle:{ color:'#F1F5F9', fontSize:12 } },
-  radar: {
-    indicator: [
-      { name:'内容生成', max:100 }, { name:'分发推荐', max:100 },
-      { name:'广告技术', max:100 }, { name:'电商赋能', max:100 },
-      { name:'B 端工具', max:100 }
-    ],
-    splitLine: { lineStyle:{ color: GRID } },
-    axisLine: { lineStyle:{ color: AXIS } },
-    axisName: { color: LABEL, fontSize:11, fontFamily:F },
-    splitArea: { areaStyle:{ color: ['rgba(96,165,250,0.03)','rgba(96,165,250,0.06)'] } }
+  backgroundColor:'transparent', color:['#60A5FA'],
+  tooltip:{backgroundColor:'#0B1120',borderColor:'rgba(255,255,255,0.1)',borderRadius:4,textStyle:{color:'#F1F5F9',fontSize:12}},
+  radar:{
+    indicator:[{name:'内容生成',max:100},{name:'分发推荐',max:100},{name:'广告技术',max:100},{name:'电商赋能',max:100},{name:'B 端工具',max:100}],
+    splitLine:{lineStyle:{color:GRID}},axisLine:{lineStyle:{color:AXIS}},
+    axisName:{color:LBL,fontSize:11,fontFamily:F},
+    splitArea:{areaStyle:{color:['rgba(96,165,250,0.03)','rgba(96,165,250,0.06)']}}
   },
-  series: [{
-    type:'radar',
-    data: [{ value:[88,90,85,80,72], name:'快手 AI 能力',
-      itemStyle:{ color:'#60A5FA' },
-      lineStyle:{ color:'#60A5FA', width:1.5 },
-      areaStyle:{ color:'rgba(96,165,250,0.12)' }
-    }]
-  }]
+  series:[{type:'radar',data:[{value:[88,90,85,80,72],name:'快手 AI 能力',
+    itemStyle:{color:'#60A5FA'},lineStyle:{color:'#60A5FA',width:1.5},areaStyle:{color:'rgba(96,165,250,0.12)'}}]}]
 });
 
-// Overseas loss
 echarts.init(document.getElementById('c-overseas')).setOption({
   ...base(),
-  xAxis: { ...base().xAxis, data: ['2023','2024','2025 预测'] },
-  series: [{ ...bar('海外亏损（亿元）', [-125,-68,-25], '#F87171'),
-    label:{ show:true, position:'bottom', color:'#F87171', fontSize:12,
-      fontWeight:700, fontFamily:F, formatter: p => p.value+'亿' }
-  }]
+  xAxis:{...base().xAxis,data:['2023','2024','2025 预测']},
+  series:[{...br('海外亏损（亿元）',[-125,-68,-25],'#F87171'),
+    label:{show:true,position:'bottom',color:'#F87171',fontSize:12,fontWeight:700,fontFamily:F,formatter:p=>p.value+'亿'}}]
 });
 
-// Intl MAU
 echarts.init(document.getElementById('c-intl')).setOption({
   ...base(),
-  xAxis: { ...base().xAxis, data: ['2023','2024','2025 预测'] },
-  yAxis: { ...base().yAxis, min: 2.4 },
-  series: [{ ...line('海外 MAU（亿）', [2.8,3.3,3.8], '#22D3EE'),
-    showSymbol:true, symbolSize:5,
-    label:{ show:true, position:'top', color:'#22D3EE', fontSize:11,
-      fontWeight:600, fontFamily:F, formatter:'{c}亿' }
-  }]
+  xAxis:{...base().xAxis,data:['2023','2024','2025 预测']},
+  yAxis:{...base().yAxis,min:2.4},
+  series:[{...ln('海外 MAU（亿）',[2.8,3.3,3.8],'#22D3EE'),showSymbol:true,symbolSize:5,
+    label:{show:true,position:'top',color:'#22D3EE',fontSize:11,fontWeight:600,fontFamily:F,formatter:'{c}亿'}}]
 });
 
-// Margin
 echarts.init(document.getElementById('c-margin')).setOption({
   ...base(),
-  xAxis: { ...base().xAxis, data: ['2022','2023','2024','2025 Q1'] },
-  yAxis: { ...base().yAxis, axisLabel: { ...base().yAxis.axisLabel, formatter:'{value}%' } },
-  series: [
-    { ...line('毛利率', [36.8,41.7,46.6,48.2], '#60A5FA'),
-      showSymbol:true, symbolSize:5,
-      label:{ show:true, position:'top', color:'#60A5FA', fontSize:11,
-        fontWeight:700, fontFamily:F, formatter:'{c}%' }
-    },
-    { ...line('经调净利率', [-2.3,9.0,13.6,15.8], '#34D399', false),
-      showSymbol:true, symbolSize:5,
-      label:{ show:true, position:'bottom', color:'#34D399', fontSize:11,
-        fontWeight:700, fontFamily:F, formatter:'{c}%' }
-    }
+  xAxis:{...base().xAxis,data:['2022','2023','2024','2025 Q1']},
+  yAxis:{...base().yAxis,axisLabel:{...base().yAxis.axisLabel,formatter:'{value}%'}},
+  series:[
+    {...ln('毛利率',[36.8,41.7,46.6,48.2],'#60A5FA'),showSymbol:true,symbolSize:5,
+      label:{show:true,position:'top',color:'#60A5FA',fontSize:11,fontWeight:700,fontFamily:F,formatter:'{c}%'}},
+    {...ln('经调净利率',[-2.3,9.0,13.6,15.8],'#34D399',false),showSymbol:true,symbolSize:5,
+      label:{show:true,position:'bottom',color:'#34D399',fontSize:11,fontWeight:700,fontFamily:F,formatter:'{c}%'}}
   ]
 });
 
-// ── Sparkline for dark theme ──
-function spark(id, data, color, fillColor) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const W = el.width, H = el.height;
-  const ctx = el.getContext('2d');
-  const pad = { t:3, b:3, l:1, r:1 };
-  const min = Math.min(...data.filter(v => v!=null));
-  const max = Math.max(...data.filter(v => v!=null));
-  const range = max - min || 1;
-  const valid = data.map((v,i) => v != null ? i : -1).filter(i => i>=0);
-  const xs = data.map((_, i) => pad.l + i / (data.length-1) * (W - pad.l - pad.r));
-  const ys = data.map(v => v!=null ? H - pad.b - (v-min)/range*(H-pad.t-pad.b) : null);
-  ctx.clearRect(0,0,W,H);
-  const firstV = valid[0];
-  if (fillColor && firstV !== undefined) {
-    ctx.beginPath();
-    ctx.moveTo(xs[firstV], H-pad.b);
-    valid.forEach(i => ctx.lineTo(xs[i], ys[i]));
-    ctx.lineTo(xs[valid[valid.length-1]], H-pad.b);
-    ctx.closePath();
-    ctx.fillStyle = fillColor; ctx.fill();
-  }
-  if (firstV !== undefined) {
-    ctx.beginPath();
-    valid.forEach((i,idx) => idx===0 ? ctx.moveTo(xs[i],ys[i]) : ctx.lineTo(xs[i],ys[i]));
-    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.stroke();
-  }
-}
-
-// Section 01 financial sparklines
-spark('dm0', [270,290,310,280,295,320,336], '#60A5FA', 'rgba(96,165,250,0.12)');
-spark('dm1', [110,120,118,130,145,155,162], '#34D399', 'rgba(52,211,153,0.12)');
-spark('dm2', [28,35,38,42,46,50,53], '#34D399', 'rgba(52,211,153,0.12)');
-spark('dm3', [36.8,38.2,39.1,41.7,44.2,46.6,48.2], '#60A5FA', 'rgba(96,165,250,0.12)');
-// Section 02 user sparklines
-spark('du0', [6.44,6.55,6.68,6.97,7.0,7.02,7.08], '#60A5FA', 'rgba(96,165,250,0.12)');
-spark('du1', [3.46,3.6,3.74,3.85,4.03,4.1,4.14], '#60A5FA', 'rgba(96,165,250,0.12)');
-spark('du2', [102,109,112,118,120,122,124], '#60A5FA', 'rgba(96,165,250,0.12)');
-spark('du3', [null,null,7.8,10.2,11.5,12.0,12.8], '#34D399', 'rgba(52,211,153,0.12)');
-// Section 03 ecommerce sparklines
-spark('de0', [2500,3200,4700,5500,6800], '#60A5FA', 'rgba(96,165,250,0.12)');
-spark('de1', [1100,1300,1500,1700,1800], '#60A5FA', 'rgba(96,165,250,0.12)');
-spark('de2', [0.9,1.0,1.1,1.2,1.3,1.5], '#60A5FA', 'rgba(96,165,250,0.12)');
-
-// Nav scroll highlight
-const sections = document.querySelectorAll('section[id], header[id]');
+const sections = document.querySelectorAll('section[id],header[id]');
 const navLinks = document.querySelectorAll('.nav-link');
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
       navLinks.forEach(l => l.classList.remove('active'));
-      const a = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+      const a = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
       if (a) a.classList.add('active');
     }
   });
 }, { rootMargin: '-20% 0px -70% 0px' });
-
-sections.forEach(s => observer.observe(s));
+sections.forEach(s => obs.observe(s));
 
 window.addEventListener('resize', () => {
-  document.querySelectorAll('[id^="c-"]').forEach(el => {
-    echarts.getInstanceByDom(el)?.resize();
-  });
+  document.querySelectorAll('[id^="c-"]').forEach(el => echarts.getInstanceByDom(el)?.resize());
 });
 </script>
 </body>
