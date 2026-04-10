@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快手科技 2025 财报深度分析 · Linear Style</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  /* Linear color system */
+  --bg-deep:      #08090a;
+  --bg-panel:     #0f1011;
+  --bg-surface:   #191a1b;
+  --bg-elevated:  #28282c;
+  --text-primary: #f7f8f8;
+  --text-secondary: #d0d6e0;
+  --text-tertiary:  #8a8f98;
+  --text-muted:     #62666d;
+  --accent:       #5e6ad2;
+  --accent-light: #7170ff;
+  --accent-hover: #828fff;
+  --success:      #10b981;
+  --danger:       #ef4444;
+  --warning:      #f59e0b;
+  --border:       rgba(255,255,255,0.08);
+  --border-subtle: rgba(255,255,255,0.05);
+  --radius-sm:    4px;
+  --radius:       6px;
+  --radius-md:    8px;
+  --radius-lg:    12px;
+}
+body {
+  font-family: "Inter", -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "cv01", "ss03";
+  background: var(--bg-deep);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.report-header {
+  padding-bottom: 48px;
+  margin-bottom: 64px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.report-meta {
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.report-title {
+  font-size: 56px;
+  font-weight: 510;
+  color: var(--text-primary);
+  line-height: 1.0;
+  letter-spacing: -1.232px;
+  margin-bottom: 16px;
+}
+.report-subtitle {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+  letter-spacing: -0.165px;
+  max-width: 560px;
+}
+.summary-strip {
+  display: flex;
+  gap: 48px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border-subtle);
+}
+.summary-item {}
+.summary-label {
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.summary-value {
+  font-size: 28px;
+  font-weight: 510;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.616px;
+}
+.summary-value .unit {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 3px;
+  letter-spacing: 0;
+}
+.summary-change {
+  font-size: 12px;
+  font-weight: 510;
+  margin-top: 6px;
+}
+.pos { color: var(--success); }
+.neg { color: var(--danger); }
+.warn { color: var(--warning); }
+
+/* ── Section ── */
+.section {
+  margin-bottom: 72px;
+}
+.section-label {
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::before {
+  content: '';
+  width: 3px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.section-title {
+  font-size: 24px;
+  font-weight: 510;
+  color: var(--text-primary);
+  letter-spacing: -0.288px;
+  margin-bottom: 6px;
+}
+.section-desc {
+  font-size: 15px;
+  color: var(--text-tertiary);
+  letter-spacing: -0.165px;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+/* ── KPI Grid ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.kpi-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.kpi-card {
+  background: rgba(255,255,255,0.02);
+  padding: 20px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: background 0.15s;
+}
+.kpi-card:hover { background: rgba(255,255,255,0.04); }
+.kpi-left { flex: 1; min-width: 0; }
+.kpi-name {
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kpi-value {
+  font-size: 26px;
+  font-weight: 510;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.572px;
+  margin-bottom: 10px;
+}
+.kpi-value .unit {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 2px;
+  letter-spacing: 0;
+}
+.kpi-change {
+  font-size: 11px;
+  font-weight: 510;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.kpi-spark {
+  width: 72px;
+  height: 48px;
+  flex-shrink: 0;
+  margin-left: 12px;
+  margin-top: 4px;
+}
+
+/* ── Chart card ── */
+.chart-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+.chart-title {
+  font-size: 14px;
+  font-weight: 590;
+  color: var(--text-primary);
+  letter-spacing: -0.182px;
+  margin-bottom: 4px;
+}
+.chart-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.chart-unit {
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.chart-body { height: 280px; }
+.chart-body-sm { height: 240px; }
+.chart-source {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+.chart-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* ── Table ── */
+.table-wrap {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table thead tr { background: rgba(255,255,255,0.03); }
+.data-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+.data-table th.r, .data-table td.r { text-align: right; }
+.data-table td {
+  padding: 11px 16px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+.data-table td.primary { font-weight: 510; color: var(--text-primary); }
+.data-table td.num { font-weight: 510; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+
+/* ── Badges ── */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 510;
+  padding: 1px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+}
+.badge-pos { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+.badge-neg { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.badge-neu { background: rgba(255,255,255,0.05); color: var(--text-tertiary); border: 1px solid var(--border-subtle); }
+.badge-warn { background: rgba(245,158,11,0.1); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
+
+/* ── Col layouts ── */
+.col-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.col-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+
+/* ── Info card ── */
+.info-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+}
+.info-card-title {
+  font-size: 13px;
+  font-weight: 590;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  letter-spacing: -0.13px;
+}
+.info-list { list-style: none; }
+.info-list li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  line-height: 1.55;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.info-list li::before {
+  content: '';
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+.info-list li:last-child { border-bottom: none; }
+
+/* ── Scenario grid ── */
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.scenario-card {
+  background: rgba(255,255,255,0.02);
+  padding: 22px 24px;
+  text-align: center;
+}
+.scenario-card.base { background: rgba(94,106,210,0.08); }
+.scenario-type {
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+.scenario-main {
+  font-size: 32px;
+  font-weight: 510;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.704px;
+  margin-bottom: 4px;
+}
+.scenario-card.base .scenario-main { color: var(--accent-light); }
+.scenario-unit { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.scenario-label { font-size: 12px; color: var(--text-tertiary); }
+
+/* ── Quote / alert ── */
+.quote-block {
+  border-left: 2px solid var(--accent);
+  padding: 12px 20px;
+  margin-bottom: 20px;
+}
+.quote-block p { font-size: 14px; color: var(--text-secondary); line-height: 1.75; }
+.quote-block strong { color: var(--text-primary); font-weight: 590; }
+
+.alert-block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: rgba(255,255,255,0.01);
+}
+.alert-label { font-size: 11px; font-weight: 510; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+.alert-text { font-size: 13px; color: var(--text-secondary); line-height: 1.65; }
+
+/* ── Footer ── */
+.report-footer {
+  margin-top: 80px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 32px 16px 64px; }
+  .report-title { font-size: 36px; }
+  .kpi-grid, .kpi-grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid-2, .col-2, .col-3, .scenario-grid { grid-template-columns: 1fr; }
+  .summary-strip { gap: 28px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="report-header">
+    <div class="report-meta">财务分析报告 · 2025 Q1 · 快手科技 1024.HK</div>
+    <h1 class="report-title">快手科技<br>2025 年财报<br>深度分析</h1>
+    <p class="report-subtitle">核心业务在高竞争市场中展现较强韧性，AI 商业化提速，盈利能力持续改善。</p>
+
+    <div class="summary-strip">
+      <div class="summary-item">
+        <div class="summary-label">Q1 总收入</div>
+        <div class="summary-value">336<span class="unit">亿元</span></div>
+        <div class="summary-change pos">+15.6% YoY</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">经调整净利润</div>
+        <div class="summary-value">53<span class="unit">亿元</span></div>
+        <div class="summary-change pos">+39.5% YoY</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">DAU</div>
+        <div class="summary-value">4.14<span class="unit">亿</span></div>
+        <div class="summary-change pos">+2.7% YoY</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">MAU</div>
+        <div class="summary-value">7.08<span class="unit">亿</span></div>
+        <div class="summary-change pos">+1.6% YoY</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">毛利率</div>
+        <div class="summary-value">48.2<span class="unit">%</span></div>
+        <div class="summary-change pos">+1.6ppt</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">电商 GMV 2024</div>
+        <div class="summary-value">6800<span class="unit">亿+</span></div>
+        <div class="summary-change pos">+43.6% YoY</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ 一、整体财务 ═══ -->
+  <section class="section">
+    <div class="section-label">一 · 整体财务表现</div>
+    <h2 class="section-title">收入、利润双轮提速，创历史最优水平</h2>
+    <p class="section-desc">2025Q1 总收入 336 亿，经调整净利率 15.8%，毛利率首次突破 48%</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-left">
+          <div class="kpi-name">Q1 总收入</div>
+          <div class="kpi-value">336<span class="unit">亿</span></div>
+          <div class="kpi-change pos">+15.6% YoY</div>
+        </div>
+        <div class="kpi-spark"><canvas id="s1" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left">
+          <div class="kpi-name">线上营销收入</div>
+          <div class="kpi-value">197<span class="unit">亿</span></div>
+          <div class="kpi-change pos">+20.4% YoY</div>
+        </div>
+        <div class="kpi-spark"><canvas id="s2" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left">
+          <div class="kpi-name">毛利率</div>
+          <div class="kpi-value">48.2<span class="unit">%</span></div>
+          <div class="kpi-change pos">+1.6ppt YoY</div>
+        </div>
+        <div class="kpi-spark"><canvas id="s3" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left">
+          <div class="kpi-name">直播收入</div>
+          <div class="kpi-value">76<span class="unit">亿</span></div>
+          <div class="kpi-change neg">-3.2% YoY</div>
+        </div>
+        <div class="kpi-spark"><canvas id="s4" width="72" height="48"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>财务指标</th>
+            <th class="r">2023 全年</th>
+            <th class="r">2024 全年</th>
+            <th class="r">2025 Q1</th>
+            <th class="r">同比</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="primary">总收入（亿元）</td><td class="r">1,135</td><td class="r">1,278</td><td class="r num">336</td><td class="r"><span class="badge badge-pos">+15.6%</span></td></tr>
+          <tr><td class="primary">线上营销（亿元）</td><td class="r">599</td><td class="r">728</td><td class="r num">197</td><td class="r"><span class="badge badge-pos">+20.4%</span></td></tr>
+          <tr><td class="primary">直播收入（亿元）</td><td class="r">330</td><td class="r">322</td><td class="r num">76</td><td class="r"><span class="badge badge-neg">-3.2%</span></td></tr>
+          <tr><td class="primary">其他服务（亿元）</td><td class="r">206</td><td class="r">228</td><td class="r num">63</td><td class="r"><span class="badge badge-pos">+18.7%</span></td></tr>
+          <tr><td class="primary">毛利润（亿元）</td><td class="r">473</td><td class="r">596</td><td class="r num">162</td><td class="r"><span class="badge badge-pos">+21.8%</span></td></tr>
+          <tr><td class="primary">毛利率</td><td class="r">41.7%</td><td class="r">46.6%</td><td class="r num">48.2%</td><td class="r"><span class="badge badge-pos">+1.6ppt</span></td></tr>
+          <tr><td class="primary">经调整净利润（亿元）</td><td class="r">102</td><td class="r">174</td><td class="r num">53</td><td class="r"><span class="badge badge-pos">+39.5%</span></td></tr>
+          <tr><td class="primary">经调整净利率</td><td class="r">9.0%</td><td class="r">13.6%</td><td class="r num">15.8%</td><td class="r"><span class="badge badge-pos">+2.2ppt</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══ 二、收入结构 ═══ -->
+  <section class="section">
+    <div class="section-label">二 · 收入结构趋势</div>
+    <h2 class="section-title">线上营销占比升至 58.6%，主引擎地位进一步稳固</h2>
+    <p class="section-desc">直播占比自然下滑，电商服务收入持续拉动其他服务增长</p>
+
+    <div class="chart-grid-2">
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header">
+          <div><div class="chart-title">总收入持续增长，2025Q1 同比 +15.6%</div><div class="chart-subtitle">2022—2025Q1 年度数据</div></div>
+          <span class="chart-unit">亿元</span>
+        </div>
+        <div class="chart-body" id="chart-revenue"></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header">
+          <div><div class="chart-title">线上营销占比稳步升至 58.6%</div><div class="chart-subtitle">三大收入来源结构，2025Q1</div></div>
+        </div>
+        <div class="chart-body" id="chart-mix"></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>收入来源</th><th class="r">2024 占比</th><th class="r">2025Q1 占比</th><th>趋势</th></tr></thead>
+        <tbody>
+          <tr><td class="primary">线上营销服务</td><td class="r">56.9%</td><td class="r num">58.6%</td><td><span class="badge badge-pos">提升</span> 广告技术升级驱动</td></tr>
+          <tr><td class="primary">直播打赏</td><td class="r">25.2%</td><td class="r num">22.6%</td><td><span class="badge badge-neg">下降</span> 流量向电商转化分流</td></tr>
+          <tr><td class="primary">其他服务（含电商）</td><td class="r">17.9%</td><td class="r num">18.8%</td><td><span class="badge badge-pos">提升</span> GMV 高速增长拉动</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══ 三、用户规模 ═══ -->
+  <section class="section">
+    <div class="section-label">三 · 用户规模与活跃度</div>
+    <h2 class="section-title">DAU 4.14 亿，单用户商业化价值快速提升</h2>
+    <p class="section-desc">日均使用时长 124 分钟创历史新高，单用户广告收入同比 +25.5%</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">MAU 月活用户</div><div class="kpi-value">7.08<span class="unit">亿</span></div><div class="kpi-change pos">+1.6% YoY</div></div>
+        <div class="kpi-spark"><canvas id="s5" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">DAU 日活用户</div><div class="kpi-value">4.14<span class="unit">亿</span></div><div class="kpi-change pos">+2.7% YoY</div></div>
+        <div class="kpi-spark"><canvas id="s6" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">日均使用时长</div><div class="kpi-value">124<span class="unit">分钟</span></div><div class="kpi-change pos">+5.1% YoY</div></div>
+        <div class="kpi-spark"><canvas id="s7" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">单用户每日广告收入</div><div class="kpi-value">12.8<span class="unit">元</span></div><div class="kpi-change pos">+25.5% YoY</div></div>
+        <div class="kpi-spark"><canvas id="s8" width="72" height="48"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-grid-2">
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header"><div><div class="chart-title">DAU 稳增，时长创 124 分钟历史新高</div><div class="chart-subtitle">2023Q1—2025Q1</div></div><span class="chart-unit">亿 / 分钟</span></div>
+        <div class="chart-body" id="chart-dau"></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header"><div><div class="chart-title">商业化 ARPU 增速 25.5%，远超用户增长</div><div class="chart-subtitle">单用户每日广告收入（元）</div></div></div>
+        <div class="chart-body" id="chart-arpu"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 四、电商 ═══ -->
+  <section class="section">
+    <div class="section-label">四 · 电商与直播购物</div>
+    <h2 class="section-title">GMV 2024 年突破 6800 亿，第二增长曲线成形</h2>
+    <p class="section-desc">月均购买用户超 1.5 亿，AI 选品与品牌赋能持续驱动规模增长</p>
+
+    <div class="kpi-grid kpi-grid-3">
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">2024 全年电商 GMV</div><div class="kpi-value">6800<span class="unit">亿+</span></div><div class="kpi-change pos">+43.6% YoY</div></div>
+        <div class="kpi-spark"><canvas id="s9" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">2025Q1 GMV（预估）</div><div class="kpi-value">1800<span class="unit">亿+</span></div><div class="kpi-change pos">+35%+ YoY</div></div>
+        <div class="kpi-spark"><canvas id="s10" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">月均购买用户</div><div class="kpi-value">1.5<span class="unit">亿+</span></div><div class="kpi-change pos">+20%+ YoY</div></div>
+        <div class="kpi-spark"><canvas id="s11" width="72" height="48"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">电商 GMV 高速扩张，2025 年预测突破 9000 亿</div><div class="chart-subtitle">2022—2025E</div></div><span class="chart-unit">亿元</span></div>
+      <div class="chart-body-sm" id="chart-gmv"></div>
+      <div class="chart-source">数据来源：快手科技官方财报及市场预测</div>
+    </div>
+  </section>
+
+  <!-- ═══ 五、AI ═══ -->
+  <section class="section">
+    <div class="section-label">五 · AI 战略布局</div>
+    <h2 class="section-title">AI 贯穿内容、广告、电商三大核心场景</h2>
+    <p class="section-desc">2025 年 AI 相关收入占比预计从 10% 提升至 15%+</p>
+
+    <div class="col-2">
+      <div class="info-card">
+        <div class="info-card-title">AIGC 内容生成</div>
+        <ul class="info-list">
+          <li>磁帄大模型内容生成能力持续迭代</li>
+          <li>广告素材生产效率提升 3 倍+</li>
+          <li>AI 剪辑工具活跃用户突破 5000 万</li>
+          <li>短剧内容 AI 辅助创作采用率 30%+</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">广告 AI 技术</div>
+        <ul class="info-list">
+          <li>广告 CTR 提升，ROI 效率改善明显</li>
+          <li>智能出价系统（oCPM/oCPC）广泛应用</li>
+          <li>AI 创意自动化降低广告商运营成本</li>
+          <li>磁帄大模型改写技术提升投放精准度</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">内容分发与推荐</div>
+        <ul class="info-list">
+          <li>大小双塔分发模型持续升级</li>
+          <li>多模态理解提升内容匹配精准度</li>
+          <li>搜索 + 推荐联动提升内容消耗时长</li>
+          <li>实时直播连接率提升映射 DAU 增长</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">快豁 AI 助手（B 端中台）</div>
+        <ul class="info-list">
+          <li>面向商家的 AI 运营助手上线</li>
+          <li>智能客服、智能主播培训工具</li>
+          <li>AI 选品、AI 选款提升小商家转化</li>
+          <li>AI 相关收入预计 2025 年达 15%+</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 六、海外 ═══ -->
+  <section class="section">
+    <div class="section-label">六 · 海外业务进展</div>
+    <h2 class="section-title">亏损大幅收窄，商业化路径渐趋成熟</h2>
+    <p class="section-desc">SnackVideo + Kwai 双支柱，2025 年亏损预计收窄至 -20～-30 亿</p>
+
+    <div class="chart-grid-2">
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header"><div><div class="chart-title">海外亏损大幅收窄，盈亏平衡在望</div><div class="chart-subtitle">2023—2025E</div></div><span class="chart-unit">亿元</span></div>
+        <div class="chart-body" id="chart-overseas-loss"></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header"><div><div class="chart-title">海外 MAU 稳步增长至 3.3 亿</div><div class="chart-subtitle">2023—2025E</div></div><span class="chart-unit">亿</span></div>
+        <div class="chart-body" id="chart-overseas-mau"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 七、盈利 ═══ -->
+  <section class="section">
+    <div class="section-label">七 · 盈利能力与费用控制</div>
+    <h2 class="section-title">经调整净利率 15.8%，创历史新高</h2>
+    <p class="section-desc">成本结构持续优化，营销费用提效降费，研发费用保持天花板控制</p>
+
+    <div class="kpi-grid kpi-grid-3">
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">Q1 经调整净利率</div><div class="kpi-value">15.8<span class="unit">%</span></div><div class="kpi-change pos">历史新高</div></div>
+        <div class="kpi-spark"><canvas id="s12" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">Q1 毛利率</div><div class="kpi-value">48.2<span class="unit">%</span></div><div class="kpi-change pos">+1.6ppt YoY</div></div>
+        <div class="kpi-spark"><canvas id="s13" width="72" height="48"></canvas></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">研发费用占收入比</div><div class="kpi-value">27<span class="unit">%</span></div><div class="kpi-change" style="color:var(--text-muted)">天花板控制</div></div>
+        <div class="kpi-spark"><canvas id="s14" width="72" height="48"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-grid-2">
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header"><div><div class="chart-title">毛利率与净利率双轨提升，盈利改善加速</div><div class="chart-subtitle">2023—2025Q1</div></div><span class="chart-unit">%</span></div>
+        <div class="chart-body" id="chart-margin"></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-header"><div><div class="chart-title">费用率全线下降，营销提效明显</div><div class="chart-subtitle">各费用项占收入比（%），2024 vs 2025Q1</div></div><span class="chart-unit">%</span></div>
+        <div class="chart-body" id="chart-cost"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 八、竞争 ═══ -->
+  <section class="section">
+    <div class="section-label">八 · 竞争格局与风险</div>
+    <h2 class="section-title">快手 vs 抖音：差距收窄，商业化效率快速追赶</h2>
+
+    <div class="table-wrap" style="margin-bottom:20px">
+      <table class="data-table">
+        <thead><tr><th>指标</th><th class="r">快手 2025Q1</th><th class="r">抖音 2025Q1（预估）</th><th>对比判断</th></tr></thead>
+        <tbody>
+          <tr><td class="primary">DAU（亿）</td><td class="r num">4.14</td><td class="r">~7.5+</td><td>第二大短视频平台</td></tr>
+          <tr><td class="primary">总收入（亿元）</td><td class="r num">336</td><td class="r">~450+</td><td>商业化效率快速追赶</td></tr>
+          <tr><td class="primary">经调净利率</td><td class="r num">15.8%</td><td class="r">~22%</td><td>盈利改善路径明确</td></tr>
+          <tr><td class="primary">电商 GMV（亿元）</td><td class="r num">~1,800</td><td class="r">~8,000+</td><td>快手电商仍有较大成长空间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">快手 vs 抖音 五维竞争力对比</div><div class="chart-subtitle">雷达图</div></div></div>
+      <div class="chart-body" id="chart-radar"></div>
+    </div>
+
+    <div class="col-2">
+      <div class="info-card">
+        <div class="info-card-title" style="color:var(--success)">核心竞争优势</div>
+        <ul class="info-list">
+          <li>下沉市场用户基盘稳固，粘性高</li>
+          <li>直播打赏吸引华中地区核心用户</li>
+          <li>快手点 + 购物流量闭环路径成熟</li>
+          <li>下沉客广告主动性价值高</li>
+          <li>直播生态在内容行业地位稳固</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title" style="color:var(--warning)">主要风险因素</div>
+        <ul class="info-list">
+          <li>抖音广告市场份额竞争压力持续</li>
+          <li>广告加载率接近天花板</li>
+          <li>直播行业监管变化，调整风险常态化</li>
+          <li>拼多多加大电商 GMV 竞争</li>
+          <li>宏观不确定性影响广告市场需求</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 九、投资展望 ═══ -->
+  <section class="section">
+    <div class="section-label">九 · 投资展望与目标价格</div>
+    <h2 class="section-title">2025 年全年三情景预测</h2>
+
+    <div class="scenario-grid" style="margin-bottom:20px">
+      <div class="scenario-card">
+        <div class="scenario-type">悲观情景</div>
+        <div class="scenario-main">1,360</div>
+        <div class="scenario-unit">总收入（亿元）</div>
+        <div class="scenario-label">净利润 180 亿</div>
+      </div>
+      <div class="scenario-card base">
+        <div class="scenario-type">基准预测</div>
+        <div class="scenario-main">1,420</div>
+        <div class="scenario-unit">总收入（亿元）</div>
+        <div class="scenario-label">净利润 220 亿 · GMV 9,000 亿</div>
+      </div>
+      <div class="scenario-card">
+        <div class="scenario-type">乐观情景</div>
+        <div class="scenario-main">1,500</div>
+        <div class="scenario-unit">总收入（亿元）</div>
+        <div class="scenario-label">净利润 260 亿 · GMV 10,000+ 亿</div>
+      </div>
+    </div>
+
+    <div class="kpi-grid kpi-grid-3">
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">投行目标价中位（HK$）</div><div class="kpi-value" style="font-size:20px">62<span class="unit">～68</span></div><div class="kpi-change" style="color:var(--text-muted)">基于 2025 年综合指标</div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">2025 年 P/S 估算</div><div class="kpi-value">2.8<span class="unit">x</span></div><div class="kpi-change" style="color:var(--text-muted)">相对行业小幅折价</div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-left"><div class="kpi-name">EV/EBITDA</div><div class="kpi-value" style="font-size:20px">12<span class="unit">～15x</span></div><div class="kpi-change" style="color:var(--text-muted)">处于合理区间</div></div>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <p>快手 2025 年处于盈利能力释放、AI 加持商业化提升的黄金周期。在用户稳定大盘的前提下，<strong>单用户商业化价值提升</strong>是最确定性增长路径。目前估值相对弹性，长期投资价值已逐渐显现。</p>
+    </div>
+  </section>
+
+  <!-- ═══ 十、总结 ═══ -->
+  <section class="section">
+    <div class="section-label">十 · 总结与风险提示</div>
+
+    <div class="col-2">
+      <div class="info-card">
+        <div class="info-card-title">确定性因素</div>
+        <ul class="info-list">
+          <li>MAU 7 亿+ 广大用户基盘</li>
+          <li>商业化效率持续提升路径明确</li>
+          <li>电商 GMV 高速增长，规避低价竞争</li>
+          <li>AI 投入在广告和内容端已见实效</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">需关注要素</div>
+        <ul class="info-list">
+          <li>直播打赏收入趋势转折点</li>
+          <li>抖音广告市场份额不再下滑的推演</li>
+          <li>全年经调净利率 15%+ 的可持续性</li>
+          <li>海外业务亏损收窄进度</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="alert-block">
+      <div class="alert-label warn">风险提示</div>
+      <div class="alert-text">本报告基于公开财报数据及市场预测，仅供内部交流参考，不构成任何投资建议。实际投资决策请结合专业投资顾问意见及最新公开信息进行。证券投资有风险，入市需谨慎。所有预测数据将以快手科技官方季报为准。</div>
+    </div>
+  </section>
+
+  <footer class="report-footer">
+    <span>快手科技（1024.HK）财报深度分析 · Linear Style</span>
+    <span>数据截止 2025Q1 · KwaiBook · 所有者：赵旭明</span>
+  </footer>
+</div>
+
+<script>
+// ── Sparkline ──
+function spark(id, data, neg) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height, p = {t:4,b:4,l:2,r:2};
+  const mn = Math.min(...data), mx = Math.max(...data), rng = mx - mn || 1;
+  const xs = data.map((_, i) => p.l + i/(data.length-1)*(W-p.l-p.r));
+  const ys = data.map(v => H-p.b-(v-mn)/rng*(H-p.t-p.b));
+  ctx.clearRect(0,0,W,H);
+  const color = neg ? '#ef4444' : '#7170ff';
+  const fill  = neg ? 'rgba(239,68,68,0.12)' : 'rgba(113,112,255,0.12)';
+  ctx.beginPath();
+  ctx.moveTo(xs[0], H-p.b);
+  xs.forEach((x,i) => ctx.lineTo(x,ys[i]));
+  ctx.lineTo(xs[xs.length-1], H-p.b);
+  ctx.closePath(); ctx.fillStyle = fill; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(xs[0],ys[0]);
+  xs.forEach((x,i) => ctx.lineTo(x,ys[i]));
+  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.stroke();
+}
+spark('s1',  [260,290,310,298,315,328,336]);
+spark('s2',  [140,160,175,168,182,190,197]);
+spark('s3',  [39,41,43,44,45,47,48.2]);
+spark('s4',  [88,85,82,80,78,77,76], true);
+spark('s5',  [6.44,6.60,6.75,6.82,6.90,6.97,7.08]);
+spark('s6',  [3.74,3.85,3.92,3.98,4.05,4.10,4.14]);
+spark('s7',  [109,112,115,116,118,121,124]);
+spark('s8',  [8.2,9.0,9.6,10.2,11.0,11.8,12.8]);
+spark('s9',  [2000,3200,4700,6800]);
+spark('s10', [800,1000,1300,1800]);
+spark('s11', [0.8,1.0,1.2,1.5]);
+spark('s12', [9.0,11.0,13.6,15.8]);
+spark('s13', [41.7,44.0,46.6,48.2]);
+spark('s14', [28.0,27.8,27.5,27.0], true);
+
+// ── ECharts 公共 ──
+const C = ['#7170ff','#10b981','#f59e0b','#ef4444','#828fff','#34d399'];
+const TOOLTIP = {
+  trigger:'axis', backgroundColor:'#191a1b', borderColor:'rgba(255,255,255,0.08)',
+  borderRadius:6, padding:[10,14], textStyle:{color:'#d0d6e0',fontSize:12}
+};
+const LEGEND = {
+  top:0, right:0, textStyle:{fontSize:11,color:'#62666d'}, icon:'circle', itemWidth:6,itemHeight:6,itemGap:16
+};
+const GRID = {left:0,right:0,bottom:0,top:32,containLabel:true};
+const XAXIS = (data) => ({
+  type:'category', data, boundaryGap:true,
+  axisLine:{lineStyle:{color:'rgba(255,255,255,0.08)'}},
+  axisTick:{show:false},
+  axisLabel:{color:'#62666d',fontSize:11},
+  splitLine:{show:false}
+});
+const YAXIS = (extra) => ({
+  type:'value',
+  axisLine:{show:false}, axisTick:{show:false},
+  axisLabel:{color:'#62666d',fontSize:11},
+  splitLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}},
+  ...(extra||{})
+});
+function ch(id, opt) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const c = echarts.init(el, 'dark');
+  c.setOption({backgroundColor:'transparent',...opt});
+  window.addEventListener('resize',()=>c.resize());
+}
+
+// Chart 1: 总收入
+ch('chart-revenue',{color:C,tooltip:TOOLTIP,legend:{...LEGEND,data:['总收入','线上营销','直播','其他服务']},grid:GRID,
+  xAxis:XAXIS(['2022','2023','2024','2025Q1']),yAxis:YAXIS(),
+  series:[
+    {name:'总收入',type:'bar',data:[906,1135,1278,336],itemStyle:{color:'#7170ff',borderRadius:[3,3,0,0]},barMaxWidth:32},
+    {name:'线上营销',type:'bar',data:[456,599,728,197],itemStyle:{color:'#10b981',borderRadius:[3,3,0,0]},barMaxWidth:32},
+    {name:'直播',type:'bar',data:[367,330,322,76],itemStyle:{color:'#f59e0b',borderRadius:[3,3,0,0]},barMaxWidth:32},
+    {name:'其他服务',type:'bar',data:[83,206,228,63],itemStyle:{color:'#828fff',borderRadius:[3,3,0,0]},barMaxWidth:32}
+  ]
+});
+
+// Chart 2: 饼图
+ch('chart-mix',{color:C,tooltip:{...TOOLTIP,trigger:'item',formatter:'{b}: {d}%'},
+  legend:{bottom:0,textStyle:{fontSize:11,color:'#62666d'},icon:'circle',itemWidth:6,itemHeight:6},
+  series:[{type:'pie',radius:['42%','68%'],center:['50%','44%'],padAngle:3,
+    label:{show:true,fontSize:11,color:'#8a8f98',formatter:'{b}\n{d}%'},
+    emphasis:{scale:false},
+    data:[{name:'线上营销',value:58.6},{name:'直播',value:22.6},{name:'其他服务',value:18.8}]
+  }]
+});
+
+// Chart 3: DAU
+ch('chart-dau',{color:C,tooltip:TOOLTIP,legend:{...LEGEND,data:['DAU（亿）','日均使用时长（分钟）']},grid:GRID,
+  xAxis:XAXIS(['2023Q1','2024Q1','2025Q1']),
+  yAxis:[YAXIS({name:'亿',nameTextStyle:{color:'#62666d',fontSize:11}}),
+         YAXIS({splitLine:{show:false},name:'分钟',nameTextStyle:{color:'#62666d',fontSize:11}})],
+  series:[
+    {name:'DAU（亿）',type:'bar',data:[3.74,4.03,4.14],itemStyle:{color:'#7170ff',borderRadius:[3,3,0,0]},barMaxWidth:48},
+    {name:'日均使用时长（分钟）',type:'line',yAxisIndex:1,data:[109,118,124],smooth:true,
+     symbol:'circle',symbolSize:5,lineStyle:{color:'#10b981',width:2},itemStyle:{color:'#10b981'},
+     areaStyle:{color:'rgba(16,185,129,0.06)'}}
+  ]
+});
+
+// Chart 4: ARPU
+ch('chart-arpu',{color:C,tooltip:TOOLTIP,grid:GRID,
+  xAxis:XAXIS(['2023Q1','2024Q1','2025Q1']),yAxis:YAXIS({min:0}),
+  series:[{type:'line',data:[null,10.2,12.8],smooth:true,symbol:'circle',symbolSize:7,showSymbol:true,
+    lineStyle:{color:'#7170ff',width:2},itemStyle:{color:'#7170ff'},
+    areaStyle:{color:'rgba(113,112,255,0.08)'},
+    label:{show:true,position:'top',fontSize:12,color:'#828fff',fontWeight:600}
+  }]
+});
+
+// Chart 5: GMV
+ch('chart-gmv',{color:C,tooltip:TOOLTIP,grid:GRID,
+  xAxis:XAXIS(['2022','2023','2024','2025E（基准）']),yAxis:YAXIS(),
+  series:[{type:'bar',
+    data:[
+      {value:1900,itemStyle:{color:'#7170ff',borderRadius:[3,3,0,0]}},
+      {value:3900,itemStyle:{color:'#7170ff',borderRadius:[3,3,0,0]}},
+      {value:6800,itemStyle:{color:'#7170ff',borderRadius:[3,3,0,0]}},
+      {value:9000,itemStyle:{color:'rgba(113,112,255,0.3)',borderRadius:[3,3,0,0]}}
+    ],barMaxWidth:56,
+    label:{show:true,position:'top',fontSize:11,color:'#8a8f98',formatter:v=>v.value+'亿'}
+  }]
+});
+
+// Chart 6: 海外亏损
+ch('chart-overseas-loss',{color:['#ef4444'],tooltip:TOOLTIP,grid:GRID,
+  xAxis:XAXIS(['2023','2024','2025E']),yAxis:YAXIS({inverse:true}),
+  series:[{type:'bar',data:[125,68,25],itemStyle:{color:'#ef4444',borderRadius:[3,3,0,0]},barMaxWidth:56,
+    label:{show:true,position:'top',fontSize:11,color:'#f87171',fontWeight:600,formatter:v=>'-'+v.value+'亿'}
+  }]
+});
+
+// Chart 7: 海外MAU
+ch('chart-overseas-mau',{color:C,tooltip:TOOLTIP,grid:GRID,
+  xAxis:XAXIS(['2023','2024','2025E']),yAxis:YAXIS(),
+  series:[{type:'bar',data:[2.8,3.3,3.8],itemStyle:{color:'#7170ff',borderRadius:[3,3,0,0]},barMaxWidth:56,
+    label:{show:true,position:'top',fontSize:11,color:'#828fff',fontWeight:600,formatter:v=>v.value+'亿'}
+  }]
+});
+
+// Chart 8: 利润率
+ch('chart-margin',{color:C,tooltip:TOOLTIP,legend:{...LEGEND,data:['毛利率','经调整净利率']},grid:GRID,
+  xAxis:XAXIS(['2023','2024','2025Q1']),
+  yAxis:YAXIS({axisLabel:{color:'#62666d',fontSize:11,formatter:v=>v+'%'}}),
+  series:[
+    {name:'毛利率',type:'line',data:[41.7,46.6,48.2],smooth:true,symbol:'circle',symbolSize:6,showSymbol:true,
+     lineStyle:{color:'#7170ff',width:2},itemStyle:{color:'#7170ff'},areaStyle:{color:'rgba(113,112,255,0.08)'}},
+    {name:'经调整净利率',type:'line',data:[9.0,13.6,15.8],smooth:true,symbol:'circle',symbolSize:6,showSymbol:true,
+     lineStyle:{color:'#10b981',width:2},itemStyle:{color:'#10b981'},areaStyle:{color:'rgba(16,185,129,0.06)'}}
+  ]
+});
+
+// Chart 9: 费用
+ch('chart-cost',{color:C,tooltip:TOOLTIP,legend:{...LEGEND,data:['2024年','2025Q1']},grid:GRID,
+  xAxis:YAXIS({type:'value',axisLabel:{color:'#62666d',fontSize:11,formatter:v=>v+'%'},splitLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}}}),
+  yAxis:{type:'category',data:['收入成本','营销费用','研发费用','行政费用'],
+    axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#8a8f98',fontSize:11},splitLine:{show:false}},
+  series:[
+    {name:'2024年',type:'bar',data:[53.4,22.8,27.5,8.3],itemStyle:{color:'rgba(255,255,255,0.12)',borderRadius:[0,3,3,0]},barMaxWidth:18},
+    {name:'2025Q1',type:'bar',data:[51.8,21.3,27.0,7.9],itemStyle:{color:'#7170ff',borderRadius:[0,3,3,0]},barMaxWidth:18}
+  ]
+});
+
+// Chart 10: 雷达
+ch('chart-radar',{
+  tooltip:{backgroundColor:'#191a1b',borderColor:'rgba(255,255,255,0.08)',textStyle:{color:'#d0d6e0',fontSize:12}},
+  legend:{bottom:0,textStyle:{fontSize:11,color:'#62666d'},icon:'circle',itemWidth:6,itemHeight:6},
+  radar:{
+    indicator:[{name:'用户规模',max:10},{name:'广告商业化',max:10},{name:'电商生态',max:10},{name:'AI 布局',max:10},{name:'盈利能力',max:10}],
+    axisName:{color:'#62666d',fontSize:11},
+    splitLine:{lineStyle:{color:'rgba(255,255,255,0.08)'}},
+    splitArea:{show:false},
+    axisLine:{lineStyle:{color:'rgba(255,255,255,0.08)'}}
+  },
+  series:[{type:'radar',data:[
+    {name:'快手',value:[7,7.5,6.5,8,7],lineStyle:{color:'#7170ff',width:2},itemStyle:{color:'#7170ff'},areaStyle:{color:'rgba(113,112,255,0.1)'}},
+    {name:'抖音（预估）',value:[9.5,9,9,8.5,8.5],lineStyle:{color:'#ef4444',width:2},itemStyle:{color:'#ef4444'},areaStyle:{color:'rgba(239,68,68,0.06)'}}
+  ]}]
+});
+</script>
+</body>
+</html>
