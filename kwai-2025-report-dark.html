@@ -9,20 +9,20 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --primary:  #60A5FA;
-  --success:  #34D399;
+  --primary:  #FB923C;
+  --success:  #FBBF24;
   --danger:   #F87171;
   --warning:  #FCD34D;
-  --purple:   #A78BFA;
-  --cyan:     #22D3EE;
+  --purple:   #FB923C;
+  --cyan:     #FDE68A;
 
   --g900: #F1F5F9;
   --g700: #CBD5E1;
   --g500: #64748B;
   --g400: #475569;
-  --page-bg: #0B1120;
-  --card-bg: #161F35;
-  --border: rgba(255,255,255,0.07);
+  --page-bg: #120A08;
+  --card-bg: #1E1209;
+  --border: rgba(255,180,120,0.10);
 }
 
 html { scroll-behavior: smooth; }
@@ -66,9 +66,9 @@ body {
 /* ── Header Banner (Dark) ── */
 .report-header {
   margin-bottom: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg, #0d1730 0%, #0B1120 50%, #0a1a12 100%);
+  background: linear-gradient(135deg, #1a0d06 0%, #120A08 50%, #1a100a 100%);
   border-radius: 12px;
-  border: 1px solid rgba(96,165,250,0.1);
+  border: 1px solid rgba(251,146,60,0.12);
   padding: 36px 40px 40px;
   margin-left: -8px; margin-right: -8px;
   position: relative;
@@ -79,7 +79,7 @@ body {
   position: absolute; top: -60px; right: -40px;
   width: 260px; height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(96,165,250,0.09) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(251,146,60,0.10) 0%, transparent 70%);
   pointer-events: none;
 }
 .report-header::after {
@@ -87,7 +87,7 @@ body {
   position: absolute; bottom: -20px; right: 120px;
   width: 140px; height: 140px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(52,211,153,0.07) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 .header-eyebrow {
@@ -99,7 +99,7 @@ body {
   content: '';
   display: inline-block; width: 16px; height: 2px;
   background: var(--primary); border-radius: 1px; flex-shrink: 0;
-  box-shadow: 0 0 6px rgba(96,165,250,0.5);
+  box-shadow: 0 0 6px rgba(251,146,60,0.5);
 }
 .header-title { font-size: 44px; font-weight: 700; color: var(--g900); line-height: 1.08; letter-spacing: -0.025em; margin-bottom: 16px; }
 .header-desc { font-size: 14px; color: var(--g500); line-height: 1.7; max-width: 560px; }
@@ -118,25 +118,25 @@ body {
 
 .kc {
   border-radius: 8px;
-  border: 1px solid rgba(96,165,250,0.15);
-  background: linear-gradient(145deg, #1a2540 0%, #111827 100%);
+  border: 1px solid rgba(251,146,60,0.18);
+  background: linear-gradient(145deg, #221208 0%, #150a04 100%);
   position: relative;
 }
 .kc.pos {
-  border-color: rgba(52,211,153,0.15);
-  background: linear-gradient(145deg, #152b24 0%, #0d1f1a 100%);
+  border-color: rgba(251,191,36,0.18);
+  background: linear-gradient(145deg, #241507 0%, #170d04 100%);
 }
 .kc.neg {
-  border-color: rgba(248,113,113,0.15);
-  background: linear-gradient(145deg, #2a1515 0%, #1a0d0d 100%);
+  border-color: rgba(248,113,113,0.18);
+  background: linear-gradient(145deg, #2a1010 0%, #1a0808 100%);
 }
 .kc.purple {
-  border-color: rgba(167,139,250,0.15);
-  background: linear-gradient(145deg, #1e1535 0%, #130f24 100%);
+  border-color: rgba(251,146,60,0.15);
+  background: linear-gradient(145deg, #271808 0%, #1a1004 100%);
 }
 .kc.warm {
-  border-color: rgba(252,211,77,0.12);
-  background: linear-gradient(145deg, #271e0d 0%, #1a1408 100%);
+  border-color: rgba(252,211,77,0.15);
+  background: linear-gradient(145deg, #2b1508 0%, #1c0e04 100%);
 }
 
 .kc-body { padding: 14px 16px 16px 18px; }
@@ -170,7 +170,7 @@ body {
 .section-num {
   font-size: 10px; font-weight: 700; color: var(--primary);
   letter-spacing: 0.06em; font-variant-numeric: tabular-nums; flex-shrink: 0;
-  background: rgba(96,165,250,0.1); border-radius: 4px;
+  background: rgba(251,146,60,0.12); border-radius: 4px;
   padding: 2px 6px; line-height: 1.5;
 }
 .section-title {
@@ -218,7 +218,7 @@ body {
   content: '';
   display: inline-block; width: 3px; height: 12px;
   background: var(--primary); border-radius: 2px; flex-shrink: 0;
-  box-shadow: 0 0 5px rgba(96,165,250,0.4);
+  box-shadow: 0 0 5px rgba(251,146,60,0.4);
 }
 .info-card ul { list-style: none; }
 .info-card ul li {
@@ -236,10 +236,10 @@ body {
 /* ── Forecast ── */
 .forecast-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
 .fc-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 18px 20px; }
-.fc-card.is-base { border-color: rgba(96,165,250,0.35); }
+.fc-card.is-base { border-color: rgba(251,146,60,0.40); }
 .fc-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; margin-bottom: 12px; }
-.fc-tag.base { background: rgba(96,165,250,0.12); color: var(--primary); }
-.fc-tag.bull { background: rgba(52,211,153,0.12); color: var(--success); }
+.fc-tag.base { background: rgba(251,146,60,0.12); color: var(--primary); }
+.fc-tag.bull { background: rgba(251,191,36,0.12); color: var(--success); }
 .fc-tag.bear { background: rgba(248,113,113,0.12); color: var(--danger); }
 .fc-num { font-size: 26px; font-weight: 700; color: var(--g900); letter-spacing: -0.02em; line-height: 1; margin-bottom: 2px; }
 .fc-num .u { font-size: 12px; font-weight: 500; color: var(--g500); margin-left: 2px; }
@@ -253,7 +253,7 @@ body {
 .quote {
   border-left: 3px solid var(--primary);
   padding: 12px 18px; margin: 18px 0;
-  background: rgba(96,165,250,0.05);
+  background: rgba(251,146,60,0.06);
   border-radius: 0 6px 6px 0;
 }
 .quote p { font-size: 13px; color: var(--g700); line-height: 1.75; }
@@ -300,11 +300,11 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
     <header class="report-header" id="s0">
       <!-- Banner SVG 装饰 -->
       <svg style="position:absolute;top:0;right:0;width:320px;height:200px;pointer-events:none;opacity:0.35" viewBox="0 0 320 200" fill="none">
-        <defs><pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#60A5FA" opacity="0.3"/></pattern></defs>
+        <defs><pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#FB923C" opacity="0.28"/></pattern></defs>
         <rect x="160" y="0" width="160" height="200" fill="url(#dots)"/>
-        <circle cx="300" cy="0" r="120" stroke="#60A5FA" stroke-width="0.6" opacity="0.2" fill="none"/>
-        <circle cx="300" cy="0" r="80" stroke="#A78BFA" stroke-width="0.5" opacity="0.15" fill="none"/>
-        <circle cx="210" cy="160" r="28" stroke="#34D399" stroke-width="0.6" opacity="0.18" fill="none"/>
+        <circle cx="300" cy="0" r="120" stroke="#FB923C" stroke-width="0.6" opacity="0.2" fill="none"/>
+        <circle cx="300" cy="0" r="80" stroke="#FBBF24" stroke-width="0.5" opacity="0.15" fill="none"/>
+        <circle cx="210" cy="160" r="28" stroke="#FDE68A" stroke-width="0.6" opacity="0.18" fill="none"/>
       </svg>
       <div class="header-eyebrow">财务深度分析报告 · 快手科技 1024.HK · 数据截止 2025 Q1</div>
       <h1 class="header-title">快手科技<br>2025 年财报深度分析</h1>
@@ -625,16 +625,16 @@ svg.arr { display: inline-block; vertical-align: middle; margin-right: 2px; }
 </div>
 
 <script>
-const C = ['#60A5FA','#34D399','#FCD34D','#F87171','#A78BFA','#22D3EE'];
+const C = ['#FB923C','#FBBF24','#F87171','#FDE68A','#FB923C','#FCD34D'];
 const F = '"Inter", -apple-system, "PingFang SC", sans-serif';
-const GRID = 'rgba(255,255,255,0.06)';
-const AXIS = 'rgba(255,255,255,0.10)';
-const LBL  = 'rgba(255,255,255,0.30)';
+const GRID = 'rgba(255,200,150,0.08)';
+const AXIS = 'rgba(255,200,150,0.15)';
+const LBL  = 'rgba(255,200,150,0.40)';
 
 function base() {
   return {
     backgroundColor: 'transparent', color: C,
-    tooltip: { trigger:'axis', backgroundColor:'#0B1120', borderColor:'rgba(255,255,255,0.1)', borderRadius:4, padding:[10,14], textStyle:{color:'#F1F5F9',fontSize:12,fontFamily:F} },
+    tooltip: { trigger:'axis', backgroundColor:'#120A08', borderColor:'rgba(255,255,255,0.1)', borderRadius:4, padding:[10,14], textStyle:{color:'#F1F5F9',fontSize:12,fontFamily:F} },
     legend: { top:0, right:0, textStyle:{fontSize:11,color:LBL,fontFamily:F}, icon:'circle', itemWidth:6, itemHeight:6, itemGap:16 },
     grid: { left:0, right:0, bottom:0, top:36, containLabel:true },
     xAxis: { type:'category', axisLine:{lineStyle:{color:AXIS}}, axisTick:{show:false}, axisLabel:{color:LBL,fontSize:11,fontFamily:F}, splitLine:{show:false} },
@@ -655,14 +655,14 @@ echarts.init(document.getElementById('c-revenue')).setOption({
   xAxis:{...base().xAxis,data:['2022','2023','2024','2025 Q1']},
   yAxis:[{...base().yAxis},{...base().yAxis,axisLabel:{...base().yAxis.axisLabel,formatter:'{value}%'},splitLine:{show:false}}],
   series:[
-    {...br('总收入',[901,1135,1278,336],'#60A5FA'),yAxisIndex:0},
-    {...ln('YoY%',[null,26.0,12.6,15.6],'#34D399',false),yAxisIndex:1,showSymbol:true,symbolSize:5}
+    {...br('总收入',[901,1135,1278,336],'#FB923C'),yAxisIndex:0},
+    {...ln('YoY%',[null,26.0,12.6,15.6],'#FBBF24',false),yAxisIndex:1,showSymbol:true,symbolSize:5}
   ]
 });
 
 echarts.init(document.getElementById('c-mix')).setOption({
-  backgroundColor:'transparent', color:['#60A5FA','#A78BFA','#34D399'],
-  tooltip:{trigger:'item',backgroundColor:'#0B1120',borderColor:'rgba(255,255,255,0.1)',borderRadius:4,padding:[10,14],textStyle:{color:'#F1F5F9',fontSize:12}},
+  backgroundColor:'transparent', color:['#FB923C','#FBBF24','#FBBF24'],
+  tooltip:{trigger:'item',backgroundColor:'#120A08',borderColor:'rgba(255,255,255,0.1)',borderRadius:4,padding:[10,14],textStyle:{color:'#F1F5F9',fontSize:12}},
   legend:{orient:'vertical',right:10,top:'middle',textStyle:{fontSize:11,color:LBL},icon:'circle',itemWidth:6,itemHeight:6},
   series:[{type:'pie',radius:['48%','68%'],center:['38%','50%'],padAngle:2,
     data:[{value:58.6,name:'线上营销  58.6%'},{value:22.6,name:'直播打赏  22.6%'},{value:18.8,name:'其他服务  18.8%'}],
@@ -673,15 +673,15 @@ echarts.init(document.getElementById('c-dau')).setOption({
   ...base(),
   xAxis:{...base().xAxis,data:['2022 Q1','2023 Q1','2024 Q1','2025 Q1']},
   yAxis:{...base().yAxis,min:3.2},
-  series:[{...ln('DAU（亿）',[3.46,3.74,4.03,4.14],'#60A5FA'),showSymbol:true,symbolSize:5,
-    label:{show:true,position:'top',color:'#60A5FA',fontSize:11,fontWeight:600,fontFamily:F,formatter:'{c}亿'}}]
+  series:[{...ln('DAU（亿）',[3.46,3.74,4.03,4.14],'#FB923C'),showSymbol:true,symbolSize:5,
+    label:{show:true,position:'top',color:'#FB923C',fontSize:11,fontWeight:600,fontFamily:F,formatter:'{c}亿'}}]
 });
 
 echarts.init(document.getElementById('c-arpu')).setOption({
   ...base(),
   xAxis:{...base().xAxis,data:['2023 全年','2024 全年','2025 Q1（年化）']},
-  series:[{...br('单用户日广告收入（元）',[null,10.2,12.8],'#60A5FA'),
-    label:{show:true,position:'top',color:'#60A5FA',fontSize:12,fontWeight:700,fontFamily:F,formatter:'{c} 元'}}]
+  series:[{...br('单用户日广告收入（元）',[null,10.2,12.8],'#FB923C'),
+    label:{show:true,position:'top',color:'#FB923C',fontSize:12,fontWeight:700,fontFamily:F,formatter:'{c} 元'}}]
 });
 
 echarts.init(document.getElementById('c-gmv')).setOption({
@@ -689,23 +689,23 @@ echarts.init(document.getElementById('c-gmv')).setOption({
   xAxis:{...base().xAxis,data:['2022','2023','2024','2025 预测']},
   yAxis:[{...base().yAxis},{...base().yAxis,axisLabel:{...base().yAxis.axisLabel,formatter:'{value}%'},splitLine:{show:false}}],
   series:[
-    {...br('电商 GMV',[2500,4700,6800,9000],'#A78BFA'),yAxisIndex:0,
-      label:{show:true,position:'top',color:'#A78BFA',fontSize:11,fontWeight:700,fontFamily:F,formatter:p=>p.value+'亿'}},
-    {...ln('YoY%',[null,88,44.7,32.4],'#34D399',false),yAxisIndex:1,showSymbol:true,symbolSize:5}
+    {...br('电商 GMV',[2500,4700,6800,9000],'#FBBF24'),yAxisIndex:0,
+      label:{show:true,position:'top',color:'#FBBF24',fontSize:11,fontWeight:700,fontFamily:F,formatter:p=>p.value+'亿'}},
+    {...ln('YoY%',[null,88,44.7,32.4],'#FBBF24',false),yAxisIndex:1,showSymbol:true,symbolSize:5}
   ]
 });
 
 echarts.init(document.getElementById('c-radar')).setOption({
-  backgroundColor:'transparent', color:['#60A5FA'],
-  tooltip:{backgroundColor:'#0B1120',borderColor:'rgba(255,255,255,0.1)',borderRadius:4,textStyle:{color:'#F1F5F9',fontSize:12}},
+  backgroundColor:'transparent', color:['#FB923C'],
+  tooltip:{backgroundColor:'#120A08',borderColor:'rgba(255,255,255,0.1)',borderRadius:4,textStyle:{color:'#F1F5F9',fontSize:12}},
   radar:{
     indicator:[{name:'内容生成',max:100},{name:'分发推荐',max:100},{name:'广告技术',max:100},{name:'电商赋能',max:100},{name:'B 端工具',max:100}],
     splitLine:{lineStyle:{color:GRID}},axisLine:{lineStyle:{color:AXIS}},
     axisName:{color:LBL,fontSize:11,fontFamily:F},
-    splitArea:{areaStyle:{color:['rgba(96,165,250,0.03)','rgba(96,165,250,0.06)']}}
+    splitArea:{areaStyle:{color:['rgba(251,146,60,0.04)','rgba(251,146,60,0.08)']}}
   },
   series:[{type:'radar',data:[{value:[88,90,85,80,72],name:'快手 AI 能力',
-    itemStyle:{color:'#60A5FA'},lineStyle:{color:'#60A5FA',width:1.5},areaStyle:{color:'rgba(96,165,250,0.12)'}}]}]
+    itemStyle:{color:'#FB923C'},lineStyle:{color:'#FB923C',width:1.5},areaStyle:{color:'rgba(96,165,250,0.12)'}}]}]
 });
 
 echarts.init(document.getElementById('c-overseas')).setOption({
@@ -719,8 +719,8 @@ echarts.init(document.getElementById('c-intl')).setOption({
   ...base(),
   xAxis:{...base().xAxis,data:['2023','2024','2025 预测']},
   yAxis:{...base().yAxis,min:2.4},
-  series:[{...ln('海外 MAU（亿）',[2.8,3.3,3.8],'#22D3EE'),showSymbol:true,symbolSize:5,
-    label:{show:true,position:'top',color:'#22D3EE',fontSize:11,fontWeight:600,fontFamily:F,formatter:'{c}亿'}}]
+  series:[{...ln('海外 MAU（亿）',[2.8,3.3,3.8],'#FDE68A'),showSymbol:true,symbolSize:5,
+    label:{show:true,position:'top',color:'#FDE68A',fontSize:11,fontWeight:600,fontFamily:F,formatter:'{c}亿'}}]
 });
 
 echarts.init(document.getElementById('c-margin')).setOption({
@@ -728,10 +728,10 @@ echarts.init(document.getElementById('c-margin')).setOption({
   xAxis:{...base().xAxis,data:['2022','2023','2024','2025 Q1']},
   yAxis:{...base().yAxis,axisLabel:{...base().yAxis.axisLabel,formatter:'{value}%'}},
   series:[
-    {...ln('毛利率',[36.8,41.7,46.6,48.2],'#60A5FA'),showSymbol:true,symbolSize:5,
-      label:{show:true,position:'top',color:'#60A5FA',fontSize:11,fontWeight:700,fontFamily:F,formatter:'{c}%'}},
-    {...ln('经调净利率',[-2.3,9.0,13.6,15.8],'#34D399',false),showSymbol:true,symbolSize:5,
-      label:{show:true,position:'bottom',color:'#34D399',fontSize:11,fontWeight:700,fontFamily:F,formatter:'{c}%'}}
+    {...ln('毛利率',[36.8,41.7,46.6,48.2],'#FB923C'),showSymbol:true,symbolSize:5,
+      label:{show:true,position:'top',color:'#FB923C',fontSize:11,fontWeight:700,fontFamily:F,formatter:'{c}%'}},
+    {...ln('经调净利率',[-2.3,9.0,13.6,15.8],'#FBBF24',false),showSymbol:true,symbolSize:5,
+      label:{show:true,position:'bottom',color:'#FBBF24',fontSize:11,fontWeight:700,fontFamily:F,formatter:'{c}%'}}
   ]
 });
 
