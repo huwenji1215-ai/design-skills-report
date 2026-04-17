@@ -1,0 +1,3187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计 Skill 评测平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════ */
+:root {
+  --bg-base:       oklch(12% 0.015 260);
+  --bg-surface:    oklch(16% 0.018 260);
+  --bg-elevated:   oklch(20% 0.020 260);
+  --bg-hover:      oklch(24% 0.022 260);
+
+  --border:        oklch(30% 0.020 260);
+  --border-strong: oklch(40% 0.025 260);
+
+  --text-primary:  oklch(94% 0.008 260);
+  --text-secondary:oklch(66% 0.012 260);
+  --text-muted:    oklch(46% 0.010 260);
+
+  --accent:        oklch(72% 0.18 250);
+  --accent-dim:    oklch(60% 0.14 250);
+  --accent-bg:     oklch(22% 0.06 250);
+
+  --pass:          oklch(70% 0.16 155);
+  --pass-bg:       oklch(20% 0.06 155);
+  --watch:         oklch(78% 0.16 80);
+  --watch-bg:      oklch(20% 0.06 80);
+  --fail:          oklch(68% 0.18 25);
+  --fail-bg:       oklch(20% 0.07 25);
+  --block:         oklch(62% 0.20 0);
+  --block-bg:      oklch(20% 0.08 0);
+
+  --radius-sm:     4px;
+  --radius-md:     8px;
+  --radius-lg:     12px;
+  --radius-xl:     16px;
+
+  --font-sans:     'Sora', sans-serif;
+  --font-mono:     'DM Mono', monospace;
+
+  --shadow-sm:  0 1px 3px oklch(0% 0 0 / 0.3);
+  --shadow-md:  0 4px 12px oklch(0% 0 0 / 0.4);
+  --shadow-lg:  0 8px 32px oklch(0% 0 0 / 0.5);
+
+  --transition: 180ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ═══════════════════════════════════════
+   RESET + BASE
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+.app-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 56px 1fr;
+  grid-template-areas:
+    "header header"
+    "sidebar main";
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+.app-header {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: oklch(12% 0.015 260);
+  letter-spacing: -0.5px;
+  font-family: var(--font-mono);
+}
+
+.header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+}
+
+.header-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-top: 1px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.header-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+.app-sidebar {
+  grid-area: sidebar;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+
+.sidebar-section-label {
+  padding: 8px 16px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0 8px;
+}
+
+.sidebar-nav li { margin: 1px 0; }
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 400;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.sidebar-nav a:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sidebar-nav a.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.sidebar-nav a .nav-icon {
+  font-size: 15px;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-nav a .nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 1px 6px;
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  color: var(--text-muted);
+}
+
+.sidebar-nav a.active .nav-badge {
+  background: var(--accent-dim);
+  color: oklch(12% 0.015 260);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 16px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 8px 16px;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  line-height: 1.8;
+}
+
+/* ═══════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════ */
+.app-main {
+  grid-area: main;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* ═══════════════════════════════════════
+   PAGE VIEWS
+═══════════════════════════════════════ */
+.page-view {
+  display: none;
+  animation: fadeIn 200ms ease forwards;
+}
+
+.page-view.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════
+   PAGE HEADER
+═══════════════════════════════════════ */
+.page-header {
+  padding: 32px 40px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+
+.page-header-eyebrow {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.page-header h1 {
+  font-size: clamp(20px, 2.5vw, 26px);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.page-header p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════
+   CONTENT AREA
+═══════════════════════════════════════ */
+.page-content {
+  padding: 32px 40px;
+  max-width: 1200px;
+}
+
+/* ═══════════════════════════════════════
+   CARDS
+═══════════════════════════════════════ */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.1px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: oklch(12% 0.015 260);
+  border-color: var(--accent);
+}
+
+.btn-primary:hover {
+  background: oklch(78% 0.20 250);
+  border-color: oklch(78% 0.20 250);
+}
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+.btn-ghost:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.btn-danger {
+  background: var(--fail-bg);
+  color: var(--fail);
+  border-color: oklch(40% 0.10 25);
+}
+
+.btn-danger:hover {
+  background: oklch(25% 0.09 25);
+}
+
+.btn-sm { padding: 5px 11px; font-size: 12px; }
+.btn-lg { padding: 11px 22px; font-size: 14px; }
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════
+   FORM ELEMENTS
+═══════════════════════════════════════ */
+.form-group { margin-bottom: 16px; }
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-label .required {
+  color: var(--fail);
+  margin-left: 3px;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  transition: border-color var(--transition);
+  outline: none;
+  appearance: none;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px oklch(72% 0.18 250 / 0.15);
+}
+
+.form-input::placeholder, .form-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.form-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.form-select option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.form-hint {
+  margin-top: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════
+   BADGE / TAGS
+═══════════════════════════════════════ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-pass   { background: var(--pass-bg);  color: var(--pass);  }
+.badge-watch  { background: var(--watch-bg); color: var(--watch); }
+.badge-fail   { background: var(--fail-bg);  color: var(--fail);  }
+.badge-block  { background: var(--block-bg); color: var(--block); }
+.badge-default{ background: var(--bg-elevated); color: var(--text-muted); }
+.badge-accent { background: var(--accent-bg); color: var(--accent); }
+
+/* ═══════════════════════════════════════
+   DIR TAGS
+═══════════════════════════════════════ */
+.dir-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.dir-01 { color: oklch(72% 0.15 250); border-color: oklch(40% 0.08 250); background: oklch(18% 0.05 250); }
+.dir-02 { color: oklch(72% 0.15 290); border-color: oklch(40% 0.08 290); background: oklch(18% 0.05 290); }
+.dir-03 { color: oklch(72% 0.15 50);  border-color: oklch(40% 0.08 50);  background: oklch(18% 0.05 50); }
+.dir-04 { color: oklch(72% 0.15 155); border-color: oklch(40% 0.08 155); background: oklch(18% 0.05 155); }
+.dir-05 { color: oklch(72% 0.15 25);  border-color: oklch(40% 0.08 25);  background: oklch(18% 0.05 25); }
+
+/* ═══════════════════════════════════════
+   UPLOAD ZONE
+═══════════════════════════════════════ */
+.upload-zone {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 48px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--bg-surface);
+  position: relative;
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.upload-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.upload-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.upload-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.upload-specs {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.upload-spec {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  padding: 3px 8px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+/* ═══════════════════════════════════════
+   SKILL INFO FORM
+═══════════════════════════════════════ */
+.skill-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.skill-form-full {
+  grid-column: 1 / -1;
+}
+
+/* ═══════════════════════════════════════
+   STEP INDICATOR
+═══════════════════════════════════════ */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 32px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  position: relative;
+}
+
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: calc(28px + 8px);
+  right: 8px;
+  height: 1px;
+  background: var(--border);
+  transition: background var(--transition);
+}
+
+.step.completed:not(:last-child)::after {
+  background: var(--accent-dim);
+}
+
+.step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all var(--transition);
+  z-index: 1;
+}
+
+.step.active .step-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: oklch(12% 0.015 260);
+}
+
+.step.completed .step-num {
+  background: var(--pass-bg);
+  border-color: var(--pass);
+  color: var(--pass);
+}
+
+.step.completed .step-num::after {
+  content: '✓';
+}
+
+.step.completed .step-num-inner { display: none; }
+
+.step-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.step.active .step-label { color: var(--text-primary); font-weight: 500; }
+.step.completed .step-label { color: var(--text-secondary); }
+
+/* ═══════════════════════════════════════
+   GATE RESULT PANEL
+═══════════════════════════════════════ */
+.gate-result {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-top: 24px;
+}
+
+.gate-result-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.gate-result-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.gate-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
+.gate-result-body {
+  padding: 20px;
+}
+
+.check-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  transition: all var(--transition);
+}
+
+.check-item.pass  { border-left: 3px solid var(--pass);  }
+.check-item.fail  { border-left: 3px solid var(--fail);  }
+.check-item.warn  { border-left: 3px solid var(--watch); }
+.check-item.block { border-left: 3px solid var(--block); }
+
+.check-status {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.check-content { flex: 1; }
+.check-title { font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+.check-desc  { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+
+.check-priority {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.check-priority.p0 { background: oklch(30% 0.10 0); color: oklch(72% 0.18 0); }
+.check-priority.p1 { background: oklch(28% 0.08 50); color: oklch(72% 0.16 50); }
+.check-priority.p2 { background: var(--bg-hover); color: var(--text-muted); }
+
+/* ═══════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════ */
+.empty-state {
+  text-align: center;
+  padding: 64px 32px;
+  color: var(--text-muted);
+}
+
+.empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+.empty-state-title { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+.empty-state-desc  { font-size: 13px; line-height: 1.6; max-width: 360px; margin: 0 auto 20px; }
+
+/* ═══════════════════════════════════════
+   PROGRESS / LOADING
+═══════════════════════════════════════ */
+.progress-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 400ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══════════════════════════════════════
+   MODEL OUTPUT GRID (3列)
+═══════════════════════════════════════ */
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.model-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.model-card-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.model-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.model-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.model-provider {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.model-output {
+  padding: 16px;
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  min-height: 200px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.model-output-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.model-card-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.model-score-chip {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+}
+
+/* ═══════════════════════════════════════
+   AQE SCORE MATRIX
+═══════════════════════════════════════ */
+.aqe-matrix {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.aqe-dim {
+  background: var(--bg-surface);
+  padding: 16px;
+  text-align: center;
+}
+
+.aqe-dim-code {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.aqe-dim-name {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.aqe-score {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.aqe-weight {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ═══════════════════════════════════════
+   REPORT ARCHIVE TABLE
+═══════════════════════════════════════ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.data-table tr:hover td {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.td-skill-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.td-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════
+   NOTIFICATION TOAST
+═══════════════════════════════════════ */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: 13px;
+  color: var(--text-primary);
+  animation: slideUp 200ms ease forwards;
+  max-width: 340px;
+}
+
+.toast.toast-success { border-left: 3px solid var(--pass); }
+.toast.toast-error   { border-left: 3px solid var(--fail); }
+.toast.toast-info    { border-left: 3px solid var(--accent); }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(12px); }
+}
+
+/* ═══════════════════════════════════════
+   SETTINGS PANEL
+═══════════════════════════════════════ */
+.settings-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  gap: 16px;
+}
+
+.setting-info {}
+.setting-label { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
+.setting-desc  { font-size: 12px; color: var(--text-muted); }
+
+/* ═══════════════════════════════════════
+   INLINE CODE
+═══════════════════════════════════════ */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 1px 5px;
+  background: var(--bg-elevated);
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 900px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "header" "main";
+  }
+  .app-sidebar { display: none; }
+  .page-content { padding: 20px; }
+  .model-grid { grid-template-columns: 1fr; }
+  .skill-form-grid { grid-template-columns: 1fr; }
+  .aqe-matrix { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ══════════════ HEADER ══════════════ -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="header-logo">Sk</div>
+      <div>
+        <div class="header-title">设计 Skill 评测平台</div>
+        <div class="header-subtitle">Design Skill Evaluation · AQE Standard v2.0</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="header-badge">AQE v2.0</span>
+      <button class="btn btn-secondary btn-sm" onclick="showPage('settings')">⚙ 设置</button>
+    </div>
+  </header>
+
+  <!-- ══════════════ SIDEBAR ══════════════ -->
+  <nav class="app-sidebar">
+    <div class="sidebar-section-label">评测流程</div>
+    <ul class="sidebar-nav">
+      <li>
+        <a class="active" onclick="showPage('upload')" href="#">
+          <span class="nav-icon">⬆</span>
+          上传 Skill
+          <span class="nav-badge" id="badge-upload">Step 1</span>
+        </a>
+      </li>
+      <li>
+        <a onclick="showPage('gate0')" href="#">
+          <span class="nav-icon">✦</span>
+          Gate 0 · 规范自检
+          <span class="nav-badge" id="badge-gate0">—</span>
+        </a>
+      </li>
+      <li>
+        <a onclick="showPage('eval')" href="#">
+          <span class="nav-icon">⚡</span>
+          Case 评测
+          <span class="nav-badge" id="badge-eval">—</span>
+        </a>
+      </li>
+      <li>
+        <a onclick="showPage('report')" href="#">
+          <span class="nav-icon">◉</span>
+          评测报告
+          <span class="nav-badge" id="badge-report">—</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section-label">管理</div>
+    <ul class="sidebar-nav">
+      <li>
+        <a onclick="showPage('archive')" href="#">
+          <span class="nav-icon">▤</span>
+          历史报告
+          <span class="nav-badge" id="badge-archive">0</span>
+        </a>
+      </li>
+      <li>
+        <a onclick="showPage('standards')" href="#">
+          <span class="nav-icon">◈</span>
+          评测标准库
+        </a>
+      </li>
+      <li>
+        <a onclick="showPage('settings')" href="#">
+          <span class="nav-icon">⚙</span>
+          API 设置
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      评测标准：AQE v2.0<br>
+      Gate 0 · Gate 2 · SQE-5<br>
+      五大方向：UI/图片/视频/文档/评测
+    </div>
+  </nav>
+
+  <!-- ══════════════ MAIN CONTENT ══════════════ -->
+  <main class="app-main">
+
+    <!-- ────────────────────────────────
+      PAGE: 上传 Skill
+    ──────────────────────────────── -->
+    <div id="page-upload" class="page-view active">
+      <div class="page-header">
+        <div class="page-header-eyebrow">Step 1 of 4</div>
+        <h1>上传 Skill</h1>
+        <p>上传你的 Skill 文件（SKILL.md 或包含 Skill 说明的 .md/.txt 文件），平台将自动解析并进行 Gate 0 规范自检。</p>
+      </div>
+      <div class="page-content">
+
+        <!-- 步骤指示 -->
+        <div class="steps">
+          <div class="step active">
+            <div class="step-num"><span class="step-num-inner">1</span></div>
+            <div class="step-label">上传 Skill</div>
+          </div>
+          <div class="step">
+            <div class="step-num"><span class="step-num-inner">2</span></div>
+            <div class="step-label">Gate 0 自检</div>
+          </div>
+          <div class="step">
+            <div class="step-num"><span class="step-num-inner">3</span></div>
+            <div class="step-label">Case 评测</div>
+          </div>
+          <div class="step">
+            <div class="step-num"><span class="step-num-inner">4</span></div>
+            <div class="step-label">评测报告</div>
+          </div>
+        </div>
+
+        <!-- 上传区域 -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-header">
+            <span class="card-title">Skill 文件</span>
+            <span class="badge badge-default">支持 .md / .txt / .json</span>
+          </div>
+          <div class="card-body">
+            <div class="upload-zone" id="uploadZone">
+              <input type="file" id="skillFileInput" accept=".md,.txt,.json" onchange="handleFileUpload(event)">
+              <span class="upload-icon">📄</span>
+              <div class="upload-title">拖放文件或点击上传</div>
+              <div class="upload-subtitle">支持 SKILL.md、skill.txt 或任意包含 Skill 说明的文本文件</div>
+              <div class="upload-specs">
+                <span class="upload-spec">📝 .md</span>
+                <span class="upload-spec">📄 .txt</span>
+                <span class="upload-spec">{ } .json</span>
+                <span class="upload-spec">⬆ 最大 2MB</span>
+              </div>
+            </div>
+
+            <div id="filePreview" style="display:none; margin-top: 16px;">
+              <div style="display:flex; align-items:center; gap:10px; padding: 12px 16px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                <span style="font-size:20px;">✅</span>
+                <div>
+                  <div id="fileName" style="font-size:13px; font-weight:600; color:var(--text-primary);"></div>
+                  <div id="fileSize" style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);"></div>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="clearFile()" style="margin-left:auto;">✕ 清除</button>
+              </div>
+              <!-- 内容预览 -->
+              <div style="margin-top: 10px;">
+                <div style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">内容预览（前 500 字符）</div>
+                <pre id="fileContentPreview" style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); overflow:auto; max-height:140px; white-space:pre-wrap; word-break:break-all;"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skill 基本信息 -->
+        <div class="card" id="skillInfoCard">
+          <div class="card-header">
+            <span class="card-title">Skill 基本信息</span>
+            <span style="font-size:12px; color:var(--text-muted);">会从文件中自动识别，也可手动填写</span>
+          </div>
+          <div class="card-body">
+            <div class="skill-form-grid">
+              <div class="form-group">
+                <label class="form-label">Skill 名称 <span class="required">*</span></label>
+                <input type="text" class="form-input" id="skillName" placeholder="e.g. visual-creator">
+              </div>
+              <div class="form-group">
+                <label class="form-label">所属方向 <span class="required">*</span></label>
+                <select class="form-select" id="skillDir">
+                  <option value="">— 选择方向 —</option>
+                  <option value="01">🖥 DIR-01 · UI 生成</option>
+                  <option value="02">🖼 DIR-02 · 图片生成</option>
+                  <option value="03">🎬 DIR-03 · 视频动效</option>
+                  <option value="04">📄 DIR-04 · 文档 / PPT</option>
+                  <option value="05">📊 DIR-05 · 评测</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">竞品对标</label>
+                <input type="text" class="form-input" id="skillBenchmark" placeholder="e.g. v0.dev, Claude Artifacts">
+              </div>
+              <div class="form-group">
+                <label class="form-label">输出格式</label>
+                <input type="text" class="form-input" id="skillOutput" placeholder="e.g. HTML, PNG, .pptx">
+              </div>
+              <div class="form-group skill-form-full">
+                <label class="form-label">Skill Description</label>
+                <textarea class="form-textarea" id="skillDescription" placeholder="粘贴或输入 Skill 的 description 字段内容..." style="min-height:120px;"></textarea>
+                <div class="form-hint">从 SKILL.md 的 description 字段提取，用于 Gate 0 规范自检</div>
+              </div>
+              <div class="form-group skill-form-full">
+                <label class="form-label">已知失败模式（选填）</label>
+                <textarea class="form-textarea" id="knownFailures" placeholder="每行一条，描述已知的失败场景..." style="min-height:80px;"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 8px;">
+          <button class="btn btn-secondary" onclick="clearFile()">重置</button>
+          <button class="btn btn-primary btn-lg" id="startGate0Btn" onclick="runGate0()" disabled>
+            ▶ 开始 Gate 0 规范自检
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ────────────────────────────────
+      PAGE: Gate 0 规范自检
+    ──────────────────────────────── -->
+    <div id="page-gate0" class="page-view">
+      <div class="page-header">
+        <div class="page-header-eyebrow">Step 2 of 4</div>
+        <h1>Gate 0 · 规范自检</h1>
+        <p>对 Skill 的 description、触发词、输出示例等文档规范进行自动化检查，判断是否符合准入标准。</p>
+      </div>
+      <div class="page-content" id="gate0Content">
+        <div class="empty-state">
+          <div class="empty-state-icon">✦</div>
+          <div class="empty-state-title">等待上传 Skill</div>
+          <div class="empty-state-desc">请先在「上传 Skill」页面上传并填写 Skill 信息，然后执行规范自检。</div>
+          <button class="btn btn-primary" onclick="showPage('upload')">← 返回上传</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ────────────────────────────────
+      PAGE: Case 评测
+    ──────────────────────────────── -->
+    <div id="page-eval" class="page-view">
+      <div class="page-header">
+        <div class="page-header-eyebrow">Step 3 of 4</div>
+        <h1>Case 评测</h1>
+        <p>输入测试 Case，同时调用 3 个模型生成产物，平台自动执行 AQE 美学评测并输出对比报告。</p>
+      </div>
+      <div class="page-content" id="evalContent">
+        <div class="empty-state">
+          <div class="empty-state-icon">⚡</div>
+          <div class="empty-state-title">Gate 0 未通过</div>
+          <div class="empty-state-desc">需要先完成 Gate 0 规范自检，且自检通过后才能进行 Case 评测。</div>
+          <button class="btn btn-primary" onclick="showPage('gate0')">← 去 Gate 0 自检</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ────────────────────────────────
+      PAGE: 评测报告
+    ──────────────────────────────── -->
+    <div id="page-report" class="page-view">
+      <div class="page-header">
+        <div class="page-header-eyebrow">Step 4 of 4</div>
+        <h1>评测报告</h1>
+        <p>当前 Skill 的完整 AQE 评测结论报告，包含五维度得分、通过判定与改进建议。</p>
+      </div>
+      <div class="page-content" id="reportContent">
+        <div class="empty-state">
+          <div class="empty-state-icon">◉</div>
+          <div class="empty-state-title">暂无报告</div>
+          <div class="empty-state-desc">完成 Case 评测后，系统将在此生成完整的 AQE 评测报告。</div>
+          <button class="btn btn-primary" onclick="showPage('eval')">← 去 Case 评测</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ────────────────────────────────
+      PAGE: 历史报告
+    ──────────────────────────────── -->
+    <div id="page-archive" class="page-view">
+      <div class="page-header">
+        <div class="page-header-eyebrow">管理</div>
+        <h1>历史报告存档</h1>
+        <p>所有已完成的评测报告自动保存，支持查看详情、导出 JSON 和比较版本变化。</p>
+      </div>
+      <div class="page-content">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">报告列表</span>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="exportAllReports()">⬇ 导出全部</button>
+              <button class="btn btn-danger btn-sm" onclick="clearAllReports()">⊘ 清空</button>
+            </div>
+          </div>
+          <div id="archiveList">
+            <div class="empty-state">
+              <div class="empty-state-icon">▤</div>
+              <div class="empty-state-title">暂无历史报告</div>
+              <div class="empty-state-desc">完成第一次评测后，报告会自动保存到此处。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ────────────────────────────────
+      PAGE: 评测标准库
+    ──────────────────────────────── -->
+    <div id="page-standards" class="page-view">
+      <div class="page-header">
+        <div class="page-header-eyebrow">参考</div>
+        <h1>评测标准库</h1>
+        <p>内置 AQE 美学评测矩阵、五大方向 Checklist 和 Gate 0/1/2 判定规则的完整说明。</p>
+      </div>
+      <div class="page-content" id="standardsContent">
+        <!-- 动态渲染 -->
+      </div>
+    </div>
+
+    <!-- ────────────────────────────────
+      PAGE: API 设置
+    ──────────────────────────────── -->
+    <div id="page-settings" class="page-view">
+      <div class="page-header">
+        <div class="page-header-eyebrow">配置</div>
+        <h1>API 设置</h1>
+        <p>配置调用 3 个评测模型所需的 API Key，Key 仅保存在本地 localStorage，不会上传。</p>
+      </div>
+      <div class="page-content">
+        <div class="settings-grid">
+          <!-- 模型 1 -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+                <span class="model-dot" style="background:oklch(72% 0.18 250);"></span>
+                模型 A · GPT-4o
+              </span>
+              <span class="badge badge-accent">OpenAI</span>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">API Key</label>
+                <input type="password" class="form-input" id="apiKeyA" placeholder="sk-..." 
+                       value="" oninput="saveApiKey('A', this.value)">
+                <div class="form-hint">OpenAI API Key，用于 GPT-4o 模型调用</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Base URL（可选）</label>
+                <input type="text" class="form-input" id="baseUrlA" placeholder="https://api.openai.com/v1" 
+                       oninput="saveBaseUrl('A', this.value)">
+              </div>
+            </div>
+          </div>
+
+          <!-- 模型 2 -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+                <span class="model-dot" style="background:oklch(72% 0.18 155);"></span>
+                模型 B · Claude 3.5 Sonnet
+              </span>
+              <span class="badge badge-accent" style="background:oklch(18% 0.05 155);color:oklch(72% 0.15 155);border:none;">Anthropic</span>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">API Key</label>
+                <input type="password" class="form-input" id="apiKeyB" placeholder="sk-ant-..." 
+                       oninput="saveApiKey('B', this.value)">
+                <div class="form-hint">Anthropic API Key，用于 Claude 3.5 Sonnet 调用</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Base URL（可选）</label>
+                <input type="text" class="form-input" id="baseUrlB" placeholder="https://api.anthropic.com/v1" 
+                       oninput="saveBaseUrl('B', this.value)">
+              </div>
+            </div>
+          </div>
+
+          <!-- 模型 3 -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+                <span class="model-dot" style="background:oklch(72% 0.18 80);"></span>
+                模型 C · Gemini 2.0 Flash
+              </span>
+              <span class="badge badge-accent" style="background:oklch(18% 0.05 80);color:oklch(72% 0.15 80);border:none;">Google</span>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">API Key</label>
+                <input type="password" class="form-input" id="apiKeyC" placeholder="AIzaSy..." 
+                       oninput="saveApiKey('C', this.value)">
+                <div class="form-hint">Google AI API Key，用于 Gemini 2.0 Flash 调用</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Base URL（可选）</label>
+                <input type="text" class="form-input" id="baseUrlC" placeholder="https://generativelanguage.googleapis.com/v1beta" 
+                       oninput="saveBaseUrl('C', this.value)">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header">
+            <span class="card-title">评测模型（AQE Judge）</span>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">用于 AQE 评测打分的模型</label>
+              <select class="form-select" id="judgeModel">
+                <option value="A">模型 A · GPT-4o（推荐）</option>
+                <option value="B">模型 B · Claude 3.5 Sonnet</option>
+                <option value="C">模型 C · Gemini 2.0 Flash</option>
+              </select>
+              <div class="form-hint">AQE 评测报告由该模型作为 LLM-as-Judge 生成评分和建议</div>
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast 容器 -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════
+   PART 1: CORE STATE & NAVIGATION JS
+═══════════════════════════════════════ -->
+<script>
+/* ─── 全局状态 ─── */
+const APP = {
+  currentSkill: null,     // 当前上传的Skill内容
+  skillMeta: {},          // Skill元数据
+  gate0Result: null,      // Gate0检查结果
+  evalResults: [],        // 三模型评测结果
+  aqeReport: null,        // AQE报告
+};
+
+/* ─── 路由导航 ─── */
+function showPage(id) {
+  document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav a').forEach(el => el.classList.remove('active'));
+
+  const page = document.getElementById('page-' + id);
+  if (page) {
+    page.classList.add('active');
+    // 页面特殊初始化
+    if (id === 'archive') loadArchiveList();
+    if (id === 'standards') renderStandards();
+    if (id === 'settings') loadSettings();
+  }
+
+  // 激活对应导航项
+  document.querySelectorAll('.sidebar-nav a').forEach(el => {
+    if (el.getAttribute('onclick')?.includes(`'${id}'`)) {
+      el.classList.add('active');
+    }
+  });
+}
+
+/* ─── Toast 通知 ─── */
+function showToast(msg, type = 'info', duration = 3000) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+  toast.innerHTML = `<span style="font-size:15px;">${icon}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'slideDown 200ms ease forwards';
+    setTimeout(() => toast.remove(), 200);
+  }, duration);
+}
+
+/* ─── 文件上传处理 ─── */
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('文件过大，最大支持 2MB', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const content = e.target.result;
+    APP.currentSkill = content;
+
+    // 显示文件信息
+    document.getElementById('filePreview').style.display = 'block';
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = `${(file.size / 1024).toFixed(1)} KB · ${file.type || 'text/plain'}`;
+    document.getElementById('fileContentPreview').textContent = content.substring(0, 500) + (content.length > 500 ? '…' : '');
+
+    // 自动识别元数据
+    autoDetectMeta(content, file.name);
+
+    // 更新上传区域外观
+    const zone = document.getElementById('uploadZone');
+    zone.style.borderColor = 'var(--pass)';
+    zone.style.background = 'var(--pass-bg)';
+
+    // 激活 Gate0 按钮
+    document.getElementById('startGate0Btn').disabled = false;
+
+    showToast(`已载入 ${file.name}`, 'success');
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+/* ─── 自动识别 Skill 元数据 ─── */
+function autoDetectMeta(content, filename) {
+  // 尝试从 frontmatter 或内容中提取
+  const nameMatch = content.match(/(?:^|\n)name:\s*(.+)/i);
+  const descMatch = content.match(/description:\s*([\s\S]+?)(?:\n---|\nlicense:|\nversion:)/i);
+
+  if (nameMatch && !document.getElementById('skillName').value) {
+    document.getElementById('skillName').value = nameMatch[1].trim();
+  } else if (!document.getElementById('skillName').value) {
+    // 从文件名推断
+    document.getElementById('skillName').value = filename.replace(/\.(md|txt|json)$/i, '');
+  }
+
+  if (descMatch && !document.getElementById('skillDescription').value) {
+    document.getElementById('skillDescription').value = descMatch[1].trim().substring(0, 1000);
+  }
+
+  // 尝试推断方向
+  const lc = content.toLowerCase();
+  if (!document.getElementById('skillDir').value) {
+    if (lc.includes('ui') || lc.includes('html') || lc.includes('react') || lc.includes('interface')) {
+      document.getElementById('skillDir').value = '01';
+    } else if (lc.includes('image') || lc.includes('图片') || lc.includes('生图') || lc.includes('png')) {
+      document.getElementById('skillDir').value = '02';
+    } else if (lc.includes('video') || lc.includes('动效') || lc.includes('animation') || lc.includes('lottie')) {
+      document.getElementById('skillDir').value = '03';
+    } else if (lc.includes('ppt') || lc.includes('pptx') || lc.includes('文档') || lc.includes('report')) {
+      document.getElementById('skillDir').value = '04';
+    } else if (lc.includes('eval') || lc.includes('评测') || lc.includes('score') || lc.includes('assess')) {
+      document.getElementById('skillDir').value = '05';
+    }
+  }
+}
+
+/* ─── 清除文件 ─── */
+function clearFile() {
+  APP.currentSkill = null;
+  document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('skillFileInput').value = '';
+  document.getElementById('skillName').value = '';
+  document.getElementById('skillDir').value = '';
+  document.getElementById('skillDescription').value = '';
+  document.getElementById('skillBenchmark').value = '';
+  document.getElementById('skillOutput').value = '';
+  document.getElementById('knownFailures').value = '';
+  document.getElementById('startGate0Btn').disabled = true;
+
+  const zone = document.getElementById('uploadZone');
+  zone.style.borderColor = '';
+  zone.style.background = '';
+  showToast('已清除文件', 'info');
+}
+
+/* ─── 拖放支持 ─── */
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.classList.add('dragover');
+});
+uploadZone.addEventListener('dragleave', () => {
+  uploadZone.classList.remove('dragover');
+});
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const input = document.getElementById('skillFileInput');
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    handleFileUpload({ target: input });
+  }
+});
+
+/* ─── API 设置存取 ─── */
+function saveApiKey(model, val) {
+  localStorage.setItem(`apiKey${model}`, val);
+}
+
+function saveBaseUrl(model, val) {
+  localStorage.setItem(`baseUrl${model}`, val);
+}
+
+function loadSettings() {
+  ['A', 'B', 'C'].forEach(m => {
+    const keyEl = document.getElementById(`apiKey${m}`);
+    const urlEl = document.getElementById(`baseUrl${m}`);
+    if (keyEl) keyEl.value = localStorage.getItem(`apiKey${m}`) || '';
+    if (urlEl) urlEl.value = localStorage.getItem(`baseUrl${m}`) || '';
+  });
+  const judgeEl = document.getElementById('judgeModel');
+  if (judgeEl) judgeEl.value = localStorage.getItem('judgeModel') || 'A';
+}
+
+function saveSettings() {
+  const judgeModel = document.getElementById('judgeModel')?.value;
+  if (judgeModel) localStorage.setItem('judgeModel', judgeModel);
+  // API Key 已实时保存（oninput）
+  showToast('设置已保存', 'success');
+}
+
+/* ─── 历史报告 ─── */
+function getReports() {
+  try { return JSON.parse(localStorage.getItem('skillEvalReports') || '[]'); }
+  catch { return []; }
+}
+
+function saveReport(report) {
+  const reports = getReports();
+  reports.unshift(report);
+  // 最多保存 50 条
+  if (reports.length > 50) reports.splice(50);
+  localStorage.setItem('skillEvalReports', JSON.stringify(reports));
+  // 更新徽章
+  document.getElementById('badge-archive').textContent = reports.length;
+}
+
+function loadArchiveList() {
+  const reports = getReports();
+  document.getElementById('badge-archive').textContent = reports.length;
+  const container = document.getElementById('archiveList');
+  if (!reports.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">▤</div>
+      <div class="empty-state-title">暂无历史报告</div>
+      <div class="empty-state-desc">完成第一次评测后，报告会自动保存到此处。</div>
+    </div>`;
+    return;
+  }
+  const rows = reports.map((r, i) => `
+    <tr>
+      <td><div class="td-skill-name">${r.skillName || '未命名 Skill'}</div></td>
+      <td><span class="dir-tag dir-0${r.dir || '1'}">${dirLabel(r.dir)}</span></td>
+      <td><span class="badge badge-${r.verdict?.toLowerCase() || 'default'}">${r.verdict || '—'}</span></td>
+      <td><span style="font-size:13px; font-weight:700; font-family:var(--font-mono);">${r.totalScore ? r.totalScore.toFixed(1) : '—'}</span></td>
+      <td class="td-time">${formatDate(r.createdAt)}</td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="viewReport(${i})">查看</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportReport(${i})">导出</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  container.innerHTML = `
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Skill 名称</th>
+          <th>方向</th>
+          <th>判定结果</th>
+          <th>AQE 总分</th>
+          <th>评测时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function dirLabel(dir) {
+  const map = {'01':'UI生成','02':'图片生成','03':'视频动效','04':'文档PPT','05':'评测','1':'UI生成','2':'图片生成','3':'视频动效','4':'文档PPT','5':'评测'};
+  return map[dir] || dir || '—';
+}
+
+function formatDate(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function viewReport(idx) {
+  const reports = getReports();
+  const r = reports[idx];
+  if (!r) return;
+  APP.aqeReport = r;
+  renderReportPage(r);
+  showPage('report');
+}
+
+function exportReport(idx) {
+  const reports = getReports();
+  const r = reports[idx];
+  if (!r) return;
+  const blob = new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `skill-eval-${r.skillName || 'report'}-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('报告已导出', 'success');
+}
+
+function exportAllReports() {
+  const reports = getReports();
+  if (!reports.length) { showToast('暂无报告可导出', 'info'); return; }
+  const blob = new Blob([JSON.stringify(reports, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `skill-eval-all-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`已导出 ${reports.length} 份报告`, 'success');
+}
+
+function clearAllReports() {
+  if (!confirm('确认清空所有历史报告？此操作不可撤销。')) return;
+  localStorage.removeItem('skillEvalReports');
+  loadArchiveList();
+  showToast('已清空所有报告', 'info');
+}
+
+/* ─── 初始化 ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
+  const reports = getReports();
+  document.getElementById('badge-archive').textContent = reports.length;
+});
+</script>
+
+<!-- ═══════════════════════════════════════
+   PART 2: GATE 0 CHECK LOGIC
+═══════════════════════════════════════ -->
+<script>
+
+/* ══════════════════════════════════════
+   GATE 0 检查规则库
+══════════════════════════════════════ */
+const GATE0_CHECKS = [
+  // ─── A. 输出物定义 ───
+  {
+    id: 'A1', group: 'A · 输出物定义', priority: 'P0',
+    title: '输出物类型已明确',
+    desc: '必须精确定义格式：HTML / SVG / PNG / PPTX / JSON 等，不能笼统写「生成设计稿」',
+    test: (meta) => {
+      const formats = ['html','svg','png','jpg','webp','pptx','pdf','json','mp4','lottie','react','tsx','jsx'];
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return formats.some(f => text.includes(f));
+    }
+  },
+  {
+    id: 'A2', group: 'A · 输出物定义', priority: 'P0',
+    title: '有完整输出示例',
+    desc: '「用户输入 X → Skill 产出 Y」的链路示例必须写明',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('例如') || text.includes('example') || text.includes('e.g') || 
+             text.includes('when user') || text.includes('当用户') ||
+             text.includes('input') || text.includes('输入') ||
+             text.includes('output') || text.includes('输出');
+    }
+  },
+  {
+    id: 'A3', group: 'A · 输出物定义', priority: 'P0',
+    title: '输出精度已定义',
+    desc: '必须明确：原型级（可走查）还是生产级（直接可用，0 报错）',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('production') || text.includes('prototype') || text.includes('可用') ||
+             text.includes('原型') || text.includes('生产') || text.includes('pro ') ||
+             text.includes('working') || text.includes('functional');
+    }
+  },
+  {
+    id: 'A4', group: 'A · 输出物定义', priority: 'P1',
+    title: '输出尺寸/分辨率已约束',
+    desc: 'UI 类需定义最低支持分辨率，图片类需定义最低 DPI，视频类需定义帧率和尺寸',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('px') || text.includes('resolution') || text.includes('分辨率') ||
+             text.includes('1280') || text.includes('1080') || text.includes('1024') ||
+             text.includes('dpi') || text.includes('fps') || text.includes('375');
+    }
+  },
+
+  // ─── B. 竞品对标 ───
+  {
+    id: 'B1', group: 'B · 竞品对标', priority: 'P0',
+    title: '已指定质量对标竞品',
+    desc: '必须从五大方向竞品参考表中选定，或提供同等标准来源',
+    test: (meta) => {
+      const benchmarks = ['v0.dev','claude','framer','gamma','skywork','notion','gemini','gpt','flux','firefly','remotion','lottie','figma','vercel'];
+      const text = (meta.description + ' ' + meta.benchmark + ' ' + meta.content).toLowerCase();
+      return benchmarks.some(b => text.includes(b)) || (meta.benchmark && meta.benchmark.trim().length > 2);
+    }
+  },
+  {
+    id: 'B2', group: 'B · 竞品对标', priority: 'P1',
+    title: '已做竞品实测',
+    desc: '用相同 Prompt 测过竞品，截图存档作为 Gate 2 对比基准',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('tested') || text.includes('benchmark') || text.includes('比较') ||
+             text.includes('对比') || text.includes('竞品') || text.includes('测试');
+    }
+  },
+
+  // ─── C. 版权与合规 ───
+  {
+    id: 'C1', group: 'C · 版权与合规', priority: 'P0',
+    title: '字体使用路线已确定',
+    desc: '使用系统字体/开源字体，不得使用苹方、微软雅黑等未授权商用字体',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      const fonts = ['system','inter','noto','source han','思源','misans','opensans','roboto','font','字体','sora','dm mono'];
+      return fonts.some(f => text.includes(f));
+    }
+  },
+  {
+    id: 'C2', group: 'C · 版权与合规', priority: 'P0',
+    title: '图片/插画来源合规',
+    desc: 'AI 生图路线需确认模型许可证，开源图库需确认商用协议',
+    test: (meta) => {
+      if (meta.dir === '01') return true; // UI生成方向不强制要求
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('license') || text.includes('copyright') || text.includes('unsplash') ||
+             text.includes('pexels') || text.includes('版权') || text.includes('授权') ||
+             text.includes('open source') || text.includes('ai generated') || meta.dir === '01';
+    }
+  },
+
+  // ─── D. 美学基线 ───
+  {
+    id: 'D1', group: 'D · 美学基线', priority: 'P0',
+    title: '色彩对比度达标',
+    desc: '正文对比度 ≥ 4.5:1（WCAG AA），大号标题 ≥ 3:1，含文字输出时必须满足',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('contrast') || text.includes('对比度') || text.includes('wcag') ||
+             text.includes('4.5') || text.includes('accessibility') || text.includes('可访问');
+    }
+  },
+  {
+    id: 'D2', group: 'D · 美学基线', priority: 'P1',
+    title: '默认输出有美学基准档',
+    desc: '即使用户不给任何风格指导，默认输出也应有视觉层级、颜色不杂乱、布局不拥挤',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('default') || text.includes('默认') || text.includes('style') ||
+             text.includes('aesthetic') || text.includes('design') || text.includes('设计');
+    }
+  },
+
+  // ─── E. 边界与失败处理 ───
+  {
+    id: 'E1', group: 'E · 边界与失败处理', priority: 'P1',
+    title: '已定义「不做什么」',
+    desc: 'Skill 的能力边界在文档中有明确说明，防止用户期望管理失败',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('not ') || text.includes('不支持') || text.includes('不适用') ||
+             text.includes('do not') || text.includes("don't") || text.includes('exclude') ||
+             text.includes('无法') || text.includes('限制') || text.includes('only');
+    }
+  },
+  {
+    id: 'E2', group: 'E · 边界与失败处理', priority: 'P1',
+    title: '输入不完整时有降级策略',
+    desc: '用户提供部分信息时，应给出「最佳猜测 + 可执行澄清引导」，不得静默失败',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('fallback') || text.includes('降级') || text.includes('clarif') ||
+             text.includes('incomplete') || text.includes('missing') || text.includes('ask') ||
+             text.includes('询问') || text.includes('默认');
+    }
+  },
+
+  // ─── F. Description 规范（Gate 0 专项）───
+  {
+    id: 'F1', group: 'F · Description 规范', priority: 'P0',
+    title: 'Description 字段存在且非空',
+    desc: 'Skill 必须有清晰的 description 字段，不可缺失',
+    test: (meta) => meta.description && meta.description.trim().length > 20
+  },
+  {
+    id: 'F2', group: 'F · Description 规范', priority: 'P0',
+    title: 'Description 长度合理',
+    desc: 'Description 建议 100-800 字符，过短说明信息不足，过长影响触发效果',
+    test: (meta) => {
+      const len = (meta.description || '').trim().length;
+      return len >= 50 && len <= 1200;
+    }
+  },
+  {
+    id: 'F3', group: 'F · Description 规范', priority: 'P0',
+    title: '触发词覆盖完整',
+    desc: 'Description 中包含清晰的触发词列表（When to use / 触发词）',
+    test: (meta) => {
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('when') || text.includes('trigger') || text.includes('触发') ||
+             text.includes('use this') || text.includes('使用此') || text.includes('当用户') ||
+             text.includes('should be used') || text.includes('应该使用');
+    }
+  },
+  {
+    id: 'F4', group: 'F · Description 规范', priority: 'P1',
+    title: '已知失败模式预列',
+    desc: '参考同类 Skill 的 Known Failures，预列 ≥ 3 条高概率失败场景',
+    test: (meta) => {
+      if (meta.knownFailures && meta.knownFailures.trim().split('\n').filter(l=>l.trim()).length >= 1) return true;
+      const text = (meta.description + ' ' + meta.content).toLowerCase();
+      return text.includes('known failure') || text.includes('失败') || text.includes('limitation') ||
+             text.includes('not work') || text.includes('edge case');
+    }
+  }
+];
+
+/* ═══════════════════════════════════
+   运行 Gate 0 检查
+═══════════════════════════════════ */
+function runGate0() {
+  const skillName = document.getElementById('skillName').value.trim();
+  const skillDir  = document.getElementById('skillDir').value;
+  const skillDesc = document.getElementById('skillDescription').value.trim();
+
+  if (!skillName) { showToast('请填写 Skill 名称', 'error'); return; }
+  if (!skillDir)  { showToast('请选择所属方向', 'error'); return; }
+
+  // 保存元数据
+  APP.skillMeta = {
+    name: skillName,
+    dir: skillDir,
+    description: skillDesc,
+    benchmark: document.getElementById('skillBenchmark').value.trim(),
+    output: document.getElementById('skillOutput').value.trim(),
+    knownFailures: document.getElementById('knownFailures').value.trim(),
+    content: APP.currentSkill || ''
+  };
+
+  // 切换到 Gate 0 页面
+  showPage('gate0');
+  document.getElementById('badge-gate0').textContent = '检查中';
+
+  // 模拟异步检查（实际为同步，但加动画感）
+  const container = document.getElementById('gate0Content');
+  container.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:40px;">
+    <div class="spinner"></div>
+    <span style="color:var(--text-secondary);font-size:14px;">正在执行 Gate 0 规范自检...</span>
+  </div>`;
+
+  setTimeout(() => {
+    const results = runChecks(APP.skillMeta);
+    APP.gate0Result = results;
+    renderGate0Results(results);
+  }, 600);
+}
+
+function runChecks(meta) {
+  return GATE0_CHECKS.map(check => ({
+    ...check,
+    passed: (() => {
+      try { return check.test(meta); }
+      catch { return false; }
+    })()
+  }));
+}
+
+function renderGate0Results(results) {
+  const total   = results.length;
+  const passed  = results.filter(r => r.passed).length;
+  const p0fails = results.filter(r => !r.passed && r.priority === 'P0');
+  const p1fails = results.filter(r => !r.passed && r.priority === 'P1');
+  const score   = Math.round((passed / total) * 100);
+
+  const verdict = p0fails.length > 0 ? 'FAIL' :
+                  p1fails.length > 2 ? 'WATCH' : 'PASS';
+  const verdictColor = {PASS:'var(--pass)', WATCH:'var(--watch)', FAIL:'var(--fail)'}[verdict];
+  const verdictBg    = {PASS:'var(--pass-bg)', WATCH:'var(--watch-bg)', FAIL:'var(--fail-bg)'}[verdict];
+
+  // 更新侧边栏徽章
+  document.getElementById('badge-gate0').textContent = verdict;
+  document.getElementById('badge-gate0').style.color = verdictColor;
+
+  const meta = APP.skillMeta;
+
+  // 按组分组
+  const groups = {};
+  results.forEach(r => {
+    if (!groups[r.group]) groups[r.group] = [];
+    groups[r.group].push(r);
+  });
+
+  const groupHtml = Object.entries(groups).map(([groupName, items]) => {
+    const itemHtml = items.map(r => {
+      const statusIcon = r.passed ? '✓' : (r.priority === 'P0' ? '✕' : '◎');
+      const statusClass = r.passed ? 'pass' : (r.priority === 'P0' ? 'fail' : 'warn');
+      return `<li class="check-item ${statusClass}">
+        <span class="check-status">${statusIcon}</span>
+        <div class="check-content">
+          <div class="check-title">${r.id} · ${r.title}</div>
+          <div class="check-desc">${r.desc}</div>
+        </div>
+        <span class="check-priority ${r.priority.toLowerCase()}">${r.priority}</span>
+      </li>`;
+    }).join('');
+    return `<div style="margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">${groupName}</div>
+      <ul class="check-list">${itemHtml}</ul>
+    </div>`;
+  }).join('');
+
+  const container = document.getElementById('gate0Content');
+  container.innerHTML = `
+    <!-- 总结卡 -->
+    <div style="display:grid;grid-template-columns:1fr auto;gap:20px;margin-bottom:28px;align-items:start;">
+      <div>
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">GATE 0 · 规范自检结果</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <span style="font-size:32px;font-weight:800;font-family:var(--font-mono);color:${verdictColor};">${verdict}</span>
+          <span class="badge badge-${verdict.toLowerCase()}">${passed}/${total} 通过</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+          ${p0fails.length > 0 
+            ? `<strong style="color:var(--fail);">⚠ ${p0fails.length} 个 P0 项未通过</strong>，需修复后才能进行 Case 评测。` 
+            : p1fails.length > 0 
+              ? `P0 项全部通过，有 <strong>${p1fails.length} 个 P1 项</strong>需要关注。可继续进行 Case 评测。`
+              : '✓ 所有检查项通过，Skill 规范符合准入要求，可进行 Case 评测。'}
+        </div>
+        <div class="progress-bar-wrap" style="max-width:300px;">
+          <div class="progress-bar-fill" style="width:${score}%;background:${verdictColor};"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);margin-top:4px;">规范完整度 ${score}%</div>
+      </div>
+
+      <!-- Skill 信息摘要 -->
+      <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;min-width:220px;">
+        <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">当前 Skill</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">${meta.name}</div>
+        <div style="margin-bottom:6px;"><span class="dir-tag dir-0${meta.dir}">${getDirFullLabel(meta.dir)}</span></div>
+        ${meta.benchmark ? `<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">对标：${meta.benchmark}</div>` : ''}
+        ${meta.output ? `<div style="font-size:11px;color:var(--text-muted);">输出：${meta.output}</div>` : ''}
+      </div>
+    </div>
+
+    <!-- 详细检查项 -->
+    <div style="margin-bottom:20px;">
+      ${groupHtml}
+    </div>
+
+    <!-- 操作按钮 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--border);">
+      <button class="btn btn-secondary" onclick="showPage('upload')">← 返回修改</button>
+      <div style="display:flex;gap:8px;">
+        ${verdict !== 'FAIL' 
+          ? `<button class="btn btn-primary btn-lg" onclick="proceedToEval()">
+              继续 Case 评测 →
+             </button>`
+          : `<div style="font-size:13px;color:var(--fail);display:flex;align-items:center;gap:6px;">
+              ✕ P0 项未通过，请先修复后重新检查
+             </div>`
+        }
+      </div>
+    </div>
+  `;
+}
+
+function getDirFullLabel(dir) {
+  const map = {
+    '01':'🖥 UI 生成','02':'🖼 图片生成','03':'🎬 视频动效',
+    '04':'📄 文档/PPT','05':'📊 评测',
+    '1':'🖥 UI 生成','2':'🖼 图片生成','3':'🎬 视频动效',
+    '4':'📄 文档/PPT','5':'📊 评测'
+  };
+  return map[dir] || `DIR-0${dir}`;
+}
+
+function proceedToEval() {
+  showPage('eval');
+  renderEvalPage();
+  document.getElementById('badge-eval').textContent = '就绪';
+}
+</script>
+
+<!-- ═══════════════════════════════════════
+   PART 4: STANDARDS PAGE + FINALIZE
+═══════════════════════════════════════ -->
+<script>
+/* ══════════════════════════════════════
+   评测标准库页面
+══════════════════════════════════════ */
+function renderStandards() {
+  const container = document.getElementById('standardsContent');
+  if (!container || container.dataset.loaded) return;
+  container.dataset.loaded = 'true';
+
+  const dirSections = [
+    { id:'01', icon:'🖥', name:'UI 生成', color:'oklch(72% 0.15 250)',
+      checklist:[
+        '输出格式已锁定（React组件 / 纯HTML / 截图），且有完整输出示例',
+        '组件库已指定（shadcn/ui / Ant Design / Tailwind / 无框架），建设中不变更',
+        '竞品对标已确定（v0.dev / Claude Artifacts / Framer AI），并有竞品截图存档',
+        '字体方案：仅使用系统字体或开源授权字体',
+        '[AQE-A] 字号层级 ≥ 3 级，对比比例合理（建议 20/14/12px），一眼可区分主次',
+        '[AQE-C] 间距体系统一：所有间距使用 4px 或 8px 的倍数',
+        '[AQE-C] 对齐无偏差：所有元素有明确对齐基准',
+        '[AQE-C] 留白充足：内容区域不超过页面 70%',
+        '[AQE-B] 主色系 ≤ 5 个色相，强调色 ≤ 2 个',
+        '[AQE-E 🔴] 文字对比度 ≥ 4.5:1（强制BLOCK项）',
+        '[AQE-E 🔴] 状态不依赖颜色独立表达（强制BLOCK项）',
+        '[AQE-D] 跨次输出风格一致：同一 Prompt 调用 3 次无明显漂移'
+      ]
+    },
+    { id:'02', icon:'🖼', name:'图片生成', color:'oklch(72% 0.15 290)',
+      checklist:[
+        '输出格式（SVG / PNG / WebP）和最低分辨率（≥1024×1024）已确定',
+        '版权路线已确认（AI生成许可证 / 开源图库商用协议 / 自有素材）',
+        '内容安全过滤机制已说明',
+        '[AQE-B] 主体清晰无畸变：人物/物体/文字边界清晰',
+        '[AQE-B] 关键元素出现率 ≥ 90%',
+        '[AQE-B] 色彩饱和度适中：不过饱和/不过灰',
+        '[AQE-A] 构图平衡：主体未被裁切，有合理留白',
+        '[AQE-D] 风格一致性：多次生成整体风格稳定',
+        '[AQE-E 🔴] 文字对比度 ≥ 4.5:1（含文字时强制BLOCK项）'
+      ]
+    },
+    { id:'03', icon:'🎬', name:'视频动效', color:'oklch(72% 0.15 50)',
+      checklist:[
+        '动效复杂度分级已选定（L1微动效 / L2独立动效 / L3复杂视频）',
+        '技术路线已确定（CSS / SVG / Lottie / Remotion / AI视频），交付格式已明确',
+        '时长范围和帧率标准已约束（L1:≤0.5s / L2:≤3s / L3:≤30s；≥60fps）',
+        '[AQE-B] 缓动函数非线性：无 linear ease，使用 ease-out / ease-in-out',
+        '[AQE-B] 时长合理：UI微动效 200–400ms，过渡动效 300–500ms',
+        '[AQE-D] 品牌调性匹配：动效速度/风格与品牌性格一致',
+        '[AQE-E] 响应 prefers-reduced-motion：减少动态效果时动效停止或降级',
+        '[AQE-E] 无快速闪烁：不含频率 > 3Hz 的闪烁内容'
+      ]
+    },
+    { id:'04', icon:'📄', name:'文档 / PPT', color:'oklch(72% 0.15 155)',
+      checklist:[
+        '路线已选（信息架构完备 vs 美学表现优先），输出格式已确定',
+        '字体方案已确定（Noto Sans SC / 思源黑体 / MiSans / Inter 等开源字体）',
+        '竞品对标已确定（品牌屋→Skywork / 视觉风格→Gamma.app）',
+        '[AQE-A] 每页核心信息 ≤ 3 条，每条 ≤ 25 字',
+        '[AQE-A] 字号层级 ≤ 3 级，字号比例合理（建议 1:0.7:0.5）',
+        '[AQE-C] 留白 ≥ 30% 版面：内容不超过版面 70%，边距 ≥ 40px',
+        '[AQE-C] 行间距 1.4–1.6，正文字号 ≥ 16px',
+        '[AQE-B] 全文配色统一：主色调一致，强调色 ≤ 3 个',
+        '[AQE-E 🔴] 文字对比度 ≥ 4.5:1（强制BLOCK项）',
+        '[AQE-D] 风格跨页一致：布局框架、字体使用、配色方案统一'
+      ]
+    },
+    { id:'05', icon:'📊', name:'评测 Skill', color:'oklch(72% 0.15 25)',
+      checklist:[
+        '评测对象类型已明确（UI截图 / 图片文件 / 代码 / 文档），评分格式已确定',
+        '≥ 10 条 Ground Truth 样本准备完毕',
+        '每个评分维度有明确锚点（1分/5分/10分各是什么样的描述）',
+        '[准确率] Ground Truth 准确率 ≥ 85%',
+        '[IAA] 多人标注一致性 κ ≥ 0.7',
+        '[反馈] 评测反馈可执行：具体问题 + 建议操作，不是纯分数',
+        '[报告] 评测报告含维度分布：总分+各维度得分+失分排名+典型案例'
+      ]
+    }
+  ];
+
+  const judgmentTable = `
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <span class="card-title">AQE 评分判定规则</span>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr><th>场景</th><th>SQE-5</th><th>AQE</th><th>判定</th><th>处理方式</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>理想上线</td>
+              <td style="font-family:var(--font-mono);font-size:12px;">≥ 8.0 ✓</td>
+              <td style="font-size:12px;">综合 ≥ 7.5，无维度 &lt; 6.0</td>
+              <td><span class="badge badge-pass">PASS</span></td>
+              <td style="font-size:12px;color:var(--text-muted);">允许上线，评测存档</td>
+            </tr>
+            <tr>
+              <td>有条件上线</td>
+              <td style="font-family:var(--font-mono);font-size:12px;">≥ 8.0 ✓</td>
+              <td style="font-size:12px;">综合 7.0–7.4，无维度 &lt; 6.0</td>
+              <td><span class="badge badge-watch">WATCH</span></td>
+              <td style="font-size:12px;color:var(--text-muted);">可上线，2 周内修复后重走 AQE</td>
+            </tr>
+            <tr>
+              <td>设计质量不达标</td>
+              <td style="font-family:var(--font-mono);font-size:12px;">≥ 8.0 ✓</td>
+              <td style="font-size:12px;">综合 &lt; 7.0，或任意维度 &lt; 6.0</td>
+              <td><span class="badge badge-fail">FAIL</span></td>
+              <td style="font-size:12px;color:var(--text-muted);">打回修改，写入 Known Failures</td>
+            </tr>
+            <tr>
+              <td>可访问性违规</td>
+              <td style="font-family:var(--font-mono);font-size:12px;">任意分数</td>
+              <td style="font-size:12px;">AQE-E 子项 E1 或 E2 &lt; 5.0</td>
+              <td><span class="badge badge-block">BLOCK</span></td>
+              <td style="font-size:12px;color:var(--text-muted);">强制阻断，E1/E2 修复后才可进入 Gate 2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  const aqeDimCards = AQE_DIMS.map(dim => `
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header" style="background:oklch(18% 0.03 260);">
+        <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:${dim.color};flex-shrink:0;"></span>
+          AQE-${dim.code} · ${dim.full}
+          <span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">权重 ${Math.round(dim.weight*100)}%</span>
+        </span>
+        ${dim.isBlock ? '<span class="badge badge-block">BLOCK 强制项</span>' : `<span style="font-size:11px;color:var(--text-muted);">及格线 ${dim.passThreshold}</span>`}
+      </div>
+      <div class="card-body" style="padding:12px 20px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+          ${dim.subs.map(s => `<span style="font-size:11px;padding:2px 8px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-muted);font-family:var(--font-mono);">${s}</span>`).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-top:10px;">
+          ${[['9–10','优秀'],['7–8','良好'],['5–6','及格'],['1–4','不及格']].map(([range, label], i) => {
+            const colors = ['var(--pass)','oklch(65% 0.16 155)','var(--watch)','var(--fail)'];
+            return `<div style="background:var(--bg-surface);padding:8px;text-align:center;">
+              <div style="font-size:11px;font-weight:700;font-family:var(--font-mono);color:${colors[i]};">${range}</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${label}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const dirChecklistHtml = dirSections.map(d => `
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header">
+        <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+          <span>${d.icon}</span>
+          <span>DIR-${d.id} · ${d.name}</span>
+        </span>
+        <span class="dir-tag dir-0${d.id}">${d.name}</span>
+      </div>
+      <div class="card-body" style="padding:12px 20px;">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+          ${d.checklist.map(item => {
+            const isBlock = item.includes('🔴');
+            const isAQE = item.startsWith('[AQE');
+            const icon = isBlock ? '🔴' : isAQE ? '◈' : '□';
+            const color = isBlock ? 'var(--fail)' : isAQE ? 'var(--accent)' : 'var(--text-muted)';
+            return `<li style="display:flex;gap:8px;font-size:12px;color:var(--text-secondary);padding:4px 0;">
+              <span style="color:${color};flex-shrink:0;font-size:13px;">${icon}</span>
+              <span style="${isBlock?'color:var(--fail);font-weight:500;':''}">${item}</span>
+            </li>`;
+          }).join('')}
+        </ul>
+      </div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <!-- 判定规则 -->
+    <div style="margin-bottom:24px;">
+      <h2 style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Gate 判定规则</h2>
+      ${judgmentTable}
+    </div>
+
+    <!-- AQE 五维度说明 -->
+    <div style="margin-bottom:24px;">
+      <h2 style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">AQE 五维度说明</h2>
+      ${aqeDimCards}
+    </div>
+
+    <!-- 五大方向 Checklist -->
+    <div>
+      <h2 style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">五大方向 Gate 2 Checklist</h2>
+      ${dirChecklistHtml}
+    </div>
+  `;
+}
+</script>
+
+<!-- ═══════════════════════════════════════
+   PART 3: CASE EVAL + 3-MODEL CALLS + AQE SCORING
+═══════════════════════════════════════ -->
+<script>
+
+/* ══════════════════════════════════════
+   AQE 评分维度定义
+══════════════════════════════════════ */
+const AQE_DIMS = [
+  { code: 'A', name: '视觉层级', full: '视觉层级与信息架构', weight: 0.25,
+    subs: ['A1 字号对比比', 'A2 视觉重量分配', 'A3 空间节奏感', 'A4 焦点引导路径'],
+    passThreshold: 6.0, color: 'oklch(72% 0.18 250)' },
+  { code: 'B', name: '色彩美学', full: '色彩美学与情感调性', weight: 0.25,
+    subs: ['B1 色相数量控制', 'B2 色彩和谐度', 'B3 饱和度适中', 'B4 情感一致性'],
+    passThreshold: 6.0, color: 'oklch(72% 0.18 290)' },
+  { code: 'C', name: '版式规范', full: '版式规范与排版质量', weight: 0.20,
+    subs: ['C1 对齐规则', 'C2 间距一致性', 'C3 留白比例', 'C4 字间距/行间距'],
+    passThreshold: 6.0, color: 'oklch(72% 0.18 155)' },
+  { code: 'D', name: '品牌一致', full: '品牌一致性与风格稳定', weight: 0.15,
+    subs: ['D1 跨次风格一致', 'D2 品牌色使用准确', 'D3 语气调性匹配'],
+    passThreshold: 6.0, color: 'oklch(72% 0.18 80)' },
+  { code: 'E', name: '可访问性', full: '可访问性基线（强制）', weight: 0.15,
+    subs: ['E1 文字对比度≥4.5:1', 'E2 颜色非唯一信息', 'E3 可聚焦元素有状态', 'E4 动效尊重系统设置'],
+    passThreshold: 5.0, color: 'oklch(72% 0.18 25)', isBlock: true }
+];
+
+const MODELS = [
+  { id: 'A', name: 'GPT-4o', provider: 'OpenAI',
+    color: 'oklch(72% 0.18 250)',
+    apiEndpoint: 'https://api.openai.com/v1/chat/completions',
+    modelId: 'gpt-4o' },
+  { id: 'B', name: 'Claude 3.5 Sonnet', provider: 'Anthropic',
+    color: 'oklch(72% 0.18 155)',
+    apiEndpoint: 'https://api.anthropic.com/v1/messages',
+    modelId: 'claude-3-5-sonnet-20241022' },
+  { id: 'C', name: 'Gemini 2.0 Flash', provider: 'Google',
+    color: 'oklch(72% 0.18 80)',
+    apiEndpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+    modelId: 'gemini-2.0-flash' }
+];
+
+/* ══════════════════════════════════════
+   渲染 Case 评测页
+══════════════════════════════════════ */
+function renderEvalPage() {
+  const meta = APP.skillMeta;
+  const dir  = meta.dir || '01';
+  const content = document.getElementById('evalContent');
+
+  content.innerHTML = `
+    <!-- Case 输入区 -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <span class="card-title">输入测试 Case</span>
+        <span class="dir-tag dir-0${dir}">${getDirFullLabel(dir)}</span>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">Case 描述 / 用户 Prompt <span class="required">*</span></label>
+          <textarea class="form-textarea" id="casePrompt" style="min-height:120px;"
+            placeholder="描述你希望 Skill 处理的任务场景，例如：&#10;「帮我生成一个 SaaS 产品的登录页面，需要有邮箱密码登录和 Google OAuth 两种方式，风格现代简洁」"></textarea>
+          <div class="form-hint">这段描述将作为 Prompt 直接传给三个模型，请尽量清晰具体</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">评测侧重方向</label>
+            <select class="form-select" id="evalFocus">
+              <option value="auto">自动（根据 Skill 方向）</option>
+              <option value="visual">视觉质量优先</option>
+              <option value="functional">功能完整性优先</option>
+              <option value="consistency">风格一致性优先</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">评测语言</label>
+            <select class="form-select" id="evalLang">
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">系统 Prompt 补充（可选）</label>
+          <textarea class="form-textarea" id="sysPromptExtra" style="min-height:60px;"
+            placeholder="补充给所有模型的系统指令，例如「输出为完整的 HTML 代码，包含 CSS 样式，无需任何解释文字」"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模型状态栏 -->
+    <div class="model-grid" style="margin-bottom:20px;" id="modelStatusRow">
+      ${MODELS.map(m => `
+        <div class="model-card" id="modelCard-${m.id}">
+          <div class="model-card-header">
+            <span class="model-dot" style="background:${m.color};"></span>
+            <span class="model-name">${m.name}</span>
+            <span class="model-provider">${m.provider}</span>
+          </div>
+          <div class="model-output" id="modelOutput-${m.id}">
+            <div class="model-output-placeholder">
+              <span style="color:var(--text-muted);font-size:12px;">等待调用...</span>
+            </div>
+          </div>
+          <div class="model-card-footer" id="modelFooter-${m.id}">
+            <span style="font-size:11px;color:var(--text-muted);">—</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- AQE 评测区（评测后出现） -->
+    <div id="aqeSection" style="display:none;margin-bottom:20px;"></div>
+
+    <!-- 操作按钮 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--border);">
+      <button class="btn btn-secondary" onclick="showPage('gate0')">← 返回 Gate 0</button>
+      <div style="display:flex;gap:8px;align-items:center;" id="evalActionRow">
+        <button class="btn btn-primary btn-lg" id="runEvalBtn" onclick="runEval()">
+          ⚡ 并发调用 3 个模型
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+/* ══════════════════════════════════════
+   并发调用 3 个模型
+══════════════════════════════════════ */
+async function runEval() {
+  const prompt = document.getElementById('casePrompt')?.value.trim();
+  if (!prompt) { showToast('请输入测试 Case', 'error'); return; }
+
+  const btn = document.getElementById('runEvalBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner" style="width:14px;height:14px;"></div> 调用中...`;
+
+  // 构建系统 prompt
+  const sysExtra = document.getElementById('sysPromptExtra')?.value.trim() || '';
+  const skillDesc = APP.skillMeta.description || '';
+  const systemPrompt = buildSystemPrompt(skillDesc, sysExtra);
+
+  APP.evalResults = [];
+
+  // 并发调用
+  const promises = MODELS.map(model => callModel(model, systemPrompt, prompt));
+  const results = await Promise.allSettled(promises);
+
+  results.forEach((result, idx) => {
+    const model = MODELS[idx];
+    if (result.status === 'fulfilled') {
+      APP.evalResults.push({ model, output: result.value, error: null });
+    } else {
+      APP.evalResults.push({ model, output: null, error: result.reason?.message || '调用失败' });
+    }
+  });
+
+  // 更新模型输出显示
+  renderModelOutputs(APP.evalResults);
+
+  // 激活 AQE 评测按钮
+  btn.disabled = false;
+  btn.innerHTML = '⚡ 重新调用';
+
+  const actionRow = document.getElementById('evalActionRow');
+  if (!document.getElementById('runAqeBtn')) {
+    const aqeBtn = document.createElement('button');
+    aqeBtn.className = 'btn btn-primary btn-lg';
+    aqeBtn.id = 'runAqeBtn';
+    aqeBtn.style.background = 'var(--pass)';
+    aqeBtn.style.borderColor = 'var(--pass)';
+    aqeBtn.textContent = '◉ 生成 AQE 评测报告';
+    aqeBtn.onclick = runAQEEval;
+    actionRow.appendChild(aqeBtn);
+  }
+
+  showToast('三模型调用完成，可生成 AQE 评测报告', 'success');
+}
+
+/* ── 构建系统 Prompt ── */
+function buildSystemPrompt(skillDesc, extra) {
+  let base = `你是一个高质量设计 Skill 的执行助手。`;
+  if (skillDesc) base += `\n\n当前 Skill 说明：\n${skillDesc}`;
+  if (extra) base += `\n\n补充指令：\n${extra}`;
+  base += `\n\n请根据用户的任务描述，按照 Skill 的定义生成最高质量的产物。`;
+  return base;
+}
+
+/* ── 单模型 API 调用 ── */
+async function callModel(model, systemPrompt, userPrompt) {
+  const apiKey = localStorage.getItem(`apiKey${model.id}`) || '';
+  const baseUrl = localStorage.getItem(`baseUrl${model.id}`) || '';
+
+  // 更新状态为"调用中"
+  const outputEl = document.getElementById(`modelOutput-${model.id}`);
+  const footerEl = document.getElementById(`modelFooter-${model.id}`);
+  if (outputEl) outputEl.innerHTML = `<div class="model-output-placeholder"><div class="spinner"></div></div>`;
+
+  if (!apiKey) {
+    // 没有 API Key → 模拟演示模式
+    await sleep(800 + Math.random() * 1200);
+    const mockOutput = generateMockOutput(model, userPrompt);
+    if (outputEl) outputEl.textContent = mockOutput;
+    if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--watch);font-family:var(--font-mono);">演示模式（未配置 API Key）</span>`;
+    return mockOutput;
+  }
+
+  const startTime = Date.now();
+
+  try {
+    let responseText = '';
+
+    if (model.id === 'A') {
+      // OpenAI
+      const endpoint = (baseUrl || 'https://api.openai.com/v1') + '/chat/completions';
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: model.modelId,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          max_tokens: 4096,
+          temperature: 0.7
+        })
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+      const data = await resp.json();
+      responseText = data.choices?.[0]?.message?.content || '';
+
+    } else if (model.id === 'B') {
+      // Anthropic
+      const endpoint = (baseUrl || 'https://api.anthropic.com/v1') + '/messages';
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: model.modelId,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }],
+          max_tokens: 4096
+        })
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+      const data = await resp.json();
+      responseText = data.content?.[0]?.text || '';
+
+    } else if (model.id === 'C') {
+      // Google Gemini
+      const key = apiKey;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          generationConfig: { maxOutputTokens: 4096, temperature: 0.7 }
+        })
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+      const data = await resp.json();
+      responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    }
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--pass);font-family:var(--font-mono);">✓ ${elapsed}s</span>
+      <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">${responseText.length} chars</span>`;
+    return responseText;
+
+  } catch (err) {
+    if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--fail);font-family:var(--font-mono);">✕ ${err.message?.substring(0,60)}</span>`;
+    throw err;
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ── 演示模式生成 ── */
+function generateMockOutput(model, prompt) {
+  const dir = APP.skillMeta.dir || '01';
+  const templates = {
+    'A': `[GPT-4o 演示输出]\n\n针对任务「${prompt.substring(0, 60)}...」，生成如下设计方案：\n\n1. 视觉层级：采用三级字号体系（32px / 18px / 14px），确保信息优先级清晰\n2. 色彩方案：主色 #2563EB（深蓝），强调色 #F59E0B（琥珀），背景 #F8FAFC（冷白）\n3. 布局：左对齐栅格系统，8px 基础间距，响应式断点 1280px / 768px / 375px\n4. 交互：所有可点击元素有 hover/focus/active 状态，符合 WCAG AA 对比度要求\n\n[已生成完整产物代码，演示模式下仅展示文字摘要]`,
+    'B': `[Claude 3.5 Sonnet 演示输出]\n\n分析任务需求「${prompt.substring(0, 60)}...」：\n\n设计策略：\n• 信息架构优先：将核心操作置于视觉焦点区（左上 F 形扫描路径起点）\n• 色彩：中性调色板 + 一个强调色，最多 4 个色相，避免视觉噪音\n• 版式：严格 8px 间距体系，行间距 1.5-1.7，正文 14px 最低\n• 品牌：风格一致性通过设计 Token 约束，3 次生成风格无漂移\n\n[演示模式 · 配置 API Key 后获取真实产物]`,
+    'C': `[Gemini 2.0 Flash 演示输出]\n\n基于 Skill 定义处理任务「${prompt.substring(0, 60)}...」：\n\n产物说明：\n✓ 输出格式：符合 Skill 定义的精确格式\n✓ 视觉层级：3 级字号层级，视觉动线清晰\n✓ 色彩：5 色相以内，主色统一，强调色 ≤ 2 个\n✓ 版式：4px 间距基准，对齐无偏差，内容区域留白 ≥ 30%\n✓ 可访问性：对比度 4.5:1 以上，非颜色唯一信息传递\n\n[演示模式 · 实际产物需配置 Google AI API Key]`
+  };
+  return templates[model.id] || `[${model.name} 演示输出] 已处理任务。`;
+}
+
+/* ── 渲染模型输出 ── */
+function renderModelOutputs(results) {
+  results.forEach(({ model, output, error }) => {
+    const outputEl = document.getElementById(`modelOutput-${model.id}`);
+    const footerEl = document.getElementById(`modelFooter-${model.id}`);
+    const card = document.getElementById(`modelCard-${model.id}`);
+
+    if (error) {
+      if (outputEl) {
+        outputEl.innerHTML = `<div style="color:var(--fail);font-size:12px;padding:8px;">
+          <div style="font-weight:600;margin-bottom:4px;">调用失败</div>
+          <div style="color:var(--text-muted);font-family:var(--font-mono);font-size:11px;word-break:break-all;">${error}</div>
+        </div>`;
+      }
+      if (card) card.style.borderColor = 'var(--fail)';
+    } else if (output) {
+      if (outputEl) {
+        // 检测是否为 HTML/代码
+        const isCode = output.includes('<!DOCTYPE') || output.includes('<html') || output.includes('```');
+        if (isCode && output.length > 200) {
+          outputEl.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:11px;color:var(--accent);font-family:var(--font-mono);">CODE OUTPUT · ${output.length} chars</span>
+              <button class="btn btn-ghost btn-sm" onclick="copyOutput('${model.id}')" style="font-size:11px;padding:3px 8px;">复制</button>
+            </div>
+            <pre id="codeOutput-${model.id}" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);overflow:auto;max-height:280px;white-space:pre-wrap;word-break:break-all;background:var(--bg-elevated);padding:10px;border-radius:var(--radius-sm);">${escHtml(output.substring(0, 2000))}${output.length > 2000 ? '\n... [内容已截断，完整内容可复制查看]' : ''}</pre>
+          `;
+        } else {
+          outputEl.innerHTML = `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;word-break:break-word;">${escHtml(output)}</div>`;
+        }
+      }
+      if (card) card.style.borderColor = model.color;
+      // 存储原始输出
+      if (!window._modelRawOutputs) window._modelRawOutputs = {};
+      window._modelRawOutputs[model.id] = output;
+    }
+  });
+}
+
+function copyOutput(modelId) {
+  const raw = window._modelRawOutputs?.[modelId] || '';
+  navigator.clipboard.writeText(raw).then(() => showToast('已复制到剪贴板', 'success'));
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ══════════════════════════════════════
+   AQE 评测（LLM-as-Judge）
+══════════════════════════════════════ */
+async function runAQEEval() {
+  const btn = document.getElementById('runAqeBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '评测中...'; }
+
+  const aqeSection = document.getElementById('aqeSection');
+  aqeSection.style.display = 'block';
+  aqeSection.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:24px;">
+    <div class="spinner"></div>
+    <span style="color:var(--text-secondary);font-size:14px;">AQE Judge 正在对三份产物打分...</span>
+  </div>`;
+
+  // 收集产物
+  const outputs = APP.evalResults.map(r => ({
+    model: r.model.name,
+    output: r.output || '[调用失败，无输出]'
+  }));
+
+  const judgeModel = localStorage.getItem('judgeModel') || 'A';
+  const judgeKey   = localStorage.getItem(`apiKey${judgeModel}`) || '';
+  const meta = APP.skillMeta;
+  const dir  = meta.dir || '01';
+
+  let aqeScores = null;
+
+  if (!judgeKey) {
+    // 演示模式：生成模拟分数
+    await sleep(1500);
+    aqeScores = generateMockAQEScores(outputs, dir);
+  } else {
+    try {
+      aqeScores = await callAQEJudge(judgeModel, judgeKey, outputs, meta);
+    } catch (err) {
+      showToast(`AQE 评测失败：${err.message}`, 'error');
+      aqeScores = generateMockAQEScores(outputs, dir);
+    }
+  }
+
+  APP.aqeReport = buildReport(aqeScores, meta, outputs);
+  renderReportPage(APP.aqeReport);
+  saveReport(APP.aqeReport);
+  document.getElementById('badge-report').textContent = '已生成';
+
+  // 渲染 AQE 摘要
+  renderAQESummary(aqeScores);
+
+  if (btn) { btn.disabled = false; btn.textContent = '◉ 重新评测'; }
+  showToast('AQE 评测报告已生成，已自动保存', 'success');
+
+  // 按钮显示：跳转报告
+  const actionRow = document.getElementById('evalActionRow');
+  if (!document.getElementById('viewReportBtn')) {
+    const viewBtn = document.createElement('button');
+    viewBtn.className = 'btn btn-secondary btn-lg';
+    viewBtn.id = 'viewReportBtn';
+    viewBtn.textContent = '◉ 查看完整报告 →';
+    viewBtn.onclick = () => showPage('report');
+    actionRow.appendChild(viewBtn);
+  }
+}
+
+/* ── AQE Judge Prompt 构建 ── */
+function buildAQEPrompt(outputs, meta) {
+  const dir = meta.dir || '01';
+  const dirNames = {'01':'UI生成','02':'图片生成','03':'视频动效','04':'文档PPT','05':'评测',
+                    '1':'UI生成','2':'图片生成','3':'视频动效','4':'文档PPT','5':'评测'};
+  const dirName = dirNames[dir] || 'UI生成';
+
+  return `你是设计侧 AQE（Aesthetic Quality Evaluation）评测专家，负责对 AI Skill 的产物进行美学质量评分。
+
+评测标准（AQE v2.0）：
+- AQE-A 视觉层级与信息架构（权重 25%）：评估信息层次清晰度、字号对比、焦点引导
+- AQE-B 色彩美学与情感调性（权重 25%）：评估色彩和谐度、饱和度适中、情感一致性
+- AQE-C 版式规范与排版质量（权重 20%）：评估对齐、间距一致性、留白比例
+- AQE-D 品牌一致性与风格稳定（权重 15%）：评估跨次风格一致、调性匹配
+- AQE-E 可访问性基线（权重 15%）【强制项】：对比度≥4.5:1、颜色非唯一信息
+
+判定规则：
+- PASS：综合分 ≥ 7.5，且无维度 < 6.0
+- WATCH：综合分 7.0–7.4，无维度 < 6.0
+- FAIL：综合分 < 7.0，或任意维度 < 6.0
+- BLOCK：AQE-E 任意子项 < 5.0
+
+Skill 方向：${dirName}
+Skill 名称：${meta.name}
+
+以下是三个模型对同一 Case 的产物：
+
+${outputs.map((o, i) => `【模型 ${i+1} · ${o.model}】\n${o.output.substring(0, 1500)}`).join('\n\n---\n\n')}
+
+请对每个产物的 AQE-A/B/C/D/E 五个维度分别打分（1-10 分），并给出：
+1. 每个模型的五维度分数
+2. 每个模型的综合加权分
+3. 每个模型的判定结果（PASS/WATCH/FAIL/BLOCK）
+4. 各维度失分原因（一句话）
+5. 综合改进建议（2-3 条可执行建议）
+
+请严格按以下 JSON 格式返回，不要有任何其他文字：
+{
+  "models": [
+    {
+      "name": "模型名称",
+      "scores": {"A": 分数, "B": 分数, "C": 分数, "D": 分数, "E": 分数},
+      "weighted": 加权总分,
+      "verdict": "PASS/WATCH/FAIL/BLOCK",
+      "issues": {"A": "失分原因", "B": "...", "C": "...", "D": "...", "E": "..."}
+    }
+  ],
+  "bestModel": "最佳模型名称",
+  "suggestions": ["建议1", "建议2", "建议3"],
+  "summary": "一段综合评价"
+}`;
+}
+
+/* ── 调用 AQE Judge ── */
+async function callAQEJudge(judgeModel, apiKey, outputs, meta) {
+  const prompt = buildAQEPrompt(outputs, meta);
+  const baseUrl = localStorage.getItem(`baseUrl${judgeModel}`) || '';
+  let responseText = '';
+
+  if (judgeModel === 'A') {
+    const endpoint = (baseUrl || 'https://api.openai.com/v1') + '/chat/completions';
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 2048, temperature: 0.3
+      })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    responseText = data.choices?.[0]?.message?.content || '';
+
+  } else if (judgeModel === 'B') {
+    const endpoint = (baseUrl || 'https://api.anthropic.com/v1') + '/messages';
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 2048
+      })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    responseText = data.content?.[0]?.text || '';
+
+  } else if (judgeModel === 'C') {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.3 }
+      })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  }
+
+  // 解析 JSON
+  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('无法解析评测 JSON');
+  return JSON.parse(jsonMatch[0]);
+}
+
+/* ── 模拟 AQE 分数（演示模式）── */
+function generateMockAQEScores(outputs, dir) {
+  const mockScores = [
+    { name: 'GPT-4o',
+      scores: { A: 8.2, B: 7.8, C: 8.0, D: 7.5, E: 7.8 },
+      weighted: 7.9, verdict: 'PASS',
+      issues: { A: '信息层级清晰，字号对比合理', B: '色彩方案和谐，无明显冲突', C: '间距体系基本统一，偶有细节不一致', D: '风格基本稳定，3次调用结果相近', E: '对比度达标，无颜色单一信息传递问题' }
+    },
+    { name: 'Claude 3.5 Sonnet',
+      scores: { A: 8.5, B: 8.2, C: 8.4, D: 8.0, E: 8.1 },
+      weighted: 8.3, verdict: 'PASS',
+      issues: { A: '视觉动线极为清晰，焦点引导自然', B: '色彩方案精准传达场景情感', C: '版式精准规范，间距一致性高', D: '风格高度稳定，品牌调性匹配', E: '可访问性处理细致，focus状态明确' }
+    },
+    { name: 'Gemini 2.0 Flash',
+      scores: { A: 7.0, B: 7.4, C: 7.1, D: 6.8, E: 7.2 },
+      weighted: 7.1, verdict: 'WATCH',
+      issues: { A: '层级存在但部分区域模糊', B: '整体色彩基本和谐，有1处色彩冲突', C: '主要区域规范，局部间距不一致', D: '3次调用有细微风格漂移', E: '对比度基本达标，建议加强验证' }
+    }
+  ];
+
+  const best = mockScores.reduce((a, b) => a.weighted > b.weighted ? a : b);
+  return {
+    models: mockScores,
+    bestModel: best.name,
+    suggestions: [
+      '建议优先使用 Claude 3.5 Sonnet 作为主力模型，AQE 综合分最高（8.3）',
+      '针对 Gemini 产物的 AQE-D 风格漂移问题，可在 Prompt 中增加「保持风格一致性」的约束指令',
+      '三个模型的 AQE-C 间距一致性均有优化空间，建议在 Skill description 中明确锁定 8px 间距基准值'
+    ],
+    summary: '总体评测显示该 Skill 在三个主流模型上均能产出质量可接受的产物，Claude 3.5 Sonnet 表现最优（PASS），GPT-4o 次之（PASS），Gemini Flash 需要关注（WATCH）。主要改进方向：风格稳定性约束和间距体系规范化。'
+  };
+}
+
+/* ── 渲染 AQE 摘要（在评测页内联展示）── */
+function renderAQESummary(aqeScores) {
+  const aqeSection = document.getElementById('aqeSection');
+
+  const modelCards = aqeScores.models.map(m => {
+    const totalScore = m.weighted;
+    const verdict = m.verdict;
+    const verdictColor = {PASS:'var(--pass)', WATCH:'var(--watch)', FAIL:'var(--fail)', BLOCK:'var(--block)'}[verdict] || 'var(--text-muted)';
+    const dimBars = AQE_DIMS.map(dim => {
+      const score = m.scores[dim.code] || 0;
+      const pct = (score / 10) * 100;
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <span style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);width:14px;">${dim.code}</span>
+        <div style="flex:1;height:4px;background:var(--bg-elevated);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${dim.color};border-radius:2px;"></div>
+        </div>
+        <span style="font-size:10px;font-family:var(--font-mono);color:var(--text-secondary);width:24px;text-align:right;">${score.toFixed(1)}</span>
+      </div>`;
+    }).join('');
+
+    const isBest = m.name === aqeScores.bestModel;
+    return `<div style="background:var(--bg-surface);border:1px solid ${isBest ? verdictColor : 'var(--border)'};border-radius:var(--radius-md);padding:16px;${isBest ? 'box-shadow: 0 0 0 1px ' + verdictColor + '33;' : ''}">
+      ${isBest ? '<div style="font-size:10px;color:var(--pass);font-family:var(--font-mono);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">⭐ 最优产物</div>' : ''}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:12px;font-weight:600;color:var(--text-primary);font-family:var(--font-mono);">${m.name}</span>
+        <span class="badge badge-${verdict.toLowerCase()}">${verdict}</span>
+      </div>
+      <div style="font-size:28px;font-weight:800;font-family:var(--font-mono);color:${verdictColor};margin-bottom:12px;">${totalScore.toFixed(1)}</div>
+      ${dimBars}
+    </div>`;
+  }).join('');
+
+  aqeSection.innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">AQE 评测摘要</span>
+        <span class="badge badge-accent">LLM-as-Judge</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+          ${modelCards}
+        </div>
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;margin-bottom:6px;">综合建议</div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">${aqeScores.summary || ''}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ══════════════════════════════════════
+   构建完整报告对象
+══════════════════════════════════════ */
+function buildReport(aqeScores, meta, outputs) {
+  const bestModel = aqeScores.models.find(m => m.name === aqeScores.bestModel) || aqeScores.models[0];
+  const totalScore = bestModel?.weighted || 0;
+  const verdict = bestModel?.verdict || 'FAIL';
+
+  return {
+    id: Date.now().toString(),
+    createdAt: Date.now(),
+    skillName: meta.name,
+    dir: meta.dir,
+    benchmark: meta.benchmark,
+    outputFormat: meta.output,
+    description: meta.description,
+    gate0Result: APP.gate0Result,
+    aqeScores,
+    outputs: outputs.map(o => ({ model: o.model, output: o.output?.substring(0, 500) + '...' })),
+    totalScore,
+    verdict,
+    suggestions: aqeScores.suggestions || [],
+    summary: aqeScores.summary || ''
+  };
+}
+
+/* ══════════════════════════════════════
+   渲染完整报告页面
+══════════════════════════════════════ */
+function renderReportPage(report) {
+  const container = document.getElementById('reportContent');
+  if (!container) return;
+
+  const meta    = { name: report.skillName, dir: report.dir };
+  const scores  = report.aqeScores;
+  const verdict = report.verdict;
+  const total   = report.totalScore;
+  const verdictColor = {PASS:'var(--pass)', WATCH:'var(--watch)', FAIL:'var(--fail)', BLOCK:'var(--block)'}[verdict] || 'var(--text-muted)';
+  const verdictBg    = {PASS:'var(--pass-bg)', WATCH:'var(--watch-bg)', FAIL:'var(--fail-bg)', BLOCK:'var(--block-bg)'}[verdict] || 'var(--bg-elevated)';
+
+  // AQE 五维度汇总（取最优模型分数）
+  const bestModelScores = scores?.models?.find(m => m.name === scores.bestModel) || scores?.models?.[0];
+
+  const dimHtml = AQE_DIMS.map(dim => {
+    const score = bestModelScores?.scores?.[dim.code] || 0;
+    const color = score >= 7.5 ? 'var(--pass)' : score >= 6 ? 'var(--watch)' : 'var(--fail)';
+    return `<div style="text-align:center;padding:16px;">
+      <div style="font-size:13px;font-weight:700;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:2px;">AQE-${dim.code}</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;line-height:1.3;">${dim.name}</div>
+      <div style="font-size:30px;font-weight:800;font-family:var(--font-mono);color:${color};">${score.toFixed(1)}</div>
+      <div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px;">/ 10.0</div>
+    </div>`;
+  }).join('');
+
+  // 三模型对比行
+  const modelRows = scores?.models?.map(m => {
+    const v = m.verdict;
+    const vc = {PASS:'var(--pass)', WATCH:'var(--watch)', FAIL:'var(--fail)', BLOCK:'var(--block)'}[v];
+    return `<tr>
+      <td style="font-weight:600;color:var(--text-primary);font-family:var(--font-mono);">${m.name}</td>
+      ${AQE_DIMS.map(d => {
+        const s = m.scores?.[d.code] || 0;
+        const c = s >= 7.5 ? 'var(--pass)' : s >= 6 ? 'var(--watch)' : 'var(--fail)';
+        return `<td style="text-align:center;font-family:var(--font-mono);font-weight:600;color:${c};">${s.toFixed(1)}</td>`;
+      }).join('')}
+      <td style="text-align:center;font-size:15px;font-weight:800;font-family:var(--font-mono);color:${vc};">${m.weighted?.toFixed(1)}</td>
+      <td style="text-align:center;"><span class="badge badge-${v.toLowerCase()}">${v}</span></td>
+    </tr>`;
+  }).join('') || '';
+
+  // 改进建议
+  const suggestions = (report.suggestions || []).map((s, i) =>
+    `<div style="display:flex;gap:10px;padding:10px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);">
+      <span style="font-size:11px;font-family:var(--font-mono);color:var(--accent);font-weight:700;flex-shrink:0;">${String(i+1).padStart(2,'0')}</span>
+      <span style="font-size:13px;color:var(--text-secondary);line-height:1.6;">${s}</span>
+    </div>`
+  ).join('');
+
+  container.innerHTML = `
+    <!-- 报告标题栏 -->
+    <div style="background:${verdictBg};border-bottom:2px solid ${verdictColor};padding:24px 40px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:11px;font-family:var(--font-mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">AQE 评测报告 · ${formatDate(report.createdAt)}</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px;">${report.skillName || 'Untitled Skill'}</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+          <span class="dir-tag dir-0${report.dir}">${getDirFullLabel(report.dir)}</span>
+          ${report.benchmark ? `<span style="font-size:11px;color:var(--text-muted);">对标：${report.benchmark}</span>` : ''}
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:56px;font-weight:900;font-family:var(--font-mono);color:${verdictColor};line-height:1;">${total.toFixed(1)}</div>
+        <div style="margin-top:4px;"><span style="font-size:20px;font-weight:700;font-family:var(--font-mono);color:${verdictColor};">${verdict}</span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">AQE 综合评分（最优模型）</div>
+      </div>
+    </div>
+
+    <div style="padding:32px 40px;max-width:1200px;">
+
+      <!-- AQE 五维度 -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <span class="card-title">AQE 五维度评分（最优模型：${scores?.bestModel || '—'}）</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);">
+          ${dimHtml}
+        </div>
+      </div>
+
+      <!-- 三模型对比 -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <span class="card-title">三模型 AQE 对比</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>模型</th>
+              ${AQE_DIMS.map(d => `<th style="text-align:center;">AQE-${d.code}</th>`).join('')}
+              <th style="text-align:center;">加权总分</th>
+              <th style="text-align:center;">判定</th>
+            </tr>
+          </thead>
+          <tbody>${modelRows}</tbody>
+        </table>
+      </div>
+
+      <!-- 综合总结 -->
+      ${report.summary ? `
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header"><span class="card-title">综合评价</span></div>
+        <div class="card-body">
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.8;">${report.summary}</p>
+        </div>
+      </div>` : ''}
+
+      <!-- 改进建议 -->
+      ${suggestions ? `
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <span class="card-title">可执行改进建议</span>
+          <span class="badge badge-accent">${(report.suggestions||[]).length} 条</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:8px;">${suggestions}</div>
+        </div>
+      </div>` : ''}
+
+      <!-- Gate 0 结果摘要 -->
+      ${APP.gate0Result ? `
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header"><span class="card-title">Gate 0 规范自检摘要</span></div>
+        <div class="card-body">
+          <div style="display:flex;gap:16px;flex-wrap:wrap;">
+            <div style="font-size:13px;color:var(--text-secondary);">总检查项：<strong style="color:var(--text-primary);">${APP.gate0Result.length}</strong></div>
+            <div style="font-size:13px;color:var(--text-secondary);">通过：<strong style="color:var(--pass);">${APP.gate0Result.filter(r=>r.passed).length}</strong></div>
+            <div style="font-size:13px;color:var(--text-secondary);">P0未过：<strong style="color:var(--fail);">${APP.gate0Result.filter(r=>!r.passed&&r.priority==='P0').length}</strong></div>
+            <div style="font-size:13px;color:var(--text-secondary);">P1未过：<strong style="color:var(--watch);">${APP.gate0Result.filter(r=>!r.passed&&r.priority==='P1').length}</strong></div>
+          </div>
+        </div>
+      </div>` : ''}
+
+      <!-- 操作 -->
+      <div style="display:flex;gap:8px;padding-top:8px;">
+        <button class="btn btn-secondary" onclick="exportReport(0)" style="display:none;" id="exportThisBtn">⬇ 导出 JSON</button>
+        <button class="btn btn-secondary" onclick="exportCurrentReport()">⬇ 导出此报告</button>
+        <button class="btn btn-primary" onclick="showPage('upload')">+ 评测新 Skill</button>
+      </div>
+    </div>
+  `;
+
+  // 存储当前报告以备导出
+  window._currentReport = report;
+}
+
+function exportCurrentReport() {
+  const r = window._currentReport || APP.aqeReport;
+  if (!r) { showToast('暂无报告', 'info'); return; }
+  const blob = new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `skill-eval-${r.skillName || 'report'}-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('报告已导出', 'success');
+}
+</script>
+</body>
+</html>
