@@ -2782,21 +2782,29 @@ async function callModel(model, systemPrompt, userPrompt) {
 
     // 万擎统一 OpenAI-compatible 接口
     const endpoint = baseUrl + WQ_API_PATH;
-    const resp = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: modelId,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        max_tokens: 4096
-      })
-    });
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 120000); // 2min 超时
+    let resp;
+    try {
+      resp = await fetch(endpoint, {
+        method: 'POST',
+        signal: ctrl.signal,
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: modelId,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          max_tokens: 4096
+        })
+      });
+    } finally {
+      clearTimeout(tid);
+    }
     if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
     const data = await resp.json();
     responseText = data.choices?.[0]?.message?.content || '';
@@ -3042,8 +3050,12 @@ async function runAQEEval() {
 
   let aqeScores = null;
 
-  if (!judgeKey) {
-    // 演示模式：生成模拟分数
+  // DIR-02 图片生成：产物为 base64，无法用文字 LLM 评测，直接生成参考分数，提示用人工评分
+  if (dir === '02' || dir === '2') {
+    await sleep(500);
+    aqeScores = generateMockAQEScores(outputs, dir);
+    showToast('图片产物无法自动评测，已生成参考分数，建议使用人工评分', 'info');
+  } else if (!judgeKey) {
     await sleep(1500);
     aqeScores = generateMockAQEScores(outputs, dir);
   } else {
@@ -3116,7 +3128,13 @@ Skill 名称：${meta.name}
 
 以下是三个模型对同一 Case 的产物：
 
-${outputs.map((o, i) => `【模型 ${i+1} · ${o.model}】\n${o.output.substring(0, 1500)}`).join('\n\n---\n\n')}
+${outputs.map((o, i) => {
+    // 图片产物（base64）不传给 LLM，只传描述
+    const content = o.output?.startsWith('__IMAGE__')
+      ? '[图片产物，base64 已省略，请基于 Skill 方向进行参考打分]'
+      : (o.output || '[无输出]').substring(0, 1500);
+    return `【模型 ${i+1} · ${o.model}】\n${content}`;
+  }).join('\n\n---\n\n')}
 
 请对每个产物的 AQE-A/B/C/D/E 五个维度分别打分（1-10 分），并给出：
 1. 每个模型的五维度分数
@@ -3151,15 +3169,23 @@ async function callAQEJudge(judgeModel, apiKey, outputs, meta) {
   const baseUrl   = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULTS.baseUrl).replace(/\/$/, '');
 
   const endpoint = baseUrl + WQ_API_PATH;
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${wqKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: modelId,
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 2048
-    })
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s 超时
+  let resp;
+  try {
+    resp = await fetch(endpoint, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Authorization': `Bearer ${wqKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: modelId,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 2048
+      })
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
   const data = await resp.json();
   const responseText = data.choices?.[0]?.message?.content || '';
