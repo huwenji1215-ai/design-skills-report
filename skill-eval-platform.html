@@ -3055,6 +3055,17 @@ async function runAQEEval() {
     }
   }
 
+  // 保存本轮评测到历史轮次（含产物）
+  if (!APP.evalRounds) APP.evalRounds = [];
+  APP.evalRounds.push({
+    roundNo: APP.evalRounds.length + 1,
+    casePrompt: document.getElementById('casePrompt')?.value.trim() || '',
+    createdAt: Date.now(),
+    outputs: outputs.map(o => ({ model: o.model, output: o.output, error: o.error })),
+    aqeScores,
+    manualScores: null   // 人工评分后填入
+  });
+
   APP.aqeReport = buildReport(aqeScores, meta, outputs);
   renderReportPage(APP.aqeReport);
   saveReport(APP.aqeReport);
@@ -3184,11 +3195,11 @@ function generateMockAQEScores(outputs, dir) {
     models: mockScores,
     bestModel: best.name,
     suggestions: [
-      '建议优先使用 Claude 3.5 Sonnet 作为主力模型，AQE 综合分最高（8.3）',
+      `建议优先使用 ${best.name} 作为主力模型，AQE 综合分最高（${best.weighted.toFixed(1)}）`,
       '针对 Gemini 产物的 AQE-D 风格漂移问题，可在 Prompt 中增加「保持风格一致性」的约束指令',
       '三个模型的 AQE-C 间距一致性均有优化空间，建议在 Skill description 中明确锁定 8px 间距基准值'
     ],
-    summary: '总体评测显示该 Skill 在三个主流模型上均能产出质量可接受的产物，Claude 3.5 Sonnet 表现最优（PASS），GPT-4o 次之（PASS），Gemini Flash 需要关注（WATCH）。主要改进方向：风格稳定性约束和间距体系规范化。'
+    summary: `总体评测显示该 Skill 在三个主流模型上均能产出质量可接受的产物，${best.name} 表现最优（PASS），主要改进方向：风格稳定性约束和间距体系规范化。`
   };
 }
 
@@ -3260,7 +3271,8 @@ function buildReport(aqeScores, meta, outputs) {
     description: meta.description,
     gate0Result: APP.gate0Result,
     aqeScores,
-    outputs: outputs.map(o => ({ model: o.model, output: o.output?.substring(0, 500) + '...' })),
+    rounds: (APP.evalRounds || []),
+    outputs: outputs.map(o => ({ model: o.model, output: o.output })),
     totalScore,
     verdict,
     suggestions: aqeScores.suggestions || [],
@@ -3389,6 +3401,51 @@ function renderReportPage(report) {
         </div>
       </div>` : ''}
 
+      <!-- 人工评分区 -->
+      <div class="card" style="margin-bottom:20px;" id="manualScoreCard">
+        <div class="card-header">
+          <span class="card-title">人工评分（可选）</span>
+          <span style="font-size:11px;color:var(--text-muted);">支持多轮累计，保存后记录到报告明细</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;">
+            ${MODELS.map(m => `
+            <div style="background:var(--bg-elevated);border-radius:var(--radius-md);padding:14px;">
+              <div style="font-size:12px;font-weight:600;font-family:var(--font-mono);color:var(--text-primary);margin-bottom:10px;">${m.name}</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                ${AQE_DIMS.map(d => `
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);width:14px;">AQE-${d.code}</span>
+                  <input type="range" min="1" max="10" step="0.5" value="0" id="ms-${m.id}-${d.code}"
+                    oninput="document.getElementById('msv-${m.id}-${d.code}').textContent=parseFloat(this.value).toFixed(1)"
+                    style="flex:1;accent-color:${m.color};">
+                  <span id="msv-${m.id}-${d.code}" style="font-size:10px;font-family:var(--font-mono);color:var(--text-secondary);width:24px;">0.0</span>
+                </div>`).join('')}
+              </div>
+            </div>`).join('')}
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <textarea id="manualComment" placeholder="人工评分备注（可选）" rows="2"
+              style="flex:1;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);padding:8px;font-size:13px;resize:vertical;"></textarea>
+            <button class="btn btn-primary" onclick="saveManualScore()">保存人工评分</button>
+          </div>
+          <div id="manualScoreHistory" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+
+      <!-- 多轮产物明细 -->
+      <div class="card" style="margin-bottom:20px;" id="roundsDetailCard">
+        <div class="card-header">
+          <span class="card-title">多轮产物明细</span>
+          <span class="badge badge-accent">${(APP.evalRounds||[]).length} 轮</span>
+        </div>
+        <div class="card-body" style="padding:0;">
+          ${(APP.evalRounds||[]).length === 0
+            ? `<div style="padding:16px;color:var(--text-muted);font-size:13px;">暂无评测轮次记录</div>`
+            : (APP.evalRounds||[]).map((round, ri) => renderRoundDetail(round, ri)).join('')}
+        </div>
+      </div>
+
       <!-- Gate 0 结果摘要 -->
       ${APP.gate0Result ? `
       <div class="card" style="margin-bottom:20px;">
@@ -3405,8 +3462,7 @@ function renderReportPage(report) {
 
       <!-- 操作 -->
       <div style="display:flex;gap:8px;padding-top:8px;">
-        <button class="btn btn-secondary" onclick="exportReport(0)" style="display:none;" id="exportThisBtn">⬇ 导出 JSON</button>
-        <button class="btn btn-secondary" onclick="exportCurrentReport()">⬇ 导出此报告</button>
+        <button class="btn btn-secondary" onclick="exportCurrentReport()">⬇ 导出完整报告 JSON</button>
         <button class="btn btn-primary" onclick="showPage('upload')">+ 评测新 Skill</button>
       </div>
     </div>
@@ -3416,9 +3472,148 @@ function renderReportPage(report) {
   window._currentReport = report;
 }
 
+/* ── 渲染单轮产物明细 ── */
+function renderRoundDetail(round, ri) {
+  const aqeRow = round.aqeScores?.models?.map(m => {
+    const vc = {PASS:'var(--pass)', WATCH:'var(--watch)', FAIL:'var(--fail)', BLOCK:'var(--block)'}[m.verdict] || 'var(--text-muted)';
+    return `<span style="font-size:10px;font-family:var(--font-mono);color:${vc};">${m.name.split(' ')[0]}:${m.weighted?.toFixed(1)} ${m.verdict}</span>`;
+  }).join('  ') || '';
+
+  const manualBadge = round.manualScores
+    ? `<span style="font-size:10px;padding:2px 6px;background:var(--bg-elevated);border:1px solid var(--accent);border-radius:3px;color:var(--accent);font-family:var(--font-mono);">人工已评</span>`
+    : '';
+
+  const outputs = round.outputs || [];
+  const outputCards = outputs.map(o => {
+    if (!o.output && !o.error) return '';
+    if (o.error) {
+      return `<div style="flex:1;min-width:0;background:var(--bg-elevated);border:1px solid var(--fail)33;border-radius:var(--radius-sm);padding:10px;">
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:4px;">${o.model}</div>
+        <div style="font-size:11px;color:var(--fail);">调用失败</div>
+      </div>`;
+    }
+    const out = o.output || '';
+    let preview;
+    if (out.startsWith('__IMAGE__')) {
+      preview = `<img src="${out.slice(9)}" style="max-width:100%;max-height:120px;border-radius:4px;display:block;">`;
+    } else if (out.includes('<!DOCTYPE') || out.includes('<html')) {
+      preview = `<div style="font-size:10px;font-family:var(--font-mono);color:var(--accent);">HTML · ${out.length} chars</div>
+        <pre style="font-size:9px;color:var(--text-muted);overflow:hidden;max-height:60px;white-space:pre-wrap;">${escHtml(out.substring(0,300))}</pre>`;
+    } else {
+      preview = `<div style="font-size:11px;color:var(--text-secondary);white-space:pre-wrap;overflow:hidden;max-height:80px;word-break:break-word;">${escHtml(out.substring(0,400))}</div>`;
+    }
+    const roundIdx = ri;
+    const modelName = o.model;
+    return `<div style="flex:1;min-width:0;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">${o.model}</span>
+        <button onclick="expandRoundOutput(${roundIdx},'${encodeURIComponent(o.model)}')"
+          style="font-size:9px;padding:1px 6px;border:1px solid var(--border);border-radius:3px;background:transparent;color:var(--text-muted);cursor:pointer;">查看全文</button>
+      </div>
+      ${preview}
+    </div>`;
+  }).join('');
+
+  return `
+  <div style="border-bottom:1px solid var(--border);padding:16px;" id="round-detail-${ri}">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span style="font-size:11px;font-weight:700;font-family:var(--font-mono);color:var(--accent);">Round ${round.roundNo}</span>
+      <span style="font-size:10px;color:var(--text-muted);">${formatDate(round.createdAt)}</span>
+      ${manualBadge}
+      <span style="font-size:10px;color:var(--text-muted);flex:1;text-align:right;">${aqeRow}</span>
+    </div>
+    <div style="font-size:12px;color:var(--text-secondary);background:var(--bg-elevated);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:10px;">
+      <span style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);">CASE: </span>${escHtml(round.casePrompt || '—')}
+    </div>
+    <div style="display:flex;gap:8px;">${outputCards}</div>
+    ${round.manualScores ? `
+    <div style="margin-top:8px;padding:8px 10px;background:var(--bg-elevated);border-left:3px solid var(--accent);border-radius:var(--radius-sm);">
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--accent);margin-bottom:4px;">人工评分</div>
+      ${round.manualScores.map(ms => `<span style="font-size:11px;color:var(--text-secondary);margin-right:12px;">${ms.model}: ${ms.weighted.toFixed(1)}</span>`).join('')}
+      ${round.manualComment ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${escHtml(round.manualComment)}</div>` : ''}
+    </div>` : ''}
+  </div>`;
+}
+
+/* ── 展开轮次产物全文 ── */
+function expandRoundOutput(roundIdx, encodedModel) {
+  const modelName = decodeURIComponent(encodedModel);
+  const round = (APP.evalRounds || [])[roundIdx];
+  if (!round) return;
+  const o = round.outputs?.find(x => x.model === modelName);
+  if (!o || !o.output) return;
+  const out = o.output;
+  if (out.startsWith('__IMAGE__')) {
+    openImagePreviewFromDataUrl(out.slice(9));
+  } else if (out.includes('<!DOCTYPE') || out.includes('<html')) {
+    const win = window.open('', '_blank');
+    const html = out.match(/```html\s*([\s\S]*?)```/i)?.[1] || out;
+    win.document.open(); win.document.write(html); win.document.close();
+  } else {
+    const win = window.open('', '_blank');
+    win.document.write(`<pre style="font-family:monospace;font-size:13px;padding:20px;white-space:pre-wrap;word-break:break-word;">${escHtml(out)}</pre>`);
+    win.document.close();
+  }
+}
+function openImagePreviewFromDataUrl(dataUrl) {
+  const win = window.open('', '_blank');
+  win.document.write(`<html><body style="margin:0;background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;"><img src="${dataUrl}" style="max-width:100%;max-height:100vh;"></body></html>`);
+  win.document.close();
+}
+
+/* ── 保存人工评分到当前轮次 ── */
+function saveManualScore() {
+  const currentRound = (APP.evalRounds || []).slice(-1)[0];
+  if (!currentRound) { showToast('请先完成一轮评测', 'error'); return; }
+
+  const manualScores = MODELS.map(m => {
+    const dimScores = {};
+    let total = 0;
+    const weights = { A: 0.25, B: 0.25, C: 0.20, D: 0.15, E: 0.15 };
+    AQE_DIMS.forEach(d => {
+      const val = parseFloat(document.getElementById(`ms-${m.id}-${d.code}`)?.value || 0);
+      dimScores[d.code] = val;
+      total += val * weights[d.code];
+    });
+    return { model: m.name, modelId: m.id, scores: dimScores, weighted: total };
+  });
+
+  const comment = document.getElementById('manualComment')?.value.trim() || '';
+  currentRound.manualScores = manualScores;
+  currentRound.manualComment = comment;
+
+  // 更新报告
+  if (APP.aqeReport) {
+    APP.aqeReport.rounds = APP.evalRounds;
+    saveReport(APP.aqeReport);
+  }
+
+  // 刷新历史展示
+  const histEl = document.getElementById('manualScoreHistory');
+  if (histEl) {
+    const best = manualScores.reduce((a,b) => a.weighted > b.weighted ? a : b);
+    histEl.innerHTML += `<div style="display:flex;gap:8px;align-items:center;padding:6px 10px;background:var(--bg-elevated);border-left:3px solid var(--accent);border-radius:var(--radius-sm);">
+      <span style="font-size:10px;font-family:var(--font-mono);color:var(--accent);">Round ${currentRound.roundNo}</span>
+      ${manualScores.map(ms => `<span style="font-size:11px;color:var(--text-secondary);">${ms.model.split(' ')[0]}:${ms.weighted.toFixed(1)}</span>`).join('')}
+      <span style="font-size:11px;color:var(--pass);margin-left:auto;">最优: ${best.model} ${best.weighted.toFixed(1)}</span>
+    </div>`;
+  }
+
+  // 刷新轮次明细区
+  const detailCard = document.getElementById('roundsDetailCard');
+  if (detailCard) {
+    const bodyEl = detailCard.querySelector('.card-body');
+    if (bodyEl) bodyEl.innerHTML = (APP.evalRounds||[]).map((r, ri) => renderRoundDetail(r, ri)).join('');
+  }
+
+  showToast(`Round ${currentRound.roundNo} 人工评分已保存`, 'success');
+}
+
 function exportCurrentReport() {
   const r = window._currentReport || APP.aqeReport;
   if (!r) { showToast('暂无报告', 'info'); return; }
+  // 确保包含所有轮次
+  r.rounds = APP.evalRounds || [];
   const blob = new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -3426,7 +3621,7 @@ function exportCurrentReport() {
   a.download = `skill-eval-${r.skillName || 'report'}-${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('报告已导出', 'success');
+  showToast('完整报告（含所有轮次）已导出', 'success');
 }
 </script>
 </body>
