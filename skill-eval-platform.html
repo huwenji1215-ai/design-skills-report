@@ -3050,11 +3050,14 @@ async function runAQEEval() {
 
   let aqeScores = null;
 
-  // DIR-02 图片生成：产物为 base64，无法用文字 LLM 评测，直接生成参考分数，提示用人工评分
+  // DIR-02 图片生成：用 Gemini 多模态看图评分
   if (dir === '02' || dir === '2') {
-    await sleep(500);
-    aqeScores = generateMockAQEScores(outputs, dir);
-    showToast('图片产物无法自动评测，已生成参考分数，建议使用人工评分', 'info');
+    try {
+      aqeScores = await callAQEJudgeMultimodal(outputs, meta);
+    } catch (err) {
+      showToast(`多模态 AQE 评测失败：${err.message}，已降级为参考分数`, 'error');
+      aqeScores = generateMockAQEScores(outputs, dir);
+    }
   } else if (!judgeKey) {
     await sleep(1500);
     aqeScores = generateMockAQEScores(outputs, dir);
@@ -3099,6 +3102,89 @@ async function runAQEEval() {
     viewBtn.onclick = () => showPage('report');
     actionRow.appendChild(viewBtn);
   }
+}
+
+/* ── DIR-02 多模态图片评测（Gemini 看图打 AQE 分）── */
+async function callAQEJudgeMultimodal(outputs, meta) {
+  const def     = WQ_DEFAULTS.imageGen;
+  const apiKey  = localStorage.getItem('wqImageKey')   || def.key;
+  const epId    = localStorage.getItem('wqImageModel') || def.modelId;
+  const baseUrl = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULTS.baseUrl).replace(/\/$/, '');
+
+  // 构建多模态 parts：文字描述 + 每张图片 inlineData
+  const parts = [];
+
+  parts.push({ text: `你是设计侧 AQE 评测专家，请对以下三张 AI 生成的图片按 AQE 标准打分。
+
+评测标准（AQE v2.0）：
+- AQE-A 视觉层级与信息架构（权重 25%）：信息层次、字号对比、焦点引导
+- AQE-B 色彩美学与情感调性（权重 25%）：色彩和谐、饱和度、情感一致
+- AQE-C 版式规范与排版质量（权重 20%）：对齐、间距一致、留白
+- AQE-D 品牌一致性与风格稳定（权重 15%）：风格一致性、调性匹配
+- AQE-E 可访问性基线（权重 15%）：对比度≥4.5:1，颜色非唯一信息
+
+判定：PASS≥7.5 / WATCH 7.0-7.4 / FAIL<7.0 / BLOCK（AQE-E<5.0）
+
+Skill 方向：图片生成
+Skill 名称：${meta.name}
+
+以下是三个模型的产物图片（按顺序对应）：
+模型列表：${outputs.map((o, i) => `图${i+1}=${o.model}`).join('，')}
+
+请看完所有图片后，严格按以下 JSON 格式返回，不要有任何其他文字：
+{
+  "models": [
+    {
+      "name": "模型名称",
+      "scores": {"A": 分数, "B": 分数, "C": 分数, "D": 分数, "E": 分数},
+      "weighted": 加权总分,
+      "verdict": "PASS/WATCH/FAIL/BLOCK",
+      "issues": {"A": "一句话", "B": "一句话", "C": "一句话", "D": "一句话", "E": "一句话"}
+    }
+  ],
+  "bestModel": "最佳模型名称",
+  "suggestions": ["建议1", "建议2", "建议3"],
+  "summary": "综合评价"
+}` });
+
+  // 依次加入每张图片
+  outputs.forEach((o, i) => {
+    if (o.output?.startsWith('__IMAGE__')) {
+      const dataUrl = o.output.slice(9); // data:image/png;base64,XXXX
+      const [header, b64] = dataUrl.split(',');
+      const mimeType = header.replace('data:', '').replace(';base64', '');
+      parts.push({ inlineData: { mimeType, data: b64 } });
+    } else {
+      parts.push({ text: `[图${i+1} 生成失败，无图片]` });
+    }
+  });
+
+  const endpoint = baseUrl + WQ_IMAGE_PATH.replace('{ep}', epId);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120000);
+
+  let resp;
+  try {
+    resp = await fetch(endpoint, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts }],
+        generationConfig: { responseModalities: ['TEXT'] }
+      })
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+  const data = await resp.json();
+  const responseText = data.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || '';
+
+  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error(`无法解析评测 JSON，原始内容：${responseText.substring(0, 200)}`);
+  return JSON.parse(jsonMatch[0]);
 }
 
 /* ── AQE Judge Prompt 构建 ── */
