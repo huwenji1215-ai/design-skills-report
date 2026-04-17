@@ -1432,41 +1432,32 @@ code {
       <div class="page-header">
         <div class="page-header-eyebrow">配置</div>
         <h1>API 设置</h1>
-        <p>填入万擎平台的 API Key，三个评测模型统一通过万擎网关调用，Key 仅保存在本地 localStorage，不会上传。</p>
+        <p>万擎每个推理点有独立的 API Key 和推理点 ID（ep-xxx），请分别填写。Key 仅保存在本地 localStorage，不会上传。</p>
       </div>
       <div class="page-content">
-        <!-- 万擎统一凭证 -->
+
+        <!-- 共享 Base URL -->
         <div class="card" style="margin-bottom:20px;">
           <div class="card-header">
-            <span class="card-title" style="display:flex;align-items:center;gap:8px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:oklch(72% 0.18 250);display:inline-block;"></span>
-              万擎（Wanqing）API 配置
-            </span>
-            <span class="badge badge-accent">统一网关</span>
+            <span class="card-title">万擎网关 Base URL</span>
+            <span class="badge badge-accent">共用</span>
           </div>
           <div class="card-body">
-            <div class="form-group">
-              <label class="form-label">API Key <span class="required">*</span></label>
-              <input type="password" class="form-input" id="wqApiKey" placeholder="输入万擎 API Key…"
-                     oninput="localStorage.setItem('wqApiKey', this.value)">
-              <div class="form-hint">在万擎平台 → 系统管理 → 安全认证 → 新建 API Key 中获取</div>
-            </div>
             <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">Base URL（可选，默认办公网）</label>
               <input type="text" class="form-input" id="wqBaseUrl"
-                     placeholder="https://llm-gateway-prod.corp.kuaishou.com"
+                     placeholder="https://wanqing-api.corp.kuaishou.com"
                      oninput="localStorage.setItem('wqBaseUrl', this.value)">
               <div class="form-hint">
-                办公网：https://llm-gateway-prod.corp.kuaishou.com　|　
-                新加坡：https://llm-gateway-prod-sgp.corp.kuaishou.com　|　
-                内网：http://llm-gateway.internal
+                办公网：https://wanqing-api.corp.kuaishou.com　|　内网：http://wanqing.internal　|　本地代理：http://localhost:3001
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 三模型说明（只读） -->
+        <!-- 三个模型各自配置 -->
         <div class="settings-grid">
+
+          <!-- 模型 A -->
           <div class="card">
             <div class="card-header">
               <span class="card-title" style="display:flex;align-items:center;gap:8px;">
@@ -1476,9 +1467,21 @@ code {
               <span class="badge badge-accent">Anthropic</span>
             </div>
             <div class="card-body">
-              <div class="form-hint" style="margin:0;">model ID: <code style="font-family:var(--font-mono);color:var(--accent);">claude-opus-4-7</code></div>
+              <div class="form-group">
+                <label class="form-label">API Key <span class="required">*</span></label>
+                <input type="password" class="form-input" id="wqKeyA" placeholder="万擎推理点 API Key…"
+                       oninput="localStorage.setItem('wqKeyA', this.value)">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">推理点 ID（model）<span class="required">*</span></label>
+                <input type="text" class="form-input" id="wqModelA" placeholder="ep-xxxxxx-xxxxxxxxxxxx"
+                       oninput="localStorage.setItem('wqModelA', this.value)">
+                <div class="form-hint">万擎在线推理页面创建推理点后获得，格式 ep-xxx</div>
+              </div>
             </div>
           </div>
+
+          <!-- 模型 B -->
           <div class="card">
             <div class="card-header">
               <span class="card-title" style="display:flex;align-items:center;gap:8px;">
@@ -1488,9 +1491,21 @@ code {
               <span class="badge badge-accent" style="background:oklch(18% 0.05 155);color:oklch(72% 0.15 155);border:none;">月之暗面</span>
             </div>
             <div class="card-body">
-              <div class="form-hint" style="margin:0;">model ID: <code style="font-family:var(--font-mono);color:var(--accent);">kimi-k2.5</code></div>
+              <div class="form-group">
+                <label class="form-label">API Key <span class="required">*</span></label>
+                <input type="password" class="form-input" id="wqKeyB" placeholder="万擎推理点 API Key…"
+                       oninput="localStorage.setItem('wqKeyB', this.value)">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">推理点 ID（model）<span class="required">*</span></label>
+                <input type="text" class="form-input" id="wqModelB" placeholder="ep-xxxxxx-xxxxxxxxxxxx"
+                       oninput="localStorage.setItem('wqModelB', this.value)">
+                <div class="form-hint">万擎在线推理页面创建推理点后获得，格式 ep-xxx</div>
+              </div>
             </div>
           </div>
+
+          <!-- 模型 C -->
           <div class="card">
             <div class="card-header">
               <span class="card-title" style="display:flex;align-items:center;gap:8px;">
@@ -1500,11 +1515,23 @@ code {
               <span class="badge badge-accent" style="background:oklch(18% 0.05 80);color:oklch(72% 0.15 80);border:none;">Google</span>
             </div>
             <div class="card-body">
-              <div class="form-hint" style="margin:0;">model ID: <code style="font-family:var(--font-mono);color:var(--accent);">gemini-3.1-pro-preview</code></div>
+              <div class="form-group">
+                <label class="form-label">API Key <span class="required">*</span></label>
+                <input type="password" class="form-input" id="wqKeyC" placeholder="万擎推理点 API Key…"
+                       oninput="localStorage.setItem('wqKeyC', this.value)">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">推理点 ID（model）<span class="required">*</span></label>
+                <input type="text" class="form-input" id="wqModelC" placeholder="ep-xxxxxx-xxxxxxxxxxxx"
+                       oninput="localStorage.setItem('wqModelC', this.value)">
+                <div class="form-hint">万擎在线推理页面创建推理点后获得，格式 ep-xxx</div>
+              </div>
             </div>
           </div>
+
         </div>
 
+        <!-- AQE Judge -->
         <div class="card" style="margin-top:20px;">
           <div class="card-header">
             <span class="card-title">评测模型（AQE Judge）</span>
@@ -1522,6 +1549,7 @@ code {
             <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -1834,10 +1862,14 @@ function saveBaseUrl(model, val) {
 }
 
 function loadSettings() {
-  const keyEl = document.getElementById('wqApiKey');
   const urlEl = document.getElementById('wqBaseUrl');
-  if (keyEl) keyEl.value = localStorage.getItem('wqApiKey') || '';
   if (urlEl) urlEl.value = localStorage.getItem('wqBaseUrl') || '';
+  ['A', 'B', 'C'].forEach(m => {
+    const keyEl   = document.getElementById(`wqKey${m}`);
+    const modelEl = document.getElementById(`wqModel${m}`);
+    if (keyEl)   keyEl.value   = localStorage.getItem(`wqKey${m}`)   || '';
+    if (modelEl) modelEl.value = localStorage.getItem(`wqModel${m}`) || '';
+  });
   const judgeEl = document.getElementById('judgeModel');
   if (judgeEl) judgeEl.value = localStorage.getItem('judgeModel') || 'A';
 }
@@ -2552,7 +2584,8 @@ const AQE_DIMS = [
 ];
 
 /* 万擎统一 Base URL（办公网） */
-const WQ_DEFAULT_BASE = 'https://llm-gateway-prod.corp.kuaishou.com';
+const WQ_DEFAULT_BASE = 'https://wanqing-api.corp.kuaishou.com';
+const WQ_API_PATH = '/api/gateway/v1/endpoints/chat/completions';
 
 const MODELS = [
   { id: 'A', name: 'Claude Opus 4.7', provider: '万擎',
@@ -2716,7 +2749,8 @@ function buildSystemPrompt(skillDesc, extra) {
 
 /* ── 单模型 API 调用（统一走万擎）── */
 async function callModel(model, systemPrompt, userPrompt) {
-  const apiKey = localStorage.getItem('wqApiKey') || '';
+  const apiKey  = localStorage.getItem(`wqKey${model.id}`) || '';
+  const modelId = localStorage.getItem(`wqModel${model.id}`) || model.modelId;
   const baseUrl = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULT_BASE).replace(/\/$/, '');
 
   // 更新状态为"调用中"
@@ -2739,7 +2773,7 @@ async function callModel(model, systemPrompt, userPrompt) {
     let responseText = '';
 
     // 万擎统一 OpenAI-compatible 接口
-    const endpoint = baseUrl + '/v1/chat/completions';
+    const endpoint = baseUrl + WQ_API_PATH;
     const resp = await fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -2747,7 +2781,7 @@ async function callModel(model, systemPrompt, userPrompt) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: model.modelId,
+        model: modelId,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -2950,17 +2984,17 @@ ${outputs.map((o, i) => `【模型 ${i+1} · ${o.model}】\n${o.output.substring
 
 /* ── 调用 AQE Judge（万擎统一接口）── */
 async function callAQEJudge(judgeModel, apiKey, outputs, meta) {
-  const prompt = buildAQEPrompt(outputs, meta);
-  const wqKey   = localStorage.getItem('wqApiKey') || apiKey || '';
-  const baseUrl = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULT_BASE).replace(/\/$/, '');
-  const judgeModelId = MODELS.find(m => m.id === judgeModel)?.modelId || MODELS[0].modelId;
+  const prompt    = buildAQEPrompt(outputs, meta);
+  const wqKey     = localStorage.getItem(`wqKey${judgeModel}`) || apiKey || '';
+  const modelId   = localStorage.getItem(`wqModel${judgeModel}`) || MODELS.find(m => m.id === judgeModel)?.modelId || MODELS[0].modelId;
+  const baseUrl   = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULT_BASE).replace(/\/$/, '');
 
-  const endpoint = baseUrl + '/v1/chat/completions';
+  const endpoint = baseUrl + WQ_API_PATH;
   const resp = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${wqKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: judgeModelId,
+      model: modelId,
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 2048,
       temperature: 0.3
