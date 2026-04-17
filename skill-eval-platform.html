@@ -2579,6 +2579,7 @@ const AQE_DIMS = [
 /* 万擎统一 Base URL（办公网） */
 const WQ_DEFAULT_BASE = 'https://wanqing-api.corp.kuaishou.com';
 const WQ_API_PATH = '/api/gateway/v1/endpoints/chat/completions';
+const WQ_IMAGE_PATH = '/api/gateway/gemini/v1beta/models/{ep}:generateContent';
 
 /* 万擎默认凭证（可在 Settings 页覆盖） */
 const WQ_DEFAULTS = {
@@ -2587,6 +2588,11 @@ const WQ_DEFAULTS = {
     A: { key: 'gxo6clu8kkh033rob73owv9fgjtmmgvnn3g4', modelId: 'ep-5cq959-1776415492918898622' },
     B: { key: 'gxo6clu8kkh033rob73owv9fgjtmmgvnn3g4', modelId: 'ep-3e24dk-1776415899955051526' },
     C: { key: 'g60sd13ndpkr9kmqyaqhroxzywzy0o3anqpp', modelId: 'ep-w6tkqh-1765443407486635406' },
+  },
+  // DIR-02 图片生成专用
+  imageGen: {
+    key: 'g60sd13ndpkr9kmqyaqhroxzywzy0o3anqpp',
+    modelId: 'ep-z34umm-1773630330994678420',
   }
 };
 
@@ -2689,7 +2695,7 @@ function renderEvalPage() {
 }
 
 /* ══════════════════════════════════════
-   并发调用 3 个模型
+   并发调用 3 个模型（按 Skill 方向分流）
 ══════════════════════════════════════ */
 async function runEval() {
   const prompt = document.getElementById('casePrompt')?.value.trim();
@@ -2699,15 +2705,22 @@ async function runEval() {
   btn.disabled = true;
   btn.innerHTML = `<div class="spinner" style="width:14px;height:14px;"></div> 调用中...`;
 
-  // 构建系统 prompt
-  const sysExtra = document.getElementById('sysPromptExtra')?.value.trim() || '';
+  const sysExtra  = document.getElementById('sysPromptExtra')?.value.trim() || '';
   const skillDesc = APP.skillMeta.description || '';
-  const systemPrompt = buildSystemPrompt(skillDesc, sysExtra);
+  const dir       = APP.skillMeta.dir || '01';
 
   APP.evalResults = [];
 
-  // 并发调用
-  const promises = MODELS.map(model => callModel(model, systemPrompt, prompt));
+  let promises;
+  if (dir === '02' || dir === '2') {
+    // DIR-02 图片生成：三个卡片都调用图像生成 API（同一个模型 × 3 次，产物有随机性）
+    promises = MODELS.map(model => callImageModel(model, prompt));
+  } else {
+    // 其他方向：三个文本 LLM 生成 HTML
+    const systemPrompt = buildSystemPrompt(skillDesc, sysExtra);
+    promises = MODELS.map(model => callModel(model, systemPrompt, prompt));
+  }
+
   const results = await Promise.allSettled(promises);
 
   results.forEach((result, idx) => {
@@ -2801,6 +2814,53 @@ async function callModel(model, systemPrompt, userPrompt) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+/* ── DIR-02 图像生成调用 ── */
+async function callImageModel(model, userPrompt) {
+  const def     = WQ_DEFAULTS.imageGen;
+  const apiKey  = localStorage.getItem('wqImageKey') || def.key;
+  const epId    = localStorage.getItem('wqImageModel') || def.modelId;
+  const baseUrl = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULTS.baseUrl).replace(/\/$/, '');
+
+  const outputEl = document.getElementById(`modelOutput-${model.id}`);
+  const footerEl = document.getElementById(`modelFooter-${model.id}`);
+  if (outputEl) outputEl.innerHTML = `<div class="model-output-placeholder"><div class="spinner"></div></div>`;
+
+  const startTime = Date.now();
+  const endpoint  = baseUrl + WQ_IMAGE_PATH.replace('{ep}', epId);
+
+  try {
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: userPrompt }] }],
+        generationConfig: { responseModalities: ['IMAGE', 'TEXT'] }
+      })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+    const data = await resp.json();
+
+    // 提取图片（inlineData）
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    const imgPart = parts.find(p => p.inlineData);
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
+    if (imgPart) {
+      const { mimeType, data: b64 } = imgPart.inlineData;
+      if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--pass);font-family:var(--font-mono);">✓ ${elapsed}s · image/${mimeType.split('/')[1]}</span>`;
+      // 返回 data URL 格式
+      return `__IMAGE__data:${mimeType};base64,${b64}`;
+    }
+    // fallback: 返回文字
+    const text = parts.find(p => p.text)?.text || '';
+    if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--watch);font-family:var(--font-mono);">✓ ${elapsed}s · text only</span>`;
+    return text;
+  } catch (err) {
+    if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--fail);font-family:var(--font-mono);">✕ ${err.message?.substring(0,60)}</span>`;
+    throw err;
+  }
+}
+
 /* ── 演示模式生成 ── */
 function generateMockOutput(model, prompt) {
   const dir = APP.skillMeta.dir || '01';
@@ -2838,6 +2898,23 @@ function renderModelOutputs(results) {
 
 /* ── 智能渲染：HTML→iframe预览 / 图片URL→img / 文字→markdown ── */
 function renderVisualOutput(container, model, output) {
+  // DIR-02 图像生成返回的 data URL
+  if (output.startsWith('__IMAGE__')) {
+    const dataUrl = output.slice(9);
+    container.innerHTML = `
+      <div style="position:relative;">
+        <img src="${dataUrl}" style="width:100%;display:block;border-radius:0 0 var(--radius-md) var(--radius-md);"
+             onclick="openImagePreview('${model.id}')" title="点击放大" />
+        <div style="position:absolute;top:8px;right:8px;display:flex;gap:6px;">
+          <button onclick="openImagePreview('${model.id}')"
+            style="font-size:10px;padding:3px 8px;border:none;border-radius:3px;background:rgba(0,0,0,0.6);color:#fff;cursor:pointer;">放大 ↗</button>
+          <button onclick="downloadImage('${model.id}')"
+            style="font-size:10px;padding:3px 8px;border:none;border-radius:3px;background:rgba(0,0,0,0.6);color:#fff;cursor:pointer;">下载</button>
+        </div>
+      </div>`;
+    return;
+  }
+
   // 提取代码块里的 HTML（```html ... ```）
   const codeBlockMatch = output.match(/```html\s*([\s\S]*?)```/i)
                       || output.match(/```\s*(<!DOCTYPE[\s\S]*?)```/i);
@@ -2871,7 +2948,6 @@ function renderVisualOutput(container, model, output) {
       </div>
       <pre id="codePane-${model.id}" style="display:none;font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);overflow:auto;height:320px;white-space:pre-wrap;word-break:break-all;background:var(--bg-elevated);padding:10px;margin:0;"></pre>
     `;
-    // 写入 iframe
     const iframe = document.getElementById(iframeId);
     const codePane = document.getElementById(`codePane-${model.id}`);
     codePane.textContent = htmlContent;
@@ -2879,16 +2955,33 @@ function renderVisualOutput(container, model, output) {
     doc.open(); doc.write(htmlContent); doc.close();
 
   } else if (imgMatch) {
-    // 图片 URL → img 预览
     container.innerHTML = `
       <div style="padding:8px;text-align:center;">
         <img src="${imgMatch[0]}" style="max-width:100%;max-height:300px;border-radius:4px;" onerror="this.style.display='none'">
         <div style="font-size:11px;color:var(--text-muted);margin-top:4px;word-break:break-all;">${imgMatch[0]}</div>
       </div>`;
   } else {
-    // 纯文字
     container.innerHTML = `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;padding:8px;white-space:pre-wrap;word-break:break-word;">${escHtml(output)}</div>`;
   }
+}
+
+function openImagePreview(modelId) {
+  const raw = window._modelRawOutputs?.[modelId] || '';
+  if (!raw.startsWith('__IMAGE__')) return;
+  const dataUrl = raw.slice(9);
+  const win = window.open('', '_blank');
+  win.document.write(`<html><body style="margin:0;background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;"><img src="${dataUrl}" style="max-width:100%;max-height:100vh;"></body></html>`);
+  win.document.close();
+}
+
+function downloadImage(modelId) {
+  const raw = window._modelRawOutputs?.[modelId] || '';
+  if (!raw.startsWith('__IMAGE__')) return;
+  const dataUrl = raw.slice(9);
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = `eval-${modelId}-${Date.now()}.png`;
+  a.click();
 }
 
 function togglePreview(modelId) {
