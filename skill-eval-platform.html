@@ -2781,8 +2781,7 @@ async function callModel(model, systemPrompt, userPrompt) {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: 4096,
-        temperature: 0.7
+        max_tokens: 4096
       })
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
@@ -2991,8 +2990,7 @@ async function callAQEJudge(judgeModel, apiKey, outputs, meta) {
     body: JSON.stringify({
       model: modelId,
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 2048,
-      temperature: 0.3
+      max_tokens: 2048
     })
   });
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
