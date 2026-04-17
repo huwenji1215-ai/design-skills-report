@@ -887,14 +887,12 @@ body {
 }
 
 .model-output {
-  padding: 16px;
   flex: 1;
   font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.7;
-  min-height: 200px;
-  white-space: pre-wrap;
-  word-break: break-word;
+  min-height: 360px;
+  overflow: hidden;
 }
 
 .model-output-placeholder {
@@ -2745,10 +2743,10 @@ async function runEval() {
 
 /* ── 构建系统 Prompt ── */
 function buildSystemPrompt(skillDesc, extra) {
-  let base = `你是一个高质量设计 Skill 的执行助手。`;
+  let base = `你是一个高质量设计 Skill 的执行助手，专注于生成视觉化产物。`;
   if (skillDesc) base += `\n\n当前 Skill 说明：\n${skillDesc}`;
+  base += `\n\n【重要】请直接输出完整的 HTML 文件（包含内联 CSS 和必要的 JS），无需任何解释性文字，不要用 markdown 代码块包裹，直接从 <!DOCTYPE html> 开始。`;
   if (extra) base += `\n\n补充指令：\n${extra}`;
-  base += `\n\n请根据用户的任务描述，按照 Skill 的定义生成最高质量的产物。`;
   return base;
 }
 
@@ -2830,27 +2828,89 @@ function renderModelOutputs(results) {
       }
       if (card) card.style.borderColor = 'var(--fail)';
     } else if (output) {
-      if (outputEl) {
-        // 检测是否为 HTML/代码
-        const isCode = output.includes('<!DOCTYPE') || output.includes('<html') || output.includes('```');
-        if (isCode && output.length > 200) {
-          outputEl.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-size:11px;color:var(--accent);font-family:var(--font-mono);">CODE OUTPUT · ${output.length} chars</span>
-              <button class="btn btn-ghost btn-sm" onclick="copyOutput('${model.id}')" style="font-size:11px;padding:3px 8px;">复制</button>
-            </div>
-            <pre id="codeOutput-${model.id}" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);overflow:auto;max-height:280px;white-space:pre-wrap;word-break:break-all;background:var(--bg-elevated);padding:10px;border-radius:var(--radius-sm);">${escHtml(output.substring(0, 2000))}${output.length > 2000 ? '\n... [内容已截断，完整内容可复制查看]' : ''}</pre>
-          `;
-        } else {
-          outputEl.innerHTML = `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;word-break:break-word;">${escHtml(output)}</div>`;
-        }
-      }
+      if (outputEl) renderVisualOutput(outputEl, model, output);
       if (card) card.style.borderColor = model.color;
-      // 存储原始输出
       if (!window._modelRawOutputs) window._modelRawOutputs = {};
       window._modelRawOutputs[model.id] = output;
     }
   });
+}
+
+/* ── 智能渲染：HTML→iframe预览 / 图片URL→img / 文字→markdown ── */
+function renderVisualOutput(container, model, output) {
+  // 提取代码块里的 HTML（```html ... ```）
+  const codeBlockMatch = output.match(/```html\s*([\s\S]*?)```/i)
+                      || output.match(/```\s*(<!DOCTYPE[\s\S]*?)```/i);
+  const htmlContent = codeBlockMatch
+    ? codeBlockMatch[1].trim()
+    : (output.includes('<!DOCTYPE') || (output.includes('<html') && output.includes('</html>')))
+      ? output.trim()
+      : null;
+
+  // 图片 URL 检测
+  const imgMatch = output.match(/https?:\/\/\S+\.(png|jpg|jpeg|gif|webp|svg)/i);
+
+  if (htmlContent) {
+    // HTML → iframe 预览
+    const iframeId = `iframe-${model.id}`;
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--border);background:var(--bg-elevated);">
+        <span style="font-size:10px;font-family:var(--font-mono);color:var(--accent);">HTML PREVIEW · ${htmlContent.length} chars</span>
+        <div style="display:flex;gap:6px;">
+          <button onclick="togglePreview('${model.id}')" id="toggleBtn-${model.id}"
+            style="font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:3px;background:var(--bg-hover);color:var(--text-secondary);cursor:pointer;">代码</button>
+          <button onclick="openPreviewWindow('${model.id}')"
+            style="font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:3px;background:var(--bg-hover);color:var(--text-secondary);cursor:pointer;">新窗口 ↗</button>
+          <button onclick="copyOutput('${model.id}')"
+            style="font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:3px;background:var(--bg-hover);color:var(--text-secondary);cursor:pointer;">复制</button>
+        </div>
+      </div>
+      <div id="previewPane-${model.id}" style="height:320px;">
+        <iframe id="${iframeId}" style="width:100%;height:100%;border:none;background:#fff;"
+          sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      <pre id="codePane-${model.id}" style="display:none;font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);overflow:auto;height:320px;white-space:pre-wrap;word-break:break-all;background:var(--bg-elevated);padding:10px;margin:0;"></pre>
+    `;
+    // 写入 iframe
+    const iframe = document.getElementById(iframeId);
+    const codePane = document.getElementById(`codePane-${model.id}`);
+    codePane.textContent = htmlContent;
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open(); doc.write(htmlContent); doc.close();
+
+  } else if (imgMatch) {
+    // 图片 URL → img 预览
+    container.innerHTML = `
+      <div style="padding:8px;text-align:center;">
+        <img src="${imgMatch[0]}" style="max-width:100%;max-height:300px;border-radius:4px;" onerror="this.style.display='none'">
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;word-break:break-all;">${imgMatch[0]}</div>
+      </div>`;
+  } else {
+    // 纯文字
+    container.innerHTML = `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;padding:8px;white-space:pre-wrap;word-break:break-word;">${escHtml(output)}</div>`;
+  }
+}
+
+function togglePreview(modelId) {
+  const previewPane = document.getElementById(`previewPane-${modelId}`);
+  const codePane    = document.getElementById(`codePane-${modelId}`);
+  const btn         = document.getElementById(`toggleBtn-${modelId}`);
+  if (!previewPane || !codePane) return;
+  const showingCode = codePane.style.display !== 'none';
+  previewPane.style.display = showingCode ? '' : 'none';
+  codePane.style.display    = showingCode ? 'none' : '';
+  btn.textContent = showingCode ? '代码' : '预览';
+}
+
+function openPreviewWindow(modelId) {
+  const raw = window._modelRawOutputs?.[modelId] || '';
+  const codeBlockMatch = raw.match(/```html\s*([\s\S]*?)```/i)
+                      || raw.match(/```\s*(<!DOCTYPE[\s\S]*?)```/i);
+  const html = codeBlockMatch ? codeBlockMatch[1].trim()
+             : (raw.includes('<!DOCTYPE') || raw.includes('<html')) ? raw : null;
+  if (!html) { showToast('没有可预览的 HTML 内容', 'info'); return; }
+  const win = window.open('', '_blank');
+  win.document.open(); win.document.write(html); win.document.close();
 }
 
 function copyOutput(modelId) {
