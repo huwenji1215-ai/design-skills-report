@@ -2582,6 +2582,16 @@ const AQE_DIMS = [
 const WQ_DEFAULT_BASE = 'https://wanqing-api.corp.kuaishou.com';
 const WQ_API_PATH = '/api/gateway/v1/endpoints/chat/completions';
 
+/* 万擎默认凭证（可在 Settings 页覆盖） */
+const WQ_DEFAULTS = {
+  baseUrl: 'http://localhost:3001',
+  models: {
+    A: { key: 'gxo6clu8kkh033rob73owv9fgjtmmgvnn3g4', modelId: 'ep-5cq959-1776415492918898622' },
+    B: { key: 'gxo6clu8kkh033rob73owv9fgjtmmgvnn3g4', modelId: 'ep-3e24dk-1776415899955051526' },
+    C: { key: 'g60sd13ndpkr9kmqyaqhroxzywzy0o3anqpp', modelId: 'ep-w6tkqh-1765443407486635406' },
+  }
+};
+
 const MODELS = [
   { id: 'A', name: 'Claude Opus 4.7', provider: '万擎',
     color: 'oklch(72% 0.18 250)',
@@ -2744,23 +2754,15 @@ function buildSystemPrompt(skillDesc, extra) {
 
 /* ── 单模型 API 调用（统一走万擎）── */
 async function callModel(model, systemPrompt, userPrompt) {
-  const apiKey  = localStorage.getItem(`wqKey${model.id}`) || '';
-  const modelId = localStorage.getItem(`wqModel${model.id}`) || model.modelId;
-  const baseUrl = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULT_BASE).replace(/\/$/, '');
+  const def = WQ_DEFAULTS.models[model.id];
+  const apiKey  = localStorage.getItem(`wqKey${model.id}`)   || def.key;
+  const modelId = localStorage.getItem(`wqModel${model.id}`) || def.modelId;
+  const baseUrl = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULTS.baseUrl).replace(/\/$/, '');
 
   // 更新状态为"调用中"
   const outputEl = document.getElementById(`modelOutput-${model.id}`);
   const footerEl = document.getElementById(`modelFooter-${model.id}`);
   if (outputEl) outputEl.innerHTML = `<div class="model-output-placeholder"><div class="spinner"></div></div>`;
-
-  if (!apiKey) {
-    // 没有 API Key → 模拟演示模式
-    await sleep(800 + Math.random() * 1200);
-    const mockOutput = generateMockOutput(model, userPrompt);
-    if (outputEl) outputEl.textContent = mockOutput;
-    if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--watch);font-family:var(--font-mono);">演示模式（未配置万擎 API Key）</span>`;
-    return mockOutput;
-  }
 
   const startTime = Date.now();
 
@@ -2979,9 +2981,10 @@ ${outputs.map((o, i) => `【模型 ${i+1} · ${o.model}】\n${o.output.substring
 /* ── 调用 AQE Judge（万擎统一接口）── */
 async function callAQEJudge(judgeModel, apiKey, outputs, meta) {
   const prompt    = buildAQEPrompt(outputs, meta);
-  const wqKey     = localStorage.getItem(`wqKey${judgeModel}`) || apiKey || '';
-  const modelId   = localStorage.getItem(`wqModel${judgeModel}`) || MODELS.find(m => m.id === judgeModel)?.modelId || MODELS[0].modelId;
-  const baseUrl   = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULT_BASE).replace(/\/$/, '');
+  const def       = WQ_DEFAULTS.models[judgeModel];
+  const wqKey     = localStorage.getItem(`wqKey${judgeModel}`)   || def.key;
+  const modelId   = localStorage.getItem(`wqModel${judgeModel}`) || def.modelId;
+  const baseUrl   = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULTS.baseUrl).replace(/\/$/, '');
 
   const endpoint = baseUrl + WQ_API_PATH;
   const resp = await fetch(endpoint, {
