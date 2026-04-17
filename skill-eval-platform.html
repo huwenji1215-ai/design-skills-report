@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 /* ═══════════════════════════════════════
    DESIGN TOKENS
@@ -1235,19 +1236,20 @@ code {
         <div class="card" style="margin-bottom: 20px;">
           <div class="card-header">
             <span class="card-title">Skill 文件</span>
-            <span class="badge badge-default">支持 .md / .txt / .json</span>
+            <span class="badge badge-default">支持 .md / .txt / .json / .zip</span>
           </div>
           <div class="card-body">
             <div class="upload-zone" id="uploadZone">
-              <input type="file" id="skillFileInput" accept=".md,.txt,.json" onchange="handleFileUpload(event)">
-              <span class="upload-icon">📄</span>
+              <input type="file" id="skillFileInput" accept=".md,.txt,.json,.zip" onchange="handleFileUpload(event)">
+              <span class="upload-icon" id="uploadIcon">📄</span>
               <div class="upload-title">拖放文件或点击上传</div>
-              <div class="upload-subtitle">支持 SKILL.md、skill.txt 或任意包含 Skill 说明的文本文件</div>
+              <div class="upload-subtitle">支持单个 SKILL.md / .txt / .json，或包含 Skill 的 <strong style="color:var(--accent)">.zip 压缩包</strong></div>
               <div class="upload-specs">
                 <span class="upload-spec">📝 .md</span>
                 <span class="upload-spec">📄 .txt</span>
                 <span class="upload-spec">{ } .json</span>
-                <span class="upload-spec">⬆ 最大 2MB</span>
+                <span class="upload-spec">📦 .zip</span>
+                <span class="upload-spec">⬆ 最大 20MB</span>
               </div>
             </div>
 
@@ -1586,36 +1588,168 @@ function showToast(msg, type = 'info', duration = 3000) {
 function handleFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) {
-    showToast('文件过大，最大支持 2MB', 'error');
+  if (file.size > 20 * 1024 * 1024) {
+    showToast('文件过大，最大支持 20MB', 'error');
     return;
   }
 
+  const isZip = file.name.toLowerCase().endsWith('.zip') || file.type === 'application/zip';
+  if (isZip) {
+    handleZipUpload(file);
+  } else {
+    handleTextUpload(file);
+  }
+}
+
+/* ─── 普通文本文件上传 ─── */
+function handleTextUpload(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
     const content = e.target.result;
-    APP.currentSkill = content;
-
-    // 显示文件信息
-    document.getElementById('filePreview').style.display = 'block';
-    document.getElementById('fileName').textContent = file.name;
-    document.getElementById('fileSize').textContent = `${(file.size / 1024).toFixed(1)} KB · ${file.type || 'text/plain'}`;
-    document.getElementById('fileContentPreview').textContent = content.substring(0, 500) + (content.length > 500 ? '…' : '');
-
-    // 自动识别元数据
-    autoDetectMeta(content, file.name);
-
-    // 更新上传区域外观
-    const zone = document.getElementById('uploadZone');
-    zone.style.borderColor = 'var(--pass)';
-    zone.style.background = 'var(--pass-bg)';
-
-    // 激活 Gate0 按钮
-    document.getElementById('startGate0Btn').disabled = false;
-
-    showToast(`已载入 ${file.name}`, 'success');
+    applySkillContent(content, file.name, file.size, file.type || 'text/plain', null);
   };
   reader.readAsText(file, 'UTF-8');
+}
+
+/* ─── ZIP 压缩包上传 ─── */
+async function handleZipUpload(file) {
+  // 显示解析中状态
+  const zone = document.getElementById('uploadZone');
+  zone.style.borderColor = 'var(--accent)';
+  zone.style.background = 'var(--accent-bg)';
+  document.getElementById('uploadIcon').textContent = '⏳';
+  showToast('正在解析压缩包...', 'info', 1500);
+
+  try {
+    const zip = await JSZip.loadAsync(file);
+    const files = [];
+
+    // 收集所有可读文件
+    zip.forEach((relativePath, zipEntry) => {
+      if (!zipEntry.dir) files.push({ path: relativePath, entry: zipEntry });
+    });
+
+    // 优先查找 SKILL.md
+    const TARGET_PRIORITY = [
+      f => f.path.toLowerCase() === 'skill.md',
+      f => f.path.toLowerCase().endsWith('/skill.md'),
+      f => f.path.toLowerCase().endsWith('skill.md'),
+      f => f.path.toLowerCase().endsWith('.md'),
+      f => f.path.toLowerCase().endsWith('.txt'),
+      f => f.path.toLowerCase().endsWith('.json'),
+    ];
+
+    let mainFile = null;
+    for (const finder of TARGET_PRIORITY) {
+      mainFile = files.find(finder);
+      if (mainFile) break;
+    }
+
+    if (!mainFile) {
+      showToast('压缩包中未找到 .md / .txt / .json 文件', 'error');
+      resetUploadZone();
+      return;
+    }
+
+    // 读取主文件内容
+    const mainContent = await mainFile.entry.async('string');
+
+    // 收集所有 .md/.txt 文件内容拼接作为完整上下文
+    let allContent = mainContent;
+    const otherMdFiles = files
+      .filter(f => f !== mainFile && (f.path.endsWith('.md') || f.path.endsWith('.txt')))
+      .slice(0, 5); // 最多拼接5个
+    for (const f of otherMdFiles) {
+      try {
+        const txt = await f.entry.async('string');
+        allContent += '\n\n---\n[来自：' + f.path + ']\n' + txt;
+      } catch {}
+    }
+
+    // 构建 ZIP 文件树摘要
+    const fileTree = files.map(f => f.path).join('\n');
+    const zipSummary = `[ZIP包文件列表]\n${fileTree}\n\n[主文件：${mainFile.path}]\n`;
+    APP.zipFileTree = fileTree;
+    APP.zipMainFile = mainFile.path;
+
+    // 应用内容
+    applySkillContent(allContent, mainFile.path, file.size, 'application/zip', {
+      zipName: file.name,
+      fileCount: files.length,
+      mainFile: mainFile.path,
+      fileTree,
+      otherFiles: otherMdFiles.map(f => f.path)
+    });
+
+  } catch (err) {
+    showToast('ZIP 解析失败：' + err.message, 'error');
+    resetUploadZone();
+  }
+}
+
+/* ─── 应用 Skill 内容到表单 ─── */
+function applySkillContent(content, filename, size, type, zipMeta) {
+  APP.currentSkill = content;
+  APP.zipMeta = zipMeta;
+
+  // 显示文件信息
+  document.getElementById('filePreview').style.display = 'block';
+
+  const isZip = !!zipMeta;
+  const displayName = isZip ? `📦 ${zipMeta.zipName} → ${zipMeta.mainFile}` : filename;
+  document.getElementById('fileName').textContent = displayName;
+
+  let sizeLine = `${(size / 1024).toFixed(1)} KB`;
+  if (isZip) sizeLine += ` · ZIP · ${zipMeta.fileCount} 个文件`;
+  else sizeLine += ` · ${type}`;
+  document.getElementById('fileSize').textContent = sizeLine;
+
+  // 内容预览
+  let preview = content.substring(0, 500) + (content.length > 500 ? '…' : '');
+  if (isZip && zipMeta.fileTree) {
+    preview = `📂 ZIP 文件树：\n${zipMeta.fileTree.split('\n').slice(0, 15).join('\n')}\n\n--- 主文件内容预览 ---\n${content.substring(0, 300)}...`;
+  }
+  document.getElementById('fileContentPreview').textContent = preview;
+
+  // 如果是 ZIP，在文件预览区额外显示文件列表
+  if (isZip) {
+    const existingZipInfo = document.getElementById('zipInfoPanel');
+    if (existingZipInfo) existingZipInfo.remove();
+
+    const zipInfo = document.createElement('div');
+    zipInfo.id = 'zipInfoPanel';
+    zipInfo.style.cssText = 'margin-top:10px;padding:10px 12px;background:var(--accent-bg);border:1px solid var(--accent-dim);border-radius:var(--radius-sm);';
+    zipInfo.innerHTML = `
+      <div style="font-size:11px;color:var(--accent);font-family:var(--font-mono);font-weight:600;margin-bottom:6px;">📦 ZIP 解析完成</div>
+      <div style="font-size:11px;color:var(--text-secondary);line-height:1.8;">
+        主文件：<code>${zipMeta.mainFile}</code><br>
+        总文件数：${zipMeta.fileCount} 个<br>
+        ${zipMeta.otherFiles.length > 0 ? '合并读取：' + zipMeta.otherFiles.slice(0,3).map(f=>`<code>${f}</code>`).join(' ') : ''}
+      </div>
+    `;
+    document.getElementById('filePreview').appendChild(zipInfo);
+  }
+
+  // 自动识别元数据
+  autoDetectMeta(content, filename);
+
+  // 更新上传区域外观
+  const zone = document.getElementById('uploadZone');
+  zone.style.borderColor = 'var(--pass)';
+  zone.style.background = 'var(--pass-bg)';
+  document.getElementById('uploadIcon').textContent = isZip ? '📦' : '✅';
+
+  // 激活 Gate0 按钮
+  document.getElementById('startGate0Btn').disabled = false;
+
+  showToast(isZip ? `ZIP 解析完成，已载入 ${zipMeta.mainFile}` : `已载入 ${filename}`, 'success');
+}
+
+function resetUploadZone() {
+  const zone = document.getElementById('uploadZone');
+  zone.style.borderColor = '';
+  zone.style.background = '';
+  document.getElementById('uploadIcon').textContent = '📄';
 }
 
 /* ─── 自动识别 Skill 元数据 ─── */
@@ -1628,7 +1762,7 @@ function autoDetectMeta(content, filename) {
     document.getElementById('skillName').value = nameMatch[1].trim();
   } else if (!document.getElementById('skillName').value) {
     // 从文件名推断
-    document.getElementById('skillName').value = filename.replace(/\.(md|txt|json)$/i, '');
+    document.getElementById('skillName').value = filename.replace(/\.(md|txt|json|zip)$/i, '');
   }
 
   if (descMatch && !document.getElementById('skillDescription').value) {
@@ -1655,6 +1789,8 @@ function autoDetectMeta(content, filename) {
 /* ─── 清除文件 ─── */
 function clearFile() {
   APP.currentSkill = null;
+  APP.zipMeta = null;
+  APP.zipFileTree = null;
   document.getElementById('filePreview').style.display = 'none';
   document.getElementById('skillFileInput').value = '';
   document.getElementById('skillName').value = '';
@@ -1664,10 +1800,9 @@ function clearFile() {
   document.getElementById('skillOutput').value = '';
   document.getElementById('knownFailures').value = '';
   document.getElementById('startGate0Btn').disabled = true;
-
-  const zone = document.getElementById('uploadZone');
-  zone.style.borderColor = '';
-  zone.style.background = '';
+  const zipPanel = document.getElementById('zipInfoPanel');
+  if (zipPanel) zipPanel.remove();
+  resetUploadZone();
   showToast('已清除文件', 'info');
 }
 
