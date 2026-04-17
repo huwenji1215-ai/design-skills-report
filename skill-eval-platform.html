@@ -2296,7 +2296,7 @@ function renderGate0Results(results) {
         </div>
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
           ${p0fails.length > 0 
-            ? `<strong style="color:var(--fail);">⚠ ${p0fails.length} 个 P0 项未通过</strong>，需修复后才能进行 Case 评测。` 
+            ? `<strong style="color:var(--fail);">⚠ ${p0fails.length} 个 P0 项未通过</strong>，已记录问题，可继续进行 Case 评测。` 
             : p1fails.length > 0 
               ? `P0 项全部通过，有 <strong>${p1fails.length} 个 P1 项</strong>需要关注。可继续进行 Case 评测。`
               : '✓ 所有检查项通过，Skill 规范符合准入要求，可进行 Case 评测。'}
@@ -2326,14 +2326,9 @@ function renderGate0Results(results) {
     <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--border);">
       <button class="btn btn-secondary" onclick="showPage('upload')">← 返回修改</button>
       <div style="display:flex;gap:8px;">
-        ${verdict !== 'FAIL' 
-          ? `<button class="btn btn-primary btn-lg" onclick="proceedToEval()">
-              继续 Case 评测 →
-             </button>`
-          : `<div style="font-size:13px;color:var(--fail);display:flex;align-items:center;gap:6px;">
-              ✕ P0 项未通过，请先修复后重新检查
-             </div>`
-        }
+        <button class="btn btn-primary btn-lg" onclick="proceedToEval()">
+          继续 Case 评测 →
+        </button>
       </div>
     </div>
   `;
