@@ -1432,79 +1432,75 @@ code {
       <div class="page-header">
         <div class="page-header-eyebrow">配置</div>
         <h1>API 设置</h1>
-        <p>配置调用 3 个评测模型所需的 API Key，Key 仅保存在本地 localStorage，不会上传。</p>
+        <p>填入万擎平台的 API Key，三个评测模型统一通过万擎网关调用，Key 仅保存在本地 localStorage，不会上传。</p>
       </div>
       <div class="page-content">
+        <!-- 万擎统一凭证 -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <span class="card-title" style="display:flex;align-items:center;gap:8px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:oklch(72% 0.18 250);display:inline-block;"></span>
+              万擎（Wanqing）API 配置
+            </span>
+            <span class="badge badge-accent">统一网关</span>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">API Key <span class="required">*</span></label>
+              <input type="password" class="form-input" id="wqApiKey" placeholder="输入万擎 API Key…"
+                     oninput="localStorage.setItem('wqApiKey', this.value)">
+              <div class="form-hint">在万擎平台 → 系统管理 → 安全认证 → 新建 API Key 中获取</div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Base URL（可选，默认办公网）</label>
+              <input type="text" class="form-input" id="wqBaseUrl"
+                     placeholder="https://llm-gateway-prod.corp.kuaishou.com"
+                     oninput="localStorage.setItem('wqBaseUrl', this.value)">
+              <div class="form-hint">
+                办公网：https://llm-gateway-prod.corp.kuaishou.com　|　
+                新加坡：https://llm-gateway-prod-sgp.corp.kuaishou.com　|　
+                内网：http://llm-gateway.internal
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 三模型说明（只读） -->
         <div class="settings-grid">
-          <!-- 模型 1 -->
           <div class="card">
             <div class="card-header">
               <span class="card-title" style="display:flex;align-items:center;gap:8px;">
                 <span class="model-dot" style="background:oklch(72% 0.18 250);"></span>
-                模型 A · GPT-4o
+                模型 A · Claude Opus 4.7
               </span>
-              <span class="badge badge-accent">OpenAI</span>
+              <span class="badge badge-accent">Anthropic</span>
             </div>
             <div class="card-body">
-              <div class="form-group">
-                <label class="form-label">API Key</label>
-                <input type="password" class="form-input" id="apiKeyA" placeholder="sk-..." 
-                       value="" oninput="saveApiKey('A', this.value)">
-                <div class="form-hint">OpenAI API Key，用于 GPT-4o 模型调用</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Base URL（可选）</label>
-                <input type="text" class="form-input" id="baseUrlA" placeholder="https://api.openai.com/v1" 
-                       oninput="saveBaseUrl('A', this.value)">
-              </div>
+              <div class="form-hint" style="margin:0;">model ID: <code style="font-family:var(--font-mono);color:var(--accent);">claude-opus-4-7</code></div>
             </div>
           </div>
-
-          <!-- 模型 2 -->
           <div class="card">
             <div class="card-header">
               <span class="card-title" style="display:flex;align-items:center;gap:8px;">
                 <span class="model-dot" style="background:oklch(72% 0.18 155);"></span>
-                模型 B · Claude 3.5 Sonnet
+                模型 B · Kimi K2.5
               </span>
-              <span class="badge badge-accent" style="background:oklch(18% 0.05 155);color:oklch(72% 0.15 155);border:none;">Anthropic</span>
+              <span class="badge badge-accent" style="background:oklch(18% 0.05 155);color:oklch(72% 0.15 155);border:none;">月之暗面</span>
             </div>
             <div class="card-body">
-              <div class="form-group">
-                <label class="form-label">API Key</label>
-                <input type="password" class="form-input" id="apiKeyB" placeholder="sk-ant-..." 
-                       oninput="saveApiKey('B', this.value)">
-                <div class="form-hint">Anthropic API Key，用于 Claude 3.5 Sonnet 调用</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Base URL（可选）</label>
-                <input type="text" class="form-input" id="baseUrlB" placeholder="https://api.anthropic.com/v1" 
-                       oninput="saveBaseUrl('B', this.value)">
-              </div>
+              <div class="form-hint" style="margin:0;">model ID: <code style="font-family:var(--font-mono);color:var(--accent);">kimi-k2.5</code></div>
             </div>
           </div>
-
-          <!-- 模型 3 -->
           <div class="card">
             <div class="card-header">
               <span class="card-title" style="display:flex;align-items:center;gap:8px;">
                 <span class="model-dot" style="background:oklch(72% 0.18 80);"></span>
-                模型 C · Gemini 2.0 Flash
+                模型 C · Gemini 3.1 Pro Preview
               </span>
               <span class="badge badge-accent" style="background:oklch(18% 0.05 80);color:oklch(72% 0.15 80);border:none;">Google</span>
             </div>
             <div class="card-body">
-              <div class="form-group">
-                <label class="form-label">API Key</label>
-                <input type="password" class="form-input" id="apiKeyC" placeholder="AIzaSy..." 
-                       oninput="saveApiKey('C', this.value)">
-                <div class="form-hint">Google AI API Key，用于 Gemini 2.0 Flash 调用</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Base URL（可选）</label>
-                <input type="text" class="form-input" id="baseUrlC" placeholder="https://generativelanguage.googleapis.com/v1beta" 
-                       oninput="saveBaseUrl('C', this.value)">
-              </div>
+              <div class="form-hint" style="margin:0;">model ID: <code style="font-family:var(--font-mono);color:var(--accent);">gemini-3.1-pro-preview</code></div>
             </div>
           </div>
         </div>
@@ -1517,9 +1513,9 @@ code {
             <div class="form-group">
               <label class="form-label">用于 AQE 评测打分的模型</label>
               <select class="form-select" id="judgeModel">
-                <option value="A">模型 A · GPT-4o（推荐）</option>
-                <option value="B">模型 B · Claude 3.5 Sonnet</option>
-                <option value="C">模型 C · Gemini 2.0 Flash</option>
+                <option value="A">模型 A · Claude Opus 4.7（推荐）</option>
+                <option value="B">模型 B · Kimi K2.5</option>
+                <option value="C">模型 C · Gemini 3.1 Pro Preview</option>
               </select>
               <div class="form-hint">AQE 评测报告由该模型作为 LLM-as-Judge 生成评分和建议</div>
             </div>
@@ -1838,12 +1834,10 @@ function saveBaseUrl(model, val) {
 }
 
 function loadSettings() {
-  ['A', 'B', 'C'].forEach(m => {
-    const keyEl = document.getElementById(`apiKey${m}`);
-    const urlEl = document.getElementById(`baseUrl${m}`);
-    if (keyEl) keyEl.value = localStorage.getItem(`apiKey${m}`) || '';
-    if (urlEl) urlEl.value = localStorage.getItem(`baseUrl${m}`) || '';
-  });
+  const keyEl = document.getElementById('wqApiKey');
+  const urlEl = document.getElementById('wqBaseUrl');
+  if (keyEl) keyEl.value = localStorage.getItem('wqApiKey') || '';
+  if (urlEl) urlEl.value = localStorage.getItem('wqBaseUrl') || '';
   const judgeEl = document.getElementById('judgeModel');
   if (judgeEl) judgeEl.value = localStorage.getItem('judgeModel') || 'A';
 }
@@ -2557,19 +2551,19 @@ const AQE_DIMS = [
     passThreshold: 5.0, color: 'oklch(72% 0.18 25)', isBlock: true }
 ];
 
+/* 万擎统一 Base URL（办公网） */
+const WQ_DEFAULT_BASE = 'https://llm-gateway-prod.corp.kuaishou.com';
+
 const MODELS = [
-  { id: 'A', name: 'GPT-4o', provider: 'OpenAI',
+  { id: 'A', name: 'Claude Opus 4.7', provider: '万擎',
     color: 'oklch(72% 0.18 250)',
-    apiEndpoint: 'https://api.openai.com/v1/chat/completions',
-    modelId: 'gpt-4o' },
-  { id: 'B', name: 'Claude 3.5 Sonnet', provider: 'Anthropic',
+    modelId: 'claude-opus-4-7' },
+  { id: 'B', name: 'Kimi K2.5', provider: '万擎',
     color: 'oklch(72% 0.18 155)',
-    apiEndpoint: 'https://api.anthropic.com/v1/messages',
-    modelId: 'claude-3-5-sonnet-20241022' },
-  { id: 'C', name: 'Gemini 2.0 Flash', provider: 'Google',
+    modelId: 'kimi-k2.5' },
+  { id: 'C', name: 'Gemini 3.1 Pro Preview', provider: '万擎',
     color: 'oklch(72% 0.18 80)',
-    apiEndpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-    modelId: 'gemini-2.0-flash' }
+    modelId: 'gemini-3.1-pro-preview' }
 ];
 
 /* ══════════════════════════════════════
@@ -2720,10 +2714,10 @@ function buildSystemPrompt(skillDesc, extra) {
   return base;
 }
 
-/* ── 单模型 API 调用 ── */
+/* ── 单模型 API 调用（统一走万擎）── */
 async function callModel(model, systemPrompt, userPrompt) {
-  const apiKey = localStorage.getItem(`apiKey${model.id}`) || '';
-  const baseUrl = localStorage.getItem(`baseUrl${model.id}`) || '';
+  const apiKey = localStorage.getItem('wqApiKey') || '';
+  const baseUrl = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULT_BASE).replace(/\/$/, '');
 
   // 更新状态为"调用中"
   const outputEl = document.getElementById(`modelOutput-${model.id}`);
@@ -2735,7 +2729,7 @@ async function callModel(model, systemPrompt, userPrompt) {
     await sleep(800 + Math.random() * 1200);
     const mockOutput = generateMockOutput(model, userPrompt);
     if (outputEl) outputEl.textContent = mockOutput;
-    if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--watch);font-family:var(--font-mono);">演示模式（未配置 API Key）</span>`;
+    if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--watch);font-family:var(--font-mono);">演示模式（未配置万擎 API Key）</span>`;
     return mockOutput;
   }
 
@@ -2744,64 +2738,27 @@ async function callModel(model, systemPrompt, userPrompt) {
   try {
     let responseText = '';
 
-    if (model.id === 'A') {
-      // OpenAI
-      const endpoint = (baseUrl || 'https://api.openai.com/v1') + '/chat/completions';
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: model.modelId,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ],
-          max_tokens: 4096,
-          temperature: 0.7
-        })
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
-      const data = await resp.json();
-      responseText = data.choices?.[0]?.message?.content || '';
-
-    } else if (model.id === 'B') {
-      // Anthropic
-      const endpoint = (baseUrl || 'https://api.anthropic.com/v1') + '/messages';
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: model.modelId,
-          system: systemPrompt,
-          messages: [{ role: 'user', content: userPrompt }],
-          max_tokens: 4096
-        })
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
-      const data = await resp.json();
-      responseText = data.content?.[0]?.text || '';
-
-    } else if (model.id === 'C') {
-      // Google Gemini
-      const key = apiKey;
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
-      const resp = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-          generationConfig: { maxOutputTokens: 4096, temperature: 0.7 }
-        })
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
-      const data = await resp.json();
-      responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    }
+    // 万擎统一 OpenAI-compatible 接口
+    const endpoint = baseUrl + '/v1/chat/completions';
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: model.modelId,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 4096,
+        temperature: 0.7
+      })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+    const data = await resp.json();
+    responseText = data.choices?.[0]?.message?.content || '';
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
     if (footerEl) footerEl.innerHTML = `<span style="font-size:11px;color:var(--pass);font-family:var(--font-mono);">✓ ${elapsed}s</span>
@@ -2991,56 +2948,27 @@ ${outputs.map((o, i) => `【模型 ${i+1} · ${o.model}】\n${o.output.substring
 }`;
 }
 
-/* ── 调用 AQE Judge ── */
+/* ── 调用 AQE Judge（万擎统一接口）── */
 async function callAQEJudge(judgeModel, apiKey, outputs, meta) {
   const prompt = buildAQEPrompt(outputs, meta);
-  const baseUrl = localStorage.getItem(`baseUrl${judgeModel}`) || '';
-  let responseText = '';
+  const wqKey   = localStorage.getItem('wqApiKey') || apiKey || '';
+  const baseUrl = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULT_BASE).replace(/\/$/, '');
+  const judgeModelId = MODELS.find(m => m.id === judgeModel)?.modelId || MODELS[0].modelId;
 
-  if (judgeModel === 'A') {
-    const endpoint = (baseUrl || 'https://api.openai.com/v1') + '/chat/completions';
-    const resp = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2048, temperature: 0.3
-      })
-    });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    responseText = data.choices?.[0]?.message?.content || '';
-
-  } else if (judgeModel === 'B') {
-    const endpoint = (baseUrl || 'https://api.anthropic.com/v1') + '/messages';
-    const resp = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2048
-      })
-    });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    responseText = data.content?.[0]?.text || '';
-
-  } else if (judgeModel === 'C') {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-    const resp = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 2048, temperature: 0.3 }
-      })
-    });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  }
+  const endpoint = baseUrl + '/v1/chat/completions';
+  const resp = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${wqKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: judgeModelId,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 2048,
+      temperature: 0.3
+    })
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+  const data = await resp.json();
+  const responseText = data.choices?.[0]?.message?.content || '';
 
   // 解析 JSON
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -3051,17 +2979,17 @@ async function callAQEJudge(judgeModel, apiKey, outputs, meta) {
 /* ── 模拟 AQE 分数（演示模式）── */
 function generateMockAQEScores(outputs, dir) {
   const mockScores = [
-    { name: 'GPT-4o',
+    { name: 'Claude Opus 4.7',
       scores: { A: 8.2, B: 7.8, C: 8.0, D: 7.5, E: 7.8 },
       weighted: 7.9, verdict: 'PASS',
       issues: { A: '信息层级清晰，字号对比合理', B: '色彩方案和谐，无明显冲突', C: '间距体系基本统一，偶有细节不一致', D: '风格基本稳定，3次调用结果相近', E: '对比度达标，无颜色单一信息传递问题' }
     },
-    { name: 'Claude 3.5 Sonnet',
+    { name: 'Kimi K2.5',
       scores: { A: 8.5, B: 8.2, C: 8.4, D: 8.0, E: 8.1 },
       weighted: 8.3, verdict: 'PASS',
       issues: { A: '视觉动线极为清晰，焦点引导自然', B: '色彩方案精准传达场景情感', C: '版式精准规范，间距一致性高', D: '风格高度稳定，品牌调性匹配', E: '可访问性处理细致，focus状态明确' }
     },
-    { name: 'Gemini 2.0 Flash',
+    { name: 'Gemini 3.1 Pro Preview',
       scores: { A: 7.0, B: 7.4, C: 7.1, D: 6.8, E: 7.2 },
       weighted: 7.1, verdict: 'WATCH',
       issues: { A: '层级存在但部分区域模糊', B: '整体色彩基本和谐，有1处色彩冲突', C: '主要区域规范，局部间距不一致', D: '3次调用有细微风格漂移', E: '对比度基本达标，建议加强验证' }
