@@ -3104,87 +3104,82 @@ async function runAQEEval() {
   }
 }
 
-/* ── DIR-02 多模态图片评测（Gemini 看图打 AQE 分）── */
+/* ── DIR-02 多模态图片评测（三张图并发，各自独立评分）── */
 async function callAQEJudgeMultimodal(outputs, meta) {
   const def     = WQ_DEFAULTS.imageGen;
   const apiKey  = localStorage.getItem('wqImageKey')   || def.key;
   const epId    = localStorage.getItem('wqImageModel') || def.modelId;
   const baseUrl = (localStorage.getItem('wqBaseUrl') || WQ_DEFAULTS.baseUrl).replace(/\/$/, '');
+  const endpoint = baseUrl + WQ_IMAGE_PATH.replace('{ep}', epId);
 
-  // 构建多模态 parts：文字描述 + 每张图片 inlineData
-  const parts = [];
+  const judgePrompt = `你是设计侧 AQE 评测专家，请对这张 AI 生成的图片按 AQE v2.0 标准打分。
 
-  parts.push({ text: `你是设计侧 AQE 评测专家，请对以下三张 AI 生成的图片按 AQE 标准打分。
-
-评测标准（AQE v2.0）：
-- AQE-A 视觉层级与信息架构（权重 25%）：信息层次、字号对比、焦点引导
-- AQE-B 色彩美学与情感调性（权重 25%）：色彩和谐、饱和度、情感一致
-- AQE-C 版式规范与排版质量（权重 20%）：对齐、间距一致、留白
-- AQE-D 品牌一致性与风格稳定（权重 15%）：风格一致性、调性匹配
-- AQE-E 可访问性基线（权重 15%）：对比度≥4.5:1，颜色非唯一信息
+评测标准：
+- AQE-A 视觉层级与信息架构（权重25%）：信息层次、字号对比、焦点引导
+- AQE-B 色彩美学与情感调性（权重25%）：色彩和谐、饱和度、情感一致
+- AQE-C 版式规范与排版质量（权重20%）：对齐、间距一致、留白
+- AQE-D 品牌一致性与风格稳定（权重15%）：风格一致性、调性匹配
+- AQE-E 可访问性基线（权重15%）：对比度≥4.5:1，颜色非唯一信息
 
 判定：PASS≥7.5 / WATCH 7.0-7.4 / FAIL<7.0 / BLOCK（AQE-E<5.0）
+Skill：${meta.name}
 
-Skill 方向：图片生成
-Skill 名称：${meta.name}
+严格按此 JSON 返回，无其他文字：
+{"scores":{"A":x,"B":x,"C":x,"D":x,"E":x},"weighted":x,"verdict":"PASS/WATCH/FAIL/BLOCK","issues":{"A":"一句话","B":"","C":"","D":"","E":""}}`;
 
-以下是三个模型的产物图片（按顺序对应）：
-模型列表：${outputs.map((o, i) => `图${i+1}=${o.model}`).join('，')}
-
-请看完所有图片后，严格按以下 JSON 格式返回，不要有任何其他文字：
-{
-  "models": [
-    {
-      "name": "模型名称",
-      "scores": {"A": 分数, "B": 分数, "C": 分数, "D": 分数, "E": 分数},
-      "weighted": 加权总分,
-      "verdict": "PASS/WATCH/FAIL/BLOCK",
-      "issues": {"A": "一句话", "B": "一句话", "C": "一句话", "D": "一句话", "E": "一句话"}
+  // 并发评测三张图
+  const scoreResults = await Promise.allSettled(outputs.map(async (o) => {
+    if (!o.output?.startsWith('__IMAGE__')) {
+      return { model: o.model, scores: {A:5,B:5,C:5,D:5,E:5}, weighted: 5, verdict: 'FAIL', issues: {A:'无图片产物',B:'',C:'',D:'',E:''} };
     }
-  ],
-  "bestModel": "最佳模型名称",
-  "suggestions": ["建议1", "建议2", "建议3"],
-  "summary": "综合评价"
-}` });
+    const dataUrl = o.output.slice(9);
+    const [header, b64] = dataUrl.split(',');
+    const mimeType = header.replace('data:', '').replace(';base64', '');
 
-  // 依次加入每张图片
-  outputs.forEach((o, i) => {
-    if (o.output?.startsWith('__IMAGE__')) {
-      const dataUrl = o.output.slice(9); // data:image/png;base64,XXXX
-      const [header, b64] = dataUrl.split(',');
-      const mimeType = header.replace('data:', '').replace(';base64', '');
-      parts.push({ inlineData: { mimeType, data: b64 } });
-    } else {
-      parts.push({ text: `[图${i+1} 生成失败，无图片]` });
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 90000);
+    try {
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        signal: ctrl.signal,
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { text: judgePrompt },
+            { inlineData: { mimeType, data: b64 } }
+          ]}],
+          generationConfig: { responseModalities: ['TEXT'] }
+        })
+      });
+      clearTimeout(tid);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      const text = data.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || '';
+      const m = text.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error('JSON 解析失败');
+      const parsed = JSON.parse(m[0]);
+      return { model: o.model, ...parsed };
+    } catch(e) {
+      clearTimeout(tid);
+      throw e;
     }
+  }));
+
+  // 汇总三张图的分数
+  const modelScores = scoreResults.map((r, i) => {
+    if (r.status === 'rejected') {
+      return { name: outputs[i].model, scores:{A:5,B:5,C:5,D:5,E:5}, weighted:5, verdict:'FAIL', issues:{A:`评测失败: ${r.reason?.message}`,B:'',C:'',D:'',E:''} };
+    }
+    return { name: r.value.model || outputs[i].model, scores: r.value.scores, weighted: r.value.weighted, verdict: r.value.verdict, issues: r.value.issues };
   });
 
-  const endpoint = baseUrl + WQ_IMAGE_PATH.replace('{ep}', epId);
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 120000);
-
-  let resp;
-  try {
-    resp = await fetch(endpoint, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts }],
-        generationConfig: { responseModalities: ['TEXT'] }
-      })
-    });
-  } finally {
-    clearTimeout(timeoutId);
-  }
-
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
-  const data = await resp.json();
-  const responseText = data.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || '';
-
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error(`无法解析评测 JSON，原始内容：${responseText.substring(0, 200)}`);
-  return JSON.parse(jsonMatch[0]);
+  const best = modelScores.reduce((a, b) => a.weighted > b.weighted ? a : b);
+  return {
+    models: modelScores,
+    bestModel: best.name,
+    suggestions: [`建议优先使用 ${best.name} 作为主力模型，AQE 综合分最高（${best.weighted?.toFixed(1)}）`],
+    summary: `基于多模态视觉评测，${best.name} 表现最优（${best.verdict}），综合分 ${best.weighted?.toFixed(1)}。`
+  };
 }
 
 /* ── AQE Judge Prompt 构建 ── */
