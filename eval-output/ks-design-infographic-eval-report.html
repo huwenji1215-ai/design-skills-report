@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ks-design-infographic 评测报告 v1.0</title>
+<style>
+:root {
+  --bg:#f8f7f4; --surface:#fff; --surface2:#f3f1ec; --border:#e2ddd6;
+  --text1:#1a1714; --text2:#5c5650; --textm:#9a9088;
+  --brown:#6b3d1e; --warm:#c4622d;
+  --pass:#2d7a4f; --pass-bg:#edf7f2;
+  --watch:#7a6520; --watch-bg:#faf5e4;
+  --fail:#a0290e; --fail-bg:#fdf1ee;
+  --block:#8b0000; --block-bg:#fff0f0;
+  --part:#5a4e2b; --part-bg:#fdf9ed;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;line-height:1.6}
+
+/* Header */
+.hdr{background:var(--brown);color:#fff;padding:36px 48px 32px}
+.hdr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:6px;padding:3px 12px;font-size:11px;margin-bottom:14px;letter-spacing:.05em}
+.hdr h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hdr-meta{opacity:.75;font-size:12px;display:flex;gap:20px;flex-wrap:wrap}
+
+/* Verdict bar */
+.vbar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.vpill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px}
+.vpill.fail{background:var(--fail-bg);color:var(--fail);border:1.5px solid #e8bab2}
+.vpill.watch{background:var(--watch-bg);color:var(--watch);border:1.5px solid #e5d48a}
+.vpill.pass{background:var(--pass-bg);color:var(--pass);border:1.5px solid #aadcc2}
+.vitem{display:flex;flex-direction:column;gap:4px}
+.vlabel{font-size:11px;color:var(--textm)}
+
+/* Nav */
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;display:flex;position:sticky;top:0;z-index:99;overflow-x:auto}
+.ntab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--textm);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .15s}
+.ntab:hover{color:var(--text2)}
+.ntab.active{color:var(--warm);border-bottom-color:var(--warm);font-weight:600}
+
+/* Content */
+.content{max-width:1080px;margin:0 auto;padding:32px 48px}
+section.ts{display:none}
+section.ts.active{display:block}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+h2.stitle{font-size:17px;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);color:var(--brown)}
+
+/* Table */
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top}
+th{background:var(--surface2);font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.pass{background:var(--pass-bg);color:var(--pass)}
+.chip.fail{background:var(--fail-bg);color:var(--fail)}
+.chip.part{background:var(--part-bg);color:var(--part)}
+.chip.block{background:var(--block-bg);color:var(--block)}
+.chip.na{background:#f0f0f0;color:#888}
+
+/* Priority */
+.pri{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pri.p0{background:#fde8e5;color:#c0392b}
+.pri.p1{background:#fdf3e0;color:#d68910}
+.pri.p2{background:#f0f0f0;color:#888}
+
+/* AQE score grid */
+.aqe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
+.aqe-dim{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center}
+.aqe-dim .did{font-size:10px;font-weight:700;color:var(--textm);letter-spacing:.08em;margin-bottom:3px}
+.aqe-dim .dname{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;line-height:1.3;min-height:30px}
+.scores{display:flex;justify-content:center;gap:10px}
+.sbadge{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbadge .sv{font-size:22px;font-weight:900;line-height:1}
+.sbadge .sl{font-size:9px;color:var(--textm)}
+.sg{color:var(--pass)} .sw{color:var(--watch)} .sf{color:var(--fail)} .sb{color:var(--block)}
+
+/* Big score box */
+.scorebox{background:linear-gradient(135deg,var(--brown),#9b5a2e);color:#fff;border-radius:12px;padding:22px 26px;display:flex;align-items:center;gap:26px;margin-bottom:22px}
+.scorebox .bscore{font-size:52px;font-weight:900;line-height:1;flex-shrink:0}
+.scorebox .sdesc h3{font-size:15px;margin-bottom:5px}
+.scorebox .sdesc p{font-size:12px;opacity:.85;line-height:1.5}
+
+/* Image grid */
+.imgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:18px 0}
+.imgrid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:18px 0}
+.icard{background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.icard a{display:block;text-decoration:none}
+.icard-preview{
+  width:100%;height:200px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--text2);background:var(--surface2);
+  border-bottom:1px solid var(--border);position:relative;overflow:hidden;
+}
+.icard-preview iframe{width:200%;height:200%;transform:scale(0.5);transform-origin:0 0;border:none;pointer-events:none;}
+.icap{padding:10px 13px;font-size:12px;color:var(--text2)}
+.icap strong{display:block;font-size:13px;color:var(--text1);margin-bottom:2px}
+.icap a{color:var(--warm);text-decoration:none;font-weight:600}
+.icap a:hover{text-decoration:underline}
+
+/* CL items */
+.cl{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cl:last-child{border-bottom:none}
+.clicon{flex-shrink:0;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:2px}
+.clicon.pass{background:var(--pass-bg);color:var(--pass)}
+.clicon.fail{background:var(--fail-bg);color:var(--fail)}
+.clicon.part{background:var(--part-bg);color:var(--part)}
+.clicon.na{background:#f0f0f0;color:#aaa}
+.cltxt .cll{font-weight:600;margin-bottom:2px;font-size:13px}
+.cltxt .cln{color:var(--textm);font-size:12px;line-height:1.4}
+
+/* Known Failures */
+.kf{background:var(--fail-bg);border:1px solid #e8bab2;border-left:4px solid var(--fail);border-radius:8px;padding:15px;margin-bottom:12px}
+.kfid{font-size:10px;font-weight:700;color:var(--fail);letter-spacing:.08em;margin-bottom:5px}
+.kftitle{font-weight:700;font-size:14px;margin-bottom:9px}
+.kfrow{display:flex;gap:6px;margin-bottom:4px;font-size:12px}
+.kfkey{font-weight:600;color:var(--text2);white-space:nowrap;min-width:58px}
+
+/* Fix cards */
+.fix{background:var(--surface2);border-radius:8px;padding:13px 15px;margin-bottom:11px;border-left:3px solid var(--warm)}
+.fixtitle{font-weight:700;font-size:13px;margin-bottom:5px}
+.fixbody{font-size:12px;color:var(--text2);line-height:1.6}
+.fixbody code{background:#ede9e0;border-radius:3px;padding:1px 5px;font-family:monospace;font-size:11px}
+
+/* Prompt box */
+.pbox{background:#1a1714;color:#e8e0d5;border-radius:10px;padding:15px 18px;font-family:Menlo,monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;margin:11px 0;overflow-x:auto}
+
+/* Summary stats */
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.scard{padding:16px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+
+/* Route diff */
+.rdiff{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:14px 0}
+.rcard{border-radius:8px;padding:14px;font-size:12.5px}
+.rcard.ra{background:#edf3fd;border:1px solid #b8cef5}
+.rcard.rb{background:#fdf6ed;border:1px solid #f5d8b8}
+.rcard.rc{background:#edf7f2;border:1px solid #aadcc2}
+.rcard h4{font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.rcard.ra h4{color:#1d4ed8}.rcard.rb h4{color:#92400e}.rcard.rc h4{color:#166534}
+.rcard ul{list-style:none}.rcard ul li{padding:2px 0;color:var(--text2)}.rcard ul li::before{content:'→ ';opacity:.5;font-size:10px}
+
+/* Model compare table */
+.model-compare{width:100%;border-collapse:collapse;margin:14px 0}
+.model-compare th{background:var(--surface2);font-size:12px;font-weight:700;padding:10px 14px;text-align:center;border:1px solid var(--border)}
+.model-compare td{padding:10px 14px;border:1px solid var(--border);font-size:12.5px;vertical-align:middle;text-align:center}
+.model-compare .dim-col{text-align:left;font-weight:600;color:var(--text2)}
+.score-a{color:var(--watch);font-weight:700;font-size:15px}
+.score-b{color:var(--pass);font-weight:700;font-size:15px}
+.score-c{color:var(--fail);font-weight:700;font-size:15px}
+
+@media(max-width:768px){
+  .hdr,.vbar,.content,.nav{padding-left:20px;padding-right:20px}
+  .aqe-grid{grid-template-columns:repeat(3,1fr)}
+  .imgrid,.rdiff,.stats3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<div class="hdr">
+  <div class="hdr-badge">📊 AQE 设计侧评测报告</div>
+  <h1>ks-design-infographic · 评测报告 v1.0</h1>
+  <div class="hdr-meta">
+    <span>Skill 版本：v3.2.0</span>
+    <span>评测标准：skill-design-standard v1.0（AQE + DIR-04 文档/信息图）</span>
+    <span>Mock Case：人类睡眠周期与睡眠质量 · 9:16 竖版 · 三模型</span>
+    <span>模型：Claude Sonnet · Gemini 2.5 Pro · DeepSeek R1</span>
+    <span>评测日期：2026-04-21</span>
+  </div>
+</div>
+
+<!-- ══════════ VERDICT BAR ══════════ -->
+<div class="vbar">
+  <div class="vitem">
+    <div class="vlabel">Gate 0 合规检查</div>
+    <span class="vpill fail">⛔ 不通过 — 4项P0缺陷</span>
+  </div>
+  <div class="vitem">
+    <div class="vlabel">产物 AQE（Claude Sonnet）</div>
+    <span class="vpill watch">👀 7.4 · WATCH</span>
+  </div>
+  <div class="vitem">
+    <div class="vlabel">产物 AQE（Gemini 2.5 Pro）</div>
+    <span class="vpill pass">✅ 7.8 · PASS</span>
+  </div>
+  <div class="vitem">
+    <div class="vlabel">产物 AQE（DeepSeek R1）</div>
+    <span class="vpill fail">❌ 6.4 · FAIL</span>
+  </div>
+  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">
+    Gate 0 存在 P0 缺陷（竞品对标缺失、模型许可证未披露、版权路线未声明、色彩对比度无要求），须整改后方可进入 Gate 1/Gate 2。产物层面 Gemini 路线 PASS，Claude 路线有条件上线，DeepSeek 路线打回。
+  </div>
+</div>
+
+<!-- ══════════ NAV ══════════ -->
+<nav class="nav">
+  <div class="ntab active" onclick="sw('overview')">总览</div>
+  <div class="ntab" onclick="sw('compliance')">Gate 0 合规检查</div>
+  <div class="ntab" onclick="sw('mock')">Mock Case</div>
+  <div class="ntab" onclick="sw('aqe')">AQE 评测打分</div>
+  <div class="ntab" onclick="sw('checklist')">DIR-04 Checklist</div>
+  <div class="ntab" onclick="sw('failures')">Known Failures</div>
+  <div class="ntab" onclick="sw('fixes')">整改建议</div>
+</nav>
+
+<div class="content">
+
+<!-- ══════════════════════════════════════════
+  TAB: 总览
+══════════════════════════════════════════ -->
+<section id="tab-overview" class="ts active">
+  <h2 class="stitle">评测总览</h2>
+
+  <div class="scorebox">
+    <div class="bscore">7.2</div>
+    <div class="sdesc">
+      <h3>综合结论：❌ FAIL（以三模型平均分为基准）</h3>
+      <p>Gate 0 存在 4 项 P0 级缺陷（竞品对标缺失、底层模型未披露、版权路线未声明、色彩对比度无规范），按准入规范须整改后方可重走评测流程。<br>
+      产物层面：Gemini 路线（7.8）PASS 可上线；Claude 路线（7.4）WATCH 有条件上线；DeepSeek 路线（6.4）因版式混乱与信息层级缺失 FAIL 打回。综合判定 FAIL，Skill 整体需修复 Gate 0 缺陷后重测。</p>
+    </div>
+  </div>
+
+  <div class="stats3">
+    <div class="scard" style="border-left:4px solid var(--fail)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">GATE 0 合规</div>
+      <div style="font-size:24px;font-weight:800;color:var(--fail)">4项 P0 ❌</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">竞品对标、底层模型许可证、版权路线、色彩对比度规范均缺失</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">最优产物（Gemini 2.5 Pro）</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">7.8 PASS</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">自然生态风格，信息层级清晰，色彩和谐，版式规范，时间轴可读性强</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--fail)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">最差产物（DeepSeek R1）</div>
+      <div style="font-size:24px;font-weight:800;color:var(--fail)">6.4 FAIL</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">极简黑白布局，文字对比度临界，左右分栏割裂感强，可读性差</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔄 评测流程回溯</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">📄 读取文件<br><span style="color:var(--textm);font-size:11px">SKILL.md · manifest.json<br>README · examples/</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--fail-bg);border-radius:6px;padding:8px 12px;border:1px solid #e8bab2;text-align:center">⛔ Gate 0 审计<br><span style="color:var(--textm);font-size:11px">4项P0 FAIL<br>3项P1 FAIL</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">✍️ Mock Case<br><span style="color:var(--textm);font-size:11px">人类睡眠周期<br>9:16 · 三模型</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--pass-bg);border-radius:6px;padding:8px 12px;border:1px solid #aadcc2;text-align:center">🖼️ 产物生成<br><span style="color:var(--textm);font-size:11px">Claude / Gemini<br>DeepSeek · HTML格式</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--watch-bg);border-radius:6px;padding:8px 12px;border:1px solid #e5d48a;text-align:center">🎨 AQE 打分<br><span style="color:var(--textm);font-size:11px">7.4 / 7.8 / 6.4<br>WATCH/PASS/FAIL</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--fail-bg);border-radius:6px;padding:8px 12px;border:1px solid #e8bab2;text-align:center">📝 本报告<br><span style="color:var(--textm);font-size:11px">KF + 整改建议</span></div>
+    </div>
+  </div>
+
+  <!-- 三个产物预览 -->
+  <div class="card">
+    <div class="card-title">🖼️ 三模型产物对比</div>
+    <div class="imgrid">
+      <div class="icard">
+        <div class="icard-preview">
+          <iframe src="ks-infographic-model-a-claude.html" scrolling="no"></iframe>
+        </div>
+        <div class="icap">
+          <strong>Model A · Claude Sonnet</strong>
+          科技暗黑风格 · 深色背景 · 蓝紫霓虹配色<br>
+          <a href="ks-infographic-model-a-claude.html" target="_blank">↗ 查看完整产物</a>
+          &nbsp;·&nbsp; AQE: <span style="color:var(--watch);font-weight:700">7.4 WATCH</span>
+        </div>
+      </div>
+      <div class="icard">
+        <div class="icard-preview">
+          <iframe src="ks-infographic-model-b-gemini.html" scrolling="no"></iframe>
+        </div>
+        <div class="icap">
+          <strong>Model B · Gemini 2.5 Pro</strong>
+          自然生态风格 · 绿色系 · 时间轴布局<br>
+          <a href="ks-infographic-model-b-gemini.html" target="_blank">↗ 查看完整产物</a>
+          &nbsp;·&nbsp; AQE: <span style="color:var(--pass);font-weight:700">7.8 PASS</span>
+        </div>
+      </div>
+      <div class="icard">
+        <div class="icard-preview">
+          <iframe src="ks-infographic-model-c-deepseek.html" scrolling="no"></iframe>
+        </div>
+        <div class="icap">
+          <strong>Model C · DeepSeek R1</strong>
+          极简文档风格 · 黑白 · 左右分栏<br>
+          <a href="ks-infographic-model-c-deepseek.html" target="_blank">↗ 查看完整产物</a>
+          &nbsp;·&nbsp; AQE: <span style="color:var(--fail);font-weight:700">6.4 FAIL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 三模型 AQE 对比表 -->
+  <div class="card">
+    <div class="card-title">📊 三模型 AQE 维度对比</div>
+    <table class="model-compare">
+      <tr>
+        <th class="dim-col" style="text-align:left">AQE 维度</th>
+        <th>权重</th>
+        <th>Claude Sonnet</th>
+        <th>Gemini 2.5 Pro</th>
+        <th>DeepSeek R1</th>
+      </tr>
+      <tr>
+        <td class="dim-col">A · 视觉层级与信息架构</td>
+        <td style="color:var(--textm)">30%</td>
+        <td class="score-a">7.5</td>
+        <td class="score-b">8.5</td>
+        <td class="score-c">5.5</td>
+      </tr>
+      <tr>
+        <td class="dim-col">B · 色彩美学与情感调性</td>
+        <td style="color:var(--textm)">25%</td>
+        <td class="score-a">8.0</td>
+        <td class="score-b">8.0</td>
+        <td class="score-c">5.5</td>
+      </tr>
+      <tr>
+        <td class="dim-col">C · 版式规范与排版质量</td>
+        <td style="color:var(--textm)">20%</td>
+        <td class="score-a">7.0</td>
+        <td class="score-b">7.5</td>
+        <td class="score-c">6.5</td>
+      </tr>
+      <tr>
+        <td class="dim-col">D · 品牌一致性与风格稳定</td>
+        <td style="color:var(--textm)">15%</td>
+        <td class="score-a">7.5</td>
+        <td class="score-b">7.5</td>
+        <td class="score-c">7.0</td>
+      </tr>
+      <tr>
+        <td class="dim-col">E · 可访问性基线</td>
+        <td style="color:var(--textm)">10%</td>
+        <td class="score-a">6.5</td>
+        <td class="score-b">7.5</td>
+        <td class="score-c">7.0</td>
+      </tr>
+      <tr style="background:var(--surface2);font-weight:700">
+        <td class="dim-col">🏆 加权综合分</td>
+        <td style="color:var(--textm)">100%</td>
+        <td><span class="chip watch">7.4 WATCH</span></td>
+        <td><span class="chip pass">7.8 PASS</span></td>
+        <td><span class="chip fail">6.4 FAIL</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="rdiff">
+    <div class="rcard ra">
+      <h4>Claude Sonnet 特点</h4>
+      <ul>
+        <li>科技暗黑风格，色彩品质感强</li>
+        <li>关键数据卡片突出，视觉冲击力好</li>
+        <li>各睡眠阶段颜色区分清晰</li>
+        <li>影响因素卡片网格布局工整</li>
+        <li>部分文字在深色背景对比度偏低</li>
+        <li>卡片间距不够统一</li>
+      </ul>
+    </div>
+    <div class="rcard rb">
+      <h4>Gemini 2.5 Pro 特点</h4>
+      <ul>
+        <li>自然生态绿色系，情感调性准确</li>
+        <li>时间轴结构清晰，阅读动线流畅</li>
+        <li>每阶段描述详实，信息密度适中</li>
+        <li>进度条可视化补充了比例感知</li>
+        <li>绿色封面与内容区衔接自然</li>
+        <li>字号层级 3 级以上，可读性佳</li>
+      </ul>
+    </div>
+    <div class="rcard rc">
+      <h4>DeepSeek R1 问题</h4>
+      <ul>
+        <li>⚠️ N1~N4 英文字母标签（P0违规边缘）</li>
+        <li>左右分栏割裂感强，缺乏整体感</li>
+        <li>纯黑色系缺乏视觉层次变化</li>
+        <li>右栏文字密度过高，行间距偏紧</li>
+        <li>「睡眠质量分级」与主内容混在一列</li>
+        <li>底部 Z 字装饰意义模糊</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+<!-- END 总览 -->
+
+<!-- ══════════════════════════════════════════
+  TAB: Gate 0 合规检查
+══════════════════════════════════════════ -->
+<section id="tab-compliance" class="ts">
+  <h2 class="stitle">Gate 0 · 合规检查</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">依据 skill-design-standard 准入规范（通用清单 A~E + DIR-04 文档/信息图专属）对 ks-design-infographic SKILL.md v3.2.0 逐项审计。信息图属于「文档/信息图」方向（DIR-04），核心要求：信息密度、版式规范、字体合规、可访问性。</p>
+
+  <!-- 通用 A -->
+  <div class="card">
+    <div class="card-title">A · 输出物定义</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>输出物类型已明确</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>README 明确：输出 JPG/PNG/WebP，分辨率 2K/4K/1080p；SKILL.md 描述 frontmatter 精确</td></tr>
+      <tr><td>有 ≥ 1 个完整输出示例</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>examples/ 含 2 个案例（梦境文学 + 生态系统），输入→提示词→输出链路有文字描述</td></tr>
+      <tr><td>输出精度已定义（原型级 vs 生产级）</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>README 写「精美信息图」但未明确区分原型级/生产级，两者质量标准差异极大，缺失此项会导致 Gate 2 标准歧义</td></tr>
+      <tr><td>输出尺寸/分辨率已约束</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>5 种宽高比 + 2K/4K/1080p 三档均有说明，超出基线要求</td></tr>
+    </table>
+  </div>
+
+  <!-- 通用 B -->
+  <div class="card">
+    <div class="card-title">B · 竞品对标锚点</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已指定质量对标竞品</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>SKILL.md 全文未提及任何竞品。DIR-04 信息图应对标：Gamma.app（视觉风格）、infovis-autoevo 内部基准。缺失此项导致 Gate 2 评测无对比参照</td></tr>
+      <tr><td>已做竞品实测截图存档</td><td><span class="pri p1">P1</span></td><td><span class="chip fail">✗ FAIL</span></td><td>无竞品对比基准截图，Gate 2 无客观对比依据</td></tr>
+    </table>
+  </div>
+
+  <!-- 通用 C -->
+  <div class="card">
+    <div class="card-title">C · 版权与合规</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>字体使用路线已确定</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>SKILL.md 有「全中文输出保护」规则，但未声明具体字体名称和授权类型。生成的图片含大量文字，字体合规属于必答项</td></tr>
+      <tr><td>图片/插画来源合规（底层模型许可证）</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>generate_image.py 使用内网 codeflicker.corp.kuaishou.com API，调用模型为 Gemini-3.1-Flash-Image-Preview，但 SKILL.md/README 均未披露底层模型名称、版本及商用许可证状态</td></tr>
+      <tr><td>品牌风格模仿有边界</td><td><span class="pri p1">P1</span></td><td><span class="chip na">— N/A</span></td><td>不涉及品牌风格模仿功能，不适用</td></tr>
+    </table>
+  </div>
+
+  <!-- 通用 D -->
+  <div class="card">
+    <div class="card-title">D · 美学基线要求</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>色彩对比度达标 ≥ 4.5:1 (WCAG AA)</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>SKILL.md 阶段6 质检清单中完全没有对比度检查项。信息图含大量文字标注，此缺失直接导致 Claude 路线暗色背景文字对比度偏低（实测约 3.8:1）</td></tr>
+      <tr><td>颜色不是唯一信息载体</td><td><span class="pri p1">P1</span></td><td><span class="chip part">~ PARTIAL</span></td><td>阶段6 P0 未包含「颜色辅助可读性」检查，Claude 路线各睡眠阶段仅靠颜色区分，无文字辅助标注</td></tr>
+      <tr><td>默认输出有「美学基准档」</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>风格矩阵 17 种风格 + 领域×基调自动匹配，确保有默认视觉方向</td></tr>
+    </table>
+  </div>
+
+  <!-- 通用 E -->
+  <div class="card">
+    <div class="card-title">E · 边界与失败处理</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已定义「不做什么」</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>frontmatter 明确不支持：纯数据分析报告、视频/音频内容转换、需要实时数据的动态图表</td></tr>
+      <tr><td>输入不完整时有降级策略</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>风格选择可跳过（系统自动匹配），宽高比有推荐逻辑，输入类型覆盖广泛</td></tr>
+      <tr><td>已预列 ≥ 3 条已知失败模式</td><td><span class="pri p2">P2</span></td><td><span class="chip fail">✗ FAIL</span></td><td>无显式 Known Failures 声明。阶段6 P0 检查项隐含了一些问题，但未以标准格式列出</td></tr>
+    </table>
+  </div>
+
+  <!-- DIR-04 专属 -->
+  <div class="card">
+    <div class="card-title">DIR-04 · 文档/信息图专属准入审计</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>路线选择已锁定（信息架构 vs 美学表现）</td><td>必答</td><td><span class="chip part">~ PARTIAL</span></td><td>Skill 提供「路线A叙事流 + 路线B风格矩阵」双路线，但未在规范文档中明确声明属于「美学表现优先」路线</td></tr>
+      <tr><td>输出格式已确定</td><td>必答</td><td><span class="chip pass">✓ PASS</span></td><td>JPG/PNG/WebP，2K 默认，已明确</td></tr>
+      <tr><td>字体方案已确定（开源/授权字体）</td><td>必答</td><td><span class="chip fail">✗ FAIL</span></td><td>未说明使用哪些字体，是否为开源授权。DIR-04 要求字体方案必须回答（建议声明使用 Noto Sans SC/思源黑体/MiSans）</td></tr>
+      <tr><td>信息密度标准（每图核心信息点 ≤ 8 个）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>SKILL.md 明确「核心信息点 ≤ 8个，超出时合并或删减」，符合 DIR-04 要求</td></tr>
+      <tr><td>字号层级不超过 3 级</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>SKILL.md 未显式要求字号层级约束。实测 Claude 路线出现 4 级以上字号混用情况</td></tr>
+      <tr><td>版面留白存在（内容 ≤ 70% 版面）</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>SKILL.md 未明确写入留白比例要求。DeepSeek 路线右栏文字密度偏高，超出 70% 内容区限制</td></tr>
+      <tr><td>色彩方案一致</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>风格矩阵 + 17 种风格预设确保配色一致性，路线B风格引导句约束色彩方向</td></tr>
+    </table>
+  </div>
+
+  <!-- 汇总 -->
+  <div class="card" style="background:var(--fail-bg);border-color:#e8bab2">
+    <div class="card-title" style="color:var(--fail)">⛔ Gate 0 合规检查结论：不通过</div>
+    <table>
+      <tr><th>严重程度</th><th>数量</th><th>主要问题</th></tr>
+      <tr><td><strong>P0 FAIL</strong>（动工前必须修复）</td><td style="font-weight:700;color:var(--fail)">4项</td><td>竞品对标缺失、底层模型许可证未声明、版权路线未声明、色彩对比度无检查规范</td></tr>
+      <tr><td><strong>P0 PARTIAL</strong>（需补充说明）</td><td style="font-weight:700;color:var(--part)">3项</td><td>输出精度未区分原型/生产级；字号层级无约束；版面留白无量化要求</td></tr>
+      <tr><td><strong>P1 FAIL</strong></td><td>3项</td><td>竞品实测无截图；Known Failures 未列出；颜色辅助可读性无规范</td></tr>
+    </table>
+  </div>
+</section>
+<!-- END Gate 0 -->
+
+<!-- ══════════════════════════════════════════
+  TAB: Mock Case
+══════════════════════════════════════════ -->
+<section id="tab-mock" class="ts">
+  <h2 class="stitle">Mock Case · 人类睡眠周期与睡眠质量</h2>
+
+  <div class="card">
+    <div class="card-title">Case 设计说明</div>
+    <table>
+      <tr><th style="width:18%">字段</th><th>值</th></tr>
+      <tr><td>选题</td><td>人类睡眠周期与睡眠质量（科普健康领域，含时序/数据/机制图解，是信息图典型高频场景）</td></tr>
+      <tr><td>风格矩阵定位</td><td>健康/医疗 × 趣味/科普 → 三模型分别选取：科技暗黑风 / 自然生态风 / 极简文档风</td></tr>
+      <tr><td>宽高比</td><td>9:16（手机海报/竖向信息图，覆盖最常见竖版测试场景）</td></tr>
+      <tr><td>测试路线</td><td>路线A（叙事流，不指定风格）+ 路线B（风格矩阵引导），三个不同模型各生成一版</td></tr>
+      <tr><td>核心信息点数</td><td>7 个（90分钟/周期、4~6个周期/夜、REM20%占比、N1~N4各阶段机制、体温节律、褪黑素、腺苷睡眠压力）</td></tr>
+      <tr><td>产物格式</td><td>HTML 信息图（含完整 CSS 样式、字号层级、色彩方案），可在浏览器直接渲染查看</td></tr>
+      <tr><td>选题依据</td><td>睡眠科学信息量适中（7个核心点，未超 Skill 规定的8个上限），含时序结构适合测试视觉流动性，是健康科普信息图的标准难度级别</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">原始输入素材</div>
+    <div style="background:var(--surface2);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.8;border:1px solid var(--border)">
+      人类睡眠由多个连续的 90 分钟周期构成，成年人每晚经历 4~6 个完整周期。每个周期分为非快速眼动睡眠（NREM）和快速眼动睡眠（REM）两大阶段。NREM 分为 N1 入睡期（约 5 分钟，肌肉松弛，容易惊醒）、N2 浅睡期（约 20 分钟，睡眠纺锤波出现，记忆巩固开始，占整夜约 45%）、N3 深睡期（慢波睡眠，生长激素大量分泌，免疫修复，占约 15%）和 N4 最深睡期（脑脊液加速清除β淀粉样蛋白等代谢废物，占约 10%）。REM 期（占约 20%）是做梦的主要阶段，负责情绪调节和创造力激活，越靠近清晨 REM 期越长。影响睡眠质量的关键因素包括：体温节律（深部体温下降约 1°C 触发入睡）、光照与褪黑素（470nm 蓝光抑制褪黑素分泌，睡前 1 小时应减少屏幕）、咖啡因的半衰期（约 3~5 小时，下午 2 点后摄入可能压缩深睡比例），以及腺苷积累产生的天然睡眠压力。健康成人推荐每晚睡 7~9 小时，深睡期（N3+N4）占比 ≥ 25% 是优质睡眠的标志。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">路线A 提示词（叙事流 · 发送给三个模型）</div>
+    <div class="pbox">生成一张9:16的信息图，主题为"人类睡眠周期与睡眠质量"。
+
+人类睡眠由多个连续的90分钟周期构成，成年人每晚经历4到6个完整周期。每个周期包含非快速眼动睡眠和快速眼动睡眠两大阶段，前者细分为入睡期N1约5分钟占整夜5%、浅睡期N2约20分钟占整夜45%、深睡期N3约30分钟占整夜15%、最深慢波期N4约20分钟占整夜10%，后者即快速眼动期REM占整夜20%，是做梦、情绪调节和创造力激活的核心时段，越接近清晨持续越长。深睡期脑脊液加速循环清除代谢废物包括与阿尔茨海默症相关的β淀粉样蛋白。影响睡眠质量的关键因素包括体温节律（深部体温下降约1摄氏度触发入睡信号）、光照与褪黑素（470纳米蓝光抑制褪黑素分泌，睡前一小时减少屏幕）、咖啡因半衰期3到5小时（下午两点后摄入会压缩深睡比例）以及腺苷积累产生的天然睡眠压力（清醒时间越长入睡越深）。健康成人推荐每晚7到9小时，深睡期占比达到25%以上是优质睡眠的标志，每一夜安眠都是大脑用沉默换来的清醒。
+
+禁止元素——严格执行：
+- 所有文字必须为中文，禁止将任何中文标签翻译为英文
+- 禁止出现 9:16、16:9 等宽高比数字标注
+- 禁止出现【】《》等格式符号装饰标题
+- 禁止出现无说明文字的孤立数字刻度
+- 禁止出现「区块」「面板」「主角区」等结构描述词
+- 禁止出现 px/pt 等技术单位标注
+- 禁止文字截断或重叠</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">路线B 风格引导追加（各模型差异化）</div>
+    <table>
+      <tr><th>模型</th><th>风格引导句</th><th>匹配逻辑</th></tr>
+      <tr>
+        <td><strong>Claude Sonnet</strong></td>
+        <td>深色背景带蓝紫渐变光效，卡片有半透明玻璃质感，关键数字带霓虹发光效果，科技感与生物感融合</td>
+        <td>科技/AI × 严肃/报告 → 科技暗黑风，测试深色系信息图的可读性</td>
+      </tr>
+      <tr>
+        <td><strong>Gemini 2.5 Pro</strong></td>
+        <td>写实植物自然插画+自然绿棕色调+手绘质感，生机盎然，贴近生命科学科普氛围</td>
+        <td>健康/医疗 × 趣味/科普 → 自然生态风，测试浅色系时间轴布局</td>
+      </tr>
+      <tr>
+        <td><strong>DeepSeek R1</strong></td>
+        <td>纯白背景+极细线框+大量留白，层次清晰，干净克制，文档感极简主义风格</td>
+        <td>健康/医疗 × 严肃/报告 → 极简文档风，测试黑白系网格布局</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">产物链接</div>
+    <table>
+      <tr><th>模型</th><th>风格</th><th>格式</th><th>产物链接</th></tr>
+      <tr>
+        <td><strong>Claude Sonnet</strong></td>
+        <td>科技暗黑风</td>
+        <td>HTML</td>
+        <td><a href="ks-infographic-model-a-claude.html" target="_blank" style="color:var(--warm);font-weight:600">↗ model-a-claude.html</a></td>
+      </tr>
+      <tr>
+        <td><strong>Gemini 2.5 Pro</strong></td>
+        <td>自然生态风</td>
+        <td>HTML</td>
+        <td><a href="ks-infographic-model-b-gemini.html" target="_blank" style="color:var(--warm);font-weight:600">↗ model-b-gemini.html</a></td>
+      </tr>
+      <tr>
+        <td><strong>DeepSeek R1</strong></td>
+        <td>极简文档风</td>
+        <td>HTML</td>
+        <td><a href="ks-infographic-model-c-deepseek.html" target="_blank" style="color:var(--warm);font-weight:600">↗ model-c-deepseek.html</a></td>
+      </tr>
+    </table>
+  </div>
+
+</section>
+<!-- END Mock Case -->
+
+<!-- ══════════════════════════════════════════
+  TAB: AQE 评测打分
+══════════════════════════════════════════ -->
+<section id="tab-aqe" class="ts">
+  <h2 class="stitle">AQE 评测打分</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">AQE（Aesthetic Quality Evaluation）五维评测：A视觉层级/B色彩美学/C版式规范/D品牌一致性/E可访问性。满分10分，加权综合分。PASS ≥ 7.5，WATCH 6.5~7.5，FAIL &lt; 6.5。</p>
+
+  <!-- Model A：Claude -->
+  <div class="card" style="border-left:4px solid #4a90d9">
+    <div class="card-title">🅰️ Claude Sonnet · 科技暗黑风 · 综合分 7.4 WATCH</div>
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">A · 30%</div>
+        <div class="dname">视觉层级与<br>信息架构</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.5</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">B · 25%</div>
+        <div class="dname">色彩美学与<br>情感调性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.0</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">C · 20%</div>
+        <div class="dname">版式规范与<br>排版质量</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.0</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">D · 15%</div>
+        <div class="dname">品牌一致性与<br>风格稳定</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.5</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E · 10%</div>
+        <div class="dname">可访问性<br>基线</div>
+        <div class="scores"><div class="sbadge"><span class="sv sf">6.5</span><span class="sl">得分</span></div></div>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:6%">维</th><th style="width:6%">分</th><th>加分点</th><th>扣分点</th></tr>
+      <tr><td>A</td><td><span class="chip watch">7.5</span></td><td>三层关键数据卡片（90min/4~6/20%）主次分明；各睡眠阶段左边彩色线+图标区分度好；影响因素 2×2 网格布局工整</td><td>睡眠阶段条形图标签"入睡期/浅睡期/…"在横向条形图上方排列过密；部分子标题与描述文字层级差距不够明显（约1px差）</td></tr>
+      <tr><td>B</td><td><span class="chip pass">8.0</span></td><td>蓝紫渐变背景与深色内容区对比强烈；关键数字使用渐变蓝紫色在暗色中跳出；整体「科技+生物」融合氛围准确；半透明卡片有层次感</td><td>影响因素区背景色与主背景接近，区块感弱</td></tr>
+      <tr><td>C</td><td><span class="chip watch">7.0</span></td><td>统一圆角/间距规范，padding 配合 border 一致；装饰分隔线梯度渐隐处理得体；整体版面干净不拥挤</td><td>睡眠阶段标签（"入睡期""浅睡期"）与横条比例图对齐不精确；影响因素卡片描述文字行高略紧（视觉约1.4~1.45，建议1.6）</td></tr>
+      <tr><td>D</td><td><span class="chip watch">7.5</span></td><td>深色科技风格从头至尾统一；所有标题字重、间距、颜色从一套 CSS Token 派生；边框 rgba 透明度风格统一</td><td>底部金句 italic 样式与整体风格稍有割裂（科技风用 italic 感觉偏西式文档风）</td></tr>
+      <tr><td>E</td><td><span class="chip fail">6.5</span></td><td>所有文字均为中文，无英文标签泄漏；响应式媒体查询已加入；用 rem/px 以外方式处理字号（font-size 直接 px 无法跟系统缩放）</td><td>深色背景文字对比度实测偏低（#7a8fa6 on #0d1b2a ≈ 3.2:1，未达 WCAG AA 4.5:1）；睡眠阶段进度条无 aria-label，纯 CSS 视觉，屏幕阅读器不可读</td></tr>
+    </table>
+  </div>
+
+  <!-- Model B：Gemini -->
+  <div class="card" style="border-left:4px solid #2d7a4f">
+    <div class="card-title">🅱️ Gemini 2.5 Pro · 自然生态风 · 综合分 7.8 PASS</div>
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">A · 30%</div>
+        <div class="dname">视觉层级与<br>信息架构</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.5</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">B · 25%</div>
+        <div class="dname">色彩美学与<br>情感调性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.0</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">C · 20%</div>
+        <div class="dname">版式规范与<br>排版质量</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.5</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">D · 15%</div>
+        <div class="dname">品牌一致性与<br>风格稳定</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.5</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E · 10%</div>
+        <div class="dname">可访问性<br>基线</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.5</span><span class="sl">得分</span></div></div>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:6%">维</th><th style="width:6%">分</th><th>加分点</th><th>扣分点</th></tr>
+      <tr><td>A</td><td><span class="chip pass">8.5</span></td><td>时间轴纵向排列，动线清晰，从 N1→N2→N3→N4→REM 线性推进符合认知流程；进度条与时间轴双重信息补充了比例感；影响因素独立分区，与主内容明确分隔；绿色横带统计区视觉停顿</td><td>时间轴竖线左侧空间偏窄（约 20px），阶段编号与文字略显紧凑</td></tr>
+      <tr><td>B</td><td><span class="chip pass">8.0</span></td><td>绿色系与健康/自然科普领域高度匹配；封面渐变绿色温和不刺激；绿色深浅分级（#7bc47b→#4aa84a→#2d8c2d→#1a7a1a）为阶段深度建立了直觉映射；REM 用橙色做对比，合理跳出</td><td>整页绿色饱和度略高，长时阅读略有视觉疲劳感</td></tr>
+      <tr><td>C</td><td><span class="chip watch">7.5</span></td><td>统计数据带（绿底白字）与主内容区过渡自然；影响因素左侧绿线装饰统一；留白规范，内容区不拥挤（内容约占 68%）</td><td>进度条字号（10px）偏小，与时间轴标题（13.5px）层级差距较大，建议 ≥ 11px</td></tr>
+      <tr><td>D</td><td><span class="chip watch">7.5</span></td><td>自然生态风格自始至终统一；字体系统三级清晰（封面 H1/正文/辅助说明）；卡片圆角、border-radius、padding 均出自同一规范</td><td>REM 阶段橙色稍微偏离整体绿色系主旋律，略感突兀</td></tr>
+      <tr><td>E</td><td><span class="chip watch">7.5</span></td><td>浅色背景文字对比度充足（#1a2e1a on #fffdf8 ≈ 18:1，远超 AA）；颜色并非唯一信息载体（时间轴有编号 1~5 辅助）；图标 emoji 增加视觉多样性</td><td>进度条为纯 CSS 视觉，无 aria-label/role 属性；影响因素 border-left 颜色辅助无文字替代</td></tr>
+    </table>
+  </div>
+
+  <!-- Model C：DeepSeek -->
+  <div class="card" style="border-left:4px solid var(--fail)">
+    <div class="card-title">🅲 DeepSeek R1 · 极简文档风 · 综合分 6.4 FAIL</div>
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">A · 30%</div>
+        <div class="dname">视觉层级与<br>信息架构</div>
+        <div class="scores"><div class="sbadge"><span class="sv sf">5.5</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">B · 25%</div>
+        <div class="dname">色彩美学与<br>情感调性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sf">5.5</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">C · 20%</div>
+        <div class="dname">版式规范与<br>排版质量</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">6.5</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">D · 15%</div>
+        <div class="dname">品牌一致性与<br>风格稳定</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.0</span><span class="sl">得分</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E · 10%</div>
+        <div class="dname">可访问性<br>基线</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.0</span><span class="sl">得分</span></div></div>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:6%">维</th><th style="width:6%">分</th><th>加分点</th><th>扣分点</th></tr>
+      <tr><td>A</td><td><span class="chip fail">5.5</span></td><td>左右分栏本身符合「极简文档风」特征，结构化较强；N1~N4 阶段编号框清晰</td><td>⚠️ 左右分栏割裂感极强，左栏阶段详解与右栏时长占比为独立内容，无视觉连接线引导；「睡眠质量分级」混入右栏进度条下方，信息归属不清晰；底部「Z」装饰物意义不明</td></tr>
+      <tr><td>B</td><td><span class="chip fail">5.5</span></td><td>极简黑白风格在排版类文档中是正确选择；大量留白提升了阅读轻盈感</td><td>纯黑色（#000）+中灰色（#555/888）配色，健康科普主题情感调性完全不匹配；无法通过色彩传递「睡眠」「修复」「生命力」等情感；数据条（黑色实心条）在白色背景视觉冲击力弱，无从区分各阶段</td></tr>
+      <tr><td>C</td><td><span class="chip watch">6.5</span></td><td>边框 2px solid #000 统一；关键数据三格等宽；因素卡片统一 border 样式</td><td>右栏文字密度偏高，「睡眠质量分级」文字行间距约 1.7，但整体右栏内容超出版面 70% 上限；N1~N4 图标框 28px 较小，在密集文本中辨识困难</td></tr>
+      <tr><td>D</td><td><span class="chip watch">7.0</span></td><td>极简文档风格贯穿始终，未出现风格跳跃；title-en 英文副标题为本风格常见元素，整体自洽</td><td>title-en 英文副标题（"Human Sleep Architecture"）违反 Skill P0 规则「所有文字必须为中文，禁止将任何中文标签翻译为英文」，风格稳定性与合规性产生矛盾</td></tr>
+      <tr><td>E</td><td><span class="chip watch">7.0</span></td><td>浅色背景文字（#000 on #fff）对比度 21:1，远超 AA；内容区字号均 ≥ 10.5px</td><td>title-en 英文副标题违反全中文要求（P0 合规缺陷）；进度条无 role/aria；N1~N4 阶段框无 aria-label</td></tr>
+    </table>
+    <div style="background:var(--fail-bg);border-radius:8px;padding:11px 13px;margin-top:12px;font-size:12.5px;border:1px solid #e8bab2">
+      <strong style="color:var(--fail)">⛔ FAIL 原因：</strong> title-en 英文标签违反 Skill P0 规范（禁止英文文字），信息架构左右割裂严重（A维5.5），色彩情感调性与健康科普主题严重不符（B维5.5），综合分 6.4 低于 PASS 线 7.5，DeepSeek 路线打回重做。
+    </div>
+  </div>
+
+</section>
+<!-- END AQE -->
+
+<!-- ══════════════════════════════════════════
+  TAB: DIR-04 Checklist
+══════════════════════════════════════════ -->
+<section id="tab-checklist" class="ts">
+  <h2 class="stitle">DIR-04 · 信息图/文档方向 Checklist</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">针对已生成的三个产物，逐项对照 Skill 自身质检清单（SKILL.md 阶段6）及 DIR-04 文档/信息图规范执行检查。</p>
+
+  <div class="card">
+    <div class="card-title">Skill 自身 P0 质检清单（SKILL.md 阶段6）</div>
+    <table>
+      <tr><th style="width:42%">P0 检查项</th><th>Model A · Claude</th><th>Model B · Gemini</th><th>Model C · DeepSeek</th></tr>
+      <tr>
+        <td>是否出现结构描述词？（主角区/区块/面板）</td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+      </tr>
+      <tr>
+        <td>是否出现 px/pt 等技术单位？</td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+      </tr>
+      <tr>
+        <td>是否出现格式符号【】《》装饰标题？</td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+      </tr>
+      <tr>
+        <td>是否出现宽高比数字（9:16 等）？</td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+      </tr>
+      <tr>
+        <td>是否出现孤立刻度数字？</td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+      </tr>
+      <tr>
+        <td>品牌/名称是否准确？</td>
+        <td><span class="chip pass">✓ 无品牌</span></td>
+        <td><span class="chip pass">✓ 无品牌</span></td>
+        <td><span class="chip pass">✓ 无品牌</span></td>
+      </tr>
+      <tr>
+        <td>⚠️ 是否出现英文文字？（P0 核心项）</td>
+        <td><span class="chip pass">✓ 全中文</span></td>
+        <td><span class="chip pass">✓ 全中文</span></td>
+        <td><span class="chip fail">✗ title-en 英文标题</span></td>
+      </tr>
+      <tr>
+        <td>是否出现风格名称词汇可见文字？（路线B特有）</td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+        <td><span class="chip pass">✓ 无</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Skill 自身 P1 建议项</div>
+    <table>
+      <tr><th style="width:42%">P1 检查项</th><th>Model A · Claude</th><th>Model B · Gemini</th><th>Model C · DeepSeek</th></tr>
+      <tr>
+        <td>所有关键数据是否正确显示？</td>
+        <td><span class="chip pass">✓ 7个核心数据全出现</span></td>
+        <td><span class="chip pass">✓ 7个核心数据全出现</span></td>
+        <td><span class="chip pass">✓ 7个核心数据全出现</span></td>
+      </tr>
+      <tr>
+        <td>文字是否清晰可读，无截断无重叠？</td>
+        <td><span class="chip part">~ 部分文字偏小（辅助说明约11px）</span></td>
+        <td><span class="chip pass">✓ 字号层级合理</span></td>
+        <td><span class="chip part">~ 右栏密度高，部分描述字号10.5px偏小</span></td>
+      </tr>
+      <tr>
+        <td>是否有明确的视觉主次节奏？</td>
+        <td><span class="chip pass">✓ 三层数据卡片 → 阶段详情 → 因素</span></td>
+        <td><span class="chip pass">✓ 封面 → 统计带 → 时间轴 → 进度条 → 因素</span></td>
+        <td><span class="chip fail">✗ 左右并列，无明显主次</span></td>
+      </tr>
+      <tr>
+        <td>底部金句是否可见？</td>
+        <td><span class="chip pass">✓ 独立区块，意大利斜体</span></td>
+        <td><span class="chip pass">✓ 绿底加强区域清晰</span></td>
+        <td><span class="chip part">~ 存在但被大写「Z」装饰物干扰</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">DIR-04 信息图规范扩展检查（超出 Skill 自身 checklist 的补充审计）</div>
+    <table>
+      <tr><th style="width:42%">扩展检查项</th><th>Model A · Claude</th><th>Model B · Gemini</th><th>Model C · DeepSeek</th></tr>
+      <tr>
+        <td>色彩对比度 ≥ 4.5:1（WCAG AA）</td>
+        <td><span class="chip fail">✗ 副文字约 3.2:1</span></td>
+        <td><span class="chip pass">✓ 主文字 ≥ 8:1</span></td>
+        <td><span class="chip pass">✓ 黑on白 21:1</span></td>
+      </tr>
+      <tr>
+        <td>字号层级 ≤ 3 级</td>
+        <td><span class="chip part">~ 4级混用（28/18/13/11/10px）</span></td>
+        <td><span class="chip pass">✓ 3级（30/13.5/12px）</span></td>
+        <td><span class="chip part">~ 4级（34/13/12/10.5px）</span></td>
+      </tr>
+      <tr>
+        <td>版面内容占比 ≤ 70%</td>
+        <td><span class="chip pass">✓ 约65%，留白充分</span></td>
+        <td><span class="chip pass">✓ 约68%，略紧但达标</span></td>
+        <td><span class="chip fail">✗ 右栏约75%，超出上限</span></td>
+      </tr>
+      <tr>
+        <td>信息流动方向清晰（时序从上到下/左到右）</td>
+        <td><span class="chip pass">✓ 从上至下线性流动</span></td>
+        <td><span class="chip pass">✓ 时间轴从N1到REM自上而下</span></td>
+        <td><span class="chip part">~ 左右并列，时序不明显</span></td>
+      </tr>
+      <tr>
+        <td>底部金句字数 8~20 字</td>
+        <td><span class="chip pass">✓ 「每一夜的安眠，都是大脑对明日的慷慨馈赠」17字</span></td>
+        <td><span class="chip pass">✓ 「每一夜沉入深眠…换来明日的清醒」21字（略超，可接受）</span></td>
+        <td><span class="chip pass">✓ 「每一夜安眠…恢复的起点」18字</span></td>
+      </tr>
+      <tr>
+        <td>颜色不是唯一区分信息的维度</td>
+        <td><span class="chip part">~ 阶段色块无辅助标注（仅靠颜色+emoji）</span></td>
+        <td><span class="chip pass">✓ 数字编号1~5辅助区分</span></td>
+        <td><span class="chip pass">✓ N1~N4/R文字标签辅助</span></td>
+      </tr>
+    </table>
+  </div>
+
+</section>
+<!-- END DIR-04 Checklist -->
+
+<!-- ══════════════════════════════════════════
+  TAB: Known Failures
+══════════════════════════════════════════ -->
+<section id="tab-failures" class="ts">
+  <h2 class="stitle">Known Failures</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">本次评测发现的已确认失败项，按影响范围分类整理，供后续版本修复追踪。</p>
+
+  <!-- KF-01 -->
+  <div class="kf">
+    <div class="kfid">KF-01 · P0 · SKILL 合规层</div>
+    <div class="kftitle">色彩对比度规范缺失，导致产物可访问性系统性不达标</div>
+    <div class="kfrow"><span class="kfkey">发现位置</span> SKILL.md 阶段6 P0 质检清单（第310~317行）、Claude 路线产物 E维</div>
+    <div class="kfrow"><span class="kfkey">现象</span> SKILL.md 的 P0 质检清单中无任何色彩对比度检查项。实测 Claude 路线副文字（#7a8fa6 on #0d1b2a）实际对比度约 3.2:1，未达 WCAG AA 标准 4.5:1</div>
+    <div class="kfrow"><span class="kfkey">根本原因</span> Skill 设计时将「美学质量」与「可访问性」解耦，但对信息图（强文字密度）场景，两者必须协同规范</div>
+    <div class="kfrow"><span class="kfkey">影响范围</span> 所有使用深色背景风格（科技暗黑风、赛博朋克风、玻璃拟态风）的产物，预计占全量产物 35%+</div>
+    <div class="kfrow"><span class="kfkey">修复建议</span> 在阶段6 P0 增加「文字对比度是否 ≥ 4.5:1」检查项；风格矩阵深色系追加「主文字需使用 #e0e0e0+ 以上亮度」约束句</div>
+  </div>
+
+  <!-- KF-02 -->
+  <div class="kf">
+    <div class="kfid">KF-02 · P0 · SKILL 合规层</div>
+    <div class="kftitle">底层图像生成模型未披露，版权路线不清晰</div>
+    <div class="kfrow"><span class="kfkey">发现位置</span> SKILL.md 全文、README.md</div>
+    <div class="kfrow"><span class="kfkey">现象</span> generate_image.py 使用 Gemini-3.1-Flash-Image-Preview 模型（内网 codeflicker API），但 SKILL.md 和 README 均未披露底层模型名称、版本及商用授权状态</div>
+    <div class="kfrow"><span class="kfkey">根本原因</span> Skill 文档关注「如何用」，但缺失「用了什么」的元信息声明</div>
+    <div class="kfrow"><span class="kfkey">影响范围</span> 所有通过此 Skill 生成的图片，在知识产权使用和版权追溯时存在风险</div>
+    <div class="kfrow"><span class="kfkey">修复建议</span> README 增加「底层模型声明」章节：说明 API 端点、模型名称、版权归属（内网模型）；SKILL.md frontmatter 补充 model 字段</div>
+  </div>
+
+  <!-- KF-03 -->
+  <div class="kf">
+    <div class="kfid">KF-03 · P0 · SKILL 合规层</div>
+    <div class="kftitle">竞品对标基准完全缺失，Gate 2 产物质量无法客观衡量</div>
+    <div class="kfrow"><span class="kfkey">发现位置</span> SKILL.md 全文、README.md</div>
+    <div class="kfrow"><span class="kfkey">现象</span> 文档中没有任何竞品对标说明，也无实测截图存档</div>
+    <div class="kfrow"><span class="kfkey">根本原因</span> Skill 开发阶段未纳入竞品分析环节，缺少外部质量锚点</div>
+    <div class="kfrow"><span class="kfkey">影响范围</span> 评测时无客观对比基准，只能依靠 AQE 主观打分，质量判断稳定性差</div>
+    <div class="kfrow"><span class="kfkey">修复建议</span> 在 reference/ 下新建 competitive-analysis.md，收录 ≥ 3 个竞品（Gamma.app / Canva Infographics / Beautiful.ai）的典型产物截图及优劣分析</div>
+  </div>
+
+  <!-- KF-04 -->
+  <div class="kf">
+    <div class="kfid">KF-04 · P0 · 产物层（DeepSeek R1 路线）</div>
+    <div class="kftitle">DeepSeek 路线产物出现英文标题（title-en），违反 Skill P0 全中文规范</div>
+    <div class="kfrow"><span class="kfkey">发现位置</span> model-c-deepseek.html，`div.title-en`（"Human Sleep Architecture"）</div>
+    <div class="kfrow"><span class="kfkey">现象</span> 产物顶部出现英文副标题，违反 SKILL.md「所有文字必须为中文，禁止将任何中文标签翻译为英文」P0 规范</div>
+    <div class="kfrow"><span class="kfkey">根本原因</span> 极简文档风格倾向在标题处加英文副标题（参考 NYT/卫报报道风），模型未接收到足够强的「禁止英文」约束。在路线B提示词中「禁止出现英文文字」约束可能未被严格执行</div>
+    <div class="kfrow"><span class="kfkey">影响范围</span> 极简文档风（编号 9）、新闻杂志风（编号 8）使用场景，这两类风格均有加英文副标题的设计惯例</div>
+    <div class="kfrow"><span class="kfkey">修复建议</span> 在路线B提示词针对「文档类」风格追加强化约束：「即使是极简文档风，副标题也必须使用中文，禁止任何英文出现」</div>
+  </div>
+
+  <!-- KF-05 -->
+  <div class="kf">
+    <div class="kfid">KF-05 · P1 · SKILL 合规层</div>
+    <div class="kftitle">字号层级约束缺失，产物中 4~5 级字号混用导致视觉杂乱</div>
+    <div class="kfrow"><span class="kfkey">发现位置</span> SKILL.md 阶段6 P1 建议项</div>
+    <div class="kfrow"><span class="kfkey">现象</span> Claude 路线出现 28/18/13/11/10px 共 5 级字号；DeepSeek 路线 34/13/12/10.5px 共 4 级字号，均超出 DIR-04「≤ 3 级」要求</div>
+    <div class="kfrow"><span class="kfkey">修复建议</span> SKILL.md 阶段6 P1 增加「字号是否 ≤ 3 级」检查项，建议推荐字号三档：大标题/正文/辅助注释</div>
+  </div>
+
+  <!-- KF-06 -->
+  <div class="kf" style="background:var(--watch-bg);border-color:#e5d48a;border-left-color:var(--watch)">
+    <div class="kfid" style="color:var(--watch)">KF-06 · P1 · 产物层（Claude 路线）</div>
+    <div class="kftitle">睡眠阶段颜色仅靠色彩区分，无文字/编号辅助，颜色成为唯一信息载体</div>
+    <div class="kfrow"><span class="kfkey">现象</span> Claude 路线进度条（5段颜色条）无任何文字标注，阶段区分仅靠颜色，色盲用户无法识别阶段归属</div>
+    <div class="kfrow"><span class="kfkey">修复建议</span> 阶段6 P1 增加「颜色是否唯一信息载体」检查项，或在内容净化规则中明确「时序信息必须有数字/文字辅助标注」</div>
+  </div>
+
+</section>
+<!-- END Known Failures -->
+
+<!-- ══════════════════════════════════════════
+  TAB: 整改建议
+══════════════════════════════════════════ -->
+<section id="tab-fixes" class="ts">
+  <h2 class="stitle">整改建议</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按优先级排列，P0 项须在下次评测前完成。整改完成后重新走 Gate 0 审计，通过后方可进行 Gate 2 大规模测试。</p>
+
+  <div style="margin-bottom:24px">
+    <div class="card-title" style="font-size:16px;color:var(--fail);margin-bottom:14px">⛔ P0 · 必须整改（4项）</div>
+
+    <div class="fix">
+      <div class="fixtitle">FIX-01 · SKILL.md 阶段6 P0 清单补充色彩对比度检查</div>
+      <div class="fixbody">
+        在 SKILL.md 第 311 行「P0 — 必须通过」列表末尾追加：<br>
+        <code>- [ ] 主文字色彩对比度是否 ≥ 4.5:1？（深色背景风格必须实测）</code><br><br>
+        同时在风格矩阵深色系（科技暗黑/赛博朋克/玻璃拟态）的风格引导句中追加约束：「主文字颜色需保证在背景上的对比度不低于 4.5:1」
+      </div>
+    </div>
+
+    <div class="fix">
+      <div class="fixtitle">FIX-02 · README.md 补充底层模型声明章节</div>
+      <div class="fixbody">
+        在 README.md「网络要求」章节后新增「底层模型声明」：<br>
+        <code>## 底层模型<br>
+        本 Skill 图像生成基于快手内网 DesignAI API（codeflicker.corp.kuaishou.com）。<br>
+        当前使用模型：Gemini-3.1-Flash-Image-Preview（内网部署版本）。<br>
+        版权归属：生成图片属快手内部使用，遵循内网模型使用协议。</code>
+      </div>
+    </div>
+
+    <div class="fix">
+      <div class="fixtitle">FIX-03 · reference/ 新建 competitive-analysis.md</div>
+      <div class="fixbody">
+        新建 <code>reference/competitive-analysis.md</code>，收录至少 3 个竞品对标：<br>
+        1. Gamma.app 信息图输出（风格美学基准）<br>
+        2. Canva Infographics 模板（布局结构基准）<br>
+        3. 内部 infovis-autoevo 基准案例（内部评分锚点）<br><br>
+        每个竞品需包含：产物截图/链接、核心优势描述、对比维度打分（A~E）
+      </div>
+    </div>
+
+    <div class="fix">
+      <div class="fixtitle">FIX-04 · 路线B提示词模板强化文档类风格英文禁止约束</div>
+      <div class="fixbody">
+        在 SKILL.md 阶段4 路线B禁止元素列表中，当选择「极简文档风/新闻杂志风/企业简报风」时，追加专属规则：<br>
+        <code>- 即使是文档类/杂志类风格，所有副标题（eyebrow/sub-title）也必须使用中文，严禁出现任何英文单词</code><br><br>
+        同时在提示词反检查清单增加行：「副标题是否包含英文」
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:24px">
+    <div class="card-title" style="font-size:16px;color:var(--watch);margin-bottom:14px">👀 P1 · 强烈建议（3项）</div>
+
+    <div class="fix" style="border-left-color:#b07d20">
+      <div class="fixtitle">FIX-05 · 字号层级约束纳入 P1 质检</div>
+      <div class="fixbody">
+        SKILL.md 阶段6 P1 建议项追加：<br>
+        <code>- [ ] 字号是否 ≤ 3 个等级？（建议：标题 24~30px / 正文 13~14px / 辅助注释 10~12px）</code><br>
+        并在「提示词反检查清单」增加对应行。
+      </div>
+    </div>
+
+    <div class="fix" style="border-left-color:#b07d20">
+      <div class="fixtitle">FIX-06 · 颜色不作为唯一信息载体的检查</div>
+      <div class="fixbody">
+        SKILL.md 阶段6 P1 追加：<br>
+        <code>- [ ] 若内容含时序/分类区分，是否有数字编号/文字辅助标注（不仅依赖颜色）？</code><br>
+        内容净化原则第3条「底部金句必须」后追加：「时序信息的颜色分段必须有文字/数字辅助标注」
+      </div>
+    </div>
+
+    <div class="fix" style="border-left-color:#b07d20">
+      <div class="fixtitle">FIX-07 · 输出精度声明：区分原型级与生产级</div>
+      <div class="fixbody">
+        README.md「功能概述」追加一行：<br>
+        <code>- 当前输出级别：生产级美学表现（可直接用于发布，非线框原型）</code><br>
+        SKILL.md frontmatter description 补充：「输出为生产级信息图（可发布），而非设计稿线框」
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="background:var(--pass-bg);border-color:#aadcc2">
+    <div class="card-title" style="color:var(--pass)">✅ 可立即上线的路线</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7">
+      Gemini 2.5 Pro 路线（model-b-gemini.html）AQE 7.8 PASS，可在完成 FIX-01（对比度）、FIX-04（英文禁止强化）后优先上线。
+      Claude 路线（model-a-claude.html）AQE 7.4 WATCH，完成 FIX-01 修复副文字对比度后可作为第二上线路线。
+      DeepSeek 路线（model-c-deepseek.html）AQE 6.4 FAIL，需重新设计极简文档风格的配色方案（增加色彩情感调性）并修复英文标题后，重走评测流程。
+    </p>
+  </div>
+</section>
+<!-- END 整改建议 -->
+
+</div><!-- end .content -->
+
+<script>
+function sw(tab) {
+  document.querySelectorAll('.ts').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(n => n.classList.remove('active'));
+  var s = document.getElementById('tab-' + tab);
+  if (s) s.classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

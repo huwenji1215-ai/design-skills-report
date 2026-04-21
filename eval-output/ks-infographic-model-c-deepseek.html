@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人类睡眠周期 · 信息图 — DeepSeek</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+    background: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  
+  .poster {
+    width: 540px;
+    background: #ffffff;
+    overflow: hidden;
+    border: 2px solid #000;
+  }
+  
+  /* 标题 */
+  .title-block {
+    padding: 28px 28px 20px;
+    border-bottom: 2px solid #000;
+    background: #fff;
+  }
+  
+  .title-en {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  
+  .title-zh {
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1.1;
+    color: #000;
+    letter-spacing: -0.02em;
+  }
+  
+  .title-sub {
+    font-size: 13px;
+    color: #555;
+    margin-top: 10px;
+    line-height: 1.5;
+    font-weight: 400;
+    border-left: 3px solid #000;
+    padding-left: 10px;
+  }
+  
+  /* 数据行 */
+  .data-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 2px solid #000;
+  }
+  
+  .data-cell {
+    padding: 16px 20px;
+    border-right: 2px solid #000;
+    background: #fff;
+  }
+  
+  .data-cell:last-child { border-right: none; }
+  
+  .dc-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: #000;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+  
+  .dc-label {
+    font-size: 10px;
+    color: #666;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+  
+  /* 主体网格 */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 2px solid #000;
+  }
+  
+  .grid-col-left {
+    padding: 22px 20px;
+    border-right: 2px solid #000;
+  }
+  
+  .grid-col-right {
+    padding: 22px 20px;
+  }
+  
+  .col-head {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #000;
+    border-bottom: 1.5px solid #000;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  
+  /* 阶段条目 */
+  .stage-entry {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+  
+  .se-icon {
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    background: #fff;
+  }
+  
+  .se-body {}
+  
+  .se-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 2px;
+  }
+  
+  .se-desc {
+    font-size: 10.5px;
+    color: #555;
+    line-height: 1.45;
+  }
+  
+  /* 占比条 */
+  .pct-list { }
+  
+  .pct-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 7px;
+  }
+  
+  .pct-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    width: 62px;
+    flex-shrink: 0;
+    color: #333;
+  }
+  
+  .pct-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+  }
+  
+  .pct-bar { height: 100%; background: #000; }
+  
+  .pct-val {
+    font-size: 10px;
+    font-weight: 700;
+    width: 24px;
+    text-align: right;
+    color: #000;
+  }
+  
+  /* 影响因素全宽 */
+  .factors-full {
+    padding: 22px 28px;
+    border-bottom: 2px solid #000;
+  }
+  
+  .factors-head {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #000;
+    border-bottom: 1.5px solid #000;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  
+  .factors-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .fac-card {
+    border: 1.5px solid #000;
+    padding: 10px 12px;
+  }
+  
+  .fac-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+  }
+  
+  .fac-icon { font-size: 14px; }
+  
+  .fac-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #000;
+  }
+  
+  .fac-text {
+    font-size: 10.5px;
+    color: #555;
+    line-height: 1.5;
+  }
+  
+  /* 底部 */
+  .footer-block {
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  
+  .footer-accent {
+    font-size: 40px;
+    font-weight: 900;
+    color: #000;
+    line-height: 1;
+    flex-shrink: 0;
+    opacity: 0.08;
+  }
+  
+  .footer-text {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.65;
+    font-style: italic;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- 标题区 -->
+  <div class="title-block">
+    <div class="title-en">Human Sleep Architecture</div>
+    <div class="title-zh">人类睡眠周期<br>与睡眠质量</div>
+    <p class="title-sub">大脑在每夜完成的精密修复工程——从入睡到深眠的科学解析</p>
+  </div>
+  
+  <!-- 关键数据 -->
+  <div class="data-strip">
+    <div class="data-cell">
+      <div class="dc-num">90</div>
+      <div class="dc-label">分钟<br>完整周期时长</div>
+    </div>
+    <div class="data-cell">
+      <div class="dc-num">4~6</div>
+      <div class="dc-label">个周期<br>成人每晚平均</div>
+    </div>
+    <div class="data-cell">
+      <div class="dc-num">7~9h</div>
+      <div class="dc-label">推荐睡眠时长<br>成人标准</div>
+    </div>
+  </div>
+  
+  <!-- 两列主内容 -->
+  <div class="main-grid">
+    <div class="grid-col-left">
+      <div class="col-head">睡眠各阶段详解</div>
+      
+      <div class="stage-entry">
+        <div class="se-icon">N1</div>
+        <div class="se-body">
+          <div class="se-name">入睡期（N1）</div>
+          <div class="se-desc">过渡阶段，约5分钟，肌肉放松，心率下降，容易被惊醒</div>
+        </div>
+      </div>
+      
+      <div class="stage-entry">
+        <div class="se-icon">N2</div>
+        <div class="se-body">
+          <div class="se-name">浅睡期（N2）</div>
+          <div class="se-desc">时间最长的阶段，睡眠纺锤波出现，记忆开始巩固，核心体温持续下降</div>
+        </div>
+      </div>
+      
+      <div class="stage-entry">
+        <div class="se-icon">N3</div>
+        <div class="se-body">
+          <div class="se-name">深睡期（N3）</div>
+          <div class="se-desc">慢波睡眠，生长激素大量分泌，肌肉与免疫系统进入修复模式</div>
+        </div>
+      </div>
+      
+      <div class="stage-entry">
+        <div class="se-icon">N4</div>
+        <div class="se-body">
+          <div class="se-name">深度慢波（N4）</div>
+          <div class="se-desc">最深层修复，脑脊液加速清除代谢废物，包括β淀粉样蛋白</div>
+        </div>
+      </div>
+      
+      <div class="stage-entry">
+        <div class="se-icon">R</div>
+        <div class="se-body">
+          <div class="se-name">快速眼动期（REM）</div>
+          <div class="se-desc">做梦主阶段，情绪调节与创造力激活，越接近清晨持续越长</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid-col-right">
+      <div class="col-head">各阶段时长占比</div>
+      
+      <div class="pct-list">
+        <div class="pct-row">
+          <span class="pct-label">入睡期</span>
+          <div class="pct-bar-wrap"><div class="pct-bar" style="width:5%"></div></div>
+          <span class="pct-val">5%</span>
+        </div>
+        <div class="pct-row">
+          <span class="pct-label">浅睡期</span>
+          <div class="pct-bar-wrap"><div class="pct-bar" style="width:45%"></div></div>
+          <span class="pct-val">45%</span>
+        </div>
+        <div class="pct-row">
+          <span class="pct-label">深睡 N3</span>
+          <div class="pct-bar-wrap"><div class="pct-bar" style="width:15%"></div></div>
+          <span class="pct-val">15%</span>
+        </div>
+        <div class="pct-row">
+          <span class="pct-label">深睡 N4</span>
+          <div class="pct-bar-wrap"><div class="pct-bar" style="width:10%"></div></div>
+          <span class="pct-val">10%</span>
+        </div>
+        <div class="pct-row">
+          <span class="pct-label">快速眼动</span>
+          <div class="pct-bar-wrap"><div class="pct-bar" style="width:20%"></div></div>
+          <span class="pct-val">20%</span>
+        </div>
+      </div>
+      
+      <div style="margin-top:20px; border-top:1.5px solid #000; padding-top:14px;">
+        <div class="col-head" style="border:none; padding:0; margin-bottom:8px;">睡眠质量分级</div>
+        <div style="font-size:10.5px; color:#555; line-height:1.7;">
+          深睡期（N3+N4）占比 ≥ 25%<br>
+          ↳ 睡眠质量优秀<br><br>
+          深睡期占比 15%~25%<br>
+          ↳ 睡眠质量正常<br><br>
+          深睡期占比 &lt; 15%<br>
+          ↳ 需要干预与改善
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 影响因素 -->
+  <div class="factors-full">
+    <div class="factors-head">影响睡眠质量的四大关键因素</div>
+    
+    <div class="factors-grid">
+      <div class="fac-card">
+        <div class="fac-top">
+          <span class="fac-icon">🌡️</span>
+          <span class="fac-title">核心体温</span>
+        </div>
+        <p class="fac-text">深部体温下降 1°C 触发入睡，睡前温水泡脚加速散热，有助于更快进入深睡眠</p>
+      </div>
+      <div class="fac-card">
+        <div class="fac-top">
+          <span class="fac-icon">💡</span>
+          <span class="fac-title">光照节律</span>
+        </div>
+        <p class="fac-text">470nm 蓝光抑制褪黑素，睡前 2 小时减少屏幕暴露，保护生物钟稳定性</p>
+      </div>
+      <div class="fac-card">
+        <div class="fac-top">
+          <span class="fac-icon">☕</span>
+          <span class="fac-title">咖啡因残留</span>
+        </div>
+        <p class="fac-text">半衰期 3~5 小时，下午 2 点后摄入压缩深睡比例，即使感觉入睡也影响睡眠结构</p>
+      </div>
+      <div class="fac-card">
+        <div class="fac-top">
+          <span class="fac-icon">😴</span>
+          <span class="fac-title">腺苷积累</span>
+        </div>
+        <p class="fac-text">清醒时间越长腺苷积累越多，形成天然睡眠压力，规律作息让此机制发挥最佳效果</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 底部 -->
+  <div class="footer-block">
+    <div class="footer-accent">Z</div>
+    <p class="footer-text">每一夜安眠，都是大脑用沉默换来的清醒——好的睡眠，是一切恢复的起点。</p>
+  </div>
+  
+</div>
+</body>
+</html>
