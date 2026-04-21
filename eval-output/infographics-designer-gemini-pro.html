@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全球睡眠危机 · 信息图 (Gemini 2.5 Pro)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+            background: #fafaf8;
+            color: #1a1a1a;
+        }
+        .card { background: white; border-radius: 16px; border: 1px solid #e5e7eb; }
+        .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+        .num-big { font-size: 48px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+        .label-sm { font-size: 11px; color: #6b7280; line-height: 1.4; margin-top: 4px; }
+        .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #9ca3af; margin-bottom: 14px; }
+        .bar-wrap { height: 10px; background: #f3f4f6; border-radius: 5px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 5px; }
+        .risk-chip { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 12px; }
+    </style>
+</head>
+<body style="padding: 40px 20px;">
+<div style="max-width: 880px; margin: 0 auto;">
+
+    <!-- Title Card -->
+    <div class="card" style="margin-bottom: 20px; overflow: hidden;">
+        <div style="background: linear-gradient(160deg, #fffbf5 0%, #fff7ed 40%, #fef3c7 100%); padding: 40px 48px; display: flex; align-items: center; gap: 40px;">
+            <div style="flex: 1;">
+                <div style="margin-bottom: 14px;">
+                    <span class="badge" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; margin-right: 8px;">健康议题</span>
+                    <span class="badge" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">WHO 2024</span>
+                </div>
+                <h1 style="font-size: 42px; font-weight: 900; color: #111827; line-height: 1.1; margin-bottom: 12px;">全球睡眠危机</h1>
+                <p style="font-size: 15px; color: #6b7280; line-height: 1.6; max-width: 500px;">当「睡个好觉」成为一种奢侈，<br>10 亿人正在失去最基本的健康权利</p>
+            </div>
+            <div style="text-align: center; flex-shrink: 0;">
+                <div style="font-size: 80px; line-height: 1;">🌙</div>
+            </div>
+        </div>
+        <!-- Stat bar -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #f3f4f6;">
+            <div style="padding: 20px 24px; border-right: 1px solid #f3f4f6;">
+                <div class="num-big" style="color: #6366f1;">10亿</div>
+                <div class="label-sm">受睡眠障碍<br>困扰的患者</div>
+            </div>
+            <div style="padding: 20px 24px; border-right: 1px solid #f3f4f6;">
+                <div class="num-big" style="color: #ef4444;">30%</div>
+                <div class="label-sm">成年人<br>失眠发生率</div>
+            </div>
+            <div style="padding: 20px 24px; border-right: 1px solid #f3f4f6;">
+                <div class="num-big" style="color: #0ea5e9;">7-9h</div>
+                <div class="label-sm">建议每日<br>睡眠时长</div>
+            </div>
+            <div style="padding: 20px 24px;">
+                <div class="num-big" style="color: #10b981;">4110亿</div>
+                <div class="label-sm">美元/年<br>全球经济损失</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+
+        <!-- Sleep stages -->
+        <div class="card" style="padding: 24px;">
+            <div class="section-label">睡眠周期解析</div>
+            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 18px; line-height: 1.5;">一个完整睡眠周期约 90 分钟<br>成人每晚需 4~6 个完整周期</div>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">
+                        <span>N1 入睡期</span><span style="color: #9ca3af; font-weight: 400;">8% · 5~10 分钟</span>
+                    </div>
+                    <div class="bar-wrap"><div class="bar-fill" style="width: 8%; background: #c7d2fe;"></div></div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">
+                        <span>N2 浅睡期</span><span style="color: #9ca3af; font-weight: 400;">45% · 约 20 分钟</span>
+                    </div>
+                    <div class="bar-wrap"><div class="bar-fill" style="width: 45%; background: #818cf8;"></div></div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">
+                        <span>N3 深睡期</span><span style="color: #10b981; font-weight: 600;">最关键 · 25%</span>
+                    </div>
+                    <div class="bar-wrap"><div class="bar-fill" style="width: 25%; background: #10b981;"></div></div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;">
+                        <span>REM 快动眼</span><span style="color: #ec4899; font-weight: 400;">记忆巩固 · 22%</span>
+                    </div>
+                    <div class="bar-wrap"><div class="bar-fill" style="width: 22%; background: #ec4899;"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Country comparison -->
+        <div class="card" style="padding: 24px;">
+            <div class="section-label">各国人均睡眠时长</div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; margin-bottom: 5px;"><span>🇳🇱 荷兰</span><span style="font-weight: 600; color: #374151;">8.1 小时</span></div>
+                    <div class="bar-wrap"><div class="bar-fill" style="width: 88%; background: linear-gradient(90deg, #6366f1, #818cf8);"></div></div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; margin-bottom: 5px;"><span>🇫🇷 法国</span><span style="font-weight: 600; color: #374151;">7.9 小时</span></div>
+                    <div class="bar-wrap"><div class="bar-fill" style="width: 85%; background: linear-gradient(90deg, #6366f1, #818cf8);"></div></div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; margin-bottom: 5px;"><span>🇺🇸 美国</span><span style="font-weight: 600; color: #374151;">7.0 小时</span></div>
+                    <div class="bar-wrap"><div class="bar-fill" style="width: 75%; background: linear-gradient(90deg, #f59e0b, #fb923c);"></div></div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; margin-bottom: 5px;"><span>🇨🇳 中国</span><span style="font-weight: 600; color: #374151;">6.5 小时</span></div>
+                    <div class="bar-wrap"><div class="bar-fill" style="width: 68%; background: linear-gradient(90deg, #f97316, #ef4444);"></div></div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; margin-bottom: 5px;"><span>🇯🇵 日本 ⚠️</span><span style="font-weight: 600; color: #ef4444;">6.0 小时</span></div>
+                    <div class="bar-wrap"><div class="bar-fill" style="width: 62%; background: linear-gradient(90deg, #ef4444, #dc2626);"></div></div>
+                </div>
+                <div style="margin-top: 8px; padding: 8px 12px; background: #fef9c3; border-radius: 8px; font-size: 11px; color: #92400e; display: flex; gap: 6px; align-items: center;">
+                    <span>⚠️</span>
+                    <span>7 小时以下属于慢性睡眠剥夺区间，长期维持对健康有显著危害</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health risks -->
+    <div class="card" style="padding: 28px; margin-bottom: 20px;">
+        <div class="section-label">睡眠不足的系统性健康危害</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            <div class="risk-chip" style="background: #fef2f2;">
+                <div style="font-size: 24px; flex-shrink: 0;">❤️</div>
+                <div>
+                    <div style="font-size: 13px; font-weight: 700; color: #991b1b; margin-bottom: 3px;">心脑血管风险 +48%</div>
+                    <div style="font-size: 11px; color: #7f1d1d; line-height: 1.5; opacity: 0.8;">睡眠少于 6 小时，心脏病风险增 48%，中风风险增 15%</div>
+                </div>
+            </div>
+            <div class="risk-chip" style="background: #fff7ed;">
+                <div style="font-size: 24px; flex-shrink: 0;">🧠</div>
+                <div>
+                    <div style="font-size: 13px; font-weight: 700; color: #92400e; margin-bottom: 3px;">认知如酒精 0.05%</div>
+                    <div style="font-size: 11px; color: #78350f; line-height: 1.5; opacity: 0.8;">17 小时不睡，认知能力约等同于轻度醉酒状态</div>
+                </div>
+            </div>
+            <div class="risk-chip" style="background: #f0fdf4;">
+                <div style="font-size: 24px; flex-shrink: 0;">💊</div>
+                <div>
+                    <div style="font-size: 13px; font-weight: 700; color: #14532d; margin-bottom: 3px;">感冒概率 4.2 倍</div>
+                    <div style="font-size: 11px; color: #166534; line-height: 1.5; opacity: 0.8;">少于 6 小时睡眠者感冒概率是充足睡眠者的 4.2 倍</div>
+                </div>
+            </div>
+            <div class="risk-chip" style="background: #eff6ff;">
+                <div style="font-size: 24px; flex-shrink: 0;">⚖️</div>
+                <div>
+                    <div style="font-size: 13px; font-weight: 700; color: #1e40af; margin-bottom: 3px;">代谢激素紊乱</div>
+                    <div style="font-size: 11px; color: #1e3a8a; line-height: 1.5; opacity: 0.8;">饥饿素 +24%，瘦素 -18%，肥胖与糖尿病风险显著上升</div>
+                </div>
+            </div>
+            <div class="risk-chip" style="background: #fdf4ff;">
+                <div style="font-size: 24px; flex-shrink: 0;">😰</div>
+                <div>
+                    <div style="font-size: 13px; font-weight: 700; color: #6b21a8; margin-bottom: 3px;">焦虑抑郁风险 2~3×</div>
+                    <div style="font-size: 11px; color: #581c87; line-height: 1.5; opacity: 0.8;">长期睡眠不足显著增加焦虑症和抑郁症发生风险</div>
+                </div>
+            </div>
+            <div class="risk-chip" style="background: #fefce8;">
+                <div style="font-size: 24px; flex-shrink: 0;">🚗</div>
+                <div>
+                    <div style="font-size: 13px; font-weight: 700; color: #713f12; margin-bottom: 3px;">困倦驾驶事故</div>
+                    <div style="font-size: 11px; color: #78350f; line-height: 1.5; opacity: 0.8;">美国每年 91,000 起事故、1,550 人死亡源于困倦驾驶</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 28px 36px; display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center;">
+        <div style="font-size: 64px; line-height: 1;">😴</div>
+        <div>
+            <div style="font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 0.06em; margin-bottom: 8px; text-transform: uppercase;">改善睡眠的科学建议</div>
+            <div style="font-size: 20px; font-weight: 800; color: white; margin-bottom: 10px;">睡个好觉，是最便宜的健康投资</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 12px; border-radius: 100px; font-size: 12px;">固定作息时间</span>
+                <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 12px; border-radius: 100px; font-size: 12px;">睡前1小时远离屏幕</span>
+                <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 12px; border-radius: 100px; font-size: 12px;">卧室温度 18~20°C</span>
+                <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 12px; border-radius: 100px; font-size: 12px;">下午2点后避免咖啡因</span>
+                <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 12px; border-radius: 100px; font-size: 12px;">规律有氧运动</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 16px; text-align: center; font-size: 11px; color: #9ca3af;">
+        数据来源：WHO 2023 · 美国国家睡眠基金会 · 兰德公司 · 《睡眠》期刊 · infographics-designer Mock Case C · Gemini 2.5 Pro
+    </div>
+</div>
+</body>
+</html>
