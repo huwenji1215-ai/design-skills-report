@@ -524,9 +524,39 @@
             renderChart();
         }
 
+        // Export Chart
+        function exportChart(type) {
+            const wrapper = document.getElementById('export-wrapper');
+            html2canvas(wrapper, {
+                backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-color').trim() || '#080C14',
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                const mimeType = type === 'jpg' ? 'image/jpeg' : 'image/png';
+                link.download = `chart.${type}`;
+                link.href = canvas.toDataURL(mimeType, 0.95);
+                link.click();
+            });
+        }
+
         // Listen for postMessage Theme Synchronization
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'themeChange' && event.data.theme) {
                 if (['dark', 'light'].includes(event.data.theme)) {
                     setTheme(event.data.theme);
                 }
+            }
+        });
+
+        // Resize Observer
+        window.addEventListener('resize', () => {
+            if (chartInstance) chartInstance.resize();
+        });
+
+        // Initialize
+        initChart();
+        renderPanel();
+    </script>
+</body>
+</html>
