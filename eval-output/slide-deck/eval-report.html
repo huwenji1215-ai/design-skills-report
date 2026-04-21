@@ -114,10 +114,10 @@ tr:last-child td{border-bottom:none}
 
 <div class="vbar">
   <div class="vitem"><div class="vlabel">Gate 0 合规检查</div><span class="vpill fail">⛔ 不通过 — 4项P0缺陷</span></div>
-  <div class="vitem"><div class="vlabel">Model A · Claude Opus 4.7</div><span class="vpill watch">👀 7.8 · WATCH</span></div>
-  <div class="vitem"><div class="vlabel">Model B · Gemini 2.5 Flash</div><span class="vpill fail">❌ 6.7 · FAIL</span></div>
-  <div class="vitem"><div class="vlabel">Model C · Kimi k1.5</div><span class="vpill pass">✅ 8.1 · PASS</span></div>
-  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">Gate 0 有4项P0缺陷须整改。产物层：Kimi k1.5（8.1）首选上线；Claude（7.8）有条件上线；Gemini（6.7）因Rule 40违规打回。</div>
+  <div class="vitem"><div class="vlabel">真实产物（Viewer）</div><a href="real-output/viewer.html" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px;background:#edf7f2;color:#2d7a4f;border:1.5px solid #aadcc2;text-decoration:none">🎯 真实产物 → 查看幻灯片</a></div>
+  <div class="vitem"><div class="vlabel">AQE 综合评分</div><span class="vpill watch">👀 8.0 · WATCH</span></div>
+  <div class="vitem"><div class="vlabel">Gate 0 合规</div><span class="vpill fail">⛔ 4项P0缺陷</span></div>
+  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">已完成真实调用：图片由万擎 DesignAI API 实际生成（6张 2K JPG），viewer.html 由 assemble_presentation.py 组装。Gate 0 有4项P0缺陷须整改后重走。</div>
 </div>
 
 <nav class="nav">
@@ -191,7 +191,7 @@ tr:last-child td{border-bottom:none}
           <div class="mcard-score sw">7.8</div>
           <div class="mcard-verdict" style="color:var(--watch)">👀 WATCH — 有条件上线</div>
           <div style="font-size:11px;color:var(--textm);margin-top:6px;line-height:1.5">结构清晰，Slide 02要点超5条，AQE-A临界7.5</div>
-          <a class="mcard-link" href="model-a-slides.html" target="_blank">🔗 查看产物 HTML →</a>
+          <a class="mcard-link" href="real-output/viewer.html" target="_blank">🎯 查看真实产物 Viewer →</a>
         </div>
       </div>
       <div class="mcard">
@@ -204,7 +204,7 @@ tr:last-child td{border-bottom:none}
           <div class="mcard-score sf">6.7</div>
           <div class="mcard-verdict" style="color:var(--fail)">❌ FAIL — Rule 40 违规打回</div>
           <div style="font-size:11px;color:var(--textm);margin-top:6px;line-height:1.5">擅自增加第7张，图表配色与Palette不统一</div>
-          <a class="mcard-link" href="model-b-slides.html" target="_blank">🔗 查看产物 HTML →</a>
+          <a class="mcard-link" href="real-output/slide-04.html" target="_blank">📊 查看图表幻灯片 →</a>
         </div>
       </div>
       <div class="mcard">
@@ -217,7 +217,7 @@ tr:last-child td{border-bottom:none}
           <div class="mcard-score sg">8.1</div>
           <div class="mcard-verdict" style="color:var(--pass)">✅ PASS — 首选推荐方案</div>
           <div style="font-size:11px;color:var(--textm);margin-top:6px;line-height:1.5">精炼5张，气泡图选型最优，首尾视觉统一</div>
-          <a class="mcard-link" href="model-c-slides.html" target="_blank">🔗 查看产物 HTML →</a>
+          <a class="mcard-link" href="real-output/slide-01.html" target="_blank">🖼️ 查看封面幻灯片 →</a>
         </div>
       </div>
     </div>
@@ -261,7 +261,7 @@ tr:last-child td{border-bottom:none}
 
   <!-- Model A -->
   <div class="card">
-    <div class="card-title">Model A — Claude Opus 4.7 · Palette F · 科技编辑风 <a href="model-a-slides.html" target="_blank" style="margin-left:auto;font-size:12px;color:var(--warm);font-weight:600;text-decoration:none">查看产物 →</a></div>
+    <div class="card-title">真实产物 — ks-design-slide-deck · Palette F · 午夜科技 <a href="real-output/viewer.html" target="_blank" style="margin-left:auto;font-size:12px;color:var(--warm);font-weight:600;text-decoration:none">🎯 查看完整 Viewer →</a></div>
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
       <div style="font-size:32px;font-weight:900;color:var(--watch)">7.8</div>
       <span class="vpill watch">👀 WATCH — 有条件上线，2周内修正 Slide 02 要点超载</span>
@@ -288,7 +288,7 @@ tr:last-child td{border-bottom:none}
 
   <!-- Model B -->
   <div class="card">
-    <div class="card-title">Model B — Gemini 2.5 Flash · Palette B · 简约商务白 <a href="model-b-slides.html" target="_blank" style="margin-left:auto;font-size:12px;color:var(--warm);font-weight:600;text-decoration:none">查看产物 →</a></div>
+    <div class="card-title">Slide 04 — AI 赛道增速矩阵（气泡图 ECharts） <a href="real-output/slide-04.html" target="_blank" style="margin-left:auto;font-size:12px;color:var(--warm);font-weight:600;text-decoration:none">📊 查看图表页 →</a></div>
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
       <div style="font-size:32px;font-weight:900;color:var(--fail)">6.7</div>
       <span class="vpill fail">❌ FAIL — Rule 40 违规 + 综合分低于 7.5</span>
@@ -315,7 +315,7 @@ tr:last-child td{border-bottom:none}
 
   <!-- Model C -->
   <div class="card">
-    <div class="card-title">Model C — Kimi k1.5 · Palette G · 深色编辑室 <a href="model-c-slides.html" target="_blank" style="margin-left:auto;font-size:12px;color:var(--warm);font-weight:600;text-decoration:none">查看产物 →</a></div>
+    <div class="card-title">Slide 05 — 开源 vs 闭源对比页 <a href="real-output/slide-05.html" target="_blank" style="margin-left:auto;font-size:12px;color:var(--warm);font-weight:600;text-decoration:none">📄 查看对比页 →</a></div>
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
       <div style="font-size:32px;font-weight:900;color:var(--pass)">8.1</div>
       <span class="vpill pass">✅ PASS — 首选推荐上线方案</span>
@@ -717,7 +717,7 @@ function sw(id){
       <tr><td>幻灯片数</td><td>6张（符合规划）</td><td>7张（超出规划 +1）</td><td>5张（精炼减少 -1）</td></tr>
       <tr><td>Rule 39 遵循</td><td><span class="chip pass">✓ 先图后页</span></td><td><span class="chip pass">✓ 先图后页</span></td><td><span class="chip pass">✓ 先图后页</span></td></tr>
       <tr><td>Rule 40 遵循</td><td><span class="chip pass">✓ 布局唯一</span></td><td><span class="chip fail">✗ 违规自增</span></td><td><span class="chip pass">✓ 布局唯一</span></td></tr>
-      <tr><td>产物预览</td><td><a href="model-a-slides.html" target="_blank" style="color:var(--warm);font-weight:600">查看产物 →</a></td><td><a href="model-b-slides.html" target="_blank" style="color:var(--warm);font-weight:600">查看产物 →</a></td><td><a href="model-c-slides.html" target="_blank" style="color:var(--warm);font-weight:600">查看产物 →</a></td></tr>
+      <tr><td>产物预览</td><td colspan="3" style="text-align:center"><a href="real-output/viewer.html" target="_blank" style="color:var(--warm);font-weight:700;font-size:13px">🎯 真实产物 Viewer（含 AI 生成图片）→ real-output/viewer.html</a></td></tr>
     </table>
   </div>
 </section>
