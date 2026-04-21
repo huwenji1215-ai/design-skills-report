@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>电商平台Q1-Q4各渠道销售转化率对比</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #080C14;
+  color: #E6EDF7;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+body.light { background: #F5F7FA; color: #1A2236; }
+.container { display: flex; height: 100vh; padding: 20px; gap: 20px; }
+.main {
+  flex: 1;
+  background: #0E1420;
+  border: 1px solid #1A2236;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s, border-color 0.3s;
+}
+body.light .main { background: #FFFFFF; border-color: #E1E8F0; }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.title-area { flex: 1; }
+.chart-title {
+  font-size: 20px;
+  font-weight: 600;
+  outline: none;
+  padding: 4px;
+  border-radius: 4px;
+}
+.chart-title:focus { background: rgba(77,158,255,0.1); }
+.subtitle { font-size: 13px; opacity: 0.7; margin-top: 4px; padding: 0 4px; }
+.toolbar { display: flex; gap: 8px; }
+.btn {
+  background: #1A2236;
+  color: #E6EDF7;
+  border: 1px solid #2A3248;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+body.light .btn { background: #F5F7FA; color: #1A2236; border-color: #E1E8F0; }
+.btn:hover { background: #2A3248; }
+body.light .btn:hover { background: #E1E8F0; }
+.dropdown { position: relative; display: inline-block; }
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background: #1A2236;
+  border: 1px solid #2A3248;
+  border-radius: 6px;
+  min-width: 100px;
+  z-index: 100;
+  overflow: hidden;
+}
+body.light .dropdown-menu { background: #FFFFFF; border-color: #E1E8F0; }
+.dropdown-menu.show { display: block; }
+.dropdown-menu a {
+  display: block;
+  padding: 8px 14px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+.dropdown-menu a:hover { background: #2A3248; }
+body.light .dropdown-menu a:hover { background: #F5F7FA; }
+#chart { flex: 1; min-height: 0; }
+.panel {
+  width: 280px;
+  background: #0E1420;
+  border: 1px solid #1A2236;
+  border-radius: 12px;
+  padding: 20px;
+  overflow-y: auto;
+  transition: background 0.3s, border-color 0.3s;
+}
+body.light .panel { background: #FFFFFF; border-color: #E1E8F0; }
+.panel h3 { font-size: 15px; margin-bottom: 14px; }
+.row {
+  display: grid;
+  grid-template-columns: 1fr 50px 50px 50px 50px 22px;
+  gap: 4px;
+  margin-bottom: 6px;
+  align-items: center;
+}
+.row input {
+  background: #1A2236;
+  border: 1px solid #2A3248;
+  color: #E6EDF7;
+  padding: 5px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  width: 100%;
+  min-width: 0;
+}
+body.light .row input { background: #F5F7FA; border-color: #E1E8F0; color: #1A2236; }
+.row .del {
+  background: transparent;
+  border: none;
+  color: #FF6B6B;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+.header-row {
+  display: grid;
+  grid-template-columns: 1fr 50px 50px 50px 50px 22px;
+  gap: 4px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  opacity: 0.7;
+  text-align: center;
+}
+.header-row span:first-child { text-align: left; }
+.panel-actions { display: flex; gap: 8px; margin-top: 14px; }
+.panel-actions .btn { flex: 1; }
+.btn-primary { background: #4D9EFF; border-color: #4D9EFF; color: #fff; }
+.btn-primary:hover { background: #3A8AE8; }
+#addRow { width: 100%; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="main">
+    <div class="header">
+      <div class="title-area">
+        <div class="chart-title" contenteditable="true">电商平台Q1-Q4各渠道销售转化率对比</div>
+        <div class="subtitle">直播渠道全年领跑，Q4转化率达8.9%，同比Q1提升112%</div>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="themeBtn">🌙 暗色</button>
+        <div class="dropdown">
+          <button class="btn" id="exportBtn">⬇ 导出</button>
+          <div class="dropdown-menu" id="exportMenu">
+            <a data-type="png">导出 PNG</a>
+            <a data-type="jpg">导出 JPG</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="chart"></div>
+  </div>
+  <div class="panel">
+    <h3>📊 数据编辑</h3>
+    <div class="header-row">
+      <span>渠道</span><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span><span></span>
+    </div>
+    <div id="dataRows"></div>
+    <button class="btn" id="addRow">+ 添加行</button>
+    <div class="panel-actions">
+      <button class="btn btn-primary" id="applyBtn">应用</button>
+      <button class="btn" id="resetBtn">重置</button>
+    </div>
+  </div>
+</div>
+<script>
+let isDark = true;
+const defaultData = [
+  { name: '直播', values: [4.2, 5.6, 7.1, 8.9] },
+  { name: '短视频', values: [3.8, 4.9, 6.2, 7.5] },
+  { name: '搜索', values: [5.1, 5.8, 6.4, 7.2] },
+  { name: '推荐', values: [3.5, 4.2, 5.8, 7.1] }
+];
+let data = JSON.parse(JSON.stringify(defaultData));
+const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+const chart = echarts.init(document.getElementById('chart'));
+
+function getTheme() {
+  return isDark ? {
+    bg: '#0E1420', text: '#E6EDF7', axis: '#8A94A6', split: '#1A2236',
+    colors: ['#4D9EFF','#30D986','#FFB340','#FF6B6B']
+  } : {
+    bg: '#FFFFFF', text: '#1A2236', axis: '#5A6478', split: '#E1E8F0',
+    colors: ['#2B7FFF','#00B96B','#FA8C16','#F5222D']
+  };
+}
+
+function renderChart() {
+  const t = getTheme();
+  const series = quarters.map((q, i) => ({
+    name: q,
+    type: 'bar',
+    data: data.map(d => d.values[i]),
+    itemStyle: { color: t.colors[i], borderRadius: [4,4,0,0] },
+    label: { show: true, position: 'top', color: t.text, fontSize: 10, formatter: '{c}%' }
+  }));
+
+  // mark peak on Q4 series
+  let maxIdx = 0, maxVal = -Infinity;
+  data.forEach((d, i) => { if (d.values[3] > maxVal) { maxVal = d.values[3]; maxIdx = i; }});
+  series[3].markPoint = {
+    data: [{ name: '峰值', coord: [maxIdx, maxVal], value: maxVal + '%' }],
+    symbolSize: 50,
+    itemStyle: { color: t.colors[3] },
+    label: { color: '#fff', fontSize: 11, formatter: '峰值\n{c}%' }
+  };
+  series[0].markLine = {
+    silent: true,
+    symbol: 'none',
+    data: [{ yAxis: 6, name: '目标线', label: { formatter: '目标 6%', color: t.text }}],
+    lineStyle: { color: '#FFB340', type: 'dashed', width: 2 }
+  };
+
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v + '%' },
+    legend: { data: quarters, top: 0, textStyle: { color: t.text } },
+    grid: { left: 50, right: 30, top: 40, bottom: 40 },
+    xAxis: {
+      type: 'category',
+      data: data.map(d => d.name),
+      axisLine: { lineStyle: { color: t.axis }},
+      axisLabel: { color: t.text }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: t.text, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: t.split }}
+    },
+    series
+  }, true);
+}
+
+function renderRows() {
+  const box = document.getElementById('dataRows');
+  box.innerHTML = '';
+  data.forEach((d, i) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <input value="${d.name}" data-i="${i}" data-k="name">
+      <input type="number" step="0.1" value="${d.values[0]}" data-i="${i}" data-k="0">
+      <input type="number" step="0.1" value="${d.values[1]}" data-i="${i}" data-k="1">
+      <input type="number" step="0.1" value="${d.values[2]}" data-i="${i}" data-k="2">
+      <input type="number" step="0.1" value="${d.values[3]}" data-i="${i}" data-k="3">
+      <button class="del" data-i="${i}">×</button>
+    `;
+    box.appendChild(row);
+  });
+  box.querySelectorAll('.del').forEach(b => b.onclick = e => {
+    data.splice(+e.target.dataset.i, 1);
+    renderRows();
+  });
+}
+
+document.getElementById('applyBtn').onclick = () => {
+  const inputs = document.querySelectorAll('#dataRows input');
+  inputs.forEach(inp => {
+    const i = +inp.dataset.i, k = inp.dataset.k;
+    if (!data[i]) return;
+    if (k === 'name') data[i].name = inp.value;
+    else data[i].values[+k] = parseFloat(inp.value) || 0;
+  });
+  renderChart();
+};
+document.getElementById('resetBtn').onclick = () => {
+  data = JSON.parse(JSON.stringify(defaultData));
+  renderRows();
+  renderChart();
+};
+document.getElementById('addRow').onclick = () => {
+  data.push({ name: '新渠道', values: [0,0,0,0] });
+  renderRows();
+};
+
+document.getElementById('themeBtn').onclick = () => {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('themeBtn').textContent = isDark ? '🌙 暗色' : '☀️ 亮色';
+  document.body.style.background = isDark ? '#080C14' : '#F5F7FA';
+  renderChart();
+};
+
+document.getElementById('exportBtn').onclick = e => {
+  e.stopPropagation();
+  document.getElementById('exportMenu').classList.toggle('show');
+};
+document.addEventListener('click', () => document.getElementById('exportMenu').classList.remove('show'));
+document.querySelectorAll('#exportMenu a').forEach(a => {
+  a.onclick = () => {
+    const type = a.dataset.type;
+    html2canvas(document.querySelector('.main'), { backgroundColor: isDark ? '#0E1420' : '#FFFFFF' }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'chart.' + type;
+      link.href = canvas.toDataURL('image/' + (type === 'jpg' ? 'jpeg' : 'png'));
+      link.click();
+    });
+  };
+});
+
+window.addEventListener('message', e => {
+  if (e.data && e.data.type === 'theme') {
+    isDark = e.data.theme !== 'light';
+    document.body.classList.toggle('light', !isDark);
+    document.getElementById('themeBtn').textContent = isDark ? '🌙 暗色' : '☀️ 亮色';
+    renderChart();
+  }
+});
+
+window.addEventListener('resize', () => chart.resize());
+renderRows();
+renderChart();
+</script>
+</body>
+</html>

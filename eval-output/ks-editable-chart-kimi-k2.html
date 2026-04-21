@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>电商平台Q1-Q4各渠道销售转化率对比</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif}
+  html,body{height:100%}
+  body{display:flex;background:#080C14;color:#fff}
+  #chart{flex:1}
+  #panel{width:280px;background:#0E1420;border-left:1px solid #1A2236;padding:16px;font-size:14px;display:flex;flex-direction:column;gap:12px}
+  .row{display:flex;gap:6px;align-items:center}
+  .row label{width:60px}
+  .row input{flex:1;padding:4px 6px;border:1px solid #1A2236;border-radius:4px;background:#080C14;color:#fff}
+  button{padding:6px 10px;border:none;border-radius:4px;background:#4D9EFF;color:#fff;cursor:pointer}
+  button:hover{opacity:.9}
+  .light body{background:#F5F7FA;color:#000}
+  .light #panel{background:#FFFFFF;border-left:1px solid #E1E8F0}
+  .light .row input{background:#FFFFFF;color:#000;border:1px solid #E1E8F0}
+  #themeBtn{position:absolute;top:12px;right:300px;padding:4px 8px;font-size:12px;z-index:9}
+  #exportBtn{position:absolute;top:12px;right:360px;padding:4px 8px;font-size:12px;z-index:9}
+  #exportMenu{position:absolute;top:40px;right:360px;background:#0E1420;border:1px solid #1A2236;border-radius:4px;display:none;flex-direction:column}
+  .light #exportMenu{background:#FFFFFF;border:1px solid #E1E8F0}
+  .light #exportMenu a{color:#000}
+  #exportMenu a{padding:6px 10px;color:#fff;text-decoration:none;font-size:12px}
+  #exportMenu a:hover{background:#1A2236}
+  .light #exportMenu a:hover{background:#E1E8F0}
+</style>
+</head>
+<body>
+<button id="themeBtn">🌗</button>
+<button id="exportBtn">⬇ 导出</button>
+<div id="exportMenu">
+  <a href="#" data-type="png">PNG</a>
+  <a href="#" data-type="jpeg">JPEG</a>
+</div>
+<div id="chart"></div>
+<div id="panel">
+  <h3>数据编辑</h3>
+  <div id="rows">
+    <div class="row"><label>直播</label><input data-cat="直播" data-q="Q1" value="4.2"><input data-cat="直播" data-q="Q2" value="5.6"><input data-cat="直播" data-q="Q3" value="7.1"><input data-cat="直播" data-q="Q4" value="8.9"></div>
+    <div class="row"><label>短视频</label><input data-cat="短视频" data-q="Q1" value="3.8"><input data-cat="短视频" data-q="Q2" value="4.9"><input data-cat="短视频" data-q="Q3" value="6.2"><input data-cat="短视频" data-q="Q4" value="7.5"></div>
+    <div class="row"><label>搜索</label><input data-cat="搜索" data-q="Q1" value="5.1"><input data-cat="搜索" data-q="Q2" value="5.8"><input data-cat="搜索" data-q="Q3" value="6.4"><input data-cat="搜索" data-q="Q4" value="7.2"></div>
+    <div class="row"><label>推荐</label><input data-cat="推荐" data-q="Q1" value="3.5"><input data-cat="推荐" data-q="Q2" value="4.2"><input data-cat="推荐" data-q="Q3" value="5.8"><input data-cat="推荐" data-q="Q4" value="7.1"></div>
+  </div>
+  <button id="addRow">+ 添加渠道</button>
+  <button id="delRow">- 删除渠道</button>
+  <button id="applyBtn">应用</button>
+  <button id="resetBtn">重置</button>
+</div>
+
+<script>
+const chartDom=document.getElementById('chart');
+const myChart=echarts.init(chartDom);
+let isDark=true;
+const darkColors=['#4D9EFF','#30D986','#FFB340','#FF6B6B'];
+const lightColors=['#2B7FFF','#00B96B','#FA8C16','#F5222D'];
+
+function buildOption(){
+  const cats=['直播','短视频','搜索','推荐'];
+  const qtrs=['Q1','Q2','Q3','Q4'];
+  const series=qtrs.map((q,i)=>{
+    const data=cats.map(c=>{
+      const el=document.querySelector(`input[data-cat="${c}"][data-q="${q}"]`);
+      return el?parseFloat(el.value):0;
+    });
+    return {
+      name:q,
+      type:'bar',
+      data:data,
+      markPoint:{
+        data:[{type:'max',name:'峰值'}]
+      }
+    };
+  });
+  series[3].markLine={
+    data:[{type:'average',name:'目标线'}]
+  };
+  return {
+    backgroundColor:'transparent',
+    title:{
+      text:'电商平台Q1-Q4各渠道销售转化率对比',
+      subtext:'洞察：直播渠道Q4峰值8.9%，全年增长112%，建议加码预算',
+      left:'center',
+      textStyle:{color:isDark?'#fff':'#000'},
+      subtextStyle:{color:isDark?'#aaa':'#666'}
+    },
+    tooltip:{trigger:'axis'},
+    legend:{data:qtrs,top:60},
+    grid:{left:60,right:40,top:100,bottom:40},
+    xAxis:{type:'category',data:cats},
+    yAxis:{type:'value',axisLabel:{formatter:'{value}%'}},
+    series:series,
+    color:isDark?darkColors:familyColors
+  };
+}
+function apply(){
+  myChart.setOption(buildOption(),true);
+}
+apply();
+
+document.getElementById('themeBtn').onclick=()=>{
+  isDark=!isDark;
+  document.body.classList.toggle('light');
+  myChart.dispose();
+  myChart=echarts.init(chartDom);
+  apply();
+  window.parent.postMessage({theme:isDark?'dark':'light'},'*');
+};
+document.getElementById('addRow').onclick=()=>{
+  const rows=document.getElementById('rows');
+  const name=prompt('渠道名称');
+  if(!name)return;
+  const div=document.createElement('div');
+  div.className='row';
+  div.innerHTML=`<label>${name}</label>
+    <input data-cat="${name}" data-q="Q1" value="0">
+    <input data-cat="${name}" data-q="Q2" value="0">
+    <input data-cat="${name}" data-q="Q3" value="0">
+    <input data-cat="${name}" data-q="Q4" value="0">`;
+  rows.appendChild(div);
+};
+document.getElementById('delRow').onclick=()=>{
+  const rows=document.getElementById('rows');
+  if(rows.children.length>1)rows.removeChild(rows.lastElementChild);
+};
+document.getElementById('applyBtn').onclick=apply;
+document.getElementById('resetBtn').onclick=()=>location.reload();
+
+document.getElementById('exportBtn').onclick=e=>{
+  const menu=document.getElementById('exportMenu');
+  menu.style.display=menu.style.display==='flex'?'none':'flex';
+};
+document.getElementById('exportMenu').onclick=e=>{
+  e.preventDefault();
+  const type=e.target.dataset.type;
+  html2canvas(document.getElementById('chart')).then(canvas=>{
+    const a=document.createElement('a');
+    a.href=canvas.toDataURL(`image/${type}`);
+    a.download=`转化率对比.${type}`;
+    a.click();
+  });
+  document.getElementById('exportMenu').style.display='none';
+};
+
+window.addEventListener('message',e=>{
+  if(e.data.theme){
+    isDark=e.data.theme==='dark';
+    document.body.classList.toggle('light',!isDark);
+    myChart.dispose();
+    myChart=echarts.init(chartDom);
+    apply();
+  }
+});
+</script>
+</body>
+</html>

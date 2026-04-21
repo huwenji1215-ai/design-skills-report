@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电商平台Q1-Q4各渠道销售转化率对比</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        :root {
+            /* Dark Theme (Default) */
+            --bg-color: #080C14;
+            --panel-bg: #0E1420;
+            --border-color: #1A2236;
+            --text-main: #FFFFFF;
+            --text-sub: #8A93A6;
+            --btn-bg: #2B3347;
+            --btn-hover: #3A445C;
+            --input-bg: #141C2D;
+            --danger: #FF6B6B;
+            --primary: #4D9EFF;
+        }
+
+        [data-theme="light"] {
+            /* Light Theme */
+            --bg-color: #F5F7FA;
+            --panel-bg: #FFFFFF;
+            --border-color: #E1E8F0;
+            --text-main: #1A202C;
+            --text-sub: #718096;
+            --btn-bg: #EDF2F7;
+            --btn-hover: #E2E8F0;
+            --input-bg: #F7FAFC;
+            --danger: #F5222D;
+            --primary: #2B7FFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s;
+        }
+
+        /* Main Chart Area */
+        #main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            height: 60px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 16px;
+        }
+
+        button {
+            background: var(--btn-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: var(--btn-hover);
+        }
+
+        .primary-btn {
+            background: var(--primary);
+            color: #FFF;
+            border-color: var(--primary);
+        }
+        .primary-btn:hover {
+            background: #3A8EE6; /* Slight tweak for hover */
+        }
+        [data-theme="light"] .primary-btn:hover {
+            background: #1C6BE6;
+        }
+
+        /* Export Dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: var(--panel-bg);
+            min-width: 120px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            z-index: 100;
+            overflow: hidden;
+        }
+        .dropdown-content button {
+            width: 100%;
+            border: none;
+            border-radius: 0;
+            text-align: left;
+            background: transparent;
+            padding: 10px 16px;
+        }
+        .dropdown-content button:hover {
+            background-color: var(--btn-hover);
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Chart Export Wrapper */
+        #export-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            background-color: var(--bg-color);
+            overflow: auto;
+        }
+
+        /* Editable Title */
+        .title-container {
+            margin-bottom: 20px;
+            padding-left: 10px;
+        }
+        #chart-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        #chart-subtext {
+            font-size: 14px;
+            color: var(--text-sub);
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        #chart-title:focus, #chart-subtext:focus, #chart-title:hover, #chart-subtext:hover {
+            border-color: var(--border-color);
+            background: var(--panel-bg);
+        }
+
+        #chart {
+            flex: 1;
+            min-height: 500px;
+            width: 100%;
+        }
+
+        /* Right Panel */
+        #panel {
+            width: 280px;
+            background-color: var(--panel-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .data-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed var(--border-color);
+            gap: 8px;
+        }
+
+        .data-row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-row-header input {
+            font-weight: bold;
+            flex: 1;
+            margin-right: 8px;
+        }
+
+        .delete-btn {
+            color: var(--danger);
+            background: transparent;
+            border: 1px solid var(--danger);
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        .input-group label {
+            color: var(--text-sub);
+            width: 30px;
+        }
+
+        input {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 8px;
+            border-radius: 4px;
+            width: 100%;
+            outline: none;
+        }
+        
+        input[type="number"] {
+            width: 80px;
+            text-align: right;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .panel-actions {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .panel-actions div {
+            display: flex;
+            gap: 10px;
+        }
+        .panel-actions div button {
+            flex: 1;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-sub); }
+    </style>
+</head>
+<body>
+
+    <div id="main-wrapper">
+        <div class="top-bar">
+            <div class="dropdown">
+                <button>⬇ 导出图表</button>
+                <div class="dropdown-content">
+                    <button onclick="exportChart('png')">导出为 PNG</button>
+                    <button onclick="exportChart('jpg')">导出为 JPG</button>
+                </div>
+            </div>
+            <button id="theme-toggle" onclick="toggleTheme()">🌓 切换主题</button>
+        </div>
+        
+        <div id="export-wrapper">
+            <div class="title-container">
+                <div id="chart-title" contenteditable="true">电商平台Q1-Q4各渠道销售转化率对比</div>
+                <div id="chart-subtext" contenteditable="true">直播渠道Q4转化率飙升至8.9%，稳居各渠道之首</div>
+            </div>
+            <div id="chart"></div>
+        </div>
+    </div>
+
+    <div id="panel">
+        <div class="panel-header">数据编辑面板</div>
+        <div class="panel-content" id="data-editor">
+            <!-- Dynamic Data Editor Content -->
+        </div>
+        <div class="panel-actions">
+            <button onclick="addRow()">+ 添加渠道</button>
+            <div>
+                <button onclick="resetData()">重置</button>
+                <button class="primary-btn" onclick="applyData()">应用</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Initialization
+        const INITIAL_DATA = {
+            categories: ['直播', '短视频', '搜索', '推荐'],
+            seriesData: [
+                { name: 'Q1', data: [4.2, 3.8, 5.1, 3.5] },
+                { name: 'Q2', data: [5.6, 4.9, 5.8, 4.2] },
+                { name: 'Q3', data: [7.1, 6.2, 6.4, 5.8] },
+                { name: 'Q4', data: [8.9, 7.5, 7.2, 7.1] }
+            ]
+        };
+
+        let currentData = JSON.parse(JSON.stringify(INITIAL_DATA));
+        let chartInstance = null;
+
+        // Theme Definitions
+        const themes = {
+            dark: {
+                colors: ['#4D9EFF', '#30D986', '#FFB340', '#FF6B6B'],
+                axisLine: '#1A2236',
+                splitLine: '#1A2236',
+                text: '#8A93A6'
+            },
+            light: {
+                colors: ['#2B7FFF', '#00B96B', '#FA8C16', '#F5222D'],
+                axisLine: '#E1E8F0',
+                splitLine: '#E1E8F0',
+                text: '#718096'
+            }
+        };
+
+        function getThemeConfig() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            return isLight ? themes.light : themes.dark;
+        }
+
+        // Initialize ECharts
+        function initChart() {
+            const chartDom = document.getElementById('chart');
+            if (chartInstance) chartInstance.dispose();
+            chartInstance = echarts.init(chartDom);
+            renderChart();
+        }
+
+        // Render ECharts Option
+        function renderChart() {
+            const themeCfg = getThemeConfig();
+            
+            const series = currentData.seriesData.map((item, index) => {
+                return {
+                    name: item.name,
+                    type: 'bar',
+                    barGap: '15%',
+                    data: item.data,
+                    itemStyle: {
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    markPoint: {
+                        symbolSize: 45,
+                        data: [
+                            { type: 'max', name: 'Max' }
+                        ],
+                        label: {
+                            color: '#fff',
+                            fontSize: 10,
+                            formatter: '{c}%'
+                        }
+                    },
+                    markLine: index === 3 ? { // Add MarkLine to the last series to avoid clutter
+                        symbol: ['none', 'none'],
+                        label: {
+                            position: 'end',
+                            formatter: '目标均值\n6.0%',
+                            color: themeCfg.colors[index]
+                        },
+                        lineStyle: {
+                            color: themeCfg.colors[index],
+                            type: 'dashed',
+                            width: 2
+                        },
+                        data: [{ yAxis: 6.0 }]
+                    } : null
+                };
+            });
+
+            const option = {
+                backgroundColor: 'transparent',
+                color: themeCfg.colors,
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    valueFormatter: (value) => value + '%'
+                },
+                legend: {
+                    data: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    textStyle: { color: themeCfg.text },
+                    top: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '8%',
+                    bottom: '5%',
+                    top: '12%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: currentData.categories,
+                    axisLine: { lineStyle: { color: themeCfg.axisLine } },
+                    axisLabel: { color: themeCfg.text, fontSize: 13 },
+                    axisTick: { show: false }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '转化率(%)',
+                    nameTextStyle: { color: themeCfg.text, padding: [0, 0, 0, -20] },
+                    axisLine: { show: false },
+                    axisLabel: { color: themeCfg.text, formatter: '{value}%' },
+                    splitLine: { lineStyle: { color: themeCfg.splitLine, type: 'dashed' } }
+                },
+                series: series
+            };
+
+            chartInstance.setOption(option, true);
+        }
+
+        // Render Right Data Panel
+        function renderPanel() {
+            const editor = document.getElementById('data-editor');
+            editor.innerHTML = '';
+
+            currentData.categories.forEach((cat, i) => {
+                const row = document.createElement('div');
+                row.className = 'data-row';
+
+                // Category Header
+                const header = document.createElement('div');
+                header.className = 'data-row-header';
+                header.innerHTML = `
+                    <input type="text" value="${cat}" placeholder="渠道名称" onchange="updateCategory(${i}, this.value)">
+                    <button class="delete-btn" onclick="removeRow(${i})">删除</button>
+                `;
+                row.appendChild(header);
+
+                // Series Inputs
+                currentData.seriesData.forEach((series, j) => {
+                    const group = document.createElement('div');
+                    group.className = 'input-group';
+                    group.innerHTML = `
+                        <label>${series.name}</label>
+                        <input type="number" step="0.1" value="${series.data[i]}" onchange="updateData(${j}, ${i}, this.value)">
+                    `;
+                    row.appendChild(group);
+                });
+
+                editor.appendChild(row);
+            });
+        }
+
+        // Data Interactions
+        function updateCategory(index, value) {
+            currentData.categories[index] = value;
+        }
+
+        function updateData(seriesIndex, dataIndex, value) {
+            currentData.seriesData[seriesIndex].data[dataIndex] = parseFloat(value) || 0;
+        }
+
+        function addRow() {
+            currentData.categories.push('新渠道');
+            currentData.seriesData.forEach(series => series.data.push(0));
+            renderPanel();
+        }
+
+        function removeRow(index) {
+            if (currentData.categories.length <= 1) {
+                alert('至少保留一个渠道！');
+                return;
+            }
+            currentData.categories.splice(index, 1);
+            currentData.seriesData.forEach(series => series.data.splice(index, 1));
+            renderPanel();
+        }
+
+        function applyData() {
+            renderChart();
+        }
+
+        function resetData() {
+            currentData = JSON.parse(JSON.stringify(INITIAL_DATA));
+            renderPanel();
+            renderChart();
+        }
+
+        // Theme Toggling
+        function toggleTheme() {
+            const root = document.documentElement;
+            const isLight = root.getAttribute('data-theme') === 'light';
+            setTheme(isLight ? 'dark' : 'light');
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            renderChart();
+        }
+
+        // Listen for postMessage Theme Synchronization
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'themeChange' && event.data.theme) {
+                if (['dark', 'light'].includes(event.data.theme)) {
+                    setTheme(event.data.theme);
+                }
