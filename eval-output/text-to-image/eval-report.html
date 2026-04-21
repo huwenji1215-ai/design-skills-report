@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>text-to-image 评测报告 v1.0</title>
+<style>
+:root {
+  --bg:#f8f7f4; --surface:#fff; --surface2:#f3f1ec; --border:#e2ddd6;
+  --text1:#1a1714; --text2:#5c5650; --textm:#9a9088;
+  --brown:#6b3d1e; --warm:#c4622d;
+  --pass:#2d7a4f; --pass-bg:#edf7f2;
+  --watch:#7a6520; --watch-bg:#faf5e4;
+  --fail:#a0290e; --fail-bg:#fdf1ee;
+  --block:#8b0000; --block-bg:#fff0f0;
+  --part:#5a4e2b; --part-bg:#fdf9ed;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;line-height:1.6}
+.hdr{background:var(--brown);color:#fff;padding:36px 48px 32px}
+.hdr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:6px;padding:3px 12px;font-size:11px;margin-bottom:14px;letter-spacing:.05em}
+.hdr h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hdr-meta{opacity:.75;font-size:12px;display:flex;gap:20px;flex-wrap:wrap}
+.vbar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.vpill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px}
+.vpill.fail{background:var(--fail-bg);color:var(--fail);border:1.5px solid #e8bab2}
+.vpill.watch{background:var(--watch-bg);color:var(--watch);border:1.5px solid #e5d48a}
+.vpill.pass{background:var(--pass-bg);color:var(--pass);border:1.5px solid #aadcc2}
+.vitem{display:flex;flex-direction:column;gap:4px}
+.vlabel{font-size:11px;color:var(--textm)}
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;display:flex;position:sticky;top:0;z-index:99;overflow-x:auto}
+.ntab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--textm);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .15s}
+.ntab:hover{color:var(--text2)}
+.ntab.active{color:var(--warm);border-bottom-color:var(--warm);font-weight:600}
+.content{max-width:1080px;margin:0 auto;padding:32px 48px}
+section.ts{display:none}
+section.ts.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+h2.stitle{font-size:17px;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);color:var(--brown)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top}
+th{background:var(--surface2);font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.pass{background:var(--pass-bg);color:var(--pass)}
+.chip.fail{background:var(--fail-bg);color:var(--fail)}
+.chip.part{background:var(--part-bg);color:var(--part)}
+.chip.block{background:var(--block-bg);color:var(--block)}
+.chip.na{background:#f0f0f0;color:#888}
+.pri{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pri.p0{background:#fde8e5;color:#c0392b}
+.pri.p1{background:#fdf3e0;color:#d68910}
+.pri.p2{background:#f0f0f0;color:#888}
+.aqe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.aqe-dim{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center}
+.aqe-dim .did{font-size:10px;font-weight:700;color:var(--textm);letter-spacing:.08em;margin-bottom:3px}
+.aqe-dim .dname{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;line-height:1.3;min-height:30px}
+.scores{display:flex;justify-content:center;gap:10px}
+.sbadge{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbadge .sv{font-size:22px;font-weight:900;line-height:1}
+.sbadge .sl{font-size:9px;color:var(--textm)}
+.sg{color:var(--pass)} .sw{color:var(--watch)} .sf{color:var(--fail)} .sb{color:var(--block)}
+.scorebox{background:linear-gradient(135deg,var(--brown),#9b5a2e);color:#fff;border-radius:12px;padding:22px 26px;display:flex;align-items:center;gap:26px;margin-bottom:22px}
+.scorebox .bscore{font-size:52px;font-weight:900;line-height:1;flex-shrink:0}
+.scorebox .sdesc h3{font-size:15px;margin-bottom:5px}
+.scorebox .sdesc p{font-size:12px;opacity:.85;line-height:1.5}
+.imgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:18px 0}
+.icard{background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.icard img{width:100%;display:block;object-fit:cover}
+.icap{padding:10px 13px;font-size:12px;color:var(--text2)}
+.icap strong{display:block;font-size:13px;color:var(--text1);margin-bottom:2px}
+.kf{background:var(--fail-bg);border:1px solid #e8bab2;border-left:4px solid var(--fail);border-radius:8px;padding:15px;margin-bottom:12px}
+.kfid{font-size:10px;font-weight:700;color:var(--fail);letter-spacing:.08em;margin-bottom:5px}
+.kftitle{font-weight:700;font-size:14px;margin-bottom:9px}
+.kfrow{display:flex;gap:6px;margin-bottom:4px;font-size:12px}
+.kfkey{font-weight:600;color:var(--text2);white-space:nowrap;min-width:58px}
+.fix{background:var(--surface2);border-radius:8px;padding:13px 15px;margin-bottom:11px;border-left:3px solid var(--warm)}
+.fixtitle{font-weight:700;font-size:13px;margin-bottom:5px}
+.fixbody{font-size:12px;color:var(--text2);line-height:1.6}
+.fixbody code{background:#ede9e0;border-radius:3px;padding:1px 5px;font-family:monospace;font-size:11px}
+.pbox{background:#1a1714;color:#e8e0d5;border-radius:10px;padding:15px 18px;font-family:Menlo,monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;margin:11px 0;overflow-x:auto}
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.scard{padding:16px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+.rdiff{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:14px 0}
+.rcard{border-radius:8px;padding:14px;font-size:12.5px}
+.rcard.ra{background:#edf3fd;border:1px solid #b8cef5}
+.rcard.rb{background:#f0f8ee;border:1px solid #b8ddb0}
+.rcard.rc{background:#fdf6ed;border:1px solid #f5d8b8}
+.rcard h4{font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.rcard.ra h4{color:#1d4ed8}.rcard.rb h4{color:#166534}.rcard.rc h4{color:#92400e}
+.rcard ul{list-style:none}.rcard ul li{padding:2px 0;color:var(--text2)}.rcard ul li::before{content:'→ ';opacity:.5;font-size:10px}
+@media(max-width:768px){
+  .hdr,.vbar,.content,.nav{padding-left:20px;padding-right:20px}
+  .aqe-grid,.imgrid,.rdiff,.stats3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-badge">📊 AQE 设计侧评测报告</div>
+  <h1>text-to-image · 评测报告 v1.0</h1>
+  <div class="hdr-meta">
+    <span>Skill 版本：v1.1.0</span>
+    <span>评测标准：skill-design-standard v1.0（AQE + DIR-02）</span>
+    <span>Mock Case：AI算力集群架构图 · 16:9 · 三风格对比</span>
+    <span>模型：DesignAI Workflow #631 (Gemini-3.1-Flash-Image-Preview)</span>
+    <span>评测日期：2026-04-21</span>
+  </div>
+</div>
+
+<!-- VERDICT BAR -->
+<div class="vbar">
+  <div class="vitem"><div class="vlabel">Gate 0 合规检查</div><span class="vpill fail">⛔ 不通过 — 6项P0缺陷</span></div>
+  <div class="vitem"><div class="vlabel">产物A AQE（极简深色）</div><span class="vpill watch">👀 7.1 · FAIL（箭头混乱）</span></div>
+  <div class="vitem"><div class="vlabel">产物B AQE（渐变科技）</div><span class="vpill watch">👀 7.4 · WATCH</span></div>
+  <div class="vitem"><div class="vlabel">产物C AQE（Notion风格）</div><span class="vpill pass">✅ 8.1 · PASS</span></div>
+  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">Gate 0 有 6 项 P0 缺陷 → 按标准须整改后方可进入 Gate 1 / Gate 2。产物层面：C 路线达标，A 打回，B 有条件上线。</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="ntab active" onclick="sw('overview')">总览</div>
+  <div class="ntab" onclick="sw('compliance')">Gate 0 合规检查</div>
+  <div class="ntab" onclick="sw('mock')">Mock Case</div>
+  <div class="ntab" onclick="sw('aqe')">AQE 评测打分</div>
+  <div class="ntab" onclick="sw('checklist')">DIR-02 Checklist</div>
+  <div class="ntab" onclick="sw('failures')">Known Failures</div>
+  <div class="ntab" onclick="sw('fixes')">整改建议</div>
+</nav>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ═══ TAB: 总览 ═══ -->
+<section id="tab-overview" class="ts active">
+  <h2 class="stitle">评测总览</h2>
+
+  <div class="scorebox">
+    <div class="bscore">7.1</div>
+    <div class="sdesc">
+      <h3>综合结论：❌ FAIL（以最差产物A为基准）</h3>
+      <p>Gate 0 存在 6 项 P0 级缺陷（竞品对标缺失、输出精度未定义、版权路线未声明、模型许可证未披露、主体清晰度无标准、色彩对比度无约束），须整改后重走评测流程。<br>
+      产物层面：A（极简深色，7.1 FAIL）因箭头线条严重交叉混乱打回；B（渐变科技，7.4 WATCH）可有条件上线，需2周内修复字号层级问题；C（Notion风格，8.1 PASS）达标，可上线。</p>
+    </div>
+  </div>
+
+  <div class="stats3">
+    <div class="scard" style="border-left:4px solid var(--fail)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">GATE 0 合规</div>
+      <div style="font-size:24px;font-weight:800;color:var(--fail)">6项 P0 ❌</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">竞品对标、输出精度、版权/模型路线、主体清晰度、对比度要求均缺失</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--watch)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">三路线 AQE 均值</div>
+      <div style="font-size:24px;font-weight:800;color:var(--watch)">7.5 混合</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">A:7.1 FAIL / B:7.4 WATCH / C:8.1 PASS；风格差异导致产出质量分化明显</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">最佳产物</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">C路线 8.1 ✅</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">Notion风格：版式整洁、层级清晰、留白充足，是三路线中唯一达标产物</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔄 评测流程回溯</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">📦 安装 Skill<br><span style="color:var(--textm);font-size:11px">解压 zip 包<br>~/.codeflicker/skills/</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--fail-bg);border-radius:6px;padding:8px 12px;border:1px solid #e8bab2;text-align:center">⛔ Gate 0 审计<br><span style="color:var(--textm);font-size:11px">6项P0 FAIL<br>3项P0 PARTIAL</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">✍️ Mock Case<br><span style="color:var(--textm);font-size:11px">AI算力集群架构<br>16:9 三风格</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--pass-bg);border-radius:6px;padding:8px 12px;border:1px solid #aadcc2;text-align:center">🖼️ 模型调用<br><span style="color:var(--textm);font-size:11px">Gemini-3.1-Flash<br>3路线 × 2K</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--watch-bg);border-radius:6px;padding:8px 12px;border:1px solid #e5d48a;text-align:center">🎨 AQE 打分<br><span style="color:var(--textm);font-size:11px">A:7.1 FAIL<br>B:7.4 WATCH / C:8.1</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--fail-bg);border-radius:6px;padding:8px 12px;border:1px solid #e8bab2;text-align:center">📝 本报告<br><span style="color:var(--textm);font-size:11px">KF + 整改建议</span></div>
+    </div>
+  </div>
+
+  <div class="imgrid">
+    <div class="icard">
+      <img src="model-a-minimal-dark.jpg" alt="产物A — 极简深色">
+      <div class="icap">
+        <strong>产物A：极简深色风格 · AQE 7.1 FAIL</strong>
+        Gemini-3.1-Flash-Image-Preview · 2752×1536px · 47.2s · 613KB
+      </div>
+    </div>
+    <div class="icard">
+      <img src="model-b-gradient-tech.jpg" alt="产物B — 渐变科技">
+      <div class="icap">
+        <strong>产物B：渐变科技风格 · AQE 7.4 WATCH</strong>
+        Gemini-3.1-Flash-Image-Preview · 2752×1536px · 44.3s · 928KB
+      </div>
+    </div>
+    <div class="icard">
+      <img src="model-c-notion-style.jpg" alt="产物C — Notion风格">
+      <div class="icap">
+        <strong>产物C：Notion风格 · AQE 8.1 PASS</strong>
+        Gemini-3.1-Flash-Image-Preview · 2752×1536px · 50.2s · 636KB
+      </div>
+    </div>
+  </div>
+
+  <div class="rdiff">
+    <div class="rcard ra">
+      <h4>产物A 主要问题</h4>
+      <ul>
+        <li>⚠️ 箭头线条严重交叉混乱，视觉动线无法辨识</li>
+        <li>节点间连接关系不清晰，调度层与两侧双向箭头打架</li>
+        <li>白色连线在深色背景上缺乏层次区分</li>
+        <li>版式整体偏空旷，三列节点垂直对齐不精确</li>
+      </ul>
+    </div>
+    <div class="rcard rb">
+      <h4>产物B 主要问题</h4>
+      <ul>
+        <li>⚠️ "96核"等数字字号异常放大，破坏视觉层级</li>
+        <li>"A100"英文字号与"GPU节点集群"中文字号不统一</li>
+        <li>存储层与调度层之间连接线被右侧卡片遮挡</li>
+        <li>图标风格混杂（写实芯片图+扁平图标），一致性弱</li>
+      </ul>
+    </div>
+    <div class="rcard rc">
+      <h4>产物C 优势与不足</h4>
+      <ul>
+        <li>✅ 版式最整洁，Bento Grid布局清晰易读</li>
+        <li>✅ 图标+文字双层表达，信息识别度高</li>
+        <li>✅ 橙色箭头统一，数据流向清晰</li>
+        <li>⚠️ A100×8等关键数字被弱化，部分数据缺失</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TAB: Gate 0 合规检查 ═══ -->
+<section id="tab-compliance" class="ts">
+  <h2 class="stitle">Gate 0 · 合规检查</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">依据 skill-design-standard 准入规范（通用清单 A~E + DIR-02 图片生成专属）对 text-to-image SKILL.md v1.1.0 逐项审计。</p>
+
+  <div class="card">
+    <div class="card-title">A · 输出物定义</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>输出物类型已明确</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>SKILL.md 阶段5说明脚本输出JSON包含 image_url（CDN URL）或 data_url（base64），格式明确</td></tr>
+      <tr><td>有 ≥ 1 个完整输出示例</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>SKILL.md 无任何「用户输入X → 产出Y」的完整链路示例，无 examples/ 目录，评测人员无对比基准</td></tr>
+      <tr><td>输出精度已定义（原型级 vs 生产级）</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>全文未区分输出精度等级。生成的图片是"可直接使用的生产级"还是"参考级草图"，完全未声明</td></tr>
+      <tr><td>输出尺寸/分辨率已约束</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>参数枚举明确列出 512/1K/2K/4K 及14种宽高比，覆盖完整</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">B · 竞品对标锚点</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已指定质量对标竞品</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>整个 SKILL.md 未提及任何竞品。DIR-02 图片生成方向应对标：文生图综合→Gemini 2.5 Flash Image；文字渲染→GPT-4o Image；版权安全→Adobe Firefly</td></tr>
+      <tr><td>已做竞品实测截图存档</td><td><span class="pri p1">P1</span></td><td><span class="chip fail">✗ FAIL</span></td><td>reference/ 目录仅含 api_docs.md，无竞品对比截图，Gate 2 无对比依据</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">C · 版权与合规</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>字体使用路线已确定</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>阶段7 可读性检查提到"使用中文字体"，但未声明具体字体名称及授权类型（系统字体/开源/商用授权）</td></tr>
+      <tr><td>图片/插画来源合规（模型许可证）</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>scripts/generate_image.py 写明调用 Gemini-3.1-Flash-Image-Preview，但 SKILL.md 未披露底层模型名称、版本及商用许可证类型</td></tr>
+      <tr><td>品牌风格模仿有边界</td><td><span class="pri p1">P1</span></td><td><span class="chip na">— N/A</span></td><td>不涉及品牌风格模仿功能，不适用</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">D · 美学基线要求</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>色彩对比度达标 ≥ 4.5:1 (WCAG AA)</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>阶段7 可读性检查仅要求"文字清晰可读"，无任何对比度量化要求。产物A的白色连线在黑底上对比尚可，但深色风格下的小字未做验证</td></tr>
+      <tr><td>颜色不是唯一信息载体</td><td><span class="pri p1">P1</span></td><td><span class="chip part">~ PARTIAL</span></td><td>风格文件未要求状态/类型区分需辅以文字标注，产物B的图标颜色语义无文字说明</td></tr>
+      <tr><td>默认输出有「美学基准档」</td><td><span class="pri p1">P1</span></td><td><span class="chip part">~ PARTIAL</span></td><td>19种风格文件提供了风格方向，但无明确的默认输出标准——用户不指定风格时AI如何选择完全未定义</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">E · 边界与失败处理</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已定义「不做什么」</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>description frontmatter 明确：不唤醒场景包括图片编辑、图生图、上传图片等非文生图场景</td></tr>
+      <tr><td>输入不完整时有降级策略</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>阶段1-3 设计了完整的引导话术，逐步收集信息，有明确的等待确认机制</td></tr>
+      <tr><td>已预列 ≥ 3 条已知失败模式</td><td><span class="pri p2">P2</span></td><td><span class="chip part">~ PARTIAL</span></td><td>常见问题FAQ提及4种失败场景（内容不完整/提示词泄漏/风格不符/布局混乱），但未按标准格式写入 Known Failures</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">DIR-02 · 图片生成专属准入审计</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>输出格式和最低分辨率已确定</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>支持 JPG/PNG/WebP；默认2K（实测2752×1536）高于1024×1024基线；参数表清晰</td></tr>
+      <tr><td>底层模型/技术路线已在 SKILL.md 说明</td><td>必答</td><td><span class="chip fail">✗ FAIL</span></td><td>generate_image.py 内写了 MODEL = "Gemini-3.1-Flash-Image-Preview"，但 SKILL.md 完全未提及，用户和评测方无法感知模型能力边界</td></tr>
+      <tr><td>版权路线已确认</td><td>必答</td><td><span class="chip fail">✗ FAIL</span></td><td>Gemini 生成图像的商用许可证状态未在 SKILL.md 中声明</td></tr>
+      <tr><td>主体清晰度标准</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>阶段7 自动检查清单未包含「主体边界清晰度最低可接受标准」（节点/文字/图标无畸变）</td></tr>
+      <tr><td>提示词遵循率有量化指标</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>有「关键信息是否显示」检查，但无量化指标（标准要求关键元素出现率 ≥ 90%）</td></tr>
+      <tr><td>内容安全过滤机制</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>阶段6 错误3处理 success:false 时会简化提示词，但无明确声明「不生成真实人物肖像/暴力/成人内容」的过滤机制</td></tr>
+      <tr><td>色彩美学基线（饱和度适中）</td><td><span class="pri p1">P1</span></td><td><span class="chip part">~ PARTIAL</span></td><td>19种风格文件提供了色彩方向，但无「不过饱和/不过灰」的量化检查规则</td></tr>
+      <tr><td>构图平衡</td><td><span class="pri p1">P1</span></td><td><span class="chip part">~ PARTIAL</span></td><td>阶段7 有「布局是否清晰规整」检查，但未覆盖「主体不被裁切+合理留白+无极端偏角」三项</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="background:var(--fail-bg);border-color:#e8bab2">
+    <div class="card-title" style="color:var(--fail)">⛔ Gate 0 合规检查结论：不通过</div>
+    <table>
+      <tr><th>严重程度</th><th>数量</th><th>主要问题</th></tr>
+      <tr><td><strong>P0 FAIL</strong>（动工前必须修复）</td><td style="font-weight:700;color:var(--fail)">6项</td><td>完整输出示例缺失、输出精度未定义、竞品对标缺失、模型许可证未声明、主体清晰度无标准、色彩对比度无检查规则</td></tr>
+      <tr><td><strong>P0 PARTIAL</strong>（需补充说明）</td><td style="font-weight:700;color:var(--part)">3项</td><td>字体路线未具体声明；提示词遵循率无量化；内容安全过滤机制不完整</td></tr>
+      <tr><td><strong>P1 FAIL</strong></td><td>1项</td><td>竞品实测无截图</td></tr>
+      <tr><td><strong>P1 PARTIAL</strong></td><td>4项</td><td>颜色辅助可读性、默认美学基准档、色彩饱和度检查、构图平衡检查</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ TAB: Mock Case ═══ -->
+<section id="tab-mock" class="ts">
+  <h2 class="stitle">Mock Case · AI算力集群架构图</h2>
+
+  <div class="card">
+    <div class="card-title">Case 设计说明</div>
+    <table>
+      <tr><th>字段</th><th>值</th></tr>
+      <tr><td>选题</td><td>AI算力集群架构（技术文档类，含节点/组件/连接关系，适合测试 skill 的核心使用场景）</td></tr>
+      <tr><td>测试目的</td><td>验证 skill 在三种典型设计风格下的图片生成能力、内容保真度和视觉质量</td></tr>
+      <tr><td>宽高比</td><td>16:9（横版技术图，最常见使用场景）</td></tr>
+      <tr><td>分辨率</td><td>2K（默认）→ 实际输出 2752×1536px</td></tr>
+      <tr><td>调用模型</td><td>Gemini-3.1-Flash-Image-Preview（万擎内网 DesignAI Workflow #631）</td></tr>
+      <tr><td>测试风格</td><td>路线A（极简深色 minimal-dark）+ 路线B（渐变科技 gradient-tech）+ 路线C（Notion风格 notion-style）</td></tr>
+      <tr><td>核心内容节点</td><td>9个（GPU节点/CPU服务器/TPU v4 / Kubernetes/负载均衡/Prometheus / Ceph/模型仓库/ELK）</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">路线A 提示词（极简深色）</div>
+    <div class="pbox">生成一张16:9的技术架构图，主题为「AI算力集群架构」。极简深色风格：纯黑背景、白色文字、蓝色高亮节点、无装饰几何风格。
+三列布局：
+- 左列计算层（GPU节点×8/A100、CPU服务器96核、推理加速器TPU v4）
+- 中列调度层（任务调度器Kubernetes、负载均衡Layer7、监控中心Prometheus）
+- 右列存储层（分布式存储Ceph 100TB、模型仓库Registry、日志系统ELK Stack）
+底部高速互联网络RDMA 200Gbps横条。节点间箭头连接展示数据流向，关键数字高亮蓝色。
+全部中文标注，禁止任何提示词文字出现在图中。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">路线B 提示词（渐变科技）</div>
+    <div class="pbox">生成一张16:9的技术架构图，主题为「AI算力集群架构」。渐变科技风格：深空蓝背景、霓虹青色高亮、紫色辅助、卡片式节点带发光边框。
+三列布局同路线A。发光粒子连接线展示数据流，关键数字霓虹色高亮，科技感十足。
+全部中文标注，禁止任何描述性提示词出现在图中。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">路线C 提示词（Notion风格）</div>
+    <div class="pbox">生成一张16:9的技术架构图，主题为「AI算力集群架构」。Notion风格：白色背景、黑色主文字、浅灰卡片边框、橙色强调。
+三列Bento Grid布局同路线A。卡片之间用橙色箭头连接，字体清晰、布局整洁、信息密度适中。
+全部中文标注，禁止任何提示词或风格描述文字出现在图中。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">模型调用记录</div>
+    <table>
+      <tr><th>字段</th><th>路线A</th><th>路线B</th><th>路线C</th></tr>
+      <tr><td>风格</td><td>minimal-dark</td><td>gradient-tech</td><td>notion-style</td></tr>
+      <tr><td>API 响应时间</td><td>47.2s</td><td>44.3s</td><td>50.2s</td></tr>
+      <tr><td>下载大小</td><td>2636.9 KB（源）/ 613KB（存档）</td><td>4138.6 KB（源）/ 928KB（存档）</td><td>2718.2 KB（源）/ 636KB（存档）</td></tr>
+      <tr><td>输出分辨率</td><td>2752×1536 px</td><td>2752×1536 px</td><td>2752×1536 px</td></tr>
+      <tr><td>输出格式</td><td>JPG</td><td>JPG</td><td>JPG</td></tr>
+      <tr><td>执行命令</td><td colspan="3"><code style="font-family:monospace;font-size:11px">python3 scripts/generate_image.py --prompt "..." --output output.jpg --resolution 2K --aspect-ratio 16:9 --creator huwenji</code></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ TAB: AQE 评测打分 ═══ -->
+<section id="tab-aqe" class="ts">
+  <h2 class="stitle">AQE 评测打分</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">对三路线产物图按 AQE 5 维度（视觉层级/色彩美学/版式规范/品牌一致性/可访问性）独立打分（1–10分），综合分 ≥ 7.5 且无维度 &lt; 6.0 为 PASS。</p>
+
+  <!-- 路线A -->
+  <div class="card">
+    <div class="card-title">路线A — 极简深色（minimal-dark）</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:32px;font-weight:900;color:var(--fail)">7.1</div>
+      <span class="vpill fail" style="font-size:13px">❌ FAIL — 综合分低于7.5 + 箭头连线混乱破坏信息架构</span>
+    </div>
+
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div class="scores"><div class="sbadge"><div class="sv sf">6.5</div><div class="sl">路线A ⚠️</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与情感调性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.5</div><div class="sl">路线A</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与排版质量</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.0</div><div class="sl">路线A</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">品牌一致性与风格稳定</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.0</div><div class="sl">路线A</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性基线</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">7.5</div><div class="sl">路线A</div></div></div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th style="width:12%">维度</th><th style="width:10%">得分</th><th style="width:10%">权重</th><th>评分依据与观察</th><th style="width:18%">主要失分项</th></tr>
+      <tr>
+        <td><strong>AQE-A</strong> 视觉层级</td>
+        <td style="color:var(--fail);font-weight:700">6.5</td>
+        <td>30%</td>
+        <td>三列标题（计算层/调度层/存储层）清晰，每列3个节点内容完整；但节点间箭头极度混乱，所有连线交织在一起，无法辨识哪条箭头连接哪两个节点，破坏了架构图的核心价值</td>
+        <td style="color:var(--fail)"><strong>A3失分：</strong>14条箭头线在有限空间内严重交叉，中间调度层节点与两侧产生双向连线导致视觉噪声严重，用户无法读懂架构关系</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-B</strong> 色彩美学</td>
+        <td style="color:var(--watch);font-weight:700">7.5</td>
+        <td>25%</td>
+        <td>黑底蓝高亮的极简风格配色和谐，主色调统一；蓝色节点框+白色文字+蓝色子标题三层色彩层次合理；底部RDMA横条实色蓝色对比度高</td>
+        <td>底部蓝色横条饱和度偏高，与节点框蓝色偏深，两者视觉权重相近，层次感略弱</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-C</strong> 版式规范</td>
+        <td style="color:var(--watch);font-weight:700">7.0</td>
+        <td>20%</td>
+        <td>三列等宽分布，留白比例基本合理；节点内文字无截断无重叠；中英文混排对齐基本整齐</td>
+        <td>三列节点的垂直位置对齐不精确（存储层3个节点比计算层偏高），连线穿越空白区域造成视觉混乱</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-D</strong> 品牌一致性</td>
+        <td style="color:var(--pass);font-weight:700">8.0</td>
+        <td>15%</td>
+        <td>极简深色风格贯穿全图，无多余装饰，所有节点样式统一（蓝色圆角边框+黑色背景），字体感一致</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-E</strong> 可访问性</td>
+        <td style="color:var(--watch);font-weight:700">7.5</td>
+        <td>10%</td>
+        <td>白色主文字在黑色背景对比度极高（约21:1）；蓝色子标题在黑色背景对比度约4.5:1达标；E4动效不适用</td>
+        <td>蓝色节点框内白字与深蓝背景部分区域对比度接近临界，需精确验证</td>
+      </tr>
+    </table>
+    <div style="background:var(--fail-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:12px;border:1px solid #e8bab2">
+      <strong>综合分计算：</strong>6.5×0.30 + 7.5×0.25 + 7.0×0.20 + 8.0×0.15 + 7.5×0.10 = 1.95+1.875+1.40+1.20+0.75 = <strong>7.175</strong>（约7.1）→ AQE-A低于7.0（连线混乱属架构图核心失败）→ 判定 <strong>FAIL</strong>，打回修改
+    </div>
+  </div>
+
+  <!-- 路线B -->
+  <div class="card">
+    <div class="card-title">路线B — 渐变科技（gradient-tech）</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:32px;font-weight:900;color:var(--watch)">7.4</div>
+      <span class="vpill watch" style="font-size:13px">👀 WATCH — 可有条件上线，2周内修复字号层级异常</span>
+    </div>
+
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.0</div><div class="sl">路线B</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与情感调性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.0</div><div class="sl">路线B</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与排版质量</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.0</div><div class="sl">路线B</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">品牌一致性与风格稳定</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.5</div><div class="sl">路线B</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性基线</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.5</div><div class="sl">路线B</div></div></div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th style="width:12%">维度</th><th style="width:10%">得分</th><th style="width:10%">权重</th><th>评分依据与观察</th><th style="width:18%">主要失分项</th></tr>
+      <tr>
+        <td><strong>AQE-A</strong> 视觉层级</td>
+        <td style="color:var(--watch);font-weight:700">7.0</td>
+        <td>30%</td>
+        <td>三列结构框清晰，每个节点有标题+图标双信息层；连接箭头相比路线A清晰，调度层到两侧的流向可辨识</td>
+        <td style="color:var(--fail)"><strong>A1失分：</strong>"96核"、"A100"等数字字号异常放大（约标题3倍），严重破坏信息层级；数字成为视觉主角而非节点名称</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-B</strong> 色彩美学</td>
+        <td style="color:var(--pass);font-weight:700">8.0</td>
+        <td>25%</td>
+        <td>深空蓝背景+霓虹青+紫色，科技感强烈；色彩情感与"AI算力集群"主题高度匹配；3个大列框用渐变描边区分，100TB等关键数字用青色大字突出，视觉冲击力强</td>
+        <td>左列计算层节点内图标风格混杂（写实芯片图+扁平线框图），B2色彩和谐度略扣分</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-C</strong> 版式规范</td>
+        <td style="color:var(--watch);font-weight:700">7.0</td>
+        <td>20%</td>
+        <td>三大列框对齐规整；底部RDMA横条清晰完整；各节点卡片内部有基本间距</td>
+        <td>卡片内字号随机（标题/图标/数字三者比例无规律）；存储层"100TB"字号超大与调度层节点的正常字号形成不一致</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-D</strong> 品牌一致性</td>
+        <td style="color:var(--watch);font-weight:700">7.5</td>
+        <td>15%</td>
+        <td>渐变科技风格整体稳定，背景色/发光效果/描边风格贯穿全图；但图标风格不统一（写实vs扁平），降低D1评分</td>
+        <td>计算层图标为写实渲染风格，调度层和存储层图标为扁平线框风格，风格一致性D1扣分</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-E</strong> 可访问性</td>
+        <td style="color:var(--watch);font-weight:700">7.5</td>
+        <td>10%</td>
+        <td>青色大字在深蓝背景上对比度高；白色标题在深色卡片内对比度达标；E4不适用</td>
+        <td>部分浅紫色小字（如调度层节点名称）在深蓝背景上对比度接近临界，需精确验证</td>
+      </tr>
+    </table>
+    <div style="background:var(--watch-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:12px;border:1px solid #e5d48a">
+      <strong>综合分计算：</strong>7.0×0.30 + 8.0×0.25 + 7.0×0.20 + 7.5×0.15 + 7.5×0.10 = 2.10+2.00+1.40+1.125+0.75 = <strong>7.375</strong>（约7.4）→ 综合分7.0–7.4区间 → 判定 <strong>WATCH</strong>：可有条件上线，2周内修复字号层级异常
+    </div>
+  </div>
+
+  <!-- 路线C -->
+  <div class="card">
+    <div class="card-title">路线C — Notion风格（notion-style）</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:32px;font-weight:900;color:var(--pass)">8.1</div>
+      <span class="vpill pass" style="font-size:13px">✅ PASS — 综合分 ≥ 7.5，无任何维度 &lt; 6.0</span>
+    </div>
+
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.5</div><div class="sl">路线C</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与情感调性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.0</div><div class="sl">路线C</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与排版质量</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.5</div><div class="sl">路线C</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">品牌一致性与风格稳定</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.0</div><div class="sl">路线C</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性基线</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">7.5</div><div class="sl">路线C</div></div></div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th style="width:12%">维度</th><th style="width:10%">得分</th><th style="width:10%">权重</th><th>评分依据与观察</th><th style="width:18%">主要失分项</th></tr>
+      <tr>
+        <td><strong>AQE-A</strong> 视觉层级</td>
+        <td style="color:var(--pass);font-weight:700">8.5</td>
+        <td>30%</td>
+        <td>大标题"AI算力集群架构"极为突出（约为正文的3倍字号）；三列分组标签清晰；每个节点的图标+中文名+英文规格三层层级分明；底部RDMA横条信息密度适中；橙色箭头清晰指向数据流方向</td>
+        <td>A100×8关键规格数字在节点中被弱化（字号小于节点名称），重要信息层级偏低</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-B</strong> 色彩美学</td>
+        <td style="color:var(--pass);font-weight:700">8.0</td>
+        <td>25%</td>
+        <td>白底黑字橙色点缀，整体克制和谐；橙色箭头与橙色RDMA横条形成视觉一致性；浅灰卡片边框层次感清晰；无多余色彩干扰</td>
+        <td>橙色整体偏暖，在纯白背景下视觉跳跃感略强；若场景需专业/严肃感，橙色可能偏活泼</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-C</strong> 版式规范</td>
+        <td style="color:var(--pass);font-weight:700">8.5</td>
+        <td>20%</td>
+        <td>三列等宽，卡片内间距统一（约16px基准）；节点与节点间距规律；图标与文字左对齐整齐；留白充足，内容区约占页面65%；无文字截断</td>
+        <td>调度层到存储层的连接线只连到第一个存储节点（Ceph），第二三节点（模型仓库/ELK）连接关系缺失</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-D</strong> 品牌一致性</td>
+        <td style="color:var(--pass);font-weight:700">8.0</td>
+        <td>15%</td>
+        <td>Notion风格从标题到节点到箭头到底部横条全程一致；所有图标风格统一（线框风格）；字体感一致；色彩方案全图统一</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-E</strong> 可访问性</td>
+        <td style="color:var(--watch);font-weight:700">7.5</td>
+        <td>10%</td>
+        <td>黑色文字在白色背景对比度最高（约21:1）；浅灰卡片框内黑字对比度达标；橙色箭头在白色背景上对比度约3.5:1（大图形满足≥3.0要求）</td>
+        <td>底部RDMA横条内橙色文字在浅橙背景下对比度约4.2:1，略低于4.5:1标准，需验证</td>
+      </tr>
+    </table>
+    <div style="background:var(--pass-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:12px;border:1px solid #aadcc2">
+      <strong>综合分计算：</strong>8.5×0.30 + 8.0×0.25 + 8.5×0.20 + 8.0×0.15 + 7.5×0.10 = 2.55+2.00+1.70+1.20+0.75 = <strong>8.20</strong>（约8.1）→ 综合 ≥ 7.5 且无维度 &lt; 6.0 → 判定 <strong>PASS</strong>，允许上线
+    </div>
+  </div>
+
+  <!-- 三路线对比 -->
+  <div class="card">
+    <div class="card-title">📊 三路线 AQE 对比</div>
+    <table>
+      <tr><th>AQE 维度</th><th>路线A 得分</th><th>路线B 得分</th><th>路线C 得分</th><th>胜出</th><th>关键差异</th></tr>
+      <tr><td>A · 视觉层级</td><td style="color:var(--fail);font-weight:700">6.5</td><td style="color:var(--watch);font-weight:700">7.0</td><td style="color:var(--pass);font-weight:700">8.5</td><td>路线C</td><td>A的箭头混乱破坏架构图核心价值；C的大标题+分层卡片层级最清晰</td></tr>
+      <tr><td>B · 色彩美学</td><td style="color:var(--watch);font-weight:700">7.5</td><td style="color:var(--pass);font-weight:700">8.0</td><td style="color:var(--pass);font-weight:700">8.0</td><td>B/C 平手</td><td>B科技感更强烈；C更克制专业；A极简配色符合规范但缺乏情感张力</td></tr>
+      <tr><td>C · 版式规范</td><td style="color:var(--watch);font-weight:700">7.0</td><td style="color:var(--watch);font-weight:700">7.0</td><td style="color:var(--pass);font-weight:700">8.5</td><td>路线C</td><td>C的8px间距体系最规范；A/B均有元素对齐或字号随机问题</td></tr>
+      <tr><td>D · 品牌一致性</td><td style="color:var(--pass);font-weight:700">8.0</td><td style="color:var(--watch);font-weight:700">7.5</td><td style="color:var(--pass);font-weight:700">8.0</td><td>A/C 平手</td><td>B因图标风格混杂扣分；A/C风格贯穿始终一致</td></tr>
+      <tr><td>E · 可访问性</td><td style="color:var(--watch);font-weight:700">7.5</td><td style="color:var(--watch);font-weight:700">7.5</td><td style="color:var(--watch);font-weight:700">7.5</td><td>三路线持平</td><td>三路线均有小字对比度临界情况，无严重违规</td></tr>
+      <tr><td><strong>综合得分</strong></td><td style="color:var(--fail);font-weight:700">7.1 FAIL</td><td style="color:var(--watch);font-weight:700">7.4 WATCH</td><td style="color:var(--pass);font-weight:700">8.1 PASS</td><td>路线C</td><td>—</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ TAB: DIR-02 Checklist ═══ -->
+<section id="tab-checklist" class="ts">
+  <h2 class="stitle">DIR-02 Checklist — 图片生成方向 Gate 2 评测用表</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按设计侧 Gate 2 标准对三路线产物逐项检查，记录各 Checklist 项通过/失败情况。</p>
+
+  <div class="card">
+    <div class="card-title">前提确认</div>
+    <table>
+      <tr><th style="width:45%">检查项</th><th>路线A</th><th>路线B</th><th>路线C</th></tr>
+      <tr><td><span style="color:var(--textm)">前提</span> 输出格式（JPG）和最低分辨率（≥1024×1024）已确定</td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td></tr>
+      <tr><td><span style="color:var(--textm)">前提</span> 版权路线已确认：AI生成模型许可证</td><td><span class="chip fail">✗</span></td><td><span class="chip fail">✗</span></td><td><span class="chip fail">✗</span></td></tr>
+      <tr><td><span style="color:var(--textm)">前提</span> 内容安全过滤机制已说明</td><td><span class="chip part">~</span></td><td><span class="chip part">~</span></td><td><span class="chip part">~</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE 核心检查项</div>
+    <table>
+      <tr><th style="width:45%">检查项</th><th>路线A</th><th>路线B</th><th>路线C</th></tr>
+      <tr><td><span style="font-size:11px;font-weight:700;color:var(--brown)">AQE-B</span> 主体清晰无畸变：节点/文字/图标边界清晰</td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td></tr>
+      <tr><td><span style="font-size:11px;font-weight:700;color:var(--brown)">AQE-B</span> 关键元素出现率 ≥ 90%（9个节点全部显示）</td><td><span class="chip pass">✓ 9/9</span></td><td><span class="chip pass">✓ 9/9</span></td><td><span class="chip part">~ 8/9</span></td></tr>
+      <tr><td><span style="font-size:11px;font-weight:700;color:var(--brown)">AQE-B</span> 色彩饱和度适中：不过饱和，冷暖协调</td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td></tr>
+      <tr><td><span style="font-size:11px;font-weight:700;color:var(--brown)">AQE-A</span> 构图平衡：主体未被裁切，有合理留白</td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td></tr>
+      <tr><td><span style="font-size:11px;font-weight:700;color:var(--brown)">AQE-D</span> 风格一致性：图标/色调/排版风格统一</td><td><span class="chip pass">✓</span></td><td><span class="chip part">~ 图标混杂</span></td><td><span class="chip pass">✓</span></td></tr>
+      <tr><td><span style="font-size:11px;font-weight:700;color:var(--fail)">AQE-E🔴</span> 文字对比度 ≥ 4.5:1（含文字时强制BLOCK项）</td><td><span class="chip pass">✓ 基本达标</span></td><td><span class="chip part">~ 部分临界</span></td><td><span class="chip part">~ 底部横条临界</span></td></tr>
+      <tr><td><span style="font-size:11px;font-weight:700;color:var(--brown)">AQE-C</span> 图片内文字排版：字间距/行间距合理</td><td><span class="chip pass">✓</span></td><td><span class="chip fail">✗ 字号混乱</span></td><td><span class="chip pass">✓</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Checklist 通过率汇总</div>
+    <table>
+      <tr><th>路线</th><th>通过</th><th>部分通过</th><th>失败</th><th>通过率</th><th>判定</th></tr>
+      <tr><td><strong>路线A 极简深色</strong></td><td>6</td><td>1</td><td>2</td><td>67%</td><td><span class="chip fail">FAIL</span></td></tr>
+      <tr><td><strong>路线B 渐变科技</strong></td><td>4</td><td>3</td><td>2</td><td>56%</td><td><span class="chip part">WATCH</span></td></tr>
+      <tr><td><strong>路线C Notion</strong></td><td>6</td><td>3</td><td>0</td><td>78%</td><td><span class="chip pass">PASS</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ TAB: Known Failures ═══ -->
+<section id="tab-failures" class="ts">
+  <h2 class="stitle">Known Failures</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">本次评测发现的失败模式，按标准格式写入 Known Failures 库，供下一批 Skill 准入时参考。</p>
+
+  <div class="kf">
+    <div class="kfid">KF-001 · AQE-A × DIR-02</div>
+    <div class="kftitle">架构图连线策略缺失导致箭头混乱（P0 级）</div>
+    <div class="kfrow"><span class="kfkey">失败类型</span><span>AQE-A（视觉层级）× DIR-02 图片生成</span></div>
+    <div class="kfrow"><span class="kfkey">触发条件</span><span>多节点架构图提示词中，节点间关系用"箭头连接"描述但未限制连线策略时</span></div>
+    <div class="kfrow"><span class="kfkey">症状</span><span>14条箭头线在有限画布空间内严重交叉，调度层双向连接两侧节点导致线条密集纠缠，架构图核心信息（连接关系）完全不可读</span></div>
+    <div class="kfrow"><span class="kfkey">根因</span><span>模型对"用箭头展示连接"的理解是穷举所有连接关系，而非按层次单向连接；提示词中缺乏对连线策略的约束（如：只连上下相邻层，禁止跨列连线）</span></div>
+    <div class="kfrow"><span class="kfkey">修复指令</span><span>在SKILL.md 阶段4提示词模板中增加【连线规则】章节："架构图连线必须只连接相邻层节点，每条连线只有唯一方向，禁止跨层直连，禁止双向互连超过3条"</span></div>
+    <div class="kfrow"><span class="kfkey">防重现规则</span><span>下批 Skill 准入Checklist 新增：□ 多节点连接图已在提示词中声明连线策略（单向/双向/分层）</span></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-002 · AQE-A × DIR-02</div>
+    <div class="kftitle">渐变科技风格下数字字号失控放大</div>
+    <div class="kfrow"><span class="kfkey">失败类型</span><span>AQE-A（视觉层级）× DIR-02 图片生成</span></div>
+    <div class="kfrow"><span class="kfkey">触发条件</span><span>深色科技风格 + 提示词中强调"关键数字用高亮色显示"时</span></div>
+    <div class="kfrow"><span class="kfkey">症状</span><span>"96核"、"A100"等数字字号异常放大至约为标题的3倍，破坏视觉层级，数字成为视觉主角</span></div>
+    <div class="kfrow"><span class="kfkey">根因</span><span>模型将"高亮"解释为"放大"，在科技风格下倾向于用超大字号表达数据重量感；提示词未约束节点内字号最大倍率</span></div>
+    <div class="kfrow"><span class="kfkey">修复指令</span><span>在渐变科技风格文件 gradient-tech.md 中增加约束："节点内数字/英文标注字号不超过节点标题字号的1.5倍；高亮方式首选颜色而非放大"</span></div>
+    <div class="kfrow"><span class="kfkey">防重现规则</span><span>下批 Skill 准入Checklist 新增：□ 科技/数据风格 Skill 的字号最大倍率已在风格文件中约束</span></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-003 · AQE-D × DIR-02</div>
+    <div class="kftitle">科技风格图标选取风格不一致（写实+扁平混用）</div>
+    <div class="kfrow"><span class="kfkey">失败类型</span><span>AQE-D（品牌一致性）× DIR-02 图片生成</span></div>
+    <div class="kfrow"><span class="kfkey">触发条件</span><span>渐变科技风格下，提示词包含多个技术组件（GPU/CPU/容器/存储）时</span></div>
+    <div class="kfrow"><span class="kfkey">症状</span><span>计算层图标为写实3D渲染风格，调度层和存储层图标为扁平线框风格，同一张图内图标库混杂</span></div>
+    <div class="kfrow"><span class="kfkey">根因</span><span>模型对不同类型组件（硬件组件vs软件组件）使用不同图标库，缺乏全局图标风格约束</span></div>
+    <div class="kfrow"><span class="kfkey">修复指令</span><span>在 SKILL.md 阶段4增加约束："同一张图的所有图标必须来自同一风格库（全部写实/全部扁平/全部线框），在【视觉细节】中明确声明"</span></div>
+    <div class="kfrow"><span class="kfkey">防重现规则</span><span>下批 Skill 准入Checklist 新增：□ 多组件图表类 Skill 已声明统一图标风格库类型</span></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-004 · Gate 0 × 合规</div>
+    <div class="kftitle">SKILL.md 缺乏完整输出示例（影响 Gate 2 评测基准）</div>
+    <div class="kfrow"><span class="kfkey">失败类型</span><span>Gate 0 合规（输出示例缺失）</span></div>
+    <div class="kfrow"><span class="kfkey">触发条件</span><span>任何评测人员尝试进行 Gate 2 评测时</span></div>
+    <div class="kfrow"><span class="kfkey">症状</span><span>无"用户输入X → Skill产出Y"完整链路示例，评测人员无法判断某产物是否达到 Skill 预期标准</span></div>
+    <div class="kfrow"><span class="kfkey">根因</span><span>建设方关注流程设计（7阶段工作流详细），忽略了准入规范中"完整输出示例"的强制要求</span></div>
+    <div class="kfrow"><span class="kfkey">修复指令</span><span>在 SKILL.md 或 examples/ 目录中增加 ≥ 1 个完整案例：输入主题+选择风格+生成结果图+质检报告</span></div>
+    <div class="kfrow"><span class="kfkey">防重现规则</span><span>下批 Skill 准入Checklist P0 项检查：□ examples/ 目录存在且包含完整链路示例</span></div>
+  </div>
+</section>
+
+<!-- ═══ TAB: 整改建议 ═══ -->
+<section id="tab-fixes" class="ts">
+  <h2 class="stitle">整改建议</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按优先级排序，P0 须整改完成后方可重走 Gate 0 评测。</p>
+
+  <div class="fix">
+    <div class="fixtitle">🔴 P0-1 · 增加完整输出示例（examples/ 目录）</div>
+    <div class="fixbody">在 SKILL.md 同级创建 <code>examples/</code> 目录，至少包含 1 个完整示例文件（<code>example-architecture.md</code>），记录：用户输入文本 → 选择的风格ID → 生成的提示词 → 产出图片URL。这是 Gate 2 评测基准的必要条件。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔴 P0-2 · 声明底层模型和版权路线</div>
+    <div class="fixbody">在 SKILL.md 顶部增加「版权与合规」章节：声明底层模型为 <code>Gemini-3.1-Flash-Image-Preview</code>，说明商用许可证状态；声明字体使用系统字体（无授权风险）；说明生成图像不包含真实人物肖像。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔴 P0-3 · 指定竞品对标锚点</div>
+    <div class="fixbody">在 SKILL.md 增加「质量基准」章节：<code>文生图综合质量对标 Gemini 2.5 Flash Image（官方版）</code>，<code>文字渲染对标 GPT-4o Image</code>，<code>版权安全对标 Adobe Firefly</code>。为 Gate 2 提供可量化的对比维度。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔴 P0-4 · 在提示词模板中增加连线规则约束（修复 KF-001）</div>
+    <div class="fixbody">在阶段4提示词文档模板的【禁止元素】区增加：<code>禁止多节点间连线交叉；架构图连接只允许相邻层单向连接；每列节点最多对外产生3条连线</code>。并在阶段7自动检查清单中增加"连线是否清晰无交叉"的验证项。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔴 P0-5 · 在风格文件中增加字号约束（修复 KF-002）</div>
+    <div class="fixbody">在各风格文件（尤其是 <code>gradient-tech.md</code>、<code>data-dashboard.md</code>）中增加字号层级约束：节点标题字号为基准，图标描述字号 ≤ 基准的0.85倍，数字标注字号 ≤ 基准的1.3倍，禁止用放大代替高亮。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔴 P0-6 · 增加主体清晰度标准和色彩对比度要求</div>
+    <div class="fixbody">在阶段7自动检查清单中增加：<code>□ 所有文字与背景对比度 ≥ 4.5:1（深色风格下白字/浅色风格下深字均须达标）</code>；<code>□ 节点/图标边界清晰无模糊，文字无渲染畸变</code>。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🟡 P1-1 · 统一图标风格约束（修复 KF-003）</div>
+    <div class="fixbody">在阶段4提示词模板的【视觉细节】区增加默认约束：<code>所有图标必须使用统一的扁平线框风格，禁止写实3D图标与扁平图标混用</code>。在科技类风格文件中额外声明图标库推荐（如 Material Icons 风格）。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🟡 P1-2 · 定义默认风格选择逻辑</div>
+    <div class="fixbody">在阶段3增加明确的默认风格逻辑：当用户不指定风格时，根据使用场景自动选择（技术文档→minimal-dark；商业演示→corporate-business；知识分享→notion-style），避免"默认美学基准档"缺失问题。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🟡 P1-3 · 补全连接关系完整性检查</div>
+    <div class="fixbody">在阶段7自动检查清单"内容完整性检查"中增加：<code>□ 所有节点间的连接关系是否完整（如架构图中A→B→C的完整链路，不得有节点孤立）</code>。此项解决路线C中存储层部分节点无连线的问题。</div>
+  </div>
+</section>
+
+</div><!-- /content -->
+
+<script>
+function sw(id) {
+  document.querySelectorAll('.ts').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
