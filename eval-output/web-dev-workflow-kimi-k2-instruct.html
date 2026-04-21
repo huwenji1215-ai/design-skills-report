@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 工具导航</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --primary: #58a6ff;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --border: #30363d;
+    }
+
+    @ {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      text-align: center;
+      padding: 48px 16px 32px;
+    }
+
+    h1 {
+      font-size: 40px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px 80px;
+    }
+
+    .section {
+      margin-bottom: 56px;
+    }
+
+    .section-title {
+      font-size: 28px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .cards {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 8px;
+    }
+
+    .card-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      flex-grow: 1;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      align-self: flex-start;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover,
+    .btn:focus {
+      background: #1f6feb;
+      outline: none;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 32px;
+      }
+
+      .section-title {
+        font-size: 24px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AI 工具导航</h1>
+    <p class="subtitle">精选高效 AI 工具，一键直达</p>
+  </header>
+
+  <main>
+    <!-- 文生图 -->
+    <section class="section">
+      <h2 class="section-title">文生图</h2>
+      <div class="cards">
+        <div class="card">
+          <h3 class="card-title">Midjourney</h3>
+          <p class="card-desc">通过 Discord 指令即可生成高质量艺术插画，社区活跃，风格多样。</p>
+          <button class="btn" onclick="openLink('https://www.midjourney.com')">进入</button>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Stable Diffusion WebUI</h3>
+          <p class="card-desc">开源模型，本地部署即可免费使用，支持插件扩展，可精细控制出图。</p>
+          <button class="btn" onclick="openLink('https://github.com/AUTOMATIC1111/stable-diffusion-webui')">进入</button>
+        </div>
+        <div class="card">
+          <h3 class="card-title">DALL·E 3</h3>
+          <p class="card-desc">OpenAI 官方出品，对话式生成，语义理解强，与 ChatGPT Plus 无缝集成。</p>
+          <button class="btn" onclick="openLink('https://openai.com/dall-e-3')">进入</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 代码助手 -->
+    <section class="section">
+      <h2 class="section-title">代码助手</h2>
+      <div class="cards">
+        <div class="card">
+          <h3 class="card-title">GitHub Copilot</h3>
+          <p class="card-desc">IDE 内实时补全代码、生成函数，支持多语言，极大提升开发效率。</p>
+          <button class="btn" onclick="openLink('https://github.com/features/copilot')">进入</button>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Cursor</h3>
+          <p class="card-desc">基于 VS Code 的 AI 编辑器，支持自然语言改写、解释、重构代码。</p>
+          <button class="btn" onclick="openLink('https://www.cursor.so')">进入</button>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Codeium</h3>
+          <p class="card-desc">免费个人使用的 AI 代码补全工具，支持 70+ 语言，响应速度快。</p>
+          <button class="btn" onclick="openLink('https://codeium.com')">进入</button>
+        </div>
+      </>
+    </section>
+
+    <!-- 写作助手 -->
+    <section class="section">
+      <h2 class="section-title">写作助手</h2>
+      <div class="cards">
+        <div class="card">
+          <h3 class="card-title">Notion AI</h3>
+          <p class="card-desc">在 Notion 内直接调用 AI 续写、总结、翻译，笔记与写作无缝衔接。</p>
+          <button class="btn" onclick="openLink('https://www.notion.so/product/ai')">进入</button>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Grammarly</h3>
+          <p class="card-desc">英文语法与风格检查，支持浏览器插件、桌面端，实时纠正写作错误。</p>
+          <button class="btn" onclick="openLink('https://www.grammarly.com')">进入</button>
+        </div>
+        <div class="card">
+          <h3 class="card-title">秘塔写作猫</h3>
+          <p class="card-desc">中文 AI 写作与润色，支持降重、改写改写、公文模板，适合中文场景。</p>
+          <button class="btn" onclick="openLink('https://xiezuocat.com')">进入</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视频生成 -->
+    <section class="section">
+      <h2 class="section-title">视频生成</h2>
+      <div class="cards">
+        <div class="card">
+          <h3 class="card-title">Runway Gen-2</h3>
+          <p class="card-desc">文本/图片生成视频，支持运动笔刷、镜头控制，创意短片神器。</p>
+          <button class="btn" onclick="openLink('https://runwayml.com')">进入</button>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Pika Labs</h3>
+          <p class="card-desc">Discord 社区驱动的 AI 视频工具，更新快，特效模板丰富，操作简单。</p>
+          <button class="btn" onclick="openLink('https://pika.art')">进入</button>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Synthesia</h3>
+          <p class="card-desc">AI 虚拟人播报，输入文本即可生成带旁白的营销、培训视频，支持中文。</p>
+          <button class="btn" onclick="openLink('https://www.synthesia.io')">进入</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function openLink(url) {
+      window.open(url, '_blank', 'noopener');
+    }
+  </script>
+</body>
+</html>

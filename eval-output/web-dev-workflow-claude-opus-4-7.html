@@ -1,0 +1,217 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI工具导航 · AI Nav</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f1115;
+    --bg-soft: #171a21;
+    --card: #1c2028;
+    --card-hover: #242935;
+    --border: #2a2f3a;
+    --text: #e6e8ee;
+    --text-sub: #9aa0ac;
+    --primary: #6366f1;
+    --primary-hover: #7c7ff3;
+    --accent: #22d3ee;
+  }
+  body.light {
+    --bg: #f7f8fb;
+    --bg-soft: #ffffff;
+    --card: #ffffff;
+    --card-hover: #f0f2f7;
+    --border: #e5e7ee;
+    --text: #1a1d24;
+    --text-sub: #5a6270;
+    --primary: #5558e6;
+    --primary-hover: #4447d9;
+    --accent: #0891b2;
+  }
+  html, body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.6; transition: background .3s, color .3s; }
+
+  /* Header */
+  .header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(15,17,21,.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  body.light .header { background: rgba(255,255,255,.85); }
+  .header-inner {
+    max-width: 1280px; margin: 0 auto;
+    padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+  .logo-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: grid; place-items: center; color: #fff; font-weight: 800;
+  }
+  .search {
+    flex: 1; max-width: 480px; position: relative;
+  }
+  .search input {
+    width: 100%; padding: 10px 16px 10px 40px;
+    border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg-soft); color: var(--text);
+    font-size: 14px; outline: none; transition: border .2s, box-shadow .2s;
+  }
+  .search input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,.2); }
+  .search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
+  .theme-btn {
+    padding: 9px 14px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg-soft); color: var(--text);
+    cursor: pointer; font-size: 14px; transition: all .2s;
+  }
+  .theme-btn:hover { background: var(--card-hover); border-color: var(--primary); }
+  .theme-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+  /* Hero */
+  .hero {
+    max-width: 1280px; margin: 0 auto;
+    padding: 64px 24px 32px; text-align: center;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 44px); font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 12px;
+  }
+  .hero p { color: var(--text-sub); font-size: 16px; max-width: 600px; margin: 0 auto; }
+
+  /* Categories nav */
+  .cat-nav {
+    max-width: 1280px; margin: 0 auto;
+    padding: 24px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  }
+  .cat-btn {
+    padding: 8px 16px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--bg-soft); color: var(--text-sub);
+    cursor: pointer; font-size: 14px; transition: all .2s;
+  }
+  .cat-btn:hover { color: var(--text); border-color: var(--primary); }
+  .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .cat-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+  /* Main */
+  main { max-width: 1280px; margin: 0 auto; padding: 16px 24px 64px; }
+  .category { margin-bottom: 48px; }
+  .category-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+  .category-header h2 { font-size: 22px; font-weight: 700; }
+  .category-header .count { color: var(--text-sub); font-size: 14px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+    display: flex; flex-direction: column; gap: 12px;
+    transition: transform .2s, border-color .2s, background .2s;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--primary); background: var(--card-hover); }
+  .card-head { display: flex; align-items: center; gap: 12px; }
+  .card-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: grid; place-items: center;
+    font-size: 20px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .card-title { font-size: 16px; font-weight: 700; }
+  .card-desc { color: var(--text-sub); font-size: 14px; flex: 1; }
+  .card-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px 14px; border-radius: 8px;
+    background: var(--primary); color: #fff;
+    text-decoration: none; font-size: 14px; font-weight: 600;
+    transition: background .2s;
+    align-self: flex-start;
+  }
+  .card-btn:hover { background: var(--primary-hover); }
+  .card-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .empty { text-align: center; padding: 48px; color: var(--text-sub); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px; text-align: center; color: var(--text-sub); font-size: 14px;
+  }
+
+  @media (max-width: 640px) {
+    .header-inner { padding: 12px 16px; }
+    .logo span:last-child { display: none; }
+    .hero { padding: 40px 16px 16px; }
+    main { padding: 8px 16px 48px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">AI</div>
+      <span>AI Nav · 工具导航</span>
+    </div>
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="searchInput" type="text" placeholder="搜索工具名称或描述...">
+    </div>
+    <button class="theme-btn" id="themeBtn">🌙 深色</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>发现最好用的 AI 工具</h1>
+  <p>精选全球优质 AI 工具，覆盖文生图、代码助手、写作、视频生成等场景，助你高效创作。</p>
+</section>
+
+<nav class="cat-nav" id="catNav"></nav>
+
+<main id="main"></main>
+
+<footer>© 2025 AI Nav · 持续更新中</footer>
+
+<script>
+  const data = [
+    {
+      cat: '文生图', icon: '🎨', color: '#ec4899',
+      tools: [
+        { name: 'Midjourney', desc: '艺术风格顶尖的 AI 绘画工具，效果惊艳。', url: 'https://www.midjourney.com' },
+        { name: 'Stable Diffusion', desc: '开源免费的文生图模型，可本地部署。', url: 'https://stability.ai' },
+        { name: 'DALL·E 3', desc: 'OpenAI 出品，擅长理解复杂自然语言描述。', url: 'https://openai.com/dall-e-3' },
+        { name: '即梦 AI', desc: '字节跳动出品的中文友好 AI 绘画平台。', url: 'https://jimeng.jianying.com' },
+      ]
+    },
+    {
+      cat: '代码助手', icon: '💻', color: '#6366f1',
+      tools: [
+        { name: 'GitHub Copilot', desc: 'GitHub 和 OpenAI 联合推出的 AI 编程助手。', url: 'https://github.com/features/copilot' },
+        { name: 'Cursor', desc: 'AI 原生代码编辑器，支持整库对话与重构。', url: 'https://cursor.sh' },
+        { name: 'Claude Code', desc: 'Anthropic 出品的终端级 AI 编程工具。', url: 'https://claude.ai/code' },
+        { name: 'Windsurf', desc: 'Codeium 推出的 AI 编辑器，流畅协作体验。', url: 'https://codeium.com/windsurf' },
+      ]
+    },
+    {
+      cat: '写作助手', icon: '✍️', color: '#10b981',
+      tools: [
+        { name: 'ChatGPT', desc: 'OpenAI 旗舰对话模型，写作通用利器。', url: 'https://chat.openai.com' },
+        { name: 'Claude', desc: '长文本处理能力突出，擅长写作与分析。', url: 'https://claude.ai' },
+        { name: 'Notion AI', desc: '集成在 Notion 中的 AI 写作与总结工具。', url: 'https://notion.so/product/ai' },
+        { name: '文心一言', desc: '百度出品的中文大模型，写作润色好帮手。', url: 'https://yiyan.baidu.com' },
+      ]
+    },
+    {
+      cat: '视频生成', icon: '🎬', color: '#f59e0b',
+      tools: [
+        { name: 'Sora', desc: 'OpenAI 推出的文生视频模型，效果震撼。', url: 'https://openai.com/sora' },
+        { name: 'Runway', desc: '专业 AI 视频创作平台，功能全面。', url: 'https://runwayml.com' },
+        { name: '可灵 AI', desc: '快手出品的高质量 AI 视频生成工具。', url: '

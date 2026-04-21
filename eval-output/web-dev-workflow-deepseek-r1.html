@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 工具导航</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --primary: #58a6ff;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --border: #30363d;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 32px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    section {
+      max-width: 1200px;
+      margin: 0 auto 48px;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, .4);
+    }
+
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      flex: 1;
+    }
+
+    .btn {
+      align-self: flex-start;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity .15s ease;
+    }
+
+    .btn:hover,
+    .btn:focus {
+      opacity: .85;
+      outline: none;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 26px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AI 工具导航</h1>
+    <p class="subtitle">一站式发现最新最热的 AI 生产力工具</p>
+  </header>
+
+  <section>
+    <h2>文生图</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Midjourney</h3>
+        <p>Discord 最强文生图机器人，艺术级图片生成。</p>
+        <button class="btn" onclick="openLink('https://www.midjourney.com')">进入</button>
+      </div>
+      <div class="card">
+        <h3>DALL·E 3</h3>
+        <p>OpenAI 官方出品，支持对话式精准控制画面。</p>
+        <button class="btn" onclick="openLink('https://openai.com/dall-e-3')">进入</button>
+      </div>
+      <div class="card">
+        <h3>Stable Diffusion WebUI</h3>
+        <p>开源模型，本地部署无限出图，插件生态丰富。</p>
+        <button class="btn" onclick="openLink('https://github.com/AUTOMATIC1111/stable-diffusion-webui')">进入</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>代码助手</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>GitHub Copilot</h3>
+        <p>AI 结对编程，实时补全整段代码，支持多语言。</p>
+        <button class="btn" onclick="openLink('https://github.com/features/copilot')">进入</button>
+      </div>
+      <div class="card">
+        <h3>Cursor</h3>
+        <p>基于 VS Code 的 AI 编辑器，对话式重构与调试。</p>
+        <button class="btn" onclick="openLink('https://www.cursor.so')">进入</button>
+      </div>
+      <div class="card">
+        <h3>Codeium</h3>
+        <p>免费高速代码补全，支持 70+ 语言与主流 IDE。</p>
+        <button class="btn" onclick="openLink('https://codeium.com')">进入</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>写作助手</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Notion AI</h3>
+        <p>在 Notion 内一键续写、总结、翻译与头脑风暴。</p>
+        <button class="btn" onclick="openLink('https://www.notion.so/product/ai')">进入</button>
+      </div>
+      <div class="card">
+        <h3>Grammarly</h3>
+        <p>实时英文语法纠错与风格建议，提升写作专业度。</p>
+        <button class="btn" onclick="openLink('https://www.grammarly.com')">进入</button>
+      </div>
+      <div class="card">
+        <h3>火山写作</h3>
+        <p>字节跳动出品，中文 AI 写作润色与全文优化。</p>
+        <button class="btn" onclick="openLink('https://www.writingo.net')">进入</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>视频生成</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Runway Gen-2</h3>
+        <p>一句话生成 18 秒短视频，支持文本+图片混合驱动。</p>
+        <button class="btn" onclick="openLink('https://runwayml.com/gen2')">进入</button>
+      </div>
+      <div class="card">
+        <h3>Pika Labs</h3>
+        <p>Discord 内快速生成 3 秒高清视频，社区活跃。</p>
+        <button class="btn" onclick="openLink('https://pika.art')">进入</button>
+      </div>
+      <div class="card">
+        <h3>Synthesia</h3>
+        <p>AI 数字人播报，支持 130+ 语言，企业培训首选。</p>
+        <button class="btn" onclick="openLink('https://www.synthesia.io')">进入</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function openLink(url) {
+      window.open(url, '_blank', 'noopener');
+    }
+  </script>
+</body>
+</html>

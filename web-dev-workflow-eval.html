@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>web-dev-workflow · Skill 评测报告</title>
+<style>
+:root {
+  --bg: #0d0f14;
+  --surface: #161921;
+  --surface2: #1e222d;
+  --border: #2a2f3d;
+  --text: #e2e8f0;
+  --text-sub: #8892a4;
+  --primary: #6366f1;
+  --primary-light: rgba(99,102,241,.15);
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --orange: #f97316;
+  --pass: #22c55e;
+  --watch: #eab308;
+  --fail: #ef4444;
+  --block: #9333ea;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; line-height: 1.6; }
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1a1d2e 0%, #161921 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 40px 48px 32px;
+}
+.header-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--primary-light); border: 1px solid var(--primary);
+  color: #a5b4fc; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  margin-bottom: 16px; letter-spacing: .5px; text-transform: uppercase;
+}
+.header h1 { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.header h1 span { color: #818cf8; }
+.header-meta { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 16px; }
+.header-meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-sub); }
+.header-meta-item strong { color: var(--text); }
+
+/* Layout */
+.container { max-width: 1200px; margin: 0 auto; padding: 32px 48px 80px; }
+.section { margin-bottom: 48px; }
+.section-title {
+  font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Cards */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px;
+}
+.card + .card { margin-top: 16px; }
+
+/* Verdict badge */
+.verdict {
+  display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px;
+  font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+}
+.verdict-PASS { background: rgba(34,197,94,.15); color: var(--pass); border: 1px solid rgba(34,197,94,.3); }
+.verdict-WATCH { background: rgba(234,179,8,.15); color: var(--watch); border: 1px solid rgba(234,179,8,.3); }
+.verdict-FAIL { background: rgba(239,68,68,.15); color: var(--fail); border: 1px solid rgba(239,68,68,.3); }
+.verdict-BLOCK { background: rgba(147,51,234,.15); color: var(--block); border: 1px solid rgba(147,51,234,.3); }
+
+/* Compliance check table */
+.compliance-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.compliance-table th {
+  text-align: left; padding: 10px 16px; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--text-sub); background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.compliance-table td { padding: 10px 16px; border-bottom: 1px solid rgba(42,47,61,.5); vertical-align: top; }
+.compliance-table tr:last-child td { border-bottom: none; }
+.badge-p0 { background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+.badge-p1 { background: rgba(234,179,8,.1); color: #fbbf24; border: 1px solid rgba(234,179,8,.3); display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+.badge-p2 { background: rgba(99,102,241,.1); color: #818cf8; border: 1px solid rgba(99,102,241,.3); display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+.check-pass { color: var(--green); font-size: 14px; }
+.check-partial { color: var(--yellow); font-size: 14px; }
+.check-fail { color: var(--red); font-size: 14px; }
+
+/* Score display */
+.scores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.score-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; text-align: center;
+}
+.score-item .dim { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-sub); margin-bottom: 6px; }
+.score-item .val { font-size: 28px; font-weight: 800; }
+.score-item .sub { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
+.val-high { color: var(--green); }
+.val-mid { color: var(--yellow); }
+.val-low { color: var(--red); }
+.val-total { color: #a5b4fc; }
+
+/* Model results */
+.model-row {
+  display: grid; grid-template-columns: 200px 1fr auto;
+  gap: 24px; align-items: start;
+  padding: 20px 24px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px;
+}
+.model-name { font-weight: 700; font-size: 15px; color: #fff; }
+.model-time { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+.model-notes { font-size: 12px; color: var(--text-sub); }
+.model-notes li { margin-bottom: 4px; list-style: none; }
+.model-notes li::before { content: '→ '; color: var(--primary); }
+.model-score-block { text-align: right; }
+.model-total { font-size: 36px; font-weight: 800; color: #a5b4fc; line-height: 1; }
+.model-sub-scores { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 8px; }
+.dim-score { display: flex; flex-direction: column; align-items: center; background: var(--surface2); border-radius: 6px; padding: 6px 10px; min-width: 40px; }
+.dim-score span:first-child { font-size: 10px; color: var(--text-sub); }
+.dim-score span:last-child { font-size: 14px; font-weight: 700; }
+
+/* Product preview */
+.product-preview {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px; margin-top: 12px;
+}
+.product-preview-title { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-sub); margin-bottom: 8px; }
+.code-snippet {
+  background: #0a0c12; border: 1px solid var(--border);
+  border-radius: 6px; padding: 12px 16px; font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 12px; color: #94a3b8; overflow-x: auto; max-height: 200px; overflow-y: auto;
+  white-space: pre-wrap; word-break: break-all;
+}
+
+/* Summary */
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.summary-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+}
+.summary-card h3 { font-size: 13px; font-weight: 600; color: var(--text-sub); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .5px; }
+.known-fail-item { margin-bottom: 12px; padding: 10px; background: var(--surface2); border-radius: 8px; border-left: 3px solid var(--red); font-size: 12px; }
+.known-fail-item .kf-title { font-weight: 600; color: #fca5a5; margin-bottom: 4px; }
+.known-fail-item .kf-fix { color: var(--text-sub); }
+
+/* Overall verdict */
+.overall {
+  background: linear-gradient(135deg, #1a1d2e 0%, #1e222d 100%);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 32px; display: flex; align-items: center; gap: 32px;
+}
+.overall-score { font-size: 72px; font-weight: 900; color: #a5b4fc; line-height: 1; }
+.overall-info h2 { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.overall-info p { color: var(--text-sub); font-size: 14px; max-width: 500px; }
+.overall-tags { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.tag { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.tag-green { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+.tag-yellow { background: rgba(234,179,8,.15); color: var(--yellow); border: 1px solid rgba(234,179,8,.3); }
+.tag-red { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+/* Progress bar */
+.progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+
+/* Section tabs nav */
+.toc { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+.toc a {
+  padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  color: var(--text-sub); border: 1px solid var(--border); text-decoration: none;
+  transition: all .2s;
+}
+.toc a:hover { color: var(--text); border-color: var(--primary); }
+
+/* Footnote */
+.footnote { font-size: 12px; color: var(--text-sub); margin-top: 8px; }
+
+@media (max-width: 768px) {
+  .container { padding: 24px 20px; }
+  .header { padding: 24px 20px; }
+  .model-row { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .overall { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">🔬 Skill Design Standard · AQE 评测报告</div>
+  <h1>web-dev-workflow <span>Skill 评测</span></h1>
+  <p style="color:#94a3b8;font-size:14px;margin-top:8px;">基于设计侧 AQE 美学评测矩阵 · UI生成方向（DIR-01）</p>
+  <div class="header-meta">
+    <div class="header-meta-item">📅 评测时间 <strong>2026-04-21</strong></div>
+    <div class="header-meta-item">🔖 Skill 版本 <strong>v1.6.0</strong></div>
+    <div class="header-meta-item">🤖 评测模型数 <strong>3个</strong></div>
+    <div class="header-meta-item">📦 评测方向 <strong>UI生成 · DIR-01</strong></div>
+    <div class="header-meta-item">⚙️ 评测标准 <strong>skill-design-standard v1.0</strong></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <a href="#compliance">§1 合规测试</a>
+    <a href="#mock-case">§2 Mock Case</a>
+    <a href="#products">§3 模型产物</a>
+    <a href="#aqe-scores">§4 AQE 评分</a>
+    <a href="#conclusion">§5 综合结论</a>
+  </div>
+
+  <!-- ═══ §1 合规测试 ═══ -->
+  <div id="compliance" class="section">
+    <div class="section-title">§1 · Skill 本体合规测试（Gate 0 + SQE-5）</div>
+
+    <div class="card">
+      <p style="font-size:13px;color:var(--text-sub);margin-bottom:20px;">
+        对照准入规范对 <code style="color:#a5b4fc">web-dev-workflow/SKILL.md</code> 进行逐项检查，覆盖通用准入清单 + UI生成专属要求。
+      </p>
+
+      <table class="compliance-table">
+        <thead>
+          <tr>
+            <th style="width:60px">优先级</th>
+            <th style="width:80px">状态</th>
+            <th>检查项</th>
+            <th>评估结论</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- A. 输出物定义 -->
+          <tr><td colspan="4" style="background:rgba(99,102,241,.05);font-weight:600;font-size:12px;color:#818cf8;">A · 输出物定义</td></tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>输出物类型已明确（HTML/CSS/JS）</td>
+            <td style="font-size:12px;color:var(--text-sub)">SKILL.md 明确定义输出为网页文件（HTML/CSS/JS），有文件拆分决策表</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-partial">⚠️</span></td>
+            <td>有 ≥1 个完整输出示例</td>
+            <td style="font-size:12px;color:var(--text-sub)">有代码片段示例，但缺少「用户输入X→产出Y」的完整端到端示例</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>输出精度已定义（原型级/生产级）</td>
+            <td style="font-size:12px;color:var(--text-sub)">强制完成检查清单中明确要求本地验证+部署生效，指向生产级标准</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p1">P1</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>输出尺寸/分辨率已约束</td>
+            <td style="font-size:12px;color:var(--text-sub)">checklist.md 明确规定响应式要求：1920px+、1366px、768px、375px 四档</td>
+          </tr>
+          <!-- B. 竞品对标 -->
+          <tr><td colspan="4" style="background:rgba(99,102,241,.05);font-weight:600;font-size:12px;color:#818cf8;">B · 竞品对标锚点</td></tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-fail">❌</span></td>
+            <td>已指定质量对标竞品</td>
+            <td style="font-size:12px;color:var(--text-sub)">SKILL.md 中未明确写出对标竞品（如 v0.dev、Claude Artifacts 等），准入规范缺失此项</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p1">P1</span></td>
+            <td><span class="check-fail">❌</span></td>
+            <td>已做竞品实测截图存档</td>
+            <td style="font-size:12px;color:var(--text-sub)">无竞品实测记录，缺少 Gate 2 对比基准</td>
+          </tr>
+          <!-- C. 版权合规 -->
+          <tr><td colspan="4" style="background:rgba(99,102,241,.05);font-weight:600;font-size:12px;color:#818cf8;">C · 版权与合规</td></tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-partial">⚠️</span></td>
+            <td>字体使用路线已确定</td>
+            <td style="font-size:12px;color:var(--text-sub)">SKILL.md checklist 有「仅使用系统字体或开源授权字体」要求，但未在主文档中明确字体方案</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>图片/插画来源合规</td>
+            <td style="font-size:12px;color:var(--text-sub)">Skill 以代码输出为主，无直接图片引用风险；有 favicon 规范防止未授权图标使用</td>
+          </tr>
+          <!-- D. 美学基线 -->
+          <tr><td colspan="4" style="background:rgba(99,102,241,.05);font-weight:600;font-size:12px;color:#818cf8;">D · 美学基线要求</td></tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-partial">⚠️</span></td>
+            <td>色彩对比度达标要求（WCAG AA ≥4.5:1）</td>
+            <td style="font-size:12px;color:var(--text-sub)">checklist.md 中有提及「颜色对比度 WCAG AA 4.5:1」，但非强制要求语气，主 SKILL.md 中缺少明确约束</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p1">P1</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>颜色不是唯一信息载体</td>
+            <td style="font-size:12px;color:var(--text-sub)">无具体说明，但 checklist 中要求功能验证+视觉检查，暗含此要求</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p1">P1</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>默认输出有美学基准档</td>
+            <td style="font-size:12px;color:var(--text-sub)">SKILL.md 要求 meta-execution + product-thinking，确保基本设计质量</td>
+          </tr>
+          <!-- E. 边界处理 -->
+          <tr><td colspan="4" style="background:rgba(99,102,241,.05);font-weight:600;font-size:12px;color:#818cf8;">E · 边界与失败处理</td></tr>
+          <tr>
+            <td><span class="badge-p1">P1</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>已定义「不做什么」</td>
+            <td style="font-size:12px;color:var(--text-sub)">description 明确限定触发词范围（HTML/CSS/JS相关），隐含能力边界</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p1">P1</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>输入不完整时有降级策略</td>
+            <td style="font-size:12px;color:var(--text-sub)">强制检查清单 + meta-execution 要求预判并主动询问，有降级引导</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p2">P2</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>预列已知失败模式</td>
+            <td style="font-size:12px;color:var(--text-sub)">references/ 目录包含7个专项踩坑文档：html-screenshot、svg-viewbox、ui-layout-overflow等，远超3条要求</td>
+          </tr>
+          <!-- UI生成专属 -->
+          <tr><td colspan="4" style="background:rgba(99,102,241,.05);font-weight:600;font-size:12px;color:#818cf8;">UI生成专属准入要求（DIR-01）</td></tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>视觉层级存在（字号对比≥2级）</td>
+            <td style="font-size:12px;color:var(--text-sub)">SKILL.md 技术规范隐含字号体系要求，checklist 有「视觉检查」项</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>布局不崩溃（定义最低分辨率）</td>
+            <td style="font-size:12px;color:var(--text-sub)">checklist 明确定义4档分辨率响应式要求，B端≥1280px，H5≥375px</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p0">P0</span></td>
+            <td><span class="check-pass">✅</span></td>
+            <td>间距体系一致（4px/8px基准）</td>
+            <td style="font-size:12px;color:var(--text-sub)">SKILL.md「生成架构规范」提到HTML/CSS/JS标准文件结构，间距体系有示例约束</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p1">P1</span></td>
+            <td><span class="check-fail">❌</span></td>
+            <td>颜色不超过5个主色系</td>
+            <td style="font-size:12px;color:var(--text-sub)">SKILL.md 未明确限制色相数量，checklist 仅「可选」中提及色彩要求</td>
+          </tr>
+          <tr>
+            <td><span class="badge-p1">P1</span></td>
+            <td><span class="check-partial">⚠️</span></td>
+            <td>交互状态有视觉反馈（hover/focus）</td>
+            <td style="font-size:12px;color:var(--text-sub)">checklist 中有「可通过键盘导航」，但未明确要求 hover/active 状态</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:20px;display:flex;gap:16px;flex-wrap:wrap;">
+        <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:12px 20px;font-size:13px;">
+          ✅ 通过 <strong style="color:var(--green);font-size:20px;display:block;line-height:1.2">9</strong><span style="color:var(--text-sub)">项</span>
+        </div>
+        <div style="background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);border-radius:8px;padding:12px 20px;font-size:13px;">
+          ⚠️ 部分通过 <strong style="color:var(--yellow);font-size:20px;display:block;line-height:1.2">5</strong><span style="color:var(--text-sub)">项</span>
+        </div>
+        <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:12px 20px;font-size:13px;">
+          ❌ 不通过 <strong style="color:var(--red);font-size:20px;display:block;line-height:1.2">3</strong><span style="color:var(--text-sub)">项</span>
+        </div>
+      </div>
+      <p class="footnote" style="margin-top:12px;">⚠️ 关键缺失：P0级「竞品对标锚点」未在 SKILL.md 中明确指定，这会导致 Gate 2 评测时缺乏对比基准，建议在 SKILL.md 中补充竞品对标表。</p>
+    </div>
+  </div>
+
+  <!-- ═══ §2 Mock Case ═══ -->
+  <div id="mock-case" class="section">
+    <div class="section-title">§2 · Mock 测试案例</div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div>
+          <p style="font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-sub);margin-bottom:8px;">评测方向</p>
+          <p style="font-size:15px;font-weight:600;">UI生成 · DIR-01</p>
+          <p style="font-size:13px;color:var(--text-sub);margin-top:4px;">单页 HTML 网页开发场景</p>
+        </div>
+        <div>
+          <p style="font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-sub);margin-bottom:8px;">竞品基准</p>
+          <p style="font-size:15px;font-weight:600;">Claude Artifacts / v0.dev</p>
+          <p style="font-size:13px;color:var(--text-sub);margin-top:4px;">HTML原型质量锚点</p>
+        </div>
+      </div>
+      <div class="divider" style="margin:20px 0;"></div>
+      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-sub);margin-bottom:10px;">用户输入 Prompt</p>
+      <div class="code-snippet" style="max-height:none;color:#e2e8f0;">帮我做一个AI工具导航页（单页HTML）
+要求：
+1. 展示常见AI工具分类：文生图、代码助手、写作助手、视频生成等
+2. 现代简洁风格，深色/浅色都可以
+3. 响应式设计，在手机和电脑上都能看
+4. 每个工具卡片有工具名、简介、进入按钮</div>
+      <div class="divider" style="margin:20px 0;"></div>
+      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-sub);margin-bottom:10px;">System Prompt（Skill 规范注入）</p>
+      <div class="code-snippet">输出物类型：单文件HTML（包含内联CSS和JS）
+视觉层级：标题>分类>卡片>描述，字号体系清晰（≥3级字号）
+色彩：主色系≤5个，使用协调配色，文字对比度≥4.5:1
+布局：8px间距体系，留白充足，内容不超过页面70%
+响应式：支持375px~1920px
+交互：按钮有hover状态，可交互元素有focus样式</div>
+      <p class="footnote" style="margin-top:12px;">注：System Prompt 模拟了 web-dev-workflow 技能的规范约束，反映 Skill 实际向模型注入的质量要求。</p>
+    </div>
+  </div>
+
+  <!-- ═══ §3 模型产物 ═══ -->
+  <div id="products" class="section">
+    <div class="section-title">§3 · 3个模型的产物详情</div>
+
+    <!-- Claude -->
+    <div class="model-row">
+      <div>
+        <div class="model-name">Claude-Opus-4.7</div>
+        <div class="model-time">⏱ 响应时间：61.9s | 输出：8,249 chars</div>
+        <div style="margin-top:12px;">
+          <span class="verdict verdict-FAIL">FAIL</span>
+        </div>
+      </div>
+      <div>
+        <ul class="model-notes">
+          <li>标题层级不足（h1/h2但缺少明显h3/分类层级）</li>
+          <li>配色偏单调或颜色数量异常（纯黑白灰为主，accent色单一）</li>
+          <li>使用8px间距体系，flex/grid布局规范 ✓</li>
+          <li>使用CSS变量（:root），风格一致性良好 ✓</li>
+          <li>有focus样式（focus-visible）✓</li>
+          <li>响应式设计（@media查询）✓</li>
+        </ul>
+        <div class="product-preview">
+          <div class="product-preview-title">产物代码片段（前200字符）</div>
+          <div class="code-snippet">&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-CN"&gt;
+&lt;head&gt;
+&lt;title&gt;AI工具导航 · AI Nav&lt;/title&gt;
+&lt;style&gt;
+  :root { --bg: #0f1115; --primary: #6366f1; --accent: #22d3ee; }
+  /* 使用CSS变量 + 深色/浅色主题切换 */
+&lt;/style&gt;
+...</div>
+        </div>
+      </div>
+      <div class="model-score-block">
+        <div class="model-total">6.87</div>
+        <div style="font-size:11px;color:var(--text-sub);margin-top:4px;">综合得分</div>
+        <div class="model-sub-scores">
+          <div class="dim-score"><span>A层级</span><span class="val-low">5.5</span></div>
+          <div class="dim-score"><span>B色彩</span><span class="val-low">6.0</span></div>
+          <div class="dim-score"><span>C版式</span><span class="val-high">8.5</span></div>
+          <div class="dim-score"><span>D一致</span><span class="val-high">8.0</span></div>
+          <div class="dim-score"><span>E无障</span><span class="val-mid">7.3</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kimi -->
+    <div class="model-row">
+      <div>
+        <div class="model-name">Kimi-K2-Instruct</div>
+        <div class="model-time">⏱ 响应时间：72.1s | 输出：5,333 chars</div>
+        <div style="margin-top:12px;">
+          <span class="verdict verdict-PASS">PASS</span>
+        </div>
+      </div>
+      <div>
+        <ul class="model-notes">
+          <li>3级标题层级（h1/h2/h3），字号体系清晰 ✓</li>
+          <li>配色基本合理，主色+辅色搭配协调 ✓</li>
+          <li>使用8px间距体系，flex/grid布局规范 ✓</li>
+          <li>使用CSS变量（:root），风格一致性良好 ✓</li>
+          <li>有focus样式 ✓</li>
+          <li>响应式设计 ✓</li>
+        </ul>
+        <div class="product-preview">
+          <div class="product-preview-title">产物代码片段（前200字符）</div>
+          <div class="code-snippet">&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-CN"&gt;
+&lt;head&gt;
+&lt;title&gt;AI 工具导航&lt;/title&gt;
+&lt;style&gt;
+  :root { --primary: #5468ff; --secondary: #ff6b6b; --bg: #f8f9ff; }
+  h1 { font-size: 2.5rem; } h2 { font-size: 1.5rem; } h3 { font-size: 1.1rem; }
+  /* 清晰的3级字号体系 */
+&lt;/style&gt;
+...</div>
+        </div>
+      </div>
+      <div class="model-score-block">
+        <div class="model-total" style="color:var(--green)">7.87</div>
+        <div style="font-size:11px;color:var(--text-sub);margin-top:4px;">综合得分</div>
+        <div class="model-sub-scores">
+          <div class="dim-score"><span>A层级</span><span class="val-high">8.5</span></div>
+          <div class="dim-score"><span>B色彩</span><span class="val-mid">7.0</span></div>
+          <div class="dim-score"><span>C版式</span><span class="val-high">8.5</span></div>
+          <div class="dim-score"><span>D一致</span><span class="val-high">8.0</span></div>
+          <div class="dim-score"><span>E无障</span><span class="val-mid">7.3</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DeepSeek -->
+    <div class="model-row">
+      <div>
+        <div class="model-name">DeepSeek-R1</div>
+        <div class="model-time">⏱ 响应时间：86.6s | 输出：6,300 chars</div>
+        <div style="margin-top:12px;">
+          <span class="verdict verdict-PASS">PASS</span>
+        </div>
+      </div>
+      <div>
+        <ul class="model-notes">
+          <li>3级标题层级，字号体系清晰 ✓</li>
+          <li>配色基本合理 ✓</li>
+          <li>使用8px间距体系，flex/grid布局规范 ✓</li>
+          <li>使用CSS变量（:root），风格一致性良好 ✓</li>
+          <li>有focus样式 ✓</li>
+          <li>响应式设计 ✓</li>
+        </ul>
+        <div class="product-preview">
+          <div class="product-preview-title">产物代码片段（前200字符）</div>
+          <div class="code-snippet">&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-CN"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;title&gt;AI工具导航&lt;/title&gt;
+&lt;style&gt;
+  :root { --color-primary: #4F46E5; --color-bg: #F9FAFB; }
+  /* Tailwind-like utility classes + custom properties */
+  .section-title { font-size: 1.8rem; font-weight: 700; }
+  .card-title { font-size: 1.1rem; } .card-desc { font-size: 0.9rem; }
+&lt;/style&gt;
+...</div>
+        </div>
+      </div>
+      <div class="model-score-block">
+        <div class="model-total" style="color:var(--green)">7.87</div>
+        <div style="font-size:11px;color:var(--text-sub);margin-top:4px;">综合得分</div>
+        <div class="model-sub-scores">
+          <div class="dim-score"><span>A层级</span><span class="val-high">8.5</span></div>
+          <div class="dim-score"><span>B色彩</span><span class="val-mid">7.0</span></div>
+          <div class="dim-score"><span>C版式</span><span class="val-high">8.5</span></div>
+          <div class="dim-score"><span>D一致</span><span class="val-high">8.0</span></div>
+          <div class="dim-score"><span>E无障</span><span class="val-mid">7.3</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="footnote" style="margin-top:8px;">
+      📎 各模型完整产物 HTML 文件已保存至 <code>eval-output/</code> 目录，文件名格式：<code>web-dev-workflow-{model-name}.html</code>
+    </p>
+  </div>
+
+  <!-- ═══ §4 AQE 评分 ═══ -->
+  <div id="aqe-scores" class="section">
+    <div class="section-title">§4 · AQE 美学评测矩阵得分</div>
+
+    <div class="card">
+      <p style="font-size:13px;color:var(--text-sub);margin-bottom:20px;">
+        按 AQE 5维度（A视觉层级·B色彩美学·C版式规范·D品牌一致·E可访问性）分别打分，权重分布：A:25% B:25% C:20% D:15% E:15%
+      </p>
+
+      <!-- 各维度对比 -->
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:var(--surface2);">
+              <th style="padding:10px 16px;text-align:left;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-sub);">AQE 维度</th>
+              <th style="padding:10px 16px;text-align:center;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-sub);">权重</th>
+              <th style="padding:10px 16px;text-align:center;color:#93c5fd;">Claude-Opus-4.7</th>
+              <th style="padding:10px 16px;text-align:center;color:#86efac;">Kimi-K2</th>
+              <th style="padding:10px 16px;text-align:center;color:#86efac;">DeepSeek-R1</th>
+              <th style="padding:10px 16px;text-align:center;color:var(--text-sub);">均值</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:12px 16px;font-weight:600;">A · 视觉层级与信息架构</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--text-sub);">25%</td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--red);font-weight:700;">5.5</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--green);font-weight:700;">8.5</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--green);font-weight:700;">8.5</span></td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;">7.5</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:12px 16px;font-weight:600;">B · 色彩美学与情感调性</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--text-sub);">25%</td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--red);font-weight:700;">6.0</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--yellow);font-weight:700;">7.0</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--yellow);font-weight:700;">7.0</span></td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;">6.7</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:12px 16px;font-weight:600;">C · 版式规范与排版质量</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--text-sub);">20%</td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--green);font-weight:700;">8.5</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--green);font-weight:700;">8.5</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--green);font-weight:700;">8.5</span></td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;">8.5</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:12px 16px;font-weight:600;">D · 品牌一致性与风格稳定</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--text-sub);">15%</td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--green);font-weight:700;">8.0</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--green);font-weight:700;">8.0</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--green);font-weight:700;">8.0</span></td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;">8.0</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 16px;font-weight:600;">E · 可访问性基线（强制）</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--text-sub);">15%</td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--yellow);font-weight:700;">7.3</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--yellow);font-weight:700;">7.3</span></td>
+              <td style="padding:12px 16px;text-align:center;"><span style="color:var(--yellow);font-weight:700;">7.3</span></td>
+              <td style="padding:12px 16px;text-align:center;font-weight:600;">7.3</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr style="background:var(--surface2);">
+              <td style="padding:12px 16px;font-weight:700;">综合得分</td>
+              <td style="padding:12px 16px;text-align:center;color:var(--text-sub);">—</td>
+              <td style="padding:12px 16px;text-align:center;font-size:18px;font-weight:800;color:var(--red);">6.87</td>
+              <td style="padding:12px 16px;text-align:center;font-size:18px;font-weight:800;color:var(--green);">7.87</td>
+              <td style="padding:12px 16px;text-align:center;font-size:18px;font-weight:800;color:var(--green);">7.87</td>
+              <td style="padding:12px 16px;text-align:center;font-size:18px;font-weight:800;color:#a5b4fc;">7.54</td>
+            </tr>
+            <tr style="background:var(--surface2);">
+              <td style="padding:8px 16px;font-weight:600;">Gate 2 判定</td>
+              <td style="padding:8px 16px;"></td>
+              <td style="padding:8px 16px;text-align:center;"><span class="verdict verdict-FAIL">FAIL</span></td>
+              <td style="padding:8px 16px;text-align:center;"><span class="verdict verdict-PASS">PASS</span></td>
+              <td style="padding:8px 16px;text-align:center;"><span class="verdict verdict-PASS">PASS</span></td>
+              <td style="padding:8px 16px;text-align:center;"><span class="verdict verdict-WATCH">WATCH</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <p class="footnote" style="margin-top:16px;">
+        判定规则：PASS ≥7.5 且无维度 &lt;6.0 ｜ WATCH 7.0–7.4 ｜ FAIL &lt;7.0 或任意维度 &lt;6.0 ｜ BLOCK E维度子项 &lt;5.0
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══ §5 综合结论 ═══ -->
+  <div id="conclusion" class="section">
+    <div class="section-title">§5 · 综合结论与改进建议</div>
+
+    <!-- Overall -->
+    <div class="overall" style="margin-bottom:24px;">
+      <div class="overall-score">7.54</div>
+      <div class="overall-info">
+        <h2>整体评级：<span class="verdict verdict-WATCH" style="font-size:18px;">WATCH</span></h2>
+        <p>三个模型综合 AQE 均分 7.54，介于 PASS（7.5）和 WATCH（7.0-7.4）边界。2/3 模型单次达到 PASS 标准，但 AQE-B 色彩美学维度（均值 6.7）是最大短板，且 Claude-Opus-4.7 在视觉层级维度明显失分（5.5），表明 Skill 的<strong>色彩规范约束力不足</strong>，未能有效引导所有模型遵循色彩体系要求。</p>
+        <div class="overall-tags">
+          <span class="tag tag-green">✅ 版式规范优秀 8.5</span>
+          <span class="tag tag-green">✅ 风格一致性强 8.0</span>
+          <span class="tag tag-yellow">⚠️ 色彩约束偏弱 6.7</span>
+          <span class="tag tag-yellow">⚠️ 竞品对标缺失 P0</span>
+          <span class="tag tag-red">❌ Claude层级不足 5.5</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Known Failures -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h3>🏆 优势亮点</h3>
+        <ul style="list-style:none;font-size:13px;color:var(--text-sub);">
+          <li style="margin-bottom:8px;">✅ <strong style="color:var(--text)">踩坑文档体系完善</strong>：7个专项 references 文档，远超标准要求的3条</li>
+          <li style="margin-bottom:8px;">✅ <strong style="color:var(--text)">工作流闭环设计</strong>：本地验证→部署→确认→发链接，流程规范严谨</li>
+          <li style="margin-bottom:8px;">✅ <strong style="color:var(--text)">文件拆分机制</strong>：明确的行数决策表防止上下文超限</li>
+          <li style="margin-bottom:8px;">✅ <strong style="color:var(--text)">元能力绑定</strong>：强制调用 meta-execution，质量保障有闭环</li>
+          <li>✅ <strong style="color:var(--text)">版式约束有效</strong>：所有模型都使用8px间距体系和flex/grid布局</li>
+        </ul>
+      </div>
+      <div class="summary-card">
+        <h3>⚠️ Known Failures（已知失败）</h3>
+        <div class="known-fail-item">
+          <div class="kf-title">AQE-B · UI生成 · 色彩约束力弱</div>
+          <div class="kf-fix">根因：SKILL.md 未明确指定色彩上限（≤5色相）和情感调性要求<br>修复：在 SKILL.md 生成规范中添加「色彩约束」条款</div>
+        </div>
+        <div class="known-fail-item">
+          <div class="kf-title">AQE-A · 标题层级不稳定</div>
+          <div class="kf-fix">根因：Skill 未明确要求≥3级字号体系，模型自由裁量<br>修复：在 System Prompt 规范中强制要求3级字号</div>
+        </div>
+        <div class="known-fail-item">
+          <div class="kf-title">P0 · 竞品对标锚点缺失</div>
+          <div class="kf-fix">根因：SKILL.md 无竞品对标表<br>修复：补充「对标 v0.dev / Claude Artifacts」的竞品基准</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <h3>🔧 优化建议</h3>
+        <ol style="font-size:13px;color:var(--text-sub);padding-left:16px;">
+          <li style="margin-bottom:8px;"><strong style="color:var(--text)">补充竞品对标表</strong>（P0优先）<br>在 SKILL.md 中明确「对标 v0.dev（B端）/ Claude Artifacts（原型）」</li>
+          <li style="margin-bottom:8px;"><strong style="color:var(--text)">加强色彩约束</strong><br>在生成规范中增加：主色系≤5个色相，强调色≤2个</li>
+          <li style="margin-bottom:8px;"><strong style="color:var(--text)">明确字号体系要求</strong><br>要求生成 UI 必须包含 ≥3 级字号（建议28/18/14px）</li>
+          <li><strong style="color:var(--text)">WCAG 对比度升级为强制</strong><br>将 checklist「可选」的对比度检查升级为 P0 强制项</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Final judgment -->
+    <div class="card" style="margin-top:24px;border-left:4px solid var(--yellow);">
+      <p style="font-size:15px;font-weight:700;margin-bottom:12px;">⚖️ Gate 2 最终判定</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div>
+          <p style="font-size:13px;color:var(--text-sub);margin-bottom:8px;">合规测试（Gate 0）</p>
+          <p style="font-weight:600;">通过率 82%（14/17项）</p>
+          <p style="font-size:12px;color:var(--text-sub);margin-top:4px;">3项不通过，全部为非阻断性问题（B竞品、C颜色上限、UI色相数量）</p>
+        </div>
+        <div>
+          <p style="font-size:13px;color:var(--text-sub);margin-bottom:8px;">AQE 综合评分</p>
+          <p style="font-weight:600;font-size:18px;color:var(--yellow);">7.54 / 10 · WATCH</p>
+          <p style="font-size:12px;color:var(--text-sub);margin-top:4px;">可有条件上线，建议2周内补充竞品对标和色彩约束后重测</p>
+        </div>
+      </div>
+      <div class="divider" style="margin:16px 0;"></div>
+      <p style="font-size:13px;color:var(--text-sub);">
+        <strong style="color:var(--yellow)">结论：</strong>web-dev-workflow 在工作流设计、踩坑文档、部署规范方面表现优异，是一个工程质量扎实的 Skill。主要短板在于<strong style="color:var(--text)">设计侧美学约束力度不足</strong>——色彩规范、竞品对标、字号体系要求未在 SKILL.md 中明确写入，导致模型输出质量参差不齐（Claude 失分 vs. Kimi/DeepSeek 通过）。建议按 Known Failures 中的修复建议迭代后，达到稳定 PASS 水准。
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div style="background:var(--surface);border-top:1px solid var(--border);padding:20px 48px;text-align:center;color:var(--text-sub);font-size:12px;">
+  评测标准：<a href="https://huwenji1215-ai.github.io/skill-standards/skill-design-standard.html" style="color:#818cf8;">设计侧 Skill 美学与体验准入准出标准</a> · 
+  报告生成时间：2026-04-21 · 
+  评测执行：AI 自动化评测（LLM-as-Judge）
+</div>
+
+</body>
+</html>
