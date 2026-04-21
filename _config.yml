@@ -1,0 +1,15 @@
+exclude:
+  - .codeflicker
+  - generate-mindmap.py
+  - generate-xmind.py
+  - sync-skills-to-github.sh
+  - wq-proxy.js
+  - "eval-output/web-dev-workflow-eval.js"
+  - "eval-output/web-dev-workflow-eval-data.json"
+  - "*.sh"
+  - "*.py"
+  - "*.js"
+  - "*.mm"
+  - "*.xmind"
+  - "*.txt"
+  - "infovis-taxonomy"
