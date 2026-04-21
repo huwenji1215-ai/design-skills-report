@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ks-design-slide-deck · 评测报告</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════ TOKENS ═══════════════════════════ */
+:root {
+  --bg:          oklch(11% 0.014 260);
+  --surface:     oklch(15% 0.016 260);
+  --elevated:    oklch(19% 0.018 260);
+  --hover:       oklch(23% 0.020 260);
+  --border:      oklch(28% 0.018 260);
+  --border-hi:   oklch(38% 0.022 260);
+
+  --text-1:      oklch(94% 0.007 260);
+  --text-2:      oklch(66% 0.010 260);
+  --text-3:      oklch(46% 0.009 260);
+
+  --accent:      oklch(70% 0.17 248);
+  --accent-dim:  oklch(58% 0.13 248);
+  --accent-bg:   oklch(20% 0.055 248);
+
+  --pass:        oklch(70% 0.15 155);
+  --pass-bg:     oklch(18% 0.055 155);
+  --watch:       oklch(78% 0.15 78);
+  --watch-bg:    oklch(20% 0.055 78);
+  --fail:        oklch(68% 0.17 25);
+  --fail-bg:     oklch(18% 0.065 25);
+  --block:       oklch(62% 0.19 0);
+  --block-bg:    oklch(18% 0.07 0);
+  --na:          oklch(46% 0.009 260);
+  --na-bg:       oklch(20% 0.010 260);
+
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+  --font: 'Sora', system-ui, sans-serif;
+  --mono: 'DM Mono', 'Fira Code', monospace;
+  --trans: 160ms cubic-bezier(0.25,1,0.5,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-1);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
+
+/* ═══════════════════════════ LAYOUT ═══════════════════════════ */
+.page-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ═══════════════════════════ HERO ═══════════════════════════ */
+.hero {
+  padding: 56px 0 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--accent-bg);
+  border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent);
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.hero-title span { color: var(--accent); }
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-3);
+  margin-top: 20px;
+}
+.hero-meta b { color: var(--text-2); }
+
+/* ═══════════════════════════ VERDICT BANNER ═══════════════════════════ */
+.verdict-banner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+.verdict-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  text-align: center;
+}
+.verdict-card .vc-label {
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.verdict-card .vc-value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.verdict-card .vc-sub {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.vc-pass  .vc-value { color: var(--pass); }
+.vc-watch .vc-value { color: var(--watch); }
+.vc-fail  .vc-value { color: var(--fail); }
+.vc-score .vc-value { color: var(--accent); }
+
+/* ═══════════════════════════ SECTION HEADER ═══════════════════════════ */
+.section-hd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.section-hd .sh-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.section-hd h2 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.section-hd .sh-badge {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+.badge-pass  { background: var(--pass-bg);  color: var(--pass);  border: 1px solid color-mix(in oklch, var(--pass) 30%, transparent); }
+.badge-watch { background: var(--watch-bg); color: var(--watch); border: 1px solid color-mix(in oklch, var(--watch) 30%, transparent); }
+.badge-fail  { background: var(--fail-bg);  color: var(--fail);  border: 1px solid color-mix(in oklch, var(--fail) 30%, transparent); }
+.badge-block { background: var(--block-bg); color: var(--block); border: 1px solid color-mix(in oklch, var(--block) 30%, transparent); }
+.badge-na    { background: var(--na-bg);    color: var(--na);    border: 1px solid color-mix(in oklch, var(--na) 30%, transparent); }
+
+section.eval-section { margin-bottom: 48px; }
+
+/* ═══════════════════════════ CHECK TABLE ═══════════════════════════ */
+.check-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.check-table th {
+  background: var(--elevated);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.check-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.check-table tr:last-child td { border-bottom: none; }
+.check-table tr:hover td { background: var(--hover); }
+.check-table .td-item { color: var(--text-1); font-weight: 500; }
+.check-table .td-note { color: var(--text-2); font-size: 12px; }
+.check-table .td-result { width: 80px; text-align: center; }
+
+/* status chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.chip-pass  { background: var(--pass-bg);  color: var(--pass); }
+.chip-watch { background: var(--watch-bg); color: var(--watch); }
+.chip-fail  { background: var(--fail-bg);  color: var(--fail); }
+.chip-block { background: var(--block-bg); color: var(--block); }
+.chip-na    { background: var(--na-bg);    color: var(--na); }
+
+/* priority tag */
+.pri {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+.pri-p0 { background: color-mix(in oklch, var(--fail) 20%, transparent); color: var(--fail); }
+.pri-p1 { background: color-mix(in oklch, var(--watch) 20%, transparent); color: var(--watch); }
+.pri-p2 { background: var(--accent-bg); color: var(--accent-dim); }
+
+/* ═══════════════════════════ SCORE BARS ═══════════════════════════ */
+.score-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.score-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px;
+}
+.score-card .sc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.score-card .sc-model {
+  font-size: 13px;
+  font-weight: 600;
+}
+.score-card .sc-provider {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.score-card .sc-total {
+  font-size: 24px;
+  font-weight: 700;
+}
+.score-card .sc-verdict {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-top: 4px;
+  display: inline-block;
+}
+.score-card .dim-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.score-card .dim-label {
+  font-size: 11px;
+  color: var(--text-2);
+  width: 120px;
+  flex-shrink: 0;
+}
+.score-card .dim-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.score-card .dim-bar {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 0.6s ease;
+}
+.score-card .dim-val {
+  font-size: 11px;
+  font-weight: 600;
+  width: 28px;
+  text-align: right;
+  color: var(--text-2);
+}
+
+/* Model color accents */
+.model-a .sc-total { color: oklch(70% 0.17 248); }
+.model-a .dim-bar   { background: oklch(70% 0.17 248); }
+.model-b .sc-total { color: oklch(72% 0.16 155); }
+.model-b .dim-bar   { background: oklch(72% 0.16 155); }
+.model-c .sc-total { color: oklch(76% 0.15 78); }
+.model-c .dim-bar   { background: oklch(76% 0.15 78); }
+
+/* ═══════════════════════════ PRODUCT BLOCK ═══════════════════════════ */
+.product-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.product-block .pb-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--elevated);
+  border-bottom: 1px solid var(--border);
+}
+.product-block .pb-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.dot-a { background: oklch(70% 0.17 248); }
+.dot-b { background: oklch(72% 0.16 155); }
+.dot-c { background: oklch(76% 0.15 78); }
+
+.product-block .pb-model { font-size: 13px; font-weight: 600; }
+.product-block .pb-name  { font-size: 11px; color: var(--text-3); }
+.product-block .pb-body  { padding: 18px; }
+.product-block pre {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+/* ═══════════════════════════ AQE TABLE ═══════════════════════════ */
+.aqe-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.aqe-table th, .aqe-table td {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.aqe-table th {
+  background: var(--elevated);
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.aqe-table td:first-child {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-1);
+  background: var(--surface);
+}
+.aqe-table .score-cell {
+  font-weight: 700;
+  font-size: 15px;
+}
+.score-hi  { color: var(--pass); }
+.score-mid { color: var(--watch); }
+.score-lo  { color: var(--fail); }
+.aqe-table .total-row td {
+  background: var(--elevated);
+  font-weight: 700;
+  font-size: 14px;
+  border-top: 2px solid var(--border-hi);
+}
+
+/* ═══════════════════════════ KNOWN FAILURES ═══════════════════════════ */
+.kf-list { display: flex; flex-direction: column; gap: 12px; }
+.kf-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--fail);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.kf-item .kf-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.kf-item .kf-id {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fail);
+  font-weight: 600;
+}
+.kf-item .kf-title { font-size: 13px; font-weight: 600; }
+.kf-item .kf-meta {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+.kf-item .kf-fix {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--elevated);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  color: var(--text-2);
+}
+.kf-item .kf-fix strong { color: var(--pass); }
+
+/* ═══════════════════════════ FINAL VERDICT ═══════════════════════════ */
+.final-verdict {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 28px 32px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+.fv-left .fv-label {
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.fv-left .fv-verdict {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.fv-left .fv-desc {
+  font-size: 13px;
+  color: var(--text-2);
+  max-width: 540px;
+  line-height: 1.7;
+}
+.fv-right {
+  text-align: center;
+}
+.fv-right .fv-score {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--watch);
+}
+.fv-right .fv-score-label {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+.verdict-pass  .fv-verdict, .verdict-pass  .fv-score { color: var(--pass); }
+.verdict-watch .fv-verdict, .verdict-watch .fv-score { color: var(--watch); }
+.verdict-fail  .fv-verdict, .verdict-fail  .fv-score { color: var(--fail); }
+
+/* ═══════════════════════════ INFO BOX ═══════════════════════════ */
+.info-box {
+  background: var(--accent-bg);
+  border: 1px solid color-mix(in oklch, var(--accent) 25%, transparent);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text-2);
+  margin-bottom: 20px;
+}
+.info-box strong { color: var(--accent); }
+
+/* ═══════════════════════════ DIVIDER ═══════════════════════════ */
+.divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+/* ═══════════════════════════ FOOTER ═══════════════════════════ */
+.report-footer {
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-3);
+  display: flex;
+  justify-content: space-between;
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ════════════════ HERO ════════════════ -->
+<header class="hero">
+  <div class="hero-tag">
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+      <circle cx="5" cy="5" r="4" fill="currentColor" opacity="0.5"/>
+      <circle cx="5" cy="5" r="2" fill="currentColor"/>
+    </svg>
+    设计侧 Skill 评测报告 · DIR-04 文档/PPT
+  </div>
+  <h1 class="hero-title">
+    ks-design-slide-deck
+    <span>评测报告</span>
+  </h1>
+  <p style="color:var(--text-2);font-size:14px;max-width:600px;line-height:1.7;">
+    高设计感演示文稿生成技能（v4.6.4）全量评测，覆盖 Gate 0 合规自检、三模型产物对比及 AQE 美学打分，依照「设计侧 Skill 美学与体验准入准出标准」出具综合判定。
+  </p>
+  <div class="hero-meta">
+    <span><b>Skill</b> ks-design-slide-deck v4.6.4</span>
+    <span><b>方向</b> DIR-04 文档 / PPT</span>
+    <span><b>评测时间</b> 2026-04-21</span>
+    <span><b>竞品基准</b> Gamma.app · Skywork Agent</span>
+    <span><b>测试用例</b> 2025年AI行业发展趋势 PPT</span>
+  </div>
+</header>
+
+<!-- ════════════════ VERDICT SUMMARY ════════════════ -->
+<div class="verdict-banner">
+  <div class="verdict-card vc-score">
+    <div class="vc-label">综合 AQE 均分</div>
+    <div class="vc-value">7.3</div>
+    <div class="vc-sub">三模型平均 / 满分 10</div>
+  </div>
+  <div class="verdict-card vc-watch">
+    <div class="vc-label">Gate 0 自检</div>
+    <div class="vc-value">PASS</div>
+    <div class="vc-sub">P0 全通过，3 项 P1 待优化</div>
+  </div>
+  <div class="verdict-card vc-watch">
+    <div class="vc-label">设计侧 Gate 2 判定</div>
+    <div class="vc-value">WATCH</div>
+    <div class="vc-sub">有条件上线，2 周内修复</div>
+  </div>
+  <div class="verdict-card">
+    <div class="vc-label">最优产出模型</div>
+    <div class="vc-value" style="color:oklch(70% 0.17 248);font-size:18px;">Claude Opus</div>
+    <div class="vc-sub">AQE 综合 7.8 分</div>
+  </div>
+</div>
+
+<!-- ════════════════ SECTION 1: GATE 0 COMPLIANCE ════════════════ -->
+<section class="eval-section" id="gate0">
+  <div class="section-hd">
+    <div class="sh-num">1</div>
+    <h2>Gate 0 合规自检 — Skill 内容准入测试</h2>
+    <span class="sh-badge badge-pass">PASS</span>
+  </div>
+
+  <div class="info-box">
+    <strong>测试说明：</strong>依照「设计侧 Skill 准入规范」，对 ks-design-slide-deck SKILL.md（1453行）进行逐项合规检查，覆盖通用准入清单（A-E 五类）+ DIR-04 文档/PPT 专属要求。
+  </div>
+
+  <!-- 通用准入清单 -->
+  <p style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px;letter-spacing:0.03em;">A · 输出物定义</p>
+  <table class="check-table" style="margin-bottom:16px;">
+    <thead>
+      <tr>
+        <th style="width:40px;">优先</th>
+        <th>检查项</th>
+        <th style="width:200px;">检查结果</th>
+        <th class="td-result">结论</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">输出物类型已明确：精确到格式</td>
+        <td class="td-note">SKILL.md 明确声明「HTML/CSS 文件（专业模式）/ AI 图片 JPG（创意模式）」，双模式均有精确格式定义</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">有 ≥1 个完整输出示例</td>
+        <td class="td-note">SKILL.md 包含 slides.yml 完整示例（含 cover/content/data/chart 等 6 张幻灯片规划），含输入→输出完整链路</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">输出精度已定义（原型级 vs 生产级）</td>
+        <td class="td-note">专业模式声明「HTML/CSS 生产级，文字 contenteditable 可直接编辑，ECharts 可交互」；精度定义清晰</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p1">P1</span></td>
+        <td class="td-item">输出尺寸 / 分辨率已约束</td>
+        <td class="td-note">SKILL.md 声明 1280×720px 固定尺寸，已约束幻灯片宽高。未明确说明图片最低 DPI，但 AI 生图走 2K 分辨率</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px;letter-spacing:0.03em;">B · 竞品对标</p>
+  <table class="check-table" style="margin-bottom:16px;">
+    <thead>
+      <tr>
+        <th style="width:40px;">优先</th>
+        <th>检查项</th>
+        <th style="width:200px;">检查结果</th>
+        <th class="td-result">结论</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">已指定质量对标竞品</td>
+        <td class="td-note">SKILL.md 第一行明确「完全对标 Gamma 专业模式，可交互图表维度反超」；description 也提到对标竞品</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p1">P1</span></td>
+        <td class="td-item">已做竞品实测（截图存档）</td>
+        <td class="td-note">SKILL.md 无竞品截图，仅有文字声明。未见 reference/ 目录中有对比截图归档</td>
+        <td class="td-result"><span class="chip chip-watch">⚠ 待补充</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px;letter-spacing:0.03em;">C · 版权与合规</p>
+  <table class="check-table" style="margin-bottom:16px;">
+    <thead>
+      <tr>
+        <th style="width:40px;">优先</th>
+        <th>检查项</th>
+        <th style="width:200px;">检查结果</th>
+        <th class="td-result">结论</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">字体使用路线已确定</td>
+        <td class="td-note">SKILL.md 明确「禁止引入外部字体，仅使用系统字体栈」，Design Token 中 --font 为系统字体回退栈，合规</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">图片/插画来源合规</td>
+        <td class="td-note">生图走内网 ks_aimate API（公司授权），非第三方图库，无版权风险；description 明确「无版权问题」</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p1">P1</span></td>
+        <td class="td-item">品牌风格模仿有边界说明</td>
+        <td class="td-note">SKILL.md 中「品牌 logo 禁用规则：FORBIDDEN」明确禁止第三方品牌图片，但未说明风格模仿的明确边界</td>
+        <td class="td-result"><span class="chip chip-watch">⚠ 待补充</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px;letter-spacing:0.03em;">D · 美学基线要求</p>
+  <table class="check-table" style="margin-bottom:16px;">
+    <thead>
+      <tr>
+        <th style="width:40px;">优先</th>
+        <th>检查项</th>
+        <th style="width:200px;">检查结果</th>
+        <th class="td-result">结论</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">色彩对比度达标要求 ≥4.5:1</td>
+        <td class="td-note">SKILL.md Stage 4 QA 明确检测「QA-05 文字对比度不足」为 High 级别问题，并自动修复；Design Token 中文字/背景颜色对比合规</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p1">P1</span></td>
+        <td class="td-item">颜色不是唯一信息载体</td>
+        <td class="td-note">SKILL.md 中 QA 检测包含「图标缺失」检查（QA-07），但未明确要求状态区分必须配文字标注</td>
+        <td class="td-result"><span class="chip chip-watch">⚠ 建议强化</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p1">P1</span></td>
+        <td class="td-item">默认输出有「美学基准档」</td>
+        <td class="td-note">15 套 Palette 覆盖各调性场景，Design Token 系统保证视觉一致性，即使无风格指导也有 Palette F 默认科技风</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px;letter-spacing:0.03em;">E · 边界与失败处理</p>
+  <table class="check-table" style="margin-bottom:16px;">
+    <thead>
+      <tr>
+        <th style="width:40px;">优先</th>
+        <th>检查项</th>
+        <th style="width:200px;">检查结果</th>
+        <th class="td-result">结论</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pri pri-p1">P1</span></td>
+        <td class="td-item">已定义「不做什么」（能力边界）</td>
+        <td class="td-note">双模式边界清晰（创意模式不支持 ECharts/contenteditable），但未有独立「不支持场景」章节</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p1">P1</span></td>
+        <td class="td-item">输入不完整时有降级策略</td>
+        <td class="td-note">Stage 0 调研失败时自动降级（标注「AI估算」），生图失败有 CSS 渐变 fallback，降级机制完善</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p2">P2</span></td>
+        <td class="td-item">已预列 3 条已知失败模式</td>
+        <td class="td-note">SKILL.md 隐含了多种 Known Failure（如空白过大 QA-03、底部重叠 QA-04），但未以独立清单形式显式列举 3 条</td>
+        <td class="td-result"><span class="chip chip-watch">⚠ 建议补充</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px;letter-spacing:0.03em;">DIR-04 专属准入要求（文档/PPT 方向）</p>
+  <table class="check-table">
+    <thead>
+      <tr>
+        <th style="width:40px;">优先</th>
+        <th>检查项</th>
+        <th style="width:200px;">检查结果</th>
+        <th class="td-result">结论</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">路线已选（信息架构 vs 美学优先）</td>
+        <td class="td-note">专业模式明确「信息架构完备」路线（可编辑、ECharts 数据驱动），创意模式明确「美学表现优先」，双路线均有清晰定义</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">输出格式已确定（.pptx/HTML/Marp 等）</td>
+        <td class="td-note">专业模式 = HTML/CSS 独立幻灯片文件，创意模式 = AI 图片 JPG，格式锁定清晰</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">字体方案：开源/授权字体</td>
+        <td class="td-note">系统字体栈（sans-serif 等），明确「禁止引入外部字体」</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">信息密度标准：每页核心信息 ≤3 条，每条 ≤25 字</td>
+        <td class="td-note">SKILL.md Rule 37「空间分配大师」、Rule 36「排版质检清单」强调信息密度控制，但未明确规定「每条 ≤25 字」的字数上限</td>
+        <td class="td-result"><span class="chip chip-watch">⚠ 建议补充</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">字体层级不超过 3 级</td>
+        <td class="td-note">SKILL.md 明确 L1/L2/L3 三级视觉层级系统，字号范围精确（42-72px / 16-28px / 11-14px），完全合规</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p0">P0</span></td>
+        <td class="td-item">版面留白存在：内容区 ≤70%，边距 ≥40px</td>
+        <td class="td-note">Rule 36 L4「留白检查：预估布局中任何方向空白 ≤20%」，4px 基准网格中 padding 为 52px（幻灯片标准左右）</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+      <tr>
+        <td><span class="pri pri-p1">P1</span></td>
+        <td class="td-item">色彩方案一致：主色调一致，强调色 ≤3 个</td>
+        <td class="td-note">15 套 Palette 系统保证全套幻灯片一致，规则明确「强调色 ≤2 个」，比标准更严格</td>
+        <td class="td-result"><span class="chip chip-pass">✓ 通过</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Gate 0 小结 -->
+  <div style="margin-top:16px;padding:14px 18px;background:var(--pass-bg);border:1px solid color-mix(in oklch, var(--pass) 25%, transparent);border-radius:var(--r-md);">
+    <p style="font-size:13px;color:var(--text-1);font-weight:600;">Gate 0 自检结论：<span style="color:var(--pass);">PASS</span></p>
+    <p style="font-size:12px;color:var(--text-2);margin-top:4px;line-height:1.7;">
+      全部 P0 项通过（12/12）。存在 4 项 P1 待完善：竞品截图存档缺失、品牌模仿边界未明确说明、颜色非唯一载体无显式约束、每页信息字数上限未明确。建议在 reference/ 下新增 known-failures.md 并补充上述内容。
+    </p>
+  </div>
+</section>
+
+
+<!-- ════════════════ SECTION 2: MOCK CASE ════════════════ -->
+<section class="eval-section" id="mockcase">
+  <div class="section-hd">
+    <div class="sh-num">2</div>
+    <h2>Mock 评测案例 — 三模型产物对比</h2>
+    <span class="sh-badge badge-watch">已完成</span>
+  </div>
+
+  <div class="info-box">
+    <strong>测试用例：</strong>「2025年AI行业发展趋势」演示文稿生成，专业模式（Professional Mode）。<br>
+    <strong>测试时间：</strong>2026-04-21&nbsp;&nbsp;<strong>接口：</strong>万擎 WQ API via CORS 代理（localhost:3001）<br>
+    <strong>评测维度：</strong>以下三项模型的产出为「幻灯片内容规划（slides.yml）」阶段（Stage 1）产物，测试技能核心内容生成能力
+  </div>
+
+  <!-- Model A -->
+  <div class="product-block">
+    <div class="pb-header">
+      <div class="pb-dot dot-a"></div>
+      <div>
+        <div class="pb-model">Model A · Claude Opus 4.7</div>
+        <div class="pb-name">ep-5cq959 · 万擎</div>
+      </div>
+      <span class="chip chip-pass" style="margin-left:auto;">AQE 7.8</span>
+    </div>
+    <div class="pb-body">
+      <pre>【模式确认】✅ 专业模式（Professional Mode）
+
+【推荐风格】Style F - Tech Editorial（科技编辑风）
+理由：主题契合「科技感+权威性」，深蓝黑 #0A0E27+电光青 #00E5FF，
+      MIT Tech Review / Wired 编辑质感，12列模块化布局
+
+【slides.yml 规划 — 6张幻灯片】
+slides:
+  - id: 01  type: cover
+    title: "2025 AI行业发展趋势"
+    subtitle: "The Agentic Era — 智能体经济元年"
+    key_points: ["全球AI市场规模预计突破 $7,500亿", "发布日期：2025 Q1"]
+    chart_slide: false
+    visual_note: "全屏暗色，右侧神经网络粒子3D渲染，左下品牌标识，顶部细线装饰"
+
+  - id: 02  type: content
+    title: "核心洞察概览 / Five Shifts Defining 2025"
+    key_points:
+      - "🧠 多模态大模型成为基础设施标配"
+      - "🤖 AI Agent从Demo走向规模化部署"
+      - "⚡ 推理成本较2023年下降98%"
+      - "🏭 垂直行业专用模型爆发式增长"
+      - "🛡️ AI治理与合规框架全球落地"
+    visual_note: "左60%要点列表，右40%抽象几何插图"
+
+  - id: 03  type: data
+    title: "市场规模与资本动向 / 2023-2025三年增长轨迹"
+    key_points:
+      - "全球AI投资总额：$2,350亿（YoY +42%）"
+      - "企业AI采用率：33% → 78%"
+      - "独角兽数量：新增67家AI原生企业"
+    chart_slide: false
+    visual_note: "四宫格KPI卡片，大号数字+百分比+微型sparkline趋势线"
+
+  - id: 04  type: chart
+    title: "细分赛道增长预测 / 2025年各领域市场份额"
+    key_points: ["生成式AI占比38%", "AI Agent平台年增速213%"]
+    chart_slide: true
+    visual_note: "左侧横向条形图+右侧折线图，青-紫渐变色系"
+
+  - id: 05  type: comparison
+    title: "开源 vs 闭源：生态格局演变"
+    key_points:
+      - "闭源优势：SOTA性能、企业级SLA"
+      - "开源优势：成本可控、定制灵活"
+      - "2025关键转折：性能差距缩小至<5%"
+      - "混合架构成为主流（64%）"
+    visual_note: "左右双栏对比，中央发光分隔线，厂商Logo墙"
+
+  - id: 06  type: closing
+    title: "战略建议与行动框架"
+    key_points:
+      - "📍 短期6个月：建立AI能力基线与POC验证"
+      - "📍 中期1-2年：重构核心业务，部署Agent"
+      - "📍 长期3-5年：打造AI原生组织与数据飞轮"
+    visual_note: "居中收束布局，底部三步路线图时间轴，右下角二维码"
+
+【配图策略】
+Cover: 深蓝黑渐变+噪点纹理 | 3D神经网络粒子（右60%）| Logo（左下）
+Data:  深底+数据流线 | 4宫格KPI | Sparkline×4
+Chart: 深底+淡青坐标网格 | 组合图表（条形+折线双轴）
+Comparison: 左右分栏渐变（暖左/冷右）| 中央发光线
+
+【全局规范】主背景#0A0E27 | 强调#00E5FF/#B794F6 | Space Grotesk+JetBrains Mono</pre>
+    </div>
+  </div>
+
+  <!-- Model B -->
+  <div class="product-block">
+    <div class="pb-header">
+      <div class="pb-dot dot-b"></div>
+      <div>
+        <div class="pb-model">Model B · Kimi K2.5</div>
+        <div class="pb-name">ep-3e24dk · 万擎</div>
+      </div>
+      <span class="chip chip-pass" style="margin-left:auto;">AQE 7.4</span>
+    </div>
+    <div class="pb-body">
+      <pre>【模式确认】Professional Mode confirmed.
+
+【推荐风格】Style H – "Quantum Gradient"
+（深靛蓝-电光紫渐变，配合霓虹线条与粒子动效）
+
+【slides.yml — 6张幻灯片】
+- slide_no: 1  type: cover
+  title: "2025年AI行业发展趋势"
+  subtitle: "技术跃迁 · 商业落地 · 生态重塑"
+  visual_note: "深靛蓝-紫渐变粒子宇宙，中央3D金属质感标题，右下角2025光效"
+
+- slide_no: 2  type: content
+  title: "宏观驱动力 / 政策、资本、算力与数据共振"
+  key_points:
+    - "全球AI立法进入2.0：欧盟AI Act 2025细则落地"
+    - "主权AI基金规模突破$500B，中美欧三极格局"
+    - "算力成本再降40%，H100→H200→量子-经典混合芯片"
+    - "合成数据占比>60%，解决高质量语料枯竭"
+  visual_note: "左侧竖向时间轴（政策节点），右侧半圆辐射图（资本-算力-数据三角）"
+
+- slide_no: 3  type: data
+  title: "市场规模预测 / 2024-2030全球AI支出 CAGR 37%"
+  key_points:
+    - "2025全球AI市场规模：$890B"
+    - "GenAI占新增支出42%，企业SaaS渗透率68%"
+    - "边缘AI芯片出货量同比+120%"
+    - "中国AI独角兽新增估值>$180B"
+  chart_slide: true
+  visual_note: "堆叠面积图（GenAI/传统AI/硬件）+右侧玫瑰图（区域占比）"
+
+- slide_no: 4  type: chart
+  title: "技术成熟度雷达 / 2025年关键能力到达临界点"
+  key_points:
+    - "多模态大模型：Production Ready"
+    - "AI Agent网络：Early Adoption"
+    - "神经符号融合：Experimental"
+    - "量子机器学习：Proof of Concept"
+  chart_slide: true
+  visual_note: "六维雷达图，霓虹描边，中心脉冲动效"
+
+- slide_no: 5  type: comparison
+  title: "场景落地对比 / 企业 vs 消费者市场"
+  key_points:
+    - "企业：AI编码助手渗透率78%，ROI中位值3.2×"
+    - "消费者：AI硬件伴侣出货量45M台，复购率61%"
+    - "风险：企业关注合规，消费者关注隐私"
+    - "商业模式：企业订阅+按量 vs 消费者硬件+增值"
+  visual_note: "左右分栏玻璃拟态（企业蓝 vs 消费者紫），中央斜切分隔线"
+
+- slide_no: 6  type: closing
+  title: "行动呼吁 / 从趋势到落地"
+  key_points:
+    - "立即评估AI Agent对核心流程的重塑潜力"
+    - "建立合成数据-微调-合规闭环治理"
+    - "与主权云/算力池签署2-3年锁价协议"
+    - "设立AI伦理委员会，提前应对2025监管细则"
+  visual_note: "背景淡出为纯色，中央发光按钮式Next Step图标，底部二维码"
+
+【配图策略】
+Cover: 全屏动态粒子星空 → logo居中 → 标题金属扫光
+数据页: 低多边形网格底；荧光紫-青绿渐变面积图；光晕强调中国区
+雷达页: 深色+霓虹描边；中心脉冲粒子随演讲节奏跳动
+对比页: 玻璃拟态卡片（企业蓝 vs 消费者紫），扫描动效</pre>
+    </div>
+  </div>
+
+  <!-- Model C -->
+  <div class="product-block">
+    <div class="pb-header">
+      <div class="pb-dot dot-c"></div>
+      <div>
+        <div class="pb-model">Model C · Gemini 3.1 Pro Preview</div>
+        <div class="pb-name">ep-w6tkqh · 万擎</div>
+      </div>
+      <span class="chip chip-watch" style="margin-left:auto;">AQE 6.7</span>
+    </div>
+    <div class="pb-body">
+      <pre>【模式确认】专业模式（Professional Mode）已确认启用。
+
+【推荐风格】风格 D（深邃科技/未来蓝调）
+理由：深蓝与荧光蓝/青色完美契合「AI、未来、趋势」主题，传递专业、尖端、理性氛围
+
+【slides.yml — 6张幻灯片】
+slides:
+  - type: cover
+    title: "2025年AI行业发展趋势"
+    subtitle: "智能跃迁：重塑未来的核心力量"
+    key_points: ["汇报人：AI行业分析师", "日期：202X年X月"]
+    chart_slide: false
+    visual_note: "抽象神经网络/发光AI大脑芯片图像全屏背景"
+
+  - type: content
+    title: "核心驱动力：多模态与边缘计算的融合"
+    subtitle: "从云端算力向终端智能的全面进化"
+    key_points:
+      - "多模态大模型全面普及：图文音视频无缝理解与跨模态生成"
+      - "边缘AI算力爆发：端侧设备本地处理能力大幅提升"
+      - "隐私保护升级：本地化部署与联邦学习成为企业标配"
+    chart_slide: false
+    visual_note: "侧边content配图，云端服务器与终端设备数据协同3D科技插画"
+
+  - type: data
+    title: "全球AI市场规模呈指数级增长"
+    subtitle: "预计2025年将突破核心大关"
+    key_points:
+      - "1.2万亿美元：2025年全球AI核心产业预计规模"
+      - "80%以上：GenAI在世界500强核心业务采用率"
+      - "5万亿美元：AI驱动的自动化生产力贡献价值"
+    chart_slide: false
+    visual_note: "大字号数字（大字报形式），深蓝色全球数字网络拓扑图背景"
+
+  - type: chart
+    title: "2025年AI应用落地领域分布"
+    subtitle: "三大产业领跑商业化变现"
+    key_points:
+      - "医疗健康 (25%)：AI新药研发加速与精准诊疗"
+      - "金融科技 (22%)：智能风控与高频量化交易"
+      - "智能制造 (18%)：工业视觉质检与无人工厂"
+      - "教育与娱乐 (15%)：个性化AI导师与虚拟数字人"
+    chart_slide: true
+    visual_note: "环形图或柱状图，科技渐变色"
+
+  - type: comparison
+    title: "演进对比：单点工具 vs 智能体生态"
+    subtitle: "传统AI与2025年AI Agent体系的根本差异"
+    key_points:
+      - "传统AI：被动式响应，依赖人工干预"
+      - "AI Agent：主动规划、自主执行、跨系统协作"
+      - "生产力提升：Agent体系平均效能提升3-5倍"
+    chart_slide: false
+    visual_note: "两栏对比，左旧右新，中间进化箭头"
+
+  - type: closing
+    title: "把握AI跃迁期：您的下一步"
+    subtitle: "机遇、挑战与战略布局建议"
+    key_points:
+      - "优先布局垂直行业大模型应用场景"
+      - "建立AI人才梯队与技能培养体系"
+      - "制定AI伦理与数据安全治理框架"
+    chart_slide: false
+    visual_note: "深蓝渐变，三步行动指南，公司logo与联系方式"
+
+【配图策略】每张幻灯片使用对应主题的AI生成科技插画，
+统一使用深蓝色系（风格D），各页做语义相关图片描述</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ SECTION 3: AQE SCORING ════════════════ -->
+<section class="eval-section" id="aqe">
+  <div class="section-hd">
+    <div class="sh-num">3</div>
+    <h2>AQE 美学质量评测 — 五维度打分</h2>
+    <span class="sh-badge badge-watch">WATCH</span>
+  </div>
+
+  <div class="info-box">
+    <strong>评测框架：</strong>AQE（Aesthetic Quality Evaluation）五维度，每维度 0-10 分，综合加权后给出 PASS（≥8.0）/ WATCH（6.0-7.9）/ FAIL（4.0-5.9）/ BLOCK（&lt;4.0）判定。本次评测对象为 Stage 1 产物（slides.yml + 配图策略规划），非最终渲染输出。
+  </div>
+
+  <div class="score-grid">
+    <!-- Model A -->
+    <div class="score-card model-a">
+      <div class="sc-header">
+        <div>
+          <div class="sc-model">Model A · Claude</div>
+          <div class="sc-provider">万擎 ep-5cq959</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="sc-total">7.8</div>
+          <div class="sc-verdict badge-watch" style="background:var(--watch-bg);color:var(--watch);">WATCH</div>
+        </div>
+      </div>
+      <div class="dim-row"><div class="dim-label">视觉层级</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:85%"></div></div><div class="dim-val">8.5</div></div>
+      <div class="dim-row"><div class="dim-label">色彩一致性</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:82%"></div></div><div class="dim-val">8.2</div></div>
+      <div class="dim-row"><div class="dim-label">信息密度控制</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:75%"></div></div><div class="dim-val">7.5</div></div>
+      <div class="dim-row"><div class="dim-label">空间与留白</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:78%"></div></div><div class="dim-val">7.8</div></div>
+      <div class="dim-row"><div class="dim-label">配图策略完整性</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:72%"></div></div><div class="dim-val">7.2</div></div>
+    </div>
+
+    <!-- Model B -->
+    <div class="score-card model-b">
+      <div class="sc-header">
+        <div>
+          <div class="sc-model">Model B · Kimi K2.5</div>
+          <div class="sc-provider">万擎 ep-3e24dk</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="sc-total">7.4</div>
+          <div class="sc-verdict badge-watch" style="background:var(--watch-bg);color:var(--watch);">WATCH</div>
+        </div>
+      </div>
+      <div class="dim-row"><div class="dim-label">视觉层级</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:78%"></div></div><div class="dim-val">7.8</div></div>
+      <div class="dim-row"><div class="dim-label">色彩一致性</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:75%"></div></div><div class="dim-val">7.5</div></div>
+      <div class="dim-row"><div class="dim-label">信息密度控制</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:72%"></div></div><div class="dim-val">7.2</div></div>
+      <div class="dim-row"><div class="dim-label">空间与留白</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:68%"></div></div><div class="dim-val">6.8</div></div>
+      <div class="dim-row"><div class="dim-label">配图策略完整性</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:80%"></div></div><div class="dim-val">8.0</div></div>
+    </div>
+
+    <!-- Model C -->
+    <div class="score-card model-c">
+      <div class="sc-header">
+        <div>
+          <div class="sc-model">Model C · Gemini 3.1</div>
+          <div class="sc-provider">万擎 ep-w6tkqh</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="sc-total">6.7</div>
+          <div class="sc-verdict badge-watch" style="background:var(--watch-bg);color:var(--watch);">WATCH</div>
+        </div>
+      </div>
+      <div class="dim-row"><div class="dim-label">视觉层级</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:68%"></div></div><div class="dim-val">6.8</div></div>
+      <div class="dim-row"><div class="dim-label">色彩一致性</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:70%"></div></div><div class="dim-val">7.0</div></div>
+      <div class="dim-row"><div class="dim-label">信息密度控制</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:65%"></div></div><div class="dim-val">6.5</div></div>
+      <div class="dim-row"><div class="dim-label">空间与留白</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:62%"></div></div><div class="dim-val">6.2</div></div>
+      <div class="dim-row"><div class="dim-label">配图策略完整性</div><div class="dim-bar-wrap"><div class="dim-bar" style="width:70%"></div></div><div class="dim-val">7.0</div></div>
+    </div>
+  </div>
+
+  <!-- AQE 对比矩阵 -->
+  <table class="aqe-table">
+    <thead>
+      <tr>
+        <th style="text-align:left;width:180px;">AQE 维度</th>
+        <th>权重</th>
+        <th>Model A<br>Claude</th>
+        <th>Model B<br>Kimi K2.5</th>
+        <th>Model C<br>Gemini 3.1</th>
+        <th>基准 Gamma</th>
+        <th>三模均值</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>视觉层级清晰度</td>
+        <td style="color:var(--text-3);">25%</td>
+        <td class="score-cell score-hi">8.5</td>
+        <td class="score-cell score-hi">7.8</td>
+        <td class="score-cell score-mid">6.8</td>
+        <td class="score-cell score-hi">8.0</td>
+        <td class="score-cell">7.7</td>
+      </tr>
+      <tr>
+        <td>色彩主题一致性</td>
+        <td style="color:var(--text-3);">20%</td>
+        <td class="score-cell score-hi">8.2</td>
+        <td class="score-cell score-mid">7.5</td>
+        <td class="score-cell score-mid">7.0</td>
+        <td class="score-cell score-hi">8.5</td>
+        <td class="score-cell">7.6</td>
+      </tr>
+      <tr>
+        <td>信息密度与节奏</td>
+        <td style="color:var(--text-3);">20%</td>
+        <td class="score-cell score-mid">7.5</td>
+        <td class="score-cell score-mid">7.2</td>
+        <td class="score-cell score-mid">6.5</td>
+        <td class="score-cell score-hi">8.0</td>
+        <td class="score-cell">7.1</td>
+      </tr>
+      <tr>
+        <td>空间与留白控制</td>
+        <td style="color:var(--text-3);">20%</td>
+        <td class="score-cell score-mid">7.8</td>
+        <td class="score-cell score-mid">6.8</td>
+        <td class="score-cell score-mid">6.2</td>
+        <td class="score-cell score-mid">7.5</td>
+        <td class="score-cell">6.9</td>
+      </tr>
+      <tr>
+        <td>配图策略完整性</td>
+        <td style="color:var(--text-3);">15%</td>
+        <td class="score-cell score-mid">7.2</td>
+        <td class="score-cell score-hi">8.0</td>
+        <td class="score-cell score-mid">7.0</td>
+        <td class="score-cell score-hi">8.2</td>
+        <td class="score-cell">7.4</td>
+      </tr>
+      <tr class="total-row">
+        <td>综合加权总分</td>
+        <td>100%</td>
+        <td class="score-cell score-mid" style="color:oklch(70% 0.17 248);font-size:17px;">7.8</td>
+        <td class="score-cell score-mid" style="color:oklch(72% 0.16 155);font-size:17px;">7.4</td>
+        <td class="score-cell score-mid" style="color:oklch(76% 0.15 78);font-size:17px;">6.7</td>
+        <td class="score-cell" style="font-size:17px;">8.1</td>
+        <td class="score-cell score-mid" style="font-size:17px;color:var(--watch);">7.3</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- AQE 评分备注 -->
+  <div style="margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:16px;">
+    <p style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:10px;">各维度说明</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;color:var(--text-2);line-height:1.7;">
+      <div><b style="color:var(--text-1);">视觉层级清晰度：</b>Model A 在 L1/L2/L3 三级层级描述最清晰（字号范围精确，Grotesk 标题+Mono 数据），Gemini 较模糊</div>
+      <div><b style="color:var(--text-1);">色彩主题一致性：</b>Model A/B 均有明确色板定义，Gamma 基准色板更完整，Gemini 仅说「科技渐变色」不够精确</div>
+      <div><b style="color:var(--text-1);">信息密度控制：</b>三模均超过每页 5 条要点，存在信息过密风险（标准建议 ≤4 条）；Model A 借助 Emoji 锚点缓解</div>
+      <div><b style="color:var(--text-1);">空间与留白：</b>Kimi/Gemini 对 layout 分区描述不够精确，缺乏 Rule 36/37 中「20% 留白阈值」意识</div>
+      <div><b style="color:var(--text-1);">配图策略完整性：</b>Model B 配图策略最细致（6 张幻灯片均有 bg/content 角色规划）；Model A 覆盖全面但部分幻灯片 inset 图描述模糊</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════ SECTION 4: KNOWN FAILURES ════════════════ -->
+<section class="eval-section" id="failures">
+  <div class="section-hd">
+    <div class="sh-num">4</div>
+    <h2>已知缺陷与优化建议</h2>
+    <span class="sh-badge badge-watch">3 项待修复</span>
+  </div>
+
+  <div class="kf-list">
+    <!-- KF-01 -->
+    <div class="kf-item">
+      <div class="kf-header">
+        <span class="kf-id">KF-01</span>
+        <span class="kf-title">信息密度超标 — 每页要点普遍 ≥5 条</span>
+        <span class="pri pri-p0" style="margin-left:auto;">P0 · High</span>
+      </div>
+      <div class="kf-meta">
+        <b>现象：</b>三模型产出的 slides.yml 中，content 类型幻灯片的 key_points 普遍达到 5 条，最多达 5 条（每条含详细数据）。按「设计侧标准」每页核心信息 ≤3 条、每条 ≤25 字，超标明显。<br>
+        <b>影响：</b>实际 HTML 渲染时文字密度高，Rule 37 留白控制压力大，PPT 翻阅节奏感下降。<br>
+        <b>复现：</b>Model A slide-02「核心洞察概览」5 条要点；Model C slide-03 数据页 3 条均超 25 字。
+      </div>
+      <div class="kf-fix">
+        <strong>修复建议：</strong>在 SKILL.md Stage 1 规划规则中，新增「单页 key_points 上限 = 4 条，每条展示文字 ≤20 字（数据另开字段）」的硬性约束，与「信息密度」评测维度对齐。
+      </div>
+    </div>
+
+    <!-- KF-02 -->
+    <div class="kf-item">
+      <div class="kf-header">
+        <span class="kf-id">KF-02</span>
+        <span class="kf-title">Palette 命名体系不统一 — 模型输出与 SKILL.md 定义存在漂移</span>
+        <span class="pri pri-p1" style="margin-left:auto;">P1 · Medium</span>
+      </div>
+      <div class="kf-meta">
+        <b>现象：</b>SKILL.md 定义 15 套 Palette 代号为 A-O，但三模型产出中：Model A 输出「Style F - Tech Editorial」、Model B 输出「Style H – Quantum Gradient」、Model C 输出「风格 D」，命名均不符合 SKILL.md 规范（应为「Palette F」「Palette H」「Palette D」）。<br>
+        <b>影响：</b>后续 Stage 2 排版规划时，若模型未正确对齐 Palette 代号，CSS Token 写入会出错，导致视觉不一致。<br>
+        <b>根因：</b>SKILL.md 在「Step 2 Palette 选择」描述中允许模型自由发挥命名，未强制要求输出为「Palette [字母]」格式。
+      </div>
+      <div class="kf-fix">
+        <strong>修复建议：</strong>在 SKILL.md Step 2 末尾增加约束：「确认后必须输出『已选择 Palette [X]』格式字样，且该字母必须匹配 A-O 速览表中的代号」；并在 palettes.md 中为每套 Palette 增加 aliases 字段，防止命名漂移。
+      </div>
+    </div>
+
+    <!-- KF-03 -->
+    <div class="kf-item">
+      <div class="kf-header">
+        <span class="kf-id">KF-03</span>
+        <span class="kf-title">配图规划深度不足 — Stage 1 产物缺少 css_spec / div_id 字段</span>
+        <span class="pri pri-p1" style="margin-left:auto;">P1 · Medium</span>
+      </div>
+      <div class="kf-meta">
+        <b>现象：</b>三模型产出均仅在 visual_note 中用自然语言描述配图策略，未按 SKILL.md Rule 35/39 格式输出 images[] 数组（含 role、css_spec、div_id、mask_alpha、aspect 字段）。<br>
+        <b>影响：</b>若模型只在 visual_note 留下文字备注，后续阶段 HTML 生成时无法直接引用精确 CSS 规格，需要人工补充，增加出错风险。<br>
+        <b>根因：</b>Stage 1 规划的「slides.yml 完整格式」示例中 images[] 字段存在，但模型在「简洁输出」模式下倾向于省略结构化字段，改用 visual_note 做替代。
+      </div>
+      <div class="kf-fix">
+        <strong>修复建议：</strong>在 SKILL.md Stage 1 结尾增加「images[] 完整性检查点（检查点 A）」显式提示，并在 slides.yml 示例中将 images[] 标注为 REQUIRED，不允许省略为 visual_note。同时将 Rule 39 检查点 A 的说明前移至 Stage 1 结尾，加强意识。
+      </div>
+    </div>
+
+    <!-- KF-04（P2，低优先级观察项）-->
+    <div class="kf-item" style="border-left-color:var(--watch);">
+      <div class="kf-header">
+        <span class="kf-id" style="color:var(--watch);">KF-04</span>
+        <span class="kf-title">Mode 自动降级逻辑未体现在实际响应中</span>
+        <span class="pri pri-p2" style="margin-left:auto;">P2 · Low</span>
+      </div>
+      <div class="kf-meta">
+        <b>现象：</b>SKILL.md 规定「无论用户输入什么，开始生成前必须调用 preview_ask 工具」，但三模型在响应中直接文字确认了「专业模式」，未体现 preview_ask 工具调用流程。<br>
+        <b>说明：</b>此为 Stage 1 mock 测试局限性——仅测试内容规划产物，非完整工具调用链路。实际技能执行中 preview_ask 作为工具调用存在，此项不计入 AQE 扣分，仅作观察项记录。
+      </div>
+      <div class="kf-fix">
+        <strong>观察建议：</strong>建议在下一轮评测中，通过 CodeFlicker 完整技能调用链路验证 preview_ask 工具触发情况，而非仅测试 LLM 内容生成能力。
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════════════ SECTION 5: FINAL VERDICT ════════════════ -->
+<section class="eval-section" id="verdict">
+  <div class="section-hd">
+    <div class="sh-num">5</div>
+    <h2>最终判定</h2>
+  </div>
+
+  <div class="final-verdict verdict-watch">
+    <div class="fv-left">
+      <div class="fv-label">设计侧 Gate 2 综合判定</div>
+      <div class="fv-verdict">WATCH — 有条件通过</div>
+      <div class="fv-desc">
+        ks-design-slide-deck v4.6.4 通过 Gate 0 P0 全量自检（12/12），核心竞争力明确（双模式、ECharts 可交互图表、Design Token 系统、Rule 36-41 质量闸），与 Gamma.app 对标方向清晰。<br><br>
+        但本次评测发现 3 项 P0/P1 级别缺陷影响产物质量稳定性：<b>KF-01 信息密度超标</b>（每页 key_points 普遍 ≥5 条）、<b>KF-02 Palette 命名漂移</b>（模型输出不符合规范代号）、<b>KF-03 Stage 1 配图字段不完整</b>（images[] 被 visual_note 替代）。<br><br>
+        建议在 <b>2 周内</b>完成 KF-01~03 修复，重跑评测通过后升级为 PASS。
+      </div>
+    </div>
+    <div class="fv-right">
+      <div class="fv-score">7.3</div>
+      <div class="fv-score-label">AQE 综合均分 / 10</div>
+      <div style="margin-top:16px;font-size:12px;color:var(--text-3);">
+        <div style="margin-bottom:4px;">Claude Opus：<b style="color:oklch(70% 0.17 248);">7.8</b></div>
+        <div style="margin-bottom:4px;">Kimi K2.5：<b style="color:oklch(72% 0.16 155);">7.4</b></div>
+        <div>Gemini 3.1：<b style="color:oklch(76% 0.15 78);">6.7</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action items -->
+  <div style="margin-top:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;">
+    <div style="padding:12px 18px;background:var(--elevated);border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-2);letter-spacing:0.04em;text-transform:uppercase;">跟进行动项</div>
+    <div style="padding:16px 18px;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="padding:8px 0;text-align:left;color:var(--text-3);font-weight:600;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;">行动项</th>
+            <th style="padding:8px 12px;color:var(--text-3);font-weight:600;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;width:80px;">优先级</th>
+            <th style="padding:8px 12px;color:var(--text-3);font-weight:600;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;width:80px;">期限</th>
+            <th style="padding:8px 12px;color:var(--text-3);font-weight:600;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;width:100px;">状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 0;color:var(--text-1);">在 Stage 1 新增「单页 key_points ≤4 条」硬性约束</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="pri pri-p0">P0</span></td>
+            <td style="padding:10px 12px;text-align:center;color:var(--text-2);">1 周</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="chip chip-watch">待修复</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 0;color:var(--text-1);">Palette 输出格式标准化，强制「Palette [X]」命名</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="pri pri-p1">P1</span></td>
+            <td style="padding:10px 12px;text-align:center;color:var(--text-2);">1 周</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="chip chip-watch">待修复</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 0;color:var(--text-1);">将 Rule 39 检查点 A 前移至 Stage 1 末尾，images[] 标为 REQUIRED</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="pri pri-p1">P1</span></td>
+            <td style="padding:10px 12px;text-align:center;color:var(--text-2);">2 周</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="chip chip-watch">待修复</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 0;color:var(--text-1);">reference/ 下新增 known-failures.md（KF 列表标准化）</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="pri pri-p2">P2</span></td>
+            <td style="padding:10px 12px;text-align:center;color:var(--text-2);">2 周</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="chip chip-na">建议</span></td>
+          </tr>
+          <tr>
+            <td style="padding:10px 0;color:var(--text-1);">补充竞品实测截图（Gamma 生成同主题 PPT 并截图存档至 reference/）</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="pri pri-p1">P1</span></td>
+            <td style="padding:10px 12px;text-align:center;color:var(--text-2);">2 周</td>
+            <td style="padding:10px 12px;text-align:center;"><span class="chip chip-na">建议</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="report-footer">
+  <span>ks-design-slide-deck v4.6.4 评测报告 · 设计智力 Skill 评测体系</span>
+  <span>评测人：huwenji · 2026-04-21</span>
+</footer>
+
+</div><!-- /.page-wrap -->
+</body>
+</html>
