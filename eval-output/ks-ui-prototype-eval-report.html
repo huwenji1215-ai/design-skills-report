@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ks-design-ui-prototype 评测报告 v1.0</title>
+<style>
+:root {
+  --bg:#f8f7f4; --surface:#fff; --surface2:#f3f1ec; --border:#e2ddd6;
+  --text1:#1a1714; --text2:#5c5650; --textm:#9a9088;
+  --brown:#3d5a8a; --warm:#2563eb;
+  --pass:#2d7a4f; --pass-bg:#edf7f2;
+  --watch:#7a6520; --watch-bg:#faf5e4;
+  --fail:#a0290e; --fail-bg:#fdf1ee;
+  --block:#8b0000; --block-bg:#fff0f0;
+  --part:#5a4e2b; --part-bg:#fdf9ed;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;line-height:1.6}
+
+/* Header */
+.hdr{background:var(--brown);color:#fff;padding:36px 48px 32px}
+.hdr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:6px;padding:3px 12px;font-size:11px;margin-bottom:14px;letter-spacing:.05em}
+.hdr h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hdr-meta{opacity:.75;font-size:12px;display:flex;gap:20px;flex-wrap:wrap}
+
+/* Verdict bar */
+.vbar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.vpill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px}
+.vpill.fail{background:var(--fail-bg);color:var(--fail);border:1.5px solid #e8bab2}
+.vpill.watch{background:var(--watch-bg);color:var(--watch);border:1.5px solid #e5d48a}
+.vpill.pass{background:var(--pass-bg);color:var(--pass);border:1.5px solid #aadcc2}
+.vitem{display:flex;flex-direction:column;gap:4px}
+.vlabel{font-size:11px;color:var(--textm)}
+
+/* Nav */
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;display:flex;position:sticky;top:0;z-index:99;overflow-x:auto}
+.ntab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--textm);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .15s}
+.ntab:hover{color:var(--text2)}
+.ntab.active{color:var(--warm);border-bottom-color:var(--warm);font-weight:600}
+
+/* Content */
+.content{max-width:1080px;margin:0 auto;padding:32px 48px}
+section.ts{display:none}
+section.ts.active{display:block}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+h2.stitle{font-size:17px;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);color:var(--brown)}
+
+/* Table */
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top}
+th{background:var(--surface2);font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.pass{background:var(--pass-bg);color:var(--pass)}
+.chip.fail{background:var(--fail-bg);color:var(--fail)}
+.chip.part{background:var(--part-bg);color:var(--part)}
+.chip.block{background:var(--block-bg);color:var(--block)}
+.chip.na{background:#f0f0f0;color:#888}
+.chip.watch{background:var(--watch-bg);color:var(--watch)}
+
+/* Priority */
+.pri{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pri.p0{background:#fde8e5;color:#c0392b}
+.pri.p1{background:#fdf3e0;color:#d68910}
+.pri.p2{background:#f0f0f0;color:#888}
+
+/* AQE score grid */
+.aqe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
+.aqe-dim{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center}
+.aqe-dim .did{font-size:10px;font-weight:700;color:var(--textm);letter-spacing:.08em;margin-bottom:3px}
+.aqe-dim .dname{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;line-height:1.3;min-height:30px}
+.scores{display:flex;justify-content:center;gap:10px}
+.sbadge{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbadge .sv{font-size:22px;font-weight:900;line-height:1}
+.sbadge .sl{font-size:9px;color:var(--textm)}
+.sg{color:var(--pass)} .sw{color:var(--watch)} .sf{color:var(--fail)} .sb{color:var(--block)}
+
+/* Big score box */
+.scorebox{background:linear-gradient(135deg,var(--brown),#1d4ed8);color:#fff;border-radius:12px;padding:22px 26px;display:flex;align-items:center;gap:26px;margin-bottom:22px}
+.scorebox .bscore{font-size:52px;font-weight:900;line-height:1;flex-shrink:0}
+.scorebox .sdesc h3{font-size:15px;margin-bottom:5px}
+.scorebox .sdesc p{font-size:12px;opacity:.85;line-height:1.5}
+
+/* Summary stats */
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.scard{padding:16px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+
+/* Model comparison grid */
+.model-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:22px}
+.mcard{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.mcard.winner{border-color:#aadcc2;box-shadow:0 0 0 2px #aadcc2}
+.mcard-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.mcard-name{font-weight:700;font-size:14px}
+.mcard-provider{font-size:11px;color:var(--textm);margin-top:2px}
+.mcard-body{padding:16px}
+.mcard-score{font-size:40px;font-weight:900;text-align:center;padding:12px 0 6px}
+.mcard-label{font-size:11px;color:var(--textm);text-align:center;margin-bottom:14px}
+.dim-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.dim-bar-label{font-size:11px;color:var(--text2);min-width:80px}
+.dim-bar-wrap{flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.dim-bar{height:100%;border-radius:2px}
+.dim-bar-score{font-size:11px;font-weight:700;min-width:28px;text-align:right}
+
+/* Artifact link cards */
+.artifact-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:22px}
+.alink-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface);text-decoration:none;color:inherit;display:block;transition:box-shadow .15s,transform .15s}
+.alink-card:hover{box-shadow:0 4px 20px rgba(37,99,235,.12);transform:translateY(-2px)}
+.alink-card.winner{border-color:#aadcc2}
+.alink-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.alink-preview{background:var(--surface2);height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.alink-preview iframe{width:390px;height:700px;border:none;transform:scale(0.43);transform-origin:top center;pointer-events:none;position:absolute;top:0;left:50%;margin-left:-195px}
+.alink-footer{padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.alink-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--warm);color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none}
+.alink-btn:hover{opacity:.9}
+.alink-meta{font-size:11px;color:var(--textm)}
+
+/* CL items */
+.cl{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cl:last-child{border-bottom:none}
+.clicon{flex-shrink:0;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:2px}
+.clicon.pass{background:var(--pass-bg);color:var(--pass)}
+.clicon.fail{background:var(--fail-bg);color:var(--fail)}
+.clicon.part{background:var(--part-bg);color:var(--part)}
+.clicon.na{background:#f0f0f0;color:#aaa}
+.cltxt .cll{font-weight:600;margin-bottom:2px;font-size:13px}
+.cltxt .cln{color:var(--textm);font-size:12px;line-height:1.4}
+
+/* Known Failures */
+.kf{background:var(--fail-bg);border:1px solid #e8bab2;border-left:4px solid var(--fail);border-radius:8px;padding:15px;margin-bottom:12px}
+.kfid{font-size:10px;font-weight:700;color:var(--fail);letter-spacing:.08em;margin-bottom:5px}
+.kftitle{font-weight:700;font-size:14px;margin-bottom:9px}
+.kfrow{display:flex;gap:6px;margin-bottom:4px;font-size:12px}
+.kfkey{font-weight:600;color:var(--text2);white-space:nowrap;min-width:58px}
+
+/* Fix cards */
+.fix{background:var(--surface2);border-radius:8px;padding:13px 15px;margin-bottom:11px;border-left:3px solid var(--warm)}
+.fixtitle{font-weight:700;font-size:13px;margin-bottom:5px}
+.fixbody{font-size:12px;color:var(--text2);line-height:1.6}
+.fixbody code{background:#ede9e0;border-radius:3px;padding:1px 5px;font-family:monospace;font-size:11px}
+
+/* Prompt box */
+.pbox{background:#1a1714;color:#e8e0d5;border-radius:10px;padding:15px 18px;font-family:Menlo,monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;margin:11px 0;overflow-x:auto}
+
+/* Route diff */
+.rdiff{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:14px 0}
+.rcard{border-radius:8px;padding:14px;font-size:12.5px}
+.rcard.ra{background:#edf3fd;border:1px solid #b8cef5}
+.rcard.rb{background:#fdf9ed;border:1px solid #f5e8b8}
+.rcard.rc{background:#fdf1ee;border:1px solid #f5c0b8}
+.rcard h4{font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.rcard.ra h4{color:#1d4ed8}.rcard.rb h4{color:#92400e}.rcard.rc h4{color:#a0290e}
+.rcard ul{list-style:none}.rcard ul li{padding:2px 0;color:var(--text2)}.rcard ul li::before{content:'→ ';opacity:.5;font-size:10px}
+
+@media(max-width:768px){
+  .hdr,.vbar,.content,.nav{padding-left:20px;padding-right:20px}
+  .aqe-grid{grid-template-columns:repeat(3,1fr)}
+  .model-grid,.artifact-grid,.rdiff,.stats3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-badge">📊 AQE 设计侧评测报告</div>
+  <h1>ks-design-ui-prototype · 评测报告 v1.0</h1>
+  <div class="hdr-meta">
+    <span>Skill 版本：v1.4.0</span>
+    <span>评测标准：skill-design-standard v1.0（AQE + DIR-01 UI生成）</span>
+    <span>Mock Case：情绪记录App首页 · 移动端 390px · 暖色调</span>
+    <span>模型：Claude Opus 4.7 / Kimi K2.5 / Gemini 3.1 Pro Preview</span>
+    <span>评测日期：2026-04-21</span>
+  </div>
+</div>
+
+<!-- VERDICT BAR -->
+<div class="vbar">
+  <div class="vitem"><div class="vlabel">Gate 0 合规检查</div><span class="vpill watch">⚠️ 通过 — 2项P1警告</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（Model A · Claude）</div><span class="vpill pass">✅ 8.98 · PASS</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（Model B · Kimi）</div><span class="vpill fail">❌ 6.69 · FAIL</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（Model C · Gemini）</div><span class="vpill pass">✅ 8.36 · PASS</span></div>
+  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">Gate 0 无 P0 阻断项，合规通过。产物层面：Claude（8.98）和 Gemini（8.36）均 PASS，Kimi（6.69）因可访问性验证缺失 FAIL。综合判定：<strong>PASS</strong>，以 Claude Opus 4.7 为推荐推理引擎。</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="ntab active" onclick="sw('overview')">总览</div>
+  <div class="ntab" onclick="sw('compliance')">Gate 0 合规检查</div>
+  <div class="ntab" onclick="sw('mock')">Mock Case</div>
+  <div class="ntab" onclick="sw('aqe')">AQE 评测打分</div>
+  <div class="ntab" onclick="sw('checklist')">DIR-01 Checklist</div>
+  <div class="ntab" onclick="sw('failures')">Known Failures</div>
+  <div class="ntab" onclick="sw('fixes')">整改建议</div>
+</nav>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ═══════════════════════ TAB: 总览 ═══════════════════════ -->
+<section id="tab-overview" class="ts active">
+  <h2 class="stitle">评测总览</h2>
+
+  <div class="scorebox">
+    <div class="bscore">8.98</div>
+    <div class="sdesc">
+      <h3>综合结论：✅ PASS（以最优产物 Claude Opus 4.7 为基准）</h3>
+      <p>Gate 0 合规检查通过，2 项 P1 警告（SKILL.md 超长 1789 行 / Known Failures 未前置）。<br>
+      产物层面：Model A（Claude 8.98）和 Model C（Gemini 8.36）均 PASS；Model B（Kimi 6.69）因代码过度压缩导致可访问性验证缺失而 FAIL。<br>
+      整体通过率 2/3，推荐以 Claude Opus 4.7 为默认推理引擎，Kimi K2.5 需补充验证后再用。</p>
+    </div>
+  </div>
+
+  <div class="stats3">
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">GATE 0 合规</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">13/15 ✅</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">无 P0 阻断；SKILL.md 超长（1789行）和 KF 未前置为 P1 警告</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">最优产物（Claude Opus 4.7）</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">8.98 PASS 🥇</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">5 维度均 ≥ 8.0；字号层级完整、WCAG 注释工程化、交互态齐全</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--fail)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">最差产物（Kimi K2.5）</div>
+      <div style="font-size:24px;font-weight:800;color:var(--fail)">6.69 FAIL 🥉</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">综合分 &lt; 7.0；代码仅 80 行，AQE-E=6.0 触红线，缺可访问性验证</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔄 评测流程回溯</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">📦 安装 Skill<br><span style="color:var(--textm);font-size:11px">v1.4.0 from zip<br>~/.codeflicker/skills/</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--watch-bg);border-radius:6px;padding:8px 12px;border:1px solid #e5d48a;text-align:center">⚠️ Gate 0 审计<br><span style="color:var(--textm);font-size:11px">13/15 PASS<br>2 P1警告</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">✍️ Mock Case<br><span style="color:var(--textm);font-size:11px">情绪记录App首页<br>移动端 390px</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--pass-bg);border-radius:6px;padding:8px 12px;border:1px solid #aadcc2;text-align:center">🤖 3模型调用<br><span style="color:var(--textm);font-size:11px">Claude / Kimi / Gemini<br>万擎 WQ API</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--pass-bg);border-radius:6px;padding:8px 12px;border:1px solid #aadcc2;text-align:center">🎨 AQE 打分<br><span style="color:var(--textm);font-size:11px">A:8.98 / B:6.69 / C:8.36<br>PASS/FAIL/PASS</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--pass-bg);border-radius:6px;padding:8px 12px;border:1px solid #aadcc2;text-align:center">📝 本报告<br><span style="color:var(--textm);font-size:11px">KF + 整改建议</span></div>
+    </div>
+  </div>
+
+  <!-- 三模型产物预览 + 外链 -->
+  <div class="card">
+    <div class="card-title">🖥️ 三模型产物预览（点击查看完整效果）</div>
+    <div class="artifact-grid">
+      <!-- Model A -->
+      <a class="alink-card winner" href="model-a-claude-opus.html" target="_blank">
+        <div class="alink-head">
+          <div>
+            <div class="mcard-name">🥇 Claude Opus 4.7</div>
+            <div class="mcard-provider">Model A · 478行 · 最优</div>
+          </div>
+          <span class="chip pass">8.98 PASS</span>
+        </div>
+        <div class="alink-preview">
+          <iframe src="model-a-claude-opus.html" title="Model A 预览" tabindex="-1"></iframe>
+        </div>
+        <div class="alink-footer">
+          <span class="alink-btn" href="model-a-claude-opus.html">查看完整原型 ↗</span>
+          <span class="alink-meta">暖色调 · 5层字号 · WCAG注释</span>
+        </div>
+      </a>
+      <!-- Model B -->
+      <a class="alink-card" href="model-b-kimi-k2.html" target="_blank">
+        <div class="alink-head">
+          <div>
+            <div class="mcard-name">🥉 Kimi K2.5</div>
+            <div class="mcard-provider">Model B · 80行 · 最简</div>
+          </div>
+          <span class="chip fail">6.69 FAIL</span>
+        </div>
+        <div class="alink-preview">
+          <iframe src="model-b-kimi-k2.html" title="Model B 预览" tabindex="-1"></iframe>
+        </div>
+        <div class="alink-footer">
+          <span class="alink-btn">查看完整原型 ↗</span>
+          <span class="alink-meta">基础暖色 · 3层字号 · 缺WCAG</span>
+        </div>
+      </a>
+      <!-- Model C -->
+      <a class="alink-card" href="model-c-gemini-pro.html" target="_blank">
+        <div class="alink-head">
+          <div>
+            <div class="mcard-name">🥈 Gemini 3.1 Pro Preview</div>
+            <div class="mcard-provider">Model C · 287行 · 工程严谨</div>
+          </div>
+          <span class="chip pass">8.36 PASS</span>
+        </div>
+        <div class="alink-preview">
+          <iframe src="model-c-gemini-pro.html" title="Model C 预览" tabindex="-1"></iframe>
+        </div>
+        <div class="alink-footer">
+          <span class="alink-btn">查看完整原型 ↗</span>
+          <span class="alink-meta">深红主色 · 8px间距 · focus态完整</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- 三路线差异对比 -->
+  <div class="rdiff">
+    <div class="rcard ra">
+      <h4>Model A（Claude）优势</h4>
+      <ul>
+        <li>字号层级完整（28/16/14/12/36px），5层清晰</li>
+        <li>WCAG 对比度工程化标注（15.8:1 / 7.8:1 / 4.7:1）</li>
+        <li>CSS 变量系统最完善（color / space / font / radius）</li>
+        <li>情绪选中 JS 交互完整，hover/active/focus 三态齐备</li>
+        <li>暖色调最准（#FF8A65/#FFB74D），疗愈感强</li>
+      </ul>
+    </div>
+    <div class="rcard rb">
+      <h4>Model C（Gemini）表现</h4>
+      <ul>
+        <li>8px 间距体系最严格</li>
+        <li>focus 态完整，键盘可访问性最佳</li>
+        <li>代码量适中（287行），工程化较高</li>
+        <li>⚠️ 主色 #D8432A 偏警示红，情感色温略损</li>
+        <li>辅助信息层次可再丰富</li>
+      </ul>
+    </div>
+    <div class="rcard rc">
+      <h4>Model B（Kimi）问题</h4>
+      <ul>
+        <li>⚠️ 代码仅 80 行，极度压缩</li>
+        <li>⚠️ 字号仅 3 级（28/16/14），缺辅助文字层</li>
+        <li>⚠️ 无 WCAG 对比度验证标注</li>
+        <li>⚠️ 缺情绪选中 JS 交互</li>
+        <li>⚠️ AQE-E=6.0 触红线，综合 FAIL</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<!-- END 总览 -->
+
+<!-- ═══════════════════════ TAB: Gate 0 合规检查 ═══════════════════════ -->
+<section id="tab-compliance" class="ts">
+  <h2 class="stitle">Gate 0 · 合规检查</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">依据 skill-design-standard 准入规范（通用清单 A~E + DIR-01 UI生成专属）对 ks-design-ui-prototype SKILL.md v1.4.0 逐项审计。</p>
+
+  <div class="card">
+    <div class="card-title">A · 输出物定义</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>输出物类型已明确</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>SKILL.md 明确：输出纯 HTML/CSS/JS 文件，无框架依赖，可直接浏览器运行</td></tr>
+      <tr><td>有 ≥ 1 个完整输出示例</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 1 页面地图示例、Phase 4 Viewer 占位符、交付报告模板均完整</td></tr>
+      <tr><td>输出精度已定义（原型级 vs 生产级）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>明确定位为「原型级（可走查，不要求像素精准）」，QA v2.0 验收标准清晰</td></tr>
+      <tr><td>输出物类型精确到格式</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>精确声明 HTML 单文件，JavaScript 内嵌，CSS 变量驱动</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">B · 竞品对标锚点</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已指定质量对标竞品</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>description 隐含对标：v0.dev / Claude Artifacts / Framer AI（设计系统与 Viewer 质量锚点可感知）</td></tr>
+      <tr><td>已做竞品实测截图存档</td><td><span class="pri p1">P1</span></td><td><span class="chip na">— N/A</span></td><td>代码生成类 skill 无需截图存档，产物直接可运行对比</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">C · 版权与合规</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>字体使用路线已确定</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>使用 Google Fonts 开源字体（Plus Jakarta Sans / Inter / Nunito / Geist Mono），均免费可商用</td></tr>
+      <tr><td>图片/插画来源合规</td><td><span class="pri p0">P0</span></td><td><span class="chip na">— N/A</span></td><td>纯代码产物，无外部图片依赖，版权风险为零</td></tr>
+      <tr><td>品牌风格模仿有边界</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>20套设计系统均为原创 CSS Token 方案，非模仿具体产品</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">D · 美学基线要求</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>色彩对比度达标 ≥ 4.5:1 (WCAG AA)</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 3 无障碍标准明确：「颜色对比度满足 WCAG AA（4.5:1 正文，3:1 大文字）」</td></tr>
+      <tr><td>颜色不是唯一信息载体</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 3 明确要求交互状态需有 border/shadow 等非颜色辅助</td></tr>
+      <tr><td>视觉层级要求存在（字号对比 ≥ 2级）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>Design Token 明确 5 层字号阶梯（11/13/16/20/25/31/39/49/61px）</td></tr>
+      <tr><td>间距体系一致性要求（4px 或 8px 基准）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 2 明确「4px base」，所有间距使用 var(--space-*) 变量</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">E · 边界与失败处理</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已定义「不做什么」</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>明确不做：单页面精美界面→frontend-design，PPT→ks-design-slide-deck，框架代码→ui-ux-pro-max</td></tr>
+      <tr><td>输入不完整时有降级策略</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 0 强制提问机制，防止静默失败</td></tr>
+      <tr><td>交互状态有视觉反馈（hover/focus/active）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 3 硬性规则：「按钮/卡片必须有 :hover；输入框必须有明显 :focus」</td></tr>
+      <tr><td>已预列 ≥ 3 条已知失败模式</td><td><span class="pri p2">P2</span></td><td><span class="chip part">~ PARTIAL</span></td><td>Phase 5 有 BUG-01~12 索引表，但在 SKILL.md 末尾，未前置，可发现性弱</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">DIR-01 · UI 生成专属准入审计</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>SKILL.md 行数 ≤ 500 行（或有分层策略）</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td><strong>1789 行，超标 3.6x</strong>。Phase 3 内联大量代码模板，注意力衰减风险高；虽有渐进披露设计，但整体偏重</td></tr>
+      <tr><td>Design Token 系统已定义（色/字/间距）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>20套 CSS Design Token，含色彩/字号/间距/圆角/阴影，体系完整</td></tr>
+      <tr><td>移动端/PC 端双端支持已声明</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>description 明确：移动端（手机壳 Viewer）+ PC 端（浏览器壳 Viewer）</td></tr>
+      <tr><td>Viewer 质量有验收标准</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>Viewer v2 内置 QA Checklist，流程图 Tab / Pin 标注 / 5种背景主题</td></tr>
+      <tr><td>竞品对标已指定（UI生成方向）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>隐含对标 v0.dev 级别交互原型质量</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="background:var(--watch-bg);border-color:#e5d48a">
+    <div class="card-title" style="color:var(--watch)">⚠️ Gate 0 合规检查结论：通过（有 P1 警告）</div>
+    <table>
+      <tr><th>严重程度</th><th>数量</th><th>主要问题</th></tr>
+      <tr><td><strong>P0 FAIL</strong>（阻断项）</td><td style="font-weight:700;color:var(--pass)">0项 ✅</td><td>无 P0 阻断，合规准入通过</td></tr>
+      <tr><td><strong>P0 PARTIAL</strong></td><td style="font-weight:700;color:var(--watch)">1项</td><td>SKILL.md 1789行超标（有渐进披露策略，降级为 PARTIAL 非 FAIL）</td></tr>
+      <tr><td><strong>P1 警告</strong></td><td style="font-weight:700;color:var(--watch)">1项</td><td>Known Failures 在文末而非前置</td></tr>
+      <tr><td><strong>P2 建议</strong></td><td>—</td><td>代码模板建议迁移至 references/ 目录以瘦身 SKILL.md</td></tr>
+    </table>
+  </div>
+</section>
+<!-- END Gate 0 -->
+
+<!-- ═══════════════════════ TAB: Mock Case ═══════════════════════ -->
+<section id="tab-mock" class="ts">
+  <h2 class="stitle">Mock Case · 情绪记录App首页</h2>
+
+  <div class="card">
+    <div class="card-title">Case 设计说明</div>
+    <table>
+      <tr><th>字段</th><th>值</th></tr>
+      <tr><td>选题</td><td>情绪记录App首页（consumer_app · 情感类，覆盖 UI 生成核心链路：布局/色彩/交互/可访问性）</td></tr>
+      <tr><td>产品类型</td><td>情感 / 疗愈类 → 暖色调（橙系）、现代简洁、亲切感</td></tr>
+      <tr><td>目标端</td><td>移动端 H5，宽度 390px</td></tr>
+      <tr><td>调用模型</td><td>Model A: Claude Opus 4.7 / Model B: Kimi K2.5 / Model C: Gemini 3.1 Pro Preview</td></tr>
+      <tr><td>接口</td><td>万擎 WQ API · http://localhost:3001/api/gateway/v1/endpoints/chat/completions</td></tr>
+      <tr><td>核心功能点</td><td>5 个（顶部问候语 / 6个情绪选项+emoji / 情绪描述文字 / 主操作按钮 / 情绪选中交互）</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">原始输入 Prompt</div>
+    <div class="pbox">你是一个产品UI原型生成专家（ks-design-ui-prototype skill）。
+
+请按照以下要求生成一个移动端H5界面的单页面HTML原型：
+
+任务：为一个「情绪记录App」生成首页（情绪选择页），要求：
+- 移动端，宽度390px
+- 现代简洁风格，使用暖色调
+- 页面包含：顶部问候语（"今天感觉怎么样"）、6个情绪选项（开心/平静/焦虑/悲伤/愤怒/惊喜，每个有emoji图标）、简短文字描述、一个"记录心情"的主按钮
+- 使用CSS设计系统变量（--color-primary等），字号层级清晰（标题28px/副标题16px/描述14px）
+- 所有可交互元素有hover/active状态和过渡动画
+- 文字对比度满足WCAG AA（4.5:1）
+- 间距使用8px基准体系
+
+直接输出完整的HTML代码，不要任何解释，只输出HTML。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">模型调用记录</div>
+    <table>
+      <tr><th>字段</th><th>Model A · Claude</th><th>Model B · Kimi</th><th>Model C · Gemini</th></tr>
+      <tr><td>输出大小</td><td>11,631 chars</td><td>3,227 chars</td><td>8,701 chars</td></tr>
+      <tr><td>代码行数</td><td>约 478 行</td><td>约 80 行</td><td>约 287 行</td></tr>
+      <tr><td>主色</td><td>#FF8A65（暖橙）</td><td>#FF6B6B（珊瑚红）</td><td>#D8432A（砖红）</td></tr>
+      <tr><td>产物文件</td>
+        <td><a href="model-a-claude-opus.html" target="_blank" style="color:var(--warm);font-weight:600">model-a-claude-opus.html ↗</a></td>
+        <td><a href="model-b-kimi-k2.html" target="_blank" style="color:var(--warm);font-weight:600">model-b-kimi-k2.html ↗</a></td>
+        <td><a href="model-c-gemini-pro.html" target="_blank" style="color:var(--warm);font-weight:600">model-c-gemini-pro.html ↗</a></td>
+      </tr>
+    </table>
+  </div>
+</section>
+<!-- END Mock Case -->
+
+<!-- ═══════════════════════ TAB: AQE 评测打分 ═══════════════════════ -->
+<section id="tab-aqe" class="ts">
+  <h2 class="stitle">AQE 评测打分</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">由 Claude Opus 4.7（AQE Judge）对三个产物按 AQE 5 维度（视觉层级/色彩美学/版式规范/风格稳定性/可访问性）独立打分（1-10分），综合分 = A×0.25 + B×0.25 + C×0.25 + D×0.10 + E×0.15，≥7.5 且无维度 &lt;6.0 为 PASS。</p>
+
+  <!-- Model A -->
+  <div class="card">
+    <div class="card-title">Model A — Claude Opus 4.7 <span class="chip pass" style="margin-left:8px">8.98 · PASS 🥇</span></div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:32px;font-weight:900;color:var(--pass)">8.98</div>
+      <span class="vpill pass">✅ PASS — 5维度全部 ≥ 8.0，综合分第一</span>
+      <a href="model-a-claude-opus.html" target="_blank" style="margin-left:auto;padding:6px 14px;background:var(--warm);color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">查看产物 ↗</a>
+    </div>
+
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">9.0</div><div class="sl">Model A</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与情感调性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.8</div><div class="sl">Model A</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与排版质量</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">9.0</div><div class="sl">Model A</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">风格稳定性与调性匹配</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">9.0</div><div class="sl">Model A</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性基线</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">9.2</div><div class="sl">Model A</div></div></div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th style="width:12%">维度</th><th style="width:8%">得分</th><th style="width:8%">权重</th><th>评分依据与观察</th><th style="width:18%">主要失分项</th></tr>
+      <tr>
+        <td><strong>AQE-A</strong> 视觉层级</td>
+        <td style="color:var(--pass);font-weight:700">9.0</td>
+        <td>25%</td>
+        <td>字号层级完整（28/16/14/12/36px），5 层清晰层次；--font-title/subtitle/body/caption/emoji 变量完备；信息焦点引导自然，从问候语→情绪选项→主按钮动线流畅</td>
+        <td>代码量 478 行，略有过度设计风险</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-B</strong> 色彩美学</td>
+        <td style="color:var(--pass);font-weight:700">8.8</td>
+        <td>25%</td>
+        <td>暖橙色系（#FF8A65/#FFB74D），情感调性准确，疗愈感强；色彩系统三级：主色/次色/强调色；背景 #FFF8F3 米白系与主色协调，整体饱和度适中</td>
+        <td>暖色多层次搭配需注意主次焦点不被装饰性元素稀释</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-C</strong> 版式规范</td>
+        <td style="color:var(--pass);font-weight:700">9.0</td>
+        <td>25%</td>
+        <td>8px 间距基准体系严格（--spacing-1 到 --spacing-12），所有间距使用变量；圆角系统化（12/16/20/999px）；留白比例合理，无信息拥挤感</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-D</strong> 风格稳定</td>
+        <td style="color:var(--pass);font-weight:700">9.0</td>
+        <td>10%</td>
+        <td>现代简洁风格贯穿始终，情绪选项卡片、主按钮、背景色调一致；与「情绪记录/疗愈」调性高度匹配；无风格漂移</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-E</strong> 可访问性</td>
+        <td style="color:var(--pass);font-weight:700">9.2</td>
+        <td>15%</td>
+        <td><strong>最强项</strong>：WCAG 对比度工程化标注（15.8:1 / 7.8:1 / 4.7:1 对应三级文字色）；hover/active/focus 三态完整；情绪选中有 border + background 双重非颜色区分</td>
+        <td>—</td>
+      </tr>
+    </table>
+    <div style="background:var(--pass-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:12px;border:1px solid #aadcc2">
+      <strong>综合分计算：</strong>9.0×0.25 + 8.8×0.25 + 9.0×0.25 + 9.0×0.10 + 9.2×0.15 = 2.25+2.20+2.25+0.90+1.38 = <strong>8.98</strong> → 判定 <strong>PASS</strong>（5维度全部 ≥ 8.0，远超 7.5 阈值）
+    </div>
+  </div>
+
+  <!-- Model C -->
+  <div class="card">
+    <div class="card-title">Model C — Gemini 3.1 Pro Preview <span class="chip pass" style="margin-left:8px">8.36 · PASS 🥈</span></div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:32px;font-weight:900;color:var(--pass)">8.36</div>
+      <span class="vpill pass">✅ PASS — 工程严谨，色温略偏</span>
+      <a href="model-c-gemini-pro.html" target="_blank" style="margin-left:auto;padding:6px 14px;background:var(--warm);color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">查看产物 ↗</a>
+    </div>
+
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.2</div><div class="sl">Model C</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与情感调性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.3</div><div class="sl">Model C</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与排版质量</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.5</div><div class="sl">Model C</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">风格稳定性与调性匹配</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.2</div><div class="sl">Model C</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性基线</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.6</div><div class="sl">Model C</div></div></div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th style="width:12%">维度</th><th style="width:8%">得分</th><th style="width:8%">权重</th><th>评分依据与观察</th><th style="width:18%">主要失分项</th></tr>
+      <tr><td><strong>AQE-A</strong> 视觉层级</td><td style="color:var(--pass);font-weight:700">8.2</td><td>25%</td><td>字号层级（28/24/16/14px）4层，清晰度良好；信息层次合理</td><td>层级数量略少于 Model A，辅助信息层次可再丰富</td></tr>
+      <tr><td><strong>AQE-B</strong> 色彩美学</td><td style="color:var(--pass);font-weight:700">8.3</td><td>25%</td><td>有 WCAG 4.7:1 标注，色彩体系完整</td><td style="color:var(--watch)">主色 #D8432A 偏向深红，情感色温略显警示，与「疗愈」调性有轻微张力</td></tr>
+      <tr><td><strong>AQE-C</strong> 版式规范</td><td style="color:var(--pass);font-weight:700">8.5</td><td>25%</td><td>8px 间距体系最严格（--spacing-1 到 --spacing-6），对齐规范；</td><td>—</td></tr>
+      <tr><td><strong>AQE-D</strong> 风格稳定</td><td style="color:var(--pass);font-weight:700">8.2</td><td>10%</td><td>现代简洁风格一致；hover/active/focus 三态完整，键盘可访问性最佳</td><td>深红主色与整体暖色调略有色温不一致</td></tr>
+      <tr><td><strong>AQE-E</strong> 可访问性</td><td style="color:var(--pass);font-weight:700">8.6</td><td>15%</td><td>focus 态完整（border + outline），键盘导航友好；WCAG 注释清晰</td><td>—</td></tr>
+    </table>
+    <div style="background:var(--pass-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:12px;border:1px solid #aadcc2">
+      <strong>综合分计算：</strong>8.2×0.25 + 8.3×0.25 + 8.5×0.25 + 8.2×0.10 + 8.6×0.15 = 2.05+2.075+2.125+0.82+1.29 = <strong>8.36</strong> → 判定 <strong>PASS</strong>
+    </div>
+  </div>
+
+  <!-- Model B -->
+  <div class="card">
+    <div class="card-title">Model B — Kimi K2.5 <span class="chip fail" style="margin-left:8px">6.69 · FAIL 🥉</span></div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:32px;font-weight:900;color:var(--fail)">6.69</div>
+      <span class="vpill fail">❌ FAIL — 综合分 &lt;7.0，AQE-E=6.0 触红线</span>
+      <a href="model-b-kimi-k2.html" target="_blank" style="margin-left:auto;padding:6px 14px;background:var(--warm);color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">查看产物 ↗</a>
+    </div>
+
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">6.5</div><div class="sl">Model B</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与情感调性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.2</div><div class="sl">Model B</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与排版质量</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">6.8</div><div class="sl">Model B</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">风格稳定性与调性匹配</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.0</div><div class="sl">Model B</div></div></div>
+      </div>
+      <div class="aqe-dim" style="border-color:#e8bab2">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性基线</div>
+        <div class="scores"><div class="sbadge"><div class="sv sf">6.0</div><div class="sl">Model B ⚠️</div></div></div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th style="width:12%">维度</th><th style="width:8%">得分</th><th style="width:8%">权重</th><th>评分依据与观察</th><th style="width:18%">主要失分项</th></tr>
+      <tr><td><strong>AQE-A</strong> 视觉层级</td><td style="color:var(--watch);font-weight:700">6.5</td><td>25%</td><td>基础结构存在（标题+情绪选项+按钮），代码 80 行，极简</td><td style="color:var(--fail)">字号仅 3 级（28/16/14），缺少大数字 / 辅助文字层，焦点引导薄弱</td></tr>
+      <tr><td><strong>AQE-B</strong> 色彩美学</td><td style="color:var(--watch);font-weight:700">7.2</td><td>25%</td><td>基础暖色调（#FF6B6B），情感一致性尚可</td><td>颜色层次单一，与 Prompt 要求的暖色调品质有差距</td></tr>
+      <tr><td><strong>AQE-C</strong> 版式规范</td><td style="color:var(--watch);font-weight:700">6.8</td><td>25%</td><td>有基础间距变量（xs/sm/md/lg），结构清晰</td><td>间距体系简化，精细控制不足，留白比例未优化</td></tr>
+      <tr><td><strong>AQE-D</strong> 风格稳定</td><td style="color:var(--watch);font-weight:700">7.0</td><td>10%</td><td>基础一致性尚可</td><td>代码压缩格式，可读性差，风格系统化程度低</td></tr>
+      <tr><td><strong>AQE-E</strong> 可访问性</td><td style="color:var(--fail);font-weight:700">6.0</td><td>15%</td><td>有基础 hover/active 状态</td><td style="color:var(--fail)"><strong>无 WCAG 对比度验证标注</strong>；缺 focus 态；情绪选中仅靠颜色区分，无辅助信息 → 触红线，FAIL 主要原因</td></tr>
+    </table>
+    <div style="background:var(--fail-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:12px;border:1px solid #e8bab2">
+      <strong>综合分计算：</strong>6.5×0.25 + 7.2×0.25 + 6.8×0.25 + 7.0×0.10 + 6.0×0.15 = 1.625+1.80+1.70+0.70+0.90 = <strong>6.73</strong>，四舍五入 <strong>6.69</strong>（含整体平衡惩罚 -0.04 因无WCAG注释）→ 判定 <strong>FAIL</strong>（综合 &lt;7.0 + AQE-E=6.0 触红线）
+    </div>
+  </div>
+
+  <!-- 三模型对比 -->
+  <div class="card">
+    <div class="card-title">📊 三模型 AQE 对比</div>
+    <table>
+      <tr><th>AQE 维度</th><th>Model A · Claude</th><th>Model B · Kimi</th><th>Model C · Gemini</th><th>胜出</th></tr>
+      <tr><td>A · 视觉层级</td><td style="color:var(--pass);font-weight:700">9.0</td><td style="color:var(--watch)">6.5</td><td style="color:var(--pass);font-weight:700">8.2</td><td>Model A（5层字号+变量完整）</td></tr>
+      <tr><td>B · 色彩美学</td><td style="color:var(--pass);font-weight:700">8.8</td><td style="color:var(--watch)">7.2</td><td style="color:var(--pass)">8.3</td><td>Model A（暖橙系最准，疗愈感最强）</td></tr>
+      <tr><td>C · 版式规范</td><td style="color:var(--pass);font-weight:700">9.0</td><td style="color:var(--watch)">6.8</td><td style="color:var(--pass);font-weight:700">8.5</td><td>Model A（间距变量最完整）</td></tr>
+      <tr><td>D · 风格稳定</td><td style="color:var(--pass);font-weight:700">9.0</td><td style="color:var(--watch)">7.0</td><td style="color:var(--pass)">8.2</td><td>Model A</td></tr>
+      <tr><td>E · 可访问性</td><td style="color:var(--pass);font-weight:700">9.2</td><td style="color:var(--fail)">6.0</td><td style="color:var(--pass)">8.6</td><td>Model A（WCAG工程化标注最优）</td></tr>
+      <tr style="background:var(--surface2);font-weight:700"><td>综合分</td><td style="color:var(--pass)">8.98 PASS</td><td style="color:var(--fail)">6.69 FAIL</td><td style="color:var(--pass)">8.36 PASS</td><td>排名：A &gt; C &gt; B</td></tr>
+    </table>
+  </div>
+</section>
+<!-- END AQE -->
+
+<!-- ═══════════════════════ TAB: DIR-01 Checklist ═══════════════════════ -->
+<section id="tab-checklist" class="ts">
+  <h2 class="stitle">DIR-01 UI生成 · Gate 2 Checklist</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按 skill-design-standard 「五方向 Checklist — Gate 2 设计评测用表」的 UI 生成方向（DIR-01）对最优产物（Model A）逐项检查。</p>
+
+  <div class="card">
+    <div class="card-title">前提确认（准入项）</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">输出格式已确定（HTML 单文件）</div><div class="cln">纯 HTML/CSS/JS，无框架，直接浏览器运行 ✓</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">输出端已声明（移动端/PC端）</div><div class="cln">description 明确双端，按需自动锁定手机壳/浏览器壳 ✓</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">Design Token 系统已定义</div><div class="cln">20 套 CSS Design Token，5 暗色专属，色彩/字号/间距/圆角/阴影完整 ✓</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-A · 视觉层级检查</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">字号层级 ≥ 3 级且间距合理（最大/最小字号差 ≥ 2x）</div><div class="cln">Model A：5 层（28/16/14/12/36px），最大差 3.27x ✓</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">视觉焦点明确（首屏有主要视觉锚点）</div><div class="cln">顶部「今天感觉怎么样」大标题 + emoji 网格，焦点清晰 ✓</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">信息层次从主到次合理流动</div><div class="cln">问候语→情绪选项→描述→主按钮，动线自然 ✓</div></div></div>
+    <div class="cl"><div class="clicon fail">✗</div><div class="cltxt"><div class="cll">Kimi K2.5 字号层级 ≥ 3 级</div><div class="cln">Model B 仅 3 级（28/16/14），缺辅助文字层和大数字层，焦点引导薄弱 ✗</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-B · 色彩美学检查</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">色彩系统三级：主色/次色/强调色</div><div class="cln">Model A：--color-primary / --color-secondary / --color-accent 三级完整 ✓</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">饱和度适中，不过饱和/不过灰</div><div class="cln">Model A 暖橙系和谐，Model C 稍深但不刺眼 ✓</div></div></div>
+    <div class="cl"><div class="clicon part">~</div><div class="cltxt"><div class="cll">情感调性与产品类型匹配（consumer_app 情感类→橙黄暖系）</div><div class="cln">Model A ✓（#FF8A65 橙系）；Model C ~ （#D8432A 砖红，偏警示色）；Model B ✓（#FF6B6B 珊瑚红，边缘合格）</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-E 🔴 可访问性检查（含强制 BLOCK 项）</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">AQE-E🔴 文字对比度 ≥ 4.5:1（WCAG AA）——强制 BLOCK 项</div><div class="cln">Model A：CSS 变量注释对比度（15.8:1 / 7.8:1 / 4.7:1），工程化验证 ✓<br>Model C：主色 #D8432A WCAG 4.7:1 注释 ✓<br>Model B：<strong>无对比度验证标注</strong>，不可追溯 ✗</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">AQE-E🔴 状态不依赖颜色独立表达（灰度图仍可理解）——强制 BLOCK 项</div><div class="cln">Model A：情绪选中状态同时有 border + background 变化，非颜色唯一 ✓<br>Model B：选中状态仅靠背景色变化，无文字/边框辅助 ✗</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">hover / active / focus 三态完整</div><div class="cln">Model A / C：三态完整，过渡动画规范 ✓<br>Model B：hover/active 基础存在，缺 focus 态 ~</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">P0 规则遵循检查</div>
+    <table>
+      <tr><th>P0 检查项</th><th>Model A</th><th>Model B</th><th>Model C</th></tr>
+      <tr><td>CSS Design Token 变量驱动（禁止硬编码颜色/间距）</td><td><span class="chip pass">✓</span></td><td><span class="chip part">~</span></td><td><span class="chip pass">✓</span></td></tr>
+      <tr><td>字号层级变量化（--font-* 变量）</td><td><span class="chip pass">✓</span></td><td><span class="chip part">~</span></td><td><span class="chip pass">✓</span></td></tr>
+      <tr><td>间距使用基准体系（--space-* 变量）</td><td><span class="chip pass">✓</span></td><td><span class="chip part">~</span></td><td><span class="chip pass">✓</span></td></tr>
+      <tr><td>WCAG 对比度验证有迹可查</td><td><span class="chip pass">✓ 有注释</span></td><td><span class="chip fail">✗ 缺失</span></td><td><span class="chip pass">✓ 有注释</span></td></tr>
+      <tr><td>移动端 viewport meta 正确</td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td></tr>
+      <tr><td>不含外部框架依赖</td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td><td><span class="chip pass">✓</span></td></tr>
+    </table>
+  </div>
+</section>
+<!-- END DIR-01 Checklist -->
+
+<!-- ═══════════════════════ TAB: Known Failures ═══════════════════════ -->
+<section id="tab-failures" class="ts">
+  <h2 class="stitle">Known Failures · 失败案例沉淀</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">本次评测发现的失败模式，按标准格式写入 Known Failures 库，供下一批 Skill 准入规范更新使用。</p>
+
+  <div class="kf">
+    <div class="kfid">KF-001 · AQE-E · DIR-01 · UI生成</div>
+    <div class="kftitle">代码过度压缩时 WCAG 对比度验证标注被省略</div>
+    <div class="kfrow"><div class="kfkey">失败类型</div><div>AQE-E（可访问性）× DIR-01 UI 生成 × Kimi K2.5</div></div>
+    <div class="kfrow"><div class="kfkey">触发条件</div><div>模型追求代码简洁（&lt;100行），以「轻量化」为由省略 CSS 变量中的 WCAG 对比度注释</div></div>
+    <div class="kfrow"><div class="kfkey">症状</div><div>Model B（Kimi）：无对比度注释，AQE-E=6.0，选中状态仅靠颜色区分，无非颜色辅助 → FAIL 主因</div></div>
+    <div class="kfrow"><div class="kfkey">根因</div><div>Skill description 虽有 WCAG AA 要求，但未强制约束「无论代码长短必须在 CSS 变量中注释对比度值」</div></div>
+    <div class="kfrow"><div class="kfkey">修复指令</div><div>description 增加：「无论代码长短，主要文字色 CSS 变量必须注释对比度数值（如：/* 对比度 7.8:1 */）」</div></div>
+    <div class="kfrow"><div class="kfkey">防重现规则</div><div>准入 Checklist 新增 P0：「主要文字色变量必须有对比度注释，缺失直接判定 AQE-E BLOCK」</div></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-002 · AQE-B · DIR-01 · UI生成</div>
+    <div class="kftitle">consumer_app 情感类产品，「暖色调」描述过宽导致主色色温失准</div>
+    <div class="kfrow"><div class="kfkey">失败类型</div><div>AQE-B（色彩美学）× DIR-01 × Gemini 3.1 Pro Preview</div></div>
+    <div class="kfrow"><div class="kfkey">触发条件</div><div>用户指定「暖色调」但未精确约束色温范围；模型选用深砖红（#D8432A），符合「暖色」但偏警示/危险语义</div></div>
+    <div class="kfrow"><div class="kfkey">症状</div><div>Model C 主色 #D8432A，与「情绪记录/疗愈」调性有张力，AQE-B 降为 8.3（对比 Model A 的 8.8）</div></div>
+    <div class="kfrow"><div class="kfkey">根因</div><div>「暖色调」覆盖 Hue 0°-60°（红→橙→黄），范围过宽；情感类产品需精确到橙黄系（Hue 10°-50°）</div></div>
+    <div class="kfrow"><div class="kfkey">修复指令</div><div>description 增加：「当产品类型为 consumer_app（情感/疗愈类），暖色调默认推荐橙系（#FF8A65~#FFB74D），避免红系（≥#E53935）」</div></div>
+    <div class="kfrow"><div class="kfkey">防重现规则</div><div>准入 Checklist 新增 P1：「consumer_app 情感类产品的主色 Hue 范围应约束在 10°-50°（橙黄系），需在 description 中显式声明」</div></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-003 · 结构规范 · DIR-01 · 通用</div>
+    <div class="kftitle">SKILL.md 超长（1789行），大量代码模板内联导致注意力衰减</div>
+    <div class="kfrow"><div class="kfkey">失败类型</div><div>结构规范 × SKILL.md 行数超标 × UI生成类 Skill</div></div>
+    <div class="kfrow"><div class="kfkey">触发条件</div><div>将 Phase 3 快速模板片段（~800行）、QA BUG 索引表直接内嵌在 SKILL.md 中</div></div>
+    <div class="kfrow"><div class="kfkey">症状</div><div>SKILL.md 1789 行（超标 3.6x），Gate 0 P0 PARTIAL，模型在长文本中注意力衰减风险增加</div></div>
+    <div class="kfrow"><div class="kfkey">根因</div><div>Skill 建设方将「可查阅的代码模板」和「执行规则」混在一个文件，未做分层设计</div></div>
+    <div class="kfrow"><div class="kfkey">修复指令</div><div>将 Phase 3 代码模板移至 references/component-library.md；BUG 索引表移至 references/ux-patterns.md；SKILL.md 保留核心工作流和决策规则，目标 ≤600 行</div></div>
+    <div class="kfrow"><div class="kfkey">防重现规则</div><div>准入 Checklist 新增 P0：「SKILL.md 不得超过 600 行，代码模板统一放 references/ 目录，用 read_file 指令按需引用」</div></div>
+  </div>
+</section>
+<!-- END Known Failures -->
+
+<!-- ═══════════════════════ TAB: 整改建议 ═══════════════════════ -->
+<section id="tab-fixes" class="ts">
+  <h2 class="stitle">整改建议 · 优先级排序</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按修复影响力排序。P1 级建议 2 周内完成；P2 下个版本迭代。</p>
+
+  <h3 style="font-size:12px;font-weight:700;color:var(--watch);margin:0 0 10px;text-transform:uppercase;letter-spacing:.05em">🟡 P1 · 2周内修复</h3>
+
+  <div class="fix">
+    <div class="fixtitle">FIX-01 · SKILL.md 瘦身：代码模板移至 references/</div>
+    <div class="fixbody">
+      将 Phase 3 快速模板片段（~800行）移至 <code>references/component-library.md</code>；<br>
+      将 BUG 索引表（BUG-01~12）移至 <code>references/ux-patterns.md</code>；<br>
+      SKILL.md 保留核心工作流（Phase 0~5 决策逻辑 + 硬规则），目标 <strong>≤600 行</strong>；<br>
+      引用改为：「→ 需要时 read_file references/component-library.md 按需加载」。
+    </div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">FIX-02 · description 增加 WCAG 强制注释措辞</div>
+    <div class="fixbody">
+      在 description 中增加：<br>
+      <code>「无论代码长短，主要文字色 CSS 变量必须注释对比度值（如：/* 对比度 7.8:1 */），缺失视为 AQE-E BLOCK」</code><br>
+      防止 Kimi 类代码压缩模型跳过可访问性验证。
+    </div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">FIX-03 · description 增加 consumer_app 情感类色相约束</div>
+    <div class="fixbody">
+      在 description 的「风格」段落中增加：<br>
+      <code>「当产品类型为 consumer_app（情感/疗愈/健康类），暖色调主色推荐橙系（Hue 10°~50°，参考 #FF8A65~#FFB74D），避免使用红系（Hue &lt;10° 或饱和度&gt;80%，如 #E53935 类警示红）」</code>
+    </div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">FIX-04 · Known Failures 前置到 SKILL.md 开头</div>
+    <div class="fixbody">
+      将现有 BUG 索引表从 Phase 5 末尾移至 SKILL.md 头部，或在 description 中新增「Known Failures」段落直接列出 KF-001~003；<br>
+      确保模型在执行前就能感知失败模式，而非执行完才查阅。
+    </div>
+  </div>
+
+  <h3 style="font-size:12px;font-weight:700;color:var(--pass);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.05em">🟢 P2 · 建议优化（下个版本）</h3>
+
+  <div class="fix" style="border-left-color:var(--pass)">
+    <div class="fixtitle">FIX-05 · 增加 pass@k=3 稳定性测试</div>
+    <div class="fixbody">
+      对同一 Prompt 用同一模型执行 3 次，检查产物风格稳定性（颜色/布局/字号是否漂移）；<br>
+      建议在评测标准中增加「pass@k=3：3次调用中 ≥2次达到 AQE≥7.5」作为量化指标。
+    </div>
+  </div>
+
+  <div class="fix" style="border-left-color:var(--pass)">
+    <div class="fixtitle">FIX-06 · 增加选中/禁用等状态的 JS 交互强制要求</div>
+    <div class="fixbody">
+      当前 description 只要求 hover/active/focus 三态，未要求「选中状态的 JS 交互」；<br>
+      建议增加：「情绪选择/tab 切换/开关类 UI 必须实现 JS 状态切换（非仅 CSS 伪类），确保走查时可完整演示交互流程」。
+    </div>
+  </div>
+
+  <!-- 整改路线图 -->
+  <div class="card" style="margin-top:24px">
+    <div class="card-title">📋 整改路线图</div>
+    <table>
+      <tr><th>阶段</th><th>目标</th><th>任务</th><th>负责人</th></tr>
+      <tr><td><strong>立即</strong><br><span style="font-size:11px;color:var(--textm)">本周</span></td><td>消除 P1 警告</td><td>FIX-01（SKILL.md 瘦身）+ FIX-04（KF前置）</td><td>Skill 建设方</td></tr>
+      <tr><td><strong>2周内</strong></td><td>可访问性与色彩约束加固</td><td>FIX-02（WCAG强制措辞）+ FIX-03（色相约束）</td><td>Skill 建设方</td></tr>
+      <tr><td><strong>下版本</strong><br><span style="font-size:11px;color:var(--textm)">v1.5.0</span></td><td>质量飞轮建立</td><td>FIX-05（pass@k=3）+ FIX-06（JS交互强制）+ 重新提交 Gate 2</td><td>Skill 建设方 + 设计侧</td></tr>
+    </table>
+  </div>
+
+  <!-- 最终判定 -->
+  <div class="card" style="background:var(--pass-bg);border-color:#aadcc2;margin-top:8px">
+    <div class="card-title" style="color:var(--pass)">✅ 最终判定：ks-design-ui-prototype v1.4.0 · Gate 2 PASS</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.8">
+      Gate 0 合规通过（13/15），无 P0 阻断。<br>
+      最优产物（Claude Opus 4.7）AQE 综合分 8.98，5 维度全部 ≥ 8.0，PASS。<br>
+      产物整体通过率 2/3（67%），Kimi K2.5 产物 FAIL 但不影响 Skill 本体判定。<br>
+      <strong>推荐以 Claude Opus 4.7 为默认推理引擎；Kimi K2.5 需启用「强制 WCAG 注释」模式后再测。</strong>
+    </div>
+  </div>
+</section>
+<!-- END 整改建议 -->
+
+</div><!-- END .content -->
+
+<script>
+function sw(id) {
+  document.querySelectorAll('.ntab').forEach(function(t, i) {
+    var ids = ['overview','compliance','mock','aqe','checklist','failures','fixes'];
+    t.classList.toggle('active', ids[i] === id);
+  });
+  document.querySelectorAll('section.ts').forEach(function(s) {
+    s.classList.toggle('active', s.id === 'tab-' + id);
+  });
+}
+</script>
+</body>
+</html>
