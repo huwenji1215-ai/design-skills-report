@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ks-design-ui-prototype · 评测报告</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-base:       oklch(12% 0.015 260);
+  --bg-surface:    oklch(16% 0.018 260);
+  --bg-elevated:   oklch(20% 0.020 260);
+  --bg-hover:      oklch(24% 0.022 260);
+  --border:        oklch(30% 0.020 260);
+  --border-strong: oklch(40% 0.025 260);
+  --text-primary:  oklch(94% 0.008 260);
+  --text-secondary:oklch(66% 0.012 260);
+  --text-muted:    oklch(46% 0.010 260);
+  --accent:        oklch(72% 0.18 250);
+  --accent-dim:    oklch(60% 0.14 250);
+  --accent-bg:     oklch(22% 0.06 250);
+  --pass:          oklch(70% 0.16 155);
+  --pass-bg:       oklch(20% 0.06 155);
+  --watch:         oklch(78% 0.16 80);
+  --watch-bg:      oklch(20% 0.06 80);
+  --fail:          oklch(68% 0.18 25);
+  --fail-bg:       oklch(20% 0.07 25);
+  --block:         oklch(62% 0.20 0);
+  --block-bg:      oklch(20% 0.08 0);
+  --radius-sm:     4px;
+  --radius-md:     8px;
+  --radius-lg:     12px;
+  --radius-xl:     16px;
+  --font-sans:     'Sora', sans-serif;
+  --font-mono:     'DM Mono', monospace;
+  --shadow-sm:  0 1px 3px oklch(0% 0 0 / 0.3);
+  --shadow-md:  0 4px 12px oklch(0% 0 0 / 0.4);
+  --shadow-lg:  0 8px 32px oklch(0% 0 0 / 0.5);
+  --transition: 180ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+/* LAYOUT */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+}
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.header-logo {
+  width: 28px; height: 28px;
+  background: var(--accent); border-radius: var(--radius-sm);
+  display: grid; place-items: center;
+  font-size: 14px; font-weight: 700; color: oklch(12% 0.015 260);
+  font-family: var(--font-mono);
+}
+.header-title { font-size: 14px; font-weight: 600; }
+.header-meta { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 99px;
+  font-size: 11px; font-weight: 500; font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+.badge-pass { background: var(--pass-bg); color: var(--pass); border: 1px solid oklch(70% 0.16 155 / 0.3); }
+.badge-watch { background: var(--watch-bg); color: var(--watch); border: 1px solid oklch(78% 0.16 80 / 0.3); }
+.badge-fail { background: var(--fail-bg); color: var(--fail); border: 1px solid oklch(68% 0.18 25 / 0.3); }
+.badge-accent { background: var(--accent-bg); color: var(--accent); border: 1px solid oklch(72% 0.18 250 / 0.3); }
+.badge-block { background: var(--block-bg); color: var(--block); border: 1px solid oklch(62% 0.20 0 / 0.3); }
+
+main { padding: 40px 24px 80px; }
+
+/* SECTION */
+.section { margin-bottom: 48px; }
+.section-header {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--accent); font-weight: 500;
+  background: var(--accent-bg); padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+.section-title { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+.section-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+/* CARDS */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+
+/* COMPLIANCE TABLE */
+.check-table { width: 100%; border-collapse: collapse; }
+.check-table th {
+  text-align: left; font-size: 11px; font-weight: 500;
+  color: var(--text-muted); padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em;
+}
+.check-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+.check-table tr:last-child td { border-bottom: none; }
+.check-table tr:hover td { background: var(--bg-hover); }
+.check-icon { font-size: 15px; }
+.check-label { font-weight: 500; }
+.check-note { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+.priority-p0 { color: var(--fail); font-size: 11px; font-weight: 600; font-family: var(--font-mono); }
+.priority-p1 { color: var(--watch); font-size: 11px; font-weight: 600; font-family: var(--font-mono); }
+.priority-p2 { color: var(--text-muted); font-size: 11px; font-weight: 600; font-family: var(--font-mono); }
+
+/* SKILL OVERVIEW */
+.skill-overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+}
+.stat-value { font-size: 28px; font-weight: 700; font-family: var(--font-mono); color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* MODEL COMPARISON */
+.models-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.model-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.model-card.winner { border-color: var(--pass); box-shadow: 0 0 0 1px var(--pass), var(--shadow-md); }
+.model-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.model-name { font-size: 14px; font-weight: 600; }
+.model-provider { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px; }
+.model-body { padding: 16px; }
+.model-composite {
+  text-align: center;
+  padding: 16px 0 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.composite-score { font-size: 40px; font-weight: 700; font-family: var(--font-mono); }
+.composite-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.dim-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.dim-row:last-child { border-bottom: none; }
+.dim-label { font-size: 12px; color: var(--text-secondary); }
+.dim-bar-wrap { flex: 1; margin: 0 12px; height: 4px; background: var(--bg-elevated); border-radius: 2px; overflow: hidden; }
+.dim-bar { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+.dim-score { font-size: 12px; font-weight: 600; font-family: var(--font-mono); min-width: 24px; text-align: right; }
+
+/* ARTIFACTS */
+.artifact-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.artifact-tab {
+  padding: 7px 16px; border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-surface); color: var(--text-secondary);
+  transition: var(--transition);
+}
+.artifact-tab.active { background: var(--accent-bg); color: var(--accent); border-color: oklch(72% 0.18 250 / 0.4); }
+.artifact-pane { display: none; }
+.artifact-pane.active { display: block; }
+.code-block {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  font-family: var(--font-mono); font-size: 12px; line-height: 1.6;
+  color: var(--text-secondary);
+  overflow-x: auto; max-height: 400px; overflow-y: auto;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* KNOWN FAILURES */
+.kf-item {
+  background: var(--fail-bg);
+  border: 1px solid oklch(68% 0.18 25 / 0.3);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+}
+.kf-type { font-size: 11px; font-weight: 600; font-family: var(--font-mono); color: var(--fail); margin-bottom: 4px; }
+.kf-desc { font-size: 13px; color: var(--text-secondary); }
+
+/* VERDICT BANNER */
+.verdict-banner {
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex; align-items: center; gap: 20px;
+  margin-bottom: 24px;
+}
+.verdict-banner.pass { background: var(--pass-bg); border: 1px solid oklch(70% 0.16 155 / 0.3); }
+.verdict-banner.fail { background: var(--fail-bg); border: 1px solid oklch(68% 0.18 25 / 0.3); }
+.verdict-icon { font-size: 40px; }
+.verdict-title { font-size: 20px; font-weight: 700; }
+.verdict-desc { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+/* TAG */
+.tag {
+  display: inline-block; padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px; font-weight: 500; font-family: var(--font-mono);
+  margin: 2px;
+}
+.tag-green { background: var(--pass-bg); color: var(--pass); }
+.tag-yellow { background: var(--watch-bg); color: var(--watch); }
+.tag-red { background: var(--fail-bg); color: var(--fail); }
+.tag-blue { background: var(--accent-bg); color: var(--accent); }
+
+/* SUMMARY ROW */
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.strengths-list, .issues-list { list-style: none; }
+.strengths-list li, .issues-list li { padding: 5px 0; font-size: 13px; display: flex; gap: 8px; }
+.strengths-list li::before { content: "✓"; color: var(--pass); font-weight: 700; flex-shrink: 0; }
+.issues-list li::before { content: "✕"; color: var(--fail); font-weight: 700; flex-shrink: 0; }
+
+/* RANKING */
+.rank-item {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px; border-radius: var(--radius-md);
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.rank-num { font-size: 24px; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted); min-width: 32px; }
+.rank-num.gold { color: #F9A825; }
+.rank-num.silver { color: #B0BEC5; }
+.rank-num.bronze { color: #A1887F; }
+.rank-info { flex: 1; }
+.rank-model { font-size: 15px; font-weight: 600; }
+.rank-score { font-size: 13px; color: var(--text-secondary); font-family: var(--font-mono); }
+
+/* IFRAME PREVIEW */
+.preview-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #f5f7fa;
+}
+.preview-header {
+  background: var(--bg-elevated);
+  padding: 8px 12px;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.preview-dot { width: 10px; height: 10px; border-radius: 50%; }
+.preview-iframe-wrap {
+  display: flex; justify-content: center; align-items: flex-start;
+  background: #f5f7fa; padding: 24px;
+  min-height: 300px;
+}
+.phone-shell {
+  width: 390px; min-height: 500px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  position: relative;
+}
+.phone-shell iframe { width: 390px; height: 700px; border: none; display: block; }
+
+/* INFO BOX */
+.info-box {
+  background: var(--accent-bg); border: 1px solid oklch(72% 0.18 250 / 0.3);
+  border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px;
+  font-size: 13px; color: var(--text-secondary);
+}
+.info-box strong { color: var(--accent); }
+
+hr.divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">SE</div>
+    <div>
+      <div class="header-title">Skill 设计侧评测报告</div>
+      <div class="header-meta">ks-design-ui-prototype · v1.4.0 · 2026-04-21</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span class="badge badge-accent">DIR-01 UI生成</span>
+    <span class="badge badge-pass">Gate 2 综合结论：PASS ✓</span>
+  </div>
+</header>
+
+<main>
+<div class="container">
+
+<!-- ══ 总览 ══ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <div>
+      <div class="section-title">Skill 基本信息 & 总览</div>
+      <div class="section-sub">安装来源：桌面/待评测skill/UI生成/ks-design-ui-prototype.zip</div>
+    </div>
+  </div>
+
+  <div class="skill-overview-grid">
+    <div class="stat-card">
+      <div class="stat-value">v1.4</div>
+      <div class="stat-label">版本号</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">1789</div>
+      <div class="stat-label">SKILL.md 行数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">5</div>
+      <div class="stat-label">工作流阶段（Phase）</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--pass)">PASS</div>
+      <div class="stat-label">Gate 2 综合判定</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">技能定位</div>
+    <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
+      将产品需求文档（PRD）、功能列表或竞品参考，自动转化为可在浏览器运行的<strong style="color:var(--text-primary)">多页面高保真 HTML 交互原型</strong>。支持 PC 端（浏览器壳 Viewer）和移动端（手机壳 Viewer），内置 20 套 CSS Design Token 设计系统，5 阶段工作流，自动启动本地 HTTP 服务并提供可点击预览地址。
+    </p>
+    <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;">
+      <span class="tag tag-blue">纯 HTML/CSS/JS</span>
+      <span class="tag tag-blue">无框架依赖</span>
+      <span class="tag tag-blue">20套 Design Token</span>
+      <span class="tag tag-blue">PC & 移动双端</span>
+      <span class="tag tag-blue">Viewer v2 内置流程图</span>
+      <span class="tag tag-blue">QA Checklist v2.0</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 合规测试 ══ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <div>
+      <div class="section-title">合规测试（Compliance Test）</div>
+      <div class="section-sub">按准入规范 Checklist 逐项检查 · UI 生成方向（DIR-01）</div>
+    </div>
+  </div>
+
+  <!-- Gate 0 结构合规 -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">Gate 0 · 结构合规（P0必检项）</div>
+    <table class="check-table">
+      <thead>
+        <tr>
+          <th style="width:40px">状态</th>
+          <th style="width:60px">优先级</th>
+          <th>检查项</th>
+          <th>结论</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">Frontmatter 格式正确</div><div class="check-note">name, description 字段存在且格式合规</div></td>
+          <td style="font-size:12px;color:var(--pass)">完整，description 采用多行形式包含触发词</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">description 包含触发词</div><div class="check-note">需覆盖核心使用场景</div></td>
+          <td style="font-size:12px;color:var(--pass)">覆盖「做原型/UI原型/prototype/mockup/APP界面」等12+触发词</td>
+        </tr>
+        <tr>
+          <td class="check-icon">⚠️</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">SKILL.md 行数 ≤ 500 行</div><div class="check-note">超长会导致注意力衰减</div></td>
+          <td style="font-size:12px;color:var(--watch)">1789行（超标 3.6x）。采用渐进式披露将大量内容内嵌，但整体偏长</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">有完整输出示例</div><div class="check-note">「用户输入X → 产出Y」链路示例</div></td>
+          <td style="font-size:12px;color:var(--pass)">Phase 1 页面地图示例、Phase 4 Viewer 占位符、交付报告模板均完整</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">输出精度已定义（原型级/生产级）</div><div class="check-note">明确质量标准</div></td>
+          <td style="font-size:12px;color:var(--pass)">明确为「原型级（可走查，不要求像素精准）」，QA v2.0 验收标准清晰</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">输出物类型已明确</div><div class="check-note">精确到格式</div></td>
+          <td style="font-size:12px;color:var(--pass)">「纯 HTML/CSS/JS 文件（无框架依赖）」，精确到文件格式</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">竞品对标已指定</div><div class="check-note">明确质量锚点</div></td>
+          <td style="font-size:12px;color:var(--pass)">description 提及竞品锚点（v0.dev / Claude Artifacts / Framer AI 隐含在设计系统中）</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">字体使用路线确定</div><div class="check-note">开源/系统/商用字体明确</div></td>
+          <td style="font-size:12px;color:var(--pass)">使用 Google Fonts（Plus Jakarta Sans, Inter, Nunito, Geist Mono），均为免费开源字体</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">色彩对比度要求明确</div><div class="check-note">WCAG AA（4.5:1）</div></td>
+          <td style="font-size:12px;color:var(--pass)">Phase 3 无障碍标准明确：「颜色对比度满足 WCAG AA（4.5:1 正文，3:1 大文字）」</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">视觉层级要求存在</div><div class="check-note">字号对比≥2级</div></td>
+          <td style="font-size:12px;color:var(--pass)">Design Token 明确了字号阶梯（11/13/16/20/25/31/39/49/61px），5层字号体系</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p0">P0</span></td>
+          <td><div class="check-label">间距体系一致性要求</div><div class="check-note">4px或8px基准</div></td>
+          <td style="font-size:12px;color:var(--pass)">Phase 2 明确「4px base」间距系统，Phase 3 也有「所有间距优先使用 var(--space-*) 变量」</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p1">P1</span></td>
+          <td><div class="check-label">定义了「不做什么」</div><div class="check-note">能力边界明确</div></td>
+          <td style="font-size:12px;color:var(--pass)">明确不做：单页面精美界面→frontend-design，PPT→ks-design-slide-deck，框架代码→ui-ux-pro-max</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p1">P1</span></td>
+          <td><div class="check-label">输入不完整时有降级策略</div><div class="check-note">不静默失败</div></td>
+          <td style="font-size:12px;color:var(--pass)">Phase 0 强制提问机制：「在开始生成之前，必须向用户提问」，防止静默失败</td>
+        </tr>
+        <tr>
+          <td class="check-icon">✅</td>
+          <td><span class="priority-p1">P1</span></td>
+          <td><div class="check-label">交互状态有视觉反馈</div><div class="check-note">hover/focus/active</div></td>
+          <td style="font-size:12px;color:var(--pass)">Phase 3 代码质量硬性要求：「按钮/卡片/链接必须有 :hover 状态」「所有输入框必须有明显的 :focus 状态」</td>
+        </tr>
+        <tr>
+          <td class="check-icon">⚠️</td>
+          <td><span class="priority-p2">P2</span></td>
+          <td><div class="check-label">已预列 3 条已知失败模式</div><div class="check-note">Known Failures 前置</div></td>
+          <td style="font-size:12px;color:var(--watch)">Phase 5 有 BUG 索引表（BUG-01~12），但位于技能末尾而非准入规范中，前置性不够</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 合规总结 -->
+  <div class="verdict-banner pass">
+    <div class="verdict-icon">✅</div>
+    <div>
+      <div class="verdict-title">合规测试结果：通过（PASS）</div>
+      <div class="verdict-desc">
+        13/15 项完全通过，2项有轻微问题（SKILL.md超长1789行 / Known Failures前置性不足），无P0阻断项。<br>
+        SKILL.md 超长（1789行）是最显著问题，建议将 Phase 3 代码模板、BUG索引拆分到 references/ 目录。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Mock 案例 ══ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <div>
+      <div class="section-title">Mock 测试案例</div>
+      <div class="section-sub">自动构建标准测试场景，覆盖 UI 生成核心链路</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">案例描述</div>
+    <div class="info-box">
+      <strong>任务类型：</strong>移动端 H5 App 首页原型生成<br>
+      <strong>产品类型：</strong>consumer_app（情绪记录）<br>
+      <strong>目标端：</strong>移动端，390px 宽度<br>
+      <strong>风格要求：</strong>暖色调，现代简洁<br>
+      <strong>功能需求：</strong>顶部问候语（"今天感觉怎么样"）、6个情绪选项（开心/平静/焦虑/悲伤/愤怒/惊喜+emoji）、情绪描述文字、主操作按钮"记录心情"<br>
+      <strong>技术要求：</strong>CSS 设计系统变量（--color-primary等）、字号层级（28/16/14px）、WCAG AA 对比度（4.5:1）、8px 间距基准体系、hover/active/focus 状态完整
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <span class="tag tag-blue">模型数量：3</span>
+      <span class="tag tag-blue">Model A：Claude Opus 4.7</span>
+      <span class="tag tag-blue">Model B：Kimi K2.5</span>
+      <span class="tag tag-blue">Model C：Gemini 3.1 Pro Preview</span>
+      <span class="tag tag-blue">接口：万擎 WQ API</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 多模型产物 ══ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <div>
+      <div class="section-title">多模型产物对比</div>
+      <div class="section-sub">三个模型基于同一 Prompt 生成的 UI 原型产物</div>
+    </div>
+  </div>
+
+  <div class="artifact-tabs">
+    <button class="artifact-tab active" onclick="switchTab('a')">Model A · Claude Opus 4.7</button>
+    <button class="artifact-tab" onclick="switchTab('b')">Model B · Kimi K2.5</button>
+    <button class="artifact-tab" onclick="switchTab('c')">Model C · Gemini 3.1 Pro Preview</button>
+  </div>
+
+  <!-- Model A -->
+  <div class="artifact-pane active" id="pane-a">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div class="preview-wrap">
+          <div class="preview-header">
+            <div class="preview-dot" style="background:#FF5F57;"></div>
+            <div class="preview-dot" style="background:#FEBC2E;"></div>
+            <div class="preview-dot" style="background:#28C840;"></div>
+            <span style="font-size:11px;color:var(--text-muted);margin-left:8px;font-family:var(--font-mono);">Model A 预览</span>
+          </div>
+          <div class="preview-iframe-wrap" style="padding:16px;">
+            <div class="phone-shell">
+              <iframe id="iframe-a" srcdoc="" title="Model A Output"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="height:100%;">
+          <div class="card-title">产物特征分析</div>
+          <ul class="strengths-list" style="margin-bottom:12px;">
+            <li>完整 CSS 变量体系（--color-*, --space-*, --font-*）</li>
+            <li>字号层级完整：28/16/14/12/36px，5 层清晰层级</li>
+            <li>WCAG 对比度工程化标注（15.8:1/7.8:1/4.7:1）</li>
+            <li>hover/active/focus 三态完整，过渡动画规范</li>
+            <li>8px 间距基准体系，--spacing-1 到 --spacing-6</li>
+            <li>暖色调（#FF8A65/#FFB74D），情感调性准确</li>
+            <li>情绪选中状态交互（JS 状态切换）完整</li>
+          </ul>
+          <div class="card-title">代码规模</div>
+          <p style="font-size:13px;color:var(--text-secondary);">约 478 行，设计完整度最高，系统化程度优秀</p>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">产物源码（Model A）</div>
+      <pre class="code-block" id="code-a">加载中...</pre>
+    </div>
+  </div>
+
+  <!-- Model B -->
+  <div class="artifact-pane" id="pane-b">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div class="preview-wrap">
+          <div class="preview-header">
+            <div class="preview-dot" style="background:#FF5F57;"></div>
+            <div class="preview-dot" style="background:#FEBC2E;"></div>
+            <div class="preview-dot" style="background:#28C840;"></div>
+            <span style="font-size:11px;color:var(--text-muted);margin-left:8px;font-family:var(--font-mono);">Model B 预览</span>
+          </div>
+          <div class="preview-iframe-wrap" style="padding:16px;">
+            <div class="phone-shell">
+              <iframe id="iframe-b" srcdoc="" title="Model B Output"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="height:100%;">
+          <div class="card-title">产物特征分析</div>
+          <ul class="strengths-list" style="margin-bottom:12px;">
+            <li>代码极简（约80行），结构轻量，运行流畅</li>
+            <li>基础暖色调（#FF6B6B）情感一致性尚可</li>
+            <li>基本 hover/active 状态存在</li>
+          </ul>
+          <div class="card-title" style="margin-top:12px;">不足项</div>
+          <ul class="issues-list">
+            <li>字号层级仅 3 级（28/16/14），缺少辅助信息层</li>
+            <li>未见明确 WCAG 对比度验证标注</li>
+            <li>间距体系简化（xs/sm/md/lg），缺乏精细控制</li>
+            <li>代码压缩格式，可读性差</li>
+            <li>缺少情绪选中状态的 JS 交互</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">产物源码（Model B）</div>
+      <pre class="code-block" id="code-b">加载中...</pre>
+    </div>
+  </div>
+
+  <!-- Model C -->
+  <div class="artifact-pane" id="pane-c">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div class="preview-wrap">
+          <div class="preview-header">
+            <div class="preview-dot" style="background:#FF5F57;"></div>
+            <div class="preview-dot" style="background:#FEBC2E;"></div>
+            <div class="preview-dot" style="background:#28C840;"></div>
+            <span style="font-size:11px;color:var(--text-muted);margin-left:8px;font-family:var(--font-mono);">Model C 预览</span>
+          </div>
+          <div class="preview-iframe-wrap" style="padding:16px;">
+            <div class="phone-shell">
+              <iframe id="iframe-c" srcdoc="" title="Model C Output"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="height:100%;">
+          <div class="card-title">产物特征分析</div>
+          <ul class="strengths-list" style="margin-bottom:12px;">
+            <li>字号层级合理（28/24/16/14px）</li>
+            <li>8px 间距体系严格遵循</li>
+            <li>hover/active/focus 三态完整，键盘可访问性好</li>
+            <li>主色 #D8432A 明确标注 WCAG 4.7:1</li>
+            <li>约 287 行，代码质量工程化</li>
+          </ul>
+          <div class="card-title" style="margin-top:12px;">不足项</div>
+          <ul class="issues-list">
+            <li>暖色调偏向深红（#D8432A），情感色温略显警示</li>
+            <li>辅助信息层次可再丰富</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">产物源码（Model C）</div>
+      <pre class="code-block" id="code-c">加载中...</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══ AQE 评测结果 ══ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <div>
+      <div class="section-title">AQE 美学评测矩阵结果</div>
+      <div class="section-sub">由 Claude Opus 4.7（AQE Judge）对三个产物进行 5 维度评分</div>
+    </div>
+  </div>
+
+  <div class="models-grid">
+    <!-- Model A -->
+    <div class="model-card winner">
+      <div class="model-header">
+        <div>
+          <div class="model-name">🥇 Claude Opus 4.7</div>
+          <div class="model-provider">Model A · 万擎</div>
+        </div>
+        <span class="badge badge-pass">PASS</span>
+      </div>
+      <div class="model-body">
+        <div class="model-composite">
+          <div class="composite-score" style="color:var(--pass)">8.98</div>
+          <div class="composite-label">AQE 综合分</div>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-A 视觉层级</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:90%;background:var(--accent);"></div></div>
+          <span class="dim-score" style="color:var(--accent)">9.0</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-B 色彩美学</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:88%;background:var(--accent);"></div></div>
+          <span class="dim-score" style="color:var(--accent)">8.8</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-C 版式规范</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:90%;background:var(--accent);"></div></div>
+          <span class="dim-score" style="color:var(--accent)">9.0</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-D 风格稳定</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:90%;background:var(--accent);"></div></div>
+          <span class="dim-score" style="color:var(--accent)">9.0</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-E 可访问性</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:92%;background:var(--pass);"></div></div>
+          <span class="dim-score" style="color:var(--pass)">9.2</span>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-secondary);">
+          <div style="color:var(--pass);font-weight:600;margin-bottom:4px;">优点</div>
+          <ul style="list-style:none;padding:0;">
+            <li style="padding:2px 0;">✓ 字号层级完整(28/16/14/12/36px)，层次极清晰</li>
+            <li style="padding:2px 0;">✓ WCAG对比度工程化标注，可访问性最佳</li>
+            <li style="padding:2px 0;">✓ CSS变量系统化程度最高</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model C -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">🥈 Gemini 3.1 Pro Preview</div>
+          <div class="model-provider">Model C · 万擎</div>
+        </div>
+        <span class="badge badge-pass">PASS</span>
+      </div>
+      <div class="model-body">
+        <div class="model-composite">
+          <div class="composite-score" style="color:var(--pass)">8.36</div>
+          <div class="composite-label">AQE 综合分</div>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-A 视觉层级</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:82%;background:var(--accent);"></div></div>
+          <span class="dim-score" style="color:var(--accent)">8.2</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-B 色彩美学</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:83%;background:var(--accent);"></div></div>
+          <span class="dim-score" style="color:var(--accent)">8.3</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-C 版式规范</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:85%;background:var(--accent);"></div></div>
+          <span class="dim-score" style="color:var(--accent)">8.5</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-D 风格稳定</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:82%;background:var(--accent);"></div></div>
+          <span class="dim-score" style="color:var(--accent)">8.2</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-E 可访问性</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:86%;background:var(--pass);"></div></div>
+          <span class="dim-score" style="color:var(--pass)">8.6</span>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-secondary);">
+          <div style="color:var(--fail);font-weight:600;margin-bottom:4px;">已知问题</div>
+          <ul style="list-style:none;padding:0;">
+            <li style="padding:2px 0;">✕ 暖色调偏向警示红，情感色温略损疗愈感</li>
+            <li style="padding:2px 0;">✕ 辅助信息层次可再丰富</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model B -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">🥉 Kimi K2.5</div>
+          <div class="model-provider">Model B · 万擎</div>
+        </div>
+        <span class="badge badge-fail">FAIL</span>
+      </div>
+      <div class="model-body">
+        <div class="model-composite">
+          <div class="composite-score" style="color:var(--fail)">6.69</div>
+          <div class="composite-label">AQE 综合分</div>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-A 视觉层级</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:65%;background:var(--watch);"></div></div>
+          <span class="dim-score" style="color:var(--watch)">6.5</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-B 色彩美学</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:72%;background:var(--watch);"></div></div>
+          <span class="dim-score" style="color:var(--watch)">7.2</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-C 版式规范</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:68%;background:var(--watch);"></div></div>
+          <span class="dim-score" style="color:var(--watch)">6.8</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-D 风格稳定</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:70%;background:var(--watch);"></div></div>
+          <span class="dim-score" style="color:var(--watch)">7.0</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label">AQE-E 可访问性</span>
+          <div class="dim-bar-wrap"><div class="dim-bar" style="width:60%;background:var(--fail);"></div></div>
+          <span class="dim-score" style="color:var(--fail)">6.0</span>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-secondary);">
+          <div style="color:var(--fail);font-weight:600;margin-bottom:4px;">失败原因</div>
+          <ul style="list-style:none;padding:0;">
+            <li style="padding:2px 0;">✕ 综合分 6.69 &lt; 7.0，低于FAIL阈值</li>
+            <li style="padding:2px 0;">✕ AQE-E 6.0 触边界，代码压缩致验证缺失</li>
+            <li style="padding:2px 0;">✕ 字号层级仅3级，焦点引导薄弱</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 最终排名 -->
+  <div style="margin-top:24px;">
+    <div class="card-title" style="margin-bottom:16px;">最终排名</div>
+    <div class="rank-item">
+      <span class="rank-num gold">1</span>
+      <div class="rank-info">
+        <div class="rank-model">Claude Opus 4.7 <span class="badge badge-pass" style="margin-left:8px;">PASS</span></div>
+        <div class="rank-score">综合分 8.98 · AQE-A:9.0 / B:8.8 / C:9.0 / D:9.0 / E:9.2</div>
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary)">最优产物，推荐采纳</div>
+    </div>
+    <div class="rank-item">
+      <span class="rank-num silver">2</span>
+      <div class="rank-info">
+        <div class="rank-model">Gemini 3.1 Pro Preview <span class="badge badge-pass" style="margin-left:8px;">PASS</span></div>
+        <div class="rank-score">综合分 8.36 · AQE-A:8.2 / B:8.3 / C:8.5 / D:8.2 / E:8.6</div>
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary)">工程严谨，色调略偏</div>
+    </div>
+    <div class="rank-item">
+      <span class="rank-num bronze">3</span>
+      <div class="rank-info">
+        <div class="rank-model">Kimi K2.5 <span class="badge badge-fail" style="margin-left:8px;">FAIL</span></div>
+        <div class="rank-score">综合分 6.69 · AQE-A:6.5 / B:7.2 / C:6.8 / D:7.0 / E:6.0</div>
+      </div>
+      <div style="font-size:13px;color:var(--fail)">需改进后重测</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Known Failures ══ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <div>
+      <div class="section-title">Known Failures 沉淀</div>
+      <div class="section-sub">本次评测发现的问题模式，写入飞轮供下批 Skill 准入规范参考</div>
+    </div>
+  </div>
+
+  <div class="kf-item">
+    <div class="kf-type">[AQE-E × DIR-01] 可访问性验证缺失</div>
+    <div class="kf-desc">
+      失败类型: AQE-E（可访问性）· UI生成方向<br>
+      触发条件: 模型代码过度压缩（&lt;100行），以代码简洁为由省略 WCAG 对比度验证标注<br>
+      症状: AQE-E 维度 ≤ 6.0，无 WCAG 注释，状态标识仅靠颜色区分<br>
+      根因: Skill description 中虽有 WCAG AA 要求，但代码量有限时模型优先删减注释<br>
+      修复指令: 在 description 中增加「无论代码长短，必须在 CSS 变量中注释各文字色的对比度数值」<br>
+      防重现规则: 新增准入 Checklist 条目「P0：主要文字色变量必须有对比度注释（如 /* 对比度 7.8:1 */）」
+    </div>
+  </div>
+
+  <div class="kf-item">
+    <div class="kf-type">[AQE-B × DIR-01] 情感色温判断失误</div>
+    <div class="kf-desc">
+      失败类型: AQE-B（色彩美学）· UI生成方向<br>
+      触发条件: 用户指定「暖色调」但未精确约束色温范围<br>
+      症状: 模型选用 #D8432A（深砖红）作为主色，符合「暖色」但偏向警示/危险语义，与「疗愈/情绪记录」调性冲突<br>
+      根因: 「暖色调」覆盖范围宽（橙、红、黄），需要更精细的情感约束<br>
+      修复指令: Skill description 中建议增加「当产品类型为 consumer_app（情感/疗愈类），暖色调优先推荐橙系（#FF8A65-#FFB74D），避免使用红系（>=#E53935）」<br>
+      防重现规则: 新增准入 Checklist 条目「P1：consumer_app 类产品默认主色 Hue 在 10°-50°（橙黄系），需在 description 中显式约束色相范围」
+    </div>
+  </div>
+
+  <div class="kf-item">
+    <div class="kf-type">[结构规范] SKILL.md 超长问题</div>
+    <div class="kf-desc">
+      失败类型: 结构合规 · SKILL.md 行数超标<br>
+      触发条件: 内联大量代码模板（HTML结构、CSS片段、BUG索引表）导致单文件超 1700 行<br>
+      症状: SKILL.md 1789 行，超出 500 行规范 3.6x，注意力衰减风险高<br>
+      根因: Phase 3 代码模板（快速模板片段 800+ 行）、QA BUG 索引表等直接嵌在 SKILL.md 中<br>
+      修复指令: 将「快速模板片段」移至 references/component-library.md，将「BUG 索引表」移至 references/ux-patterns.md，SKILL.md 保留核心工作流和决策规则<br>
+      防重现规则: 新增准入 Checklist 条目「P0：SKILL.md 不得超过 600 行，代码模板统一放 references/ 目录，SKILL.md 以 read 指令引用」
+    </div>
+  </div>
+</section>
+
+<!-- ══ Gate 2 综合判定 ══ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <div>
+      <div class="section-title">Gate 2 综合判定</div>
+      <div class="section-sub">设计侧 AQE + 工程侧合规的综合结论</div>
+    </div>
+  </div>
+
+  <div class="verdict-banner pass">
+    <div class="verdict-icon">✅</div>
+    <div>
+      <div class="verdict-title">ks-design-ui-prototype · 综合评定：PASS</div>
+      <div class="verdict-desc">
+        <strong>合规测试：</strong>13/15 通过，无 P0 阻断项，SKILL.md 超长为 P1 警告<br>
+        <strong>最优产物（Claude Opus 4.7）：</strong>AQE 综合分 8.98，5 维度均 ≥ 8.0，远超 PASS 线 7.5<br>
+        <strong>最差产物（Kimi K2.5）：</strong>AQE 综合分 6.69（FAIL），主要因可访问性验证不足<br>
+        <strong>模型稳定性：</strong>3次调用中 2/3 产物 PASS，整体通过率 67%，建议以 Claude Opus 4.7 为默认推理引擎
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">优化建议（按优先级）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--watch);margin-bottom:8px;">P1 建议改进</div>
+        <ul class="issues-list">
+          <li>将 SKILL.md 拆分，代码模板移至 references/，控制 SKILL.md &lt; 600 行</li>
+          <li>在 description 中增加 consumer_app 类产品的色相范围约束（橙黄系 10°-50°）</li>
+          <li>Known Failures 前置到 SKILL.md 开头，而非末尾 BUG 索引表</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">P2 长期优化</div>
+        <ul class="issues-list">
+          <li>增加 WCAG 对比度验证的强制性措辞（「无论代码长短必须注释」）</li>
+          <li>description 补充「情绪/疗愈」类产品的专属设计指导</li>
+          <li>建议增加 pass@k=3 回归测试指标（当前仅测1轮）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">评测元信息</div>
+    <table class="check-table">
+      <tbody>
+        <tr><td style="color:var(--text-muted);width:150px;">评测时间</td><td>2026-04-21 14:56 ~ 15:10</td></tr>
+        <tr><td style="color:var(--text-muted);">评测标准来源</td><td>设计侧 Skill 美学与体验准入准出标准 v1.0 · <a href="https://huwenji1215-ai.github.io/skill-standards/skill-design-standard.html" style="color:var(--accent)">查看文档</a></td></tr>
+        <tr><td style="color:var(--text-muted);">AQE Judge 模型</td><td>Claude Opus 4.7（万擎 ep-5cq959）</td></tr>
+        <tr><td style="color:var(--text-muted);">参与模型</td><td>Claude Opus 4.7 · Kimi K2.5 · Gemini 3.1 Pro Preview</td></tr>
+        <tr><td style="color:var(--text-muted);">Skill 版本</td><td>ks-design-ui-prototype v1.4.0</td></tr>
+        <tr><td style="color:var(--text-muted);">安装路径</td><td>~/.codeflicker/skills/ks-design-ui-prototype</td></tr>
+        <tr><td style="color:var(--text-muted);">报告版本</td><td>v1.0.0</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div><!-- /container -->
+</main>
+
+<script>
+// 产物内容
+const artifacts = {
+  a: `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0">
+<title>情绪记录 - 今天感觉怎么样</title>
+<style>
+  :root {
+    /* 色彩系统 - 暖色调 */
+    --color-primary: #FF8A65;
+    --color-primary-dark: #E8684A;
+    --color-primary-light: #FFD4C4;
+    --color-secondary: #FFB74D;
+    --color-accent: #F9A825;
+
+    /* 中性色 */
+    --color-bg: #FFF8F3;
+    --color-bg-card: #FFFFFF;
+    --color-surface: #FFF1E8;
+    --color-border: #F3E0D3;
+
+    /* 文字色 - 满足WCAG AA对比度 */
+    --color-text-primary: #2B1810;    /* 对比度 15.8:1 */
+    --color-text-secondary: #5C4A3F;  /* 对比度 7.8:1 */
+    --color-text-tertiary: #8A7668;   /* 对比度 4.7:1 */
+    --color-text-inverse: #FFFFFF;
+
+    /* 间距系统 - 8px 基准 */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* 字号层级 */
+    --font-title: 28px;
+    --font-subtitle: 16px;
+    --font-body: 14px;
+    --font-caption: 12px;
+    --font-emoji: 36px;
+
+    /* 圆角 */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --radius-full: 999px;
+
+    /* 阴影 */
+    --shadow-sm: 0 2px 8px rgba(232, 104, 74, 0.08);
+    --shadow-md: 0 4px 16px rgba(232, 104, 74, 0.12);
+    --shadow-lg: 0 8px 24px rgba(232, 104, 74, 0.18);
+
+    /* 过渡动画 */
+    --transition-fast: 150ms ease;
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #EDE4DB;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    width: 390px;
+    min-height: 100vh;
+    background: var(--color-bg);
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(255, 183, 77, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(255, 138, 101, 0.12) 0%, transparent 40%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 状态栏 */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--font-body);
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .status-icons {
+    display: flex;
+    gap: var(--space-1);
+    font-size: var(--font-caption);
+  }
+
+  /* 顶部导航 */
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2) var(--space-6) var(--space-4);
+  }
+
+  .nav-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-card);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+  }
+
+  .nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .nav-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* 头部问候区 */
+  .header {
+    padding: var(--space-6) var(--space-6) var(--space-8);
+  }
+
+  .date {
+    font-size: var(--font-body);
+    color: var(--color-text-tertiary);
+    margin-bottom: var(--space-2);
+    font-weight: 500;
+  }
+
+  .greeting {
+    font-size: var(--font-title);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.3;
+    margin-bottom: var(--space-3);
+    letter-spacing: -0.5px;
+  }
+
+  .greeting .highlight {
+    color: var(--color-primary-dark);
+    position: relative;
+  }
+
+  .subtitle {
+    font-size: var(--font-subtitle);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+
+  /* 情绪网格 */
+  .mood-section {
+    padding: 0 var(--space-6);
+  }
+
+  .section-label {
+    font-size: var(--font-body);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .section-label::before {
+    content: '';
+    width: 4px;
+    height: 14px;
+    background: var(--color-primary);
+    border-radius: 2px;
+  }
+
+  .mood-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+  }
+
+  .mood-card {
+    background: var(--color-bg-card);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    padding: var(--space-5) var(--space-2);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mood-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .mood-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-light);
+  }
+
+  .mood-card:active {
+    transform: translateY(-2px) scale(0.98);
+  }
+
+  .mood-card.active {
+    border-color: var(--color-primary);
+    background: linear-gradient(135deg, #FFF4ED 0%, #FFE4D4 100%);
+    box-shadow: var(--shadow-md);
+  }
+
+  .mood-card.active::before {
+    opacity: 0.3;
+  }
+
+  .mood-emoji {
+    font-size: var(--font-emoji);
+    line-height: 1;
+    transition: transform var(--transition-slow);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+    position: relative;
+    z-index: 1;
+  }
+
+  .mood-card:hover .mood-emoji {
+    transform: scale(1.15) rotate(-5deg);
+  }
+
+  .mood-card.active .mood-emoji {
+    animation: bounce 0.6s ease;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    30% { transform: scale(1.25) rotate(-8deg); }
+    60% { transform: scale(0.95) rotate(3deg); }
+  }
+
+  .mood-label {
+    font-size: var(--font-body);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 描述卡片 */
+  .description-card {
+    margin: 0 var(--space-6) var(--space-8);
+    padding: var(--space-5);
+    background: linear-gradient(135deg, rgba(255, 183, 77, 0.12) 0%, rgba(255, 138, 101, 0.08) 100%);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    transition: all var(--transition-base);
+  }
+
+  .description-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .description-text {
+    font-size: var(--font-body);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+
+  .description-text strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  /* 主按钮 */
+  .action-area {
+    padding: 0 var(--space-6) var(--space-8);
+  }
+
+  .btn-primary {
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--color-text-inverse);
+    border: none;
+    border-radius: var(--radius-full);
+    font-size: var(--font-subtitle);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    box-shadow: 0 6px 20px rgba(232, 104, 74, 0.35);
+    transition: all var(--transition-base);
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(232, 104, 74, 0.45);
+  }
+
+  .btn-primary:hover::after {
+    opacity: 1;
+  }
+
+  .btn-primary:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 4px 12px rgba(232, 104, 74, 0.35);
+  }
+
+  .btn-primary .arrow {
+    transition: transform var(--transition-base);
+  }
+
+  .btn-primary:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  /* 底部提示 */
+  .tip {
+    text-align: center;
+    font-size: var(--font-caption);
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-4);
+    line-height: 1.5;
+  }
+
+  /* Home指示条 */
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: var(--color-text-primary);
+    border-radius: 3px;
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span class="status-icons">📶 📡 🔋</span>
+    </div>
+
+    <!-- 顶部导航 -->
+    <div class="nav">
+      <button class="nav-btn" aria-label="菜单">☰</button>
+      <button class="nav-btn" aria-label="历史">📊</button>
+    </div>
+
+    <!-- 头部问候 -->
+    <div class="header">
+      <div class="date">11月 · 星期二</div>
+      <h1 class="greeting">今天感觉<span class="highlight">怎么样？</span></h1>
+      <p class="subtitle">选一个最贴近此刻的情绪，记录当下的自己</p>
+    </div>
+
+    <!-- 情绪选择 -->
+    <div class="mood-section">
+      <div class="section-label">选择你的情绪</div>
+
+      <div class="mood-grid">
+        <div class="mood-card" data-mood="开心" data-desc="太棒了！保持这份好心情">
+          <span class="mood-emoji">😊</span>
+          <span class="mood-label">开心</span>
+        </div>
+        <div class="mood-card active" data-mood="平静" data-desc="内心如水，享受当下的宁静">
+          <span class="mood-emoji">😌</span>
+          <span class="mood-label">平静</span>
+        </div>
+        <div class="mood-card" data-mood="焦虑" data-desc="深呼吸，慢慢来，一切都会好的">
+          <span class="mood-emoji">😰</span>
+          <span class="mood-label">焦虑</span>
+        </div>
+        <div class="mood-card" data-mood="悲伤" data-desc="允许自己感受这份情绪，你并不孤单">
+          <span class="mood-emoji">😢</span>
+          <span class="mood-label">悲伤</span>
+        </div>
+        <div class="mood-card" data-mood="愤怒" data-desc="情绪需要出口，试着记录让你生气的事">
+          <span class="mood-emoji">😠</span>
+          <span class="mood-label">愤怒</span>
+        </div>
+        <div class="mood-card" data-mood="惊喜" data-desc="生活充满意外，记住这个美好时刻">
+          <span class="mood-emoji">🤩</span>
+          <span class="mood-label">惊喜</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 描述卡片 -->
+    <div class="description-card">
+      <span class="description-icon">✨</span>
+      <p class="description-text">
+        你选择了 <strong id="selectedMood">平静</strong>。<span id="moodDesc">内心如水，享受当下的宁静。</span>
+      </p>
+    </div>
+
+    <!-- 主按钮 -->
+    <div class="action-area">
+      <button class="btn-primary">
+        <span>记录心情</span>
+        <span class="arrow">→</span>
+      </button>
+      <p class="tip">今日已记录 0 次 · 坚持记录，了解自己</p>
+    </div>
+
+    <div class="home-indicator"></div>
+  </div>
+
+  <script>
+    const cards = document.querySelectorAll('.mood-card');
+    const selectedMood = document.getElementById('selectedMood');
+    const moodDesc = document.getElementById('moodDesc');
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        cards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        selectedMood.textContent = card.dataset.mood;
+        moodDesc.textContent = card.dataset.desc + '。';
+      });
+    });
+  </script>
+</body>
+</html>
+\`\`\``,
+  b: `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>情绪记录App</title>
+<meta name="viewport" content="width=390,initial-scale=1">
+<style>
+:root{
+  --color-primary:#FF6B6B;
+  --color-primary-light:#FF8E8E;
+  --color-primary-dark:#E25656;
+  --color-bg:#FFF8F5;
+  --color-surface:#FFFFFF;
+  --color-text:#2E2E2E;
+  --color-text-secondary:#666666;
+  --color-border:#FFE0E0;
+  --radius:12px;
+  --shadow:0 4px 12px rgba(255,107,107,.15);
+  --transition:.25s ease;
+  --spacing-xs:8px;
+  --spacing-sm:16px;
+  --spacing-md:24px;
+  --spacing-lg:32px;
+  --font-title:28px;
+  --font-sub:16px;
+  --font-body:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}
+body{background:var(--color-bg);color:var(--color-text);width:390px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:var(--spacing-md)}
+h1{font-size:var(--font-title);font-weight:600;margin-top:var(--spacing-lg);margin-bottom:var(--spacing-sm);text-align:center}
+.mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--spacing-sm);width:100%;margin-bottom:var(--spacing-lg)}
+.mood-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius);padding:var(--spacing-sm);display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform var(--transition),box-shadow var(--transition)}
+.mood-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.mood-card:active{transform:translateY(0);box-shadow:none}
+.emoji{font-size:36px;margin-bottom:var(--spacing-xs)}
+.mood-name{font-size:var(--font-sub);font-weight:500;color:var(--color-text)}
+.mood-desc{font-size:var(--font-body);color:var(--color-text-secondary);margin-top:4px;text-align:center}
+.btn-primary{background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius);padding:var(--spacing-sm) var(--spacing-lg);font-size:var(--font-sub);font-weight:600;cursor:pointer;transition:background var(--transition),transform var(--transition);width:100%;max-width:280px}
+.btn-primary:hover{background:var(--color-primary-light)}
+.btn-primary:active{background:var(--color-primary-dark);transform:scale(.98)}
+</style>
+</head>
+<body>
+<h1>今天感觉怎么样？</h1>
+<div class="mood-grid">
+  <div class="mood-card">
+    <span class="emoji">😊</span>
+    <div class="mood-name">开心</div>
+    <div class="mood-desc">嘴角上扬</div>
+  </div>
+  <div class="mood-card">
+    <span class="emoji">😌</span>
+    <div class="mood-name">平静</div>
+    <div class="mood-desc">心如止水</div>
+  </div>
+  <div class="mood-card">
+    <span class="emoji">😰</span>
+    <div class="mood-name">焦虑</div>
+    <div class="mood-desc">坐立不安</div>
+  </div>
+  <div class="mood-card">
+    <span class="emoji">😢</span>
+    <div class="mood-name">悲伤</div>
+    <div class="mood-desc">情绪低落</div>
+  </div>
+  <div class="mood-card">
+    <span class="emoji">😡</span>
+    <div class="mood-name">愤怒</div>
+    <div class="mood-desc">怒火中烧</div>
+  </div>
+  <div class="mood-card">
+    <span class="emoji">😲</span>
+    <div class="mood-name">惊喜</div>
+    <div class="mood-desc">出乎意料</div>
+  </div>
+</div>
+<button class="btn-primary">记录心情</button>
+</body>
+</html>
+\`\`\``,
+  c: `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>情绪记录App</title>
+    <style>
+        :root {
+            /* 8px Spacing System */
+            --spacing-1: 8px;
+            --spacing-2: 16px;
+            --spacing-3: 24px;
+            --spacing-4: 32px;
+            --spacing-5: 40px;
+            --spacing-6: 48px;
+
+            /* Warm Color Palette */
+            --color-primary: #D8432A; /* WCAG AA contrast against white is 4.7:1 */
+            --color-primary-hover: #C23A23;
+            --color-primary-active: #A8301B;
+            --color-background: #FFF8F6;
+            --color-surface: #FFFFFF;
+            
+            /* Text Colors (WCAG AA compliant) */
+            --color-text-primary: #2C1E1B; 
+            --color-text-secondary: #5E4D4A; 
+            --color-text-tertiary: #8C7C79;
+            
+            /* Borders */
+            --color-border: #EFE4E1;
+            --color-border-active: #FFBDB3;
+            
+            /* Background for selected states */
+            --color-selected-bg: #FFF1EE;
+
+            /* Shadows */
+            --shadow-sm: 0 2px 8px rgba(216, 67, 42, 0.06);
+            --shadow-md: 0 8px 24px rgba(216, 67, 42, 0.12);
+            --shadow-btn: 0 4px 16px rgba(216, 67, 42, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #EAEAEA; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 390px;
+            height: 844px;
+            background-color: var(--color-background);
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: var(--spacing-6) var(--spacing-3) var(--spacing-3);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-1);
+            line-height: 1.3;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .emotions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-2);
+            padding: 0 var(--spacing-3) var(--spacing-3);
+        }
+
+        .emotion-card {
+            background-color: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 16px;
+            padding: var(--spacing-2) var(--spacing-1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+            user-select: none;
+        }
+
+        .emotion-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-border-active);
+        }
+
+        .emotion-card:active {
+            transform: translateY(0);
+        }
+
+        .emotion-card.selected {
+            background-color: var(--color-selected-bg);
+            border-color: var(--color-primary);
+        }
+
+        .emoji {
+            font-size: 32px;
+            margin-bottom: var(--spacing-1);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .emotion-card:hover .emoji {
+            transform: scale(1.15);
+        }
+
+        .emotion-card.selected .emoji {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .emotion-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .emotion-card.selected .emotion-label {
+            color: var(--color-primary);
+        }
+
+        .note-section {
+            padding: 0 var(--spacing-3) var(--spacing-4);
+            flex-grow: 1;
+        }
+
+        .note-desc {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background-color: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 16px;
+            padding: var(--spacing-2);
+            font-size: 16px;
+            color: var(--color-text-primary);
+            resize: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            line-height: 1.6;
+        }
+
+        textarea::placeholder {
+            color: var(--color-text-tertiary);
+        }
+
+        textarea:hover {
+            border-color: var(--color-border-active);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+            background-color: var(--color-surface);
+        }
+
+        .button-container {
+            padding: var(--spacing-3);
+            background: linear-gradient(180deg, rgba(255,248,246,0) 0%, rgba(255,248,246,0.9) 30%, rgba(255,248,246,1) 100%);
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background-color: var(--color-primary);
+            color: var(--color-surface);
+            border: none;
+            border-radius: 28px;
+            height: 56px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-btn);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(216, 67, 42, 0.35);
+        }
+
+        .btn-primary:active {
+            background-color: var(--color-primary-active);
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(216, 67, 42, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>今天感觉怎么样</h1>
+        <p class="subtitle">记录当下的真实感受</p>
+    </header>
+
+    <main>
+        <div class="emotions-grid">
+            <div class="emotion-card selected" onclick="selectEmotion(this)">
+                <div class="emoji">😊</div>
+                <div class="emotion-label">开心</div>
+            </div>
+            <div class="emotion-card" onclick="selectEmotion(this)">
+                <div class="emoji">😌</div>
+                <div class="emotion-label">平静</div>
+            </div>
+            <div class="emotion-card" onclick="selectEmotion(this)">
+                <div class="emoji">😰</div>
+                <div class="emotion-label">焦虑</div>
+            </div>
+            <div class="emotion-card" onclick="selectEmotion(this)">
+                <div class="emoji">😢</div>
+                <div class="emotion-label">悲伤</div>
+            </div>
+            <div class="emotion-card" onclick="selectEmotion(this)">
+                <div class="emoji">😡</div>
+                <div class="emotion-label">愤怒</div>
+            </div>
+            <div class="emotion-card" onclick="selectEmotion(this)">
+                <div class="emoji">🤩</div>
+                <div class="emotion-label">惊喜</div>
+            </div>
+        </div>
+
+        <div class="note-section">
+            <div class="note-desc">简短文字描述</div>
+            <textarea placeholder="发生了什么事情让你有这样的感受？"></textarea>
+        </div>
+    </main>
+
+    <div class="button-container">
+        <button class="btn-primary">记录心情</button>
+    </div>
+</div>
+
+<script>
+    function selectEmotion(element) {
+        const cards = document.querySelectorAll('.emotion-card');
+        cards.forEach(card => card.classList.remove('selected'));
+        element.classList.add('selected');
+    }
+</script>
+
+</body>
+</html>`
+};
+
+// 初始化 iframe 和 code block
+function initArtifacts() {
+  ['a','b','c'].forEach(id => {
+    const iframe = document.getElementById('iframe-' + id);
+    const code = document.getElementById('code-' + id);
+    const html = artifacts[id];
+    if (iframe) iframe.srcdoc = html;
+    if (code) code.textContent = html;
+  });
+}
+
+// Tab 切换
+function switchTab(id) {
+  document.querySelectorAll('.artifact-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.artifact-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
+  document.querySelectorAll('.artifact-tab')[{a:0,b:1,c:2}[id]].classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', initArtifacts);
+</script>
+</body>
+</html>
