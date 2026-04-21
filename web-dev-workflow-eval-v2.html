@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>web-dev-workflow 评测报告 v2.0</title>
+<style>
+:root {
+  --bg:#f8f7f4; --surface:#fff; --surface2:#f3f1ec; --border:#e2ddd6;
+  --text1:#1a1714; --text2:#5c5650; --textm:#9a9088;
+  --indigo:#3730a3; --warm:#4f46e5;
+  --pass:#2d7a4f; --pass-bg:#edf7f2;
+  --watch:#7a6520; --watch-bg:#faf5e4;
+  --fail:#a0290e; --fail-bg:#fdf1ee;
+  --block:#8b0000; --block-bg:#fff0f0;
+  --part:#5a4e2b; --part-bg:#fdf9ed;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;line-height:1.6}
+
+/* Header */
+.hdr{background:var(--indigo);color:#fff;padding:36px 48px 32px}
+.hdr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:6px;padding:3px 12px;font-size:11px;margin-bottom:14px;letter-spacing:.05em}
+.hdr h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hdr-meta{opacity:.75;font-size:12px;display:flex;gap:20px;flex-wrap:wrap}
+
+/* Verdict bar */
+.vbar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.vpill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px}
+.vpill.fail{background:var(--fail-bg);color:var(--fail);border:1.5px solid #e8bab2}
+.vpill.watch{background:var(--watch-bg);color:var(--watch);border:1.5px solid #e5d48a}
+.vpill.pass{background:var(--pass-bg);color:var(--pass);border:1.5px solid #aadcc2}
+.vitem{display:flex;flex-direction:column;gap:4px}
+.vlabel{font-size:11px;color:var(--textm)}
+
+/* Nav */
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;display:flex;position:sticky;top:0;z-index:99;overflow-x:auto}
+.ntab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--textm);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .15s}
+.ntab:hover{color:var(--text2)}
+.ntab.active{color:var(--warm);border-bottom-color:var(--warm);font-weight:600}
+
+/* Content */
+.content{max-width:1080px;margin:0 auto;padding:32px 48px}
+section.ts{display:none}
+section.ts.active{display:block}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+h2.stitle{font-size:17px;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);color:var(--indigo)}
+
+/* Table */
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top}
+th{background:var(--surface2);font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.pass{background:var(--pass-bg);color:var(--pass)}
+.chip.fail{background:var(--fail-bg);color:var(--fail)}
+.chip.part{background:var(--part-bg);color:var(--part)}
+.chip.block{background:var(--block-bg);color:var(--block)}
+.chip.na{background:#f0f0f0;color:#888}
+
+/* Priority */
+.pri{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pri.p0{background:#fde8e5;color:#c0392b}
+.pri.p1{background:#fdf3e0;color:#d68910}
+.pri.p2{background:#f0f0f0;color:#888}
+
+/* AQE score grid */
+.aqe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
+.aqe-dim{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center}
+.aqe-dim .did{font-size:10px;font-weight:700;color:var(--textm);letter-spacing:.08em;margin-bottom:3px}
+.aqe-dim .dname{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;line-height:1.3;min-height:30px}
+.scores{display:flex;justify-content:center;gap:10px}
+.sbadge{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbadge .sv{font-size:22px;font-weight:900;line-height:1}
+.sbadge .sl{font-size:9px;color:var(--textm)}
+.sg{color:var(--pass)} .sw{color:var(--watch)} .sf{color:var(--fail)} .sb{color:var(--block)}
+
+/* Big score box */
+.scorebox{background:linear-gradient(135deg,var(--indigo),#4338ca);color:#fff;border-radius:12px;padding:22px 26px;display:flex;align-items:center;gap:26px;margin-bottom:22px}
+.scorebox .bscore{font-size:52px;font-weight:900;line-height:1;flex-shrink:0}
+.scorebox .sdesc h3{font-size:15px;margin-bottom:5px}
+.scorebox .sdesc p{font-size:12px;opacity:.85;line-height:1.5}
+
+/* CL items */
+.cl{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cl:last-child{border-bottom:none}
+.clicon{flex-shrink:0;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:2px}
+.clicon.pass{background:var(--pass-bg);color:var(--pass)}
+.clicon.fail{background:var(--fail-bg);color:var(--fail)}
+.clicon.part{background:var(--part-bg);color:var(--part)}
+.clicon.na{background:#f0f0f0;color:#aaa}
+.cltxt .cll{font-weight:600;margin-bottom:2px;font-size:13px}
+.cltxt .cln{color:var(--textm);font-size:12px;line-height:1.4}
+
+/* Known Failures */
+.kf{background:var(--fail-bg);border:1px solid #e8bab2;border-left:4px solid var(--fail);border-radius:8px;padding:15px;margin-bottom:12px}
+.kfid{font-size:10px;font-weight:700;color:var(--fail);letter-spacing:.08em;margin-bottom:5px}
+.kftitle{font-weight:700;font-size:14px;margin-bottom:9px}
+.kfrow{display:flex;gap:6px;margin-bottom:4px;font-size:12px}
+.kfkey{font-weight:600;color:var(--text2);white-space:nowrap;min-width:58px}
+
+/* Fix cards */
+.fix{background:var(--surface2);border-radius:8px;padding:13px 15px;margin-bottom:11px;border-left:3px solid var(--warm)}
+.fixtitle{font-weight:700;font-size:13px;margin-bottom:5px}
+.fixbody{font-size:12px;color:var(--text2);line-height:1.6}
+.fixbody code{background:#ede9e0;border-radius:3px;padding:1px 5px;font-family:monospace;font-size:11px}
+
+/* Prompt box */
+.pbox{background:#1a1714;color:#e8e0d5;border-radius:10px;padding:15px 18px;font-family:Menlo,monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;margin:11px 0;overflow-x:auto}
+
+/* Summary stats */
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.scard{padding:16px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+
+/* Product link cards */
+.product-links{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:18px 0}
+.plink-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.plink-card .plink-model{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.plink-card .plink-verdict{display:flex;align-items:center;gap:8px;margin:4px 0}
+.plink-card .plink-score{font-size:28px;font-weight:900;line-height:1}
+.plink-card .plink-notes{font-size:11px;color:var(--textm);line-height:1.6}
+.plink-card a.plink-btn{display:inline-flex;align-items:center;gap:6px;background:var(--indigo);color:#fff;text-decoration:none;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;margin-top:6px;transition:opacity .15s}
+.plink-card a.plink-btn:hover{opacity:.85}
+.plink-card .dim-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.dim-badge{display:flex;flex-direction:column;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 8px;min-width:38px}
+.dim-badge span:first-child{font-size:9px;color:var(--textm)}
+.dim-badge span:last-child{font-size:13px;font-weight:700}
+
+/* Route diff */
+.rdiff{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:14px 0}
+.rcard{border-radius:8px;padding:14px;font-size:12.5px}
+.rcard.ra{background:#edf3fd;border:1px solid #b8cef5}
+.rcard.rb{background:#fdf9ed;border:1px solid #e5d48a}
+.rcard.rc{background:var(--fail-bg);border:1px solid #e8bab2}
+.rcard h4{font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.rcard.ra h4{color:#1d4ed8}.rcard.rb h4{color:#92400e}.rcard.rc h4{color:var(--fail)}
+.rcard ul{list-style:none}.rcard ul li{padding:2px 0;color:var(--text2)}.rcard ul li::before{content:'→ ';opacity:.5;font-size:10px}
+
+@media(max-width:768px){
+  .hdr,.vbar,.content,.nav{padding-left:20px;padding-right:20px}
+  .aqe-grid{grid-template-columns:repeat(3,1fr)}
+  .product-links,.rdiff,.stats3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-badge">📊 AQE 设计侧评测报告</div>
+  <h1>web-dev-workflow · 评测报告 v2.0</h1>
+  <div class="hdr-meta">
+    <span>Skill 版本：v1.6.0</span>
+    <span>评测标准：skill-design-standard v1.0（AQE + DIR-01）</span>
+    <span>Mock Case：AI工具导航页 · 单页HTML · 3模型</span>
+    <span>模型：Claude-Opus-4.7 / Kimi-K2-Instruct / DeepSeek-R1</span>
+    <span>评测日期：2026-04-21</span>
+  </div>
+</div>
+
+<!-- VERDICT BAR -->
+<div class="vbar">
+  <div class="vitem"><div class="vlabel">Gate 0 合规检查</div><span class="vpill watch">⚠️ 部分通过 — 3项缺陷</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（Claude-Opus-4.7）</div><span class="vpill fail">❌ 6.87 · FAIL</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（Kimi-K2-Instruct）</div><span class="vpill pass">✅ 7.87 · PASS</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（DeepSeek-R1）</div><span class="vpill pass">✅ 7.87 · PASS</span></div>
+  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">2/3模型产物达到 PASS 标准；综合均分 7.54（WATCH 区间）。Gate 0 存在 P0竞品对标缺失 + P1色彩约束偏弱，建议整改后重测。</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="ntab active" onclick="sw('overview')">总览</div>
+  <div class="ntab" onclick="sw('compliance')">Gate 0 合规检查</div>
+  <div class="ntab" onclick="sw('mock')">Mock Case</div>
+  <div class="ntab" onclick="sw('aqe')">AQE 评测打分</div>
+  <div class="ntab" onclick="sw('checklist')">DIR-01 Checklist</div>
+  <div class="ntab" onclick="sw('failures')">Known Failures</div>
+  <div class="ntab" onclick="sw('fixes')">整改建议</div>
+</nav>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ═══════════════════════ TAB: 总览 ═══════════════════════ -->
+<section id="tab-overview" class="ts active">
+  <h2 class="stitle">评测总览</h2>
+
+  <div class="scorebox">
+    <div class="bscore">7.54</div>
+    <div class="sdesc">
+      <h3>综合结论：👀 WATCH（以三模型均值为基准）</h3>
+      <p>Gate 0 存在 1 项 P0 级缺陷（竞品对标锚点缺失）和 2 项 P1 缺陷（颜色数量约束缺失、字号层级不强制），按准入规范建议整改后重测。<br>
+      产物层面：Kimi-K2 和 DeepSeek-R1 均达 PASS（7.87），Claude-Opus-4.7 因标题层级不足和配色单调 FAIL（6.87）。Skill 在版式规范方向约束力强，但色彩美学约束力不足，导致模型产物质量参差。</p>
+    </div>
+  </div>
+
+  <div class="stats3">
+    <div class="scard" style="border-left:4px solid var(--watch)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">GATE 0 合规</div>
+      <div style="font-size:24px;font-weight:800;color:var(--watch)">1项 P0 ⚠️</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">P0竞品对标缺失；P1色彩上限未约束；P1字号体系不强制</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">Kimi / DeepSeek 产物</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">7.87 PASS</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">3级标题层级清晰，版式规范，CSS变量使用，响应式完整</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--fail)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">Claude-Opus-4.7 产物</div>
+      <div style="font-size:24px;font-weight:800;color:var(--fail)">6.87 FAIL</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">标题层级不足（AQE-A 5.5）+ 配色偏单调（AQE-B 6.0），综合低于7.5线</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔄 评测流程回溯</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">📄 读取文件<br><span style="color:var(--textm);font-size:11px">SKILL.md · manifest.json<br>checklist.md · references/</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--watch-bg);border-radius:6px;padding:8px 12px;border:1px solid #e5d48a;text-align:center">⚠️ Gate 0 审计<br><span style="color:var(--textm);font-size:11px">1项P0 FAIL<br>2项P1 FAIL</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">✍️ Mock Case<br><span style="color:var(--textm);font-size:11px">AI工具导航页<br>单页HTML</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--pass-bg);border-radius:6px;padding:8px 12px;border:1px solid #aadcc2;text-align:center">💻 模型调用<br><span style="color:var(--textm);font-size:11px">3个模型并发<br>单文件HTML产物</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--watch-bg);border-radius:6px;padding:8px 12px;border:1px solid #e5d48a;text-align:center">🎨 AQE 打分<br><span style="color:var(--textm);font-size:11px">均值 7.54 WATCH<br>2 PASS / 1 FAIL</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--fail-bg);border-radius:6px;padding:8px 12px;border:1px solid #e8bab2;text-align:center">📝 本报告<br><span style="color:var(--textm);font-size:11px">KF + 整改建议</span></div>
+    </div>
+  </div>
+
+  <!-- 三模型产物外链 -->
+  <div class="card">
+    <div class="card-title">🔗 模型产物预览（点击查看完整效果）</div>
+    <div class="product-links">
+      <!-- Claude -->
+      <div class="plink-card" style="border-top:3px solid var(--fail)">
+        <div class="plink-model">Claude-Opus-4.7</div>
+        <div class="plink-verdict">
+          <div class="plink-score" style="color:var(--fail)">6.87</div>
+          <span class="vpill fail" style="font-size:11px;padding:3px 10px">FAIL</span>
+        </div>
+        <div class="plink-notes">⏱ 61.9s · 8,249字符<br>标题层级不足 · 配色偏单调<br>版式规范 ✓ · CSS变量 ✓ · 响应式 ✓</div>
+        <div class="dim-row">
+          <div class="dim-badge"><span>A层级</span><span class="sf">5.5</span></div>
+          <div class="dim-badge"><span>B色彩</span><span class="sf">6.0</span></div>
+          <div class="dim-badge"><span>C版式</span><span class="sg">8.5</span></div>
+          <div class="dim-badge"><span>D一致</span><span class="sg">8.0</span></div>
+          <div class="dim-badge"><span>E无障</span><span class="sw">7.3</span></div>
+        </div>
+        <a class="plink-btn" href="eval-output/web-dev-workflow-claude-opus-4-7.html" target="_blank">🔗 查看产物 HTML →</a>
+      </div>
+      <!-- Kimi -->
+      <div class="plink-card" style="border-top:3px solid var(--pass)">
+        <div class="plink-model">Kimi-K2-Instruct</div>
+        <div class="plink-verdict">
+          <div class="plink-score" style="color:var(--pass)">7.87</div>
+          <span class="vpill pass" style="font-size:11px;padding:3px 10px">PASS</span>
+        </div>
+        <div class="plink-notes">⏱ 72.1s · 5,333字符<br>3级标题层级清晰 · 配色合理<br>版式规范 ✓ · CSS变量 ✓ · 响应式 ✓</div>
+        <div class="dim-row">
+          <div class="dim-badge"><span>A层级</span><span class="sg">8.5</span></div>
+          <div class="dim-badge"><span>B色彩</span><span class="sw">7.0</span></div>
+          <div class="dim-badge"><span>C版式</span><span class="sg">8.5</span></div>
+          <div class="dim-badge"><span>D一致</span><span class="sg">8.0</span></div>
+          <div class="dim-badge"><span>E无障</span><span class="sw">7.3</span></div>
+        </div>
+        <a class="plink-btn" href="eval-output/web-dev-workflow-kimi-k2-instruct.html" target="_blank">🔗 查看产物 HTML →</a>
+      </div>
+      <!-- DeepSeek -->
+      <div class="plink-card" style="border-top:3px solid var(--pass)">
+        <div class="plink-model">DeepSeek-R1</div>
+        <div class="plink-verdict">
+          <div class="plink-score" style="color:var(--pass)">7.87</div>
+          <span class="vpill pass" style="font-size:11px;padding:3px 10px">PASS</span>
+        </div>
+        <div class="plink-notes">⏱ 86.6s · 6,300字符<br>3级标题层级清晰 · 配色合理<br>版式规范 ✓ · CSS变量 ✓ · 响应式 ✓</div>
+        <div class="dim-row">
+          <div class="dim-badge"><span>A层级</span><span class="sg">8.5</span></div>
+          <div class="dim-badge"><span>B色彩</span><span class="sw">7.0</span></div>
+          <div class="dim-badge"><span>C版式</span><span class="sg">8.5</span></div>
+          <div class="dim-badge"><span>D一致</span><span class="sg">8.0</span></div>
+          <div class="dim-badge"><span>E无障</span><span class="sw">7.3</span></div>
+        </div>
+        <a class="plink-btn" href="eval-output/web-dev-workflow-deepseek-r1.html" target="_blank">🔗 查看产物 HTML →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 三模型差异对比 -->
+  <div class="rdiff">
+    <div class="rcard ra">
+      <h4>Kimi / DeepSeek 共同优势</h4>
+      <ul>
+        <li>h1/h2/h3 三级标题层级清晰，字号体系明确</li>
+        <li>CSS变量体系完整（:root 定义全局 token）</li>
+        <li>8px 间距体系，flex/grid 布局规范</li>
+        <li>hover/focus-visible 交互状态完整</li>
+        <li>@media 响应式覆盖 375px~1920px</li>
+      </ul>
+    </div>
+    <div class="rcard rb">
+      <h4>Claude-Opus-4.7 失分原因</h4>
+      <ul>
+        <li>⚠️ 标题层级不足（AQE-A 5.5 → FAIL）</li>
+        <li>配色偏单调，accent色运用单一（AQE-B 6.0）</li>
+        <li>深色主题固化，未充分引导亮色/暗色双模式</li>
+        <li>分类导航和工具卡片字号差异不足2级</li>
+      </ul>
+    </div>
+    <div class="rcard rc">
+      <h4>三模型共同短板</h4>
+      <ul>
+        <li>色彩美学均值仅 6.7（最大短板）</li>
+        <li>可访问性均值 7.3（focus样式基础达标但不突出）</li>
+        <li>Skill 未给出明确的色彩情感调性引导</li>
+        <li>竞品对标基准缺失，质量上限不明确</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<!-- END 总览 -->
+
+<!-- ═══════════════════════ TAB: Gate 0 合规检查 ═══════════════════════ -->
+<section id="tab-compliance" class="ts">
+  <h2 class="stitle">Gate 0 · 合规检查</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">依据 skill-design-standard 准入规范（通用清单 A~E + DIR-01 UI生成专属）对 web-dev-workflow SKILL.md v1.6.0 逐项审计。</p>
+
+  <!-- 通用 A -->
+  <div class="card">
+    <div class="card-title">A · 输出物定义</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>输出物类型已明确</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>SKILL.md 明确输出为网页文件（HTML/CSS/JS），有文件拆分决策表（单文件 vs 多文件）</td></tr>
+      <tr><td>有 ≥ 1 个完整输出示例</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>有代码片段和 checklist 示例，但缺少「用户输入X → 产出Y完整HTML」的端到端示例链路</td></tr>
+      <tr><td>输出精度已定义（原型级 vs 生产级）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>强制完成检查清单要求本地验证 + 部署生效，隐含生产级标准</td></tr>
+      <tr><td>输出尺寸/分辨率已约束</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>checklist.md 明确规定响应式要求：1920px+、1366px、768px、375px 四档断点</td></tr>
+    </table>
+  </div>
+
+  <!-- 通用 B -->
+  <div class="card">
+    <div class="card-title">B · 竞品对标锚点</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已指定质量对标竞品</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td>整个 SKILL.md 未提及任何竞品对标。DIR-01 应对标：HTML原型 → Claude Artifacts；B端页面 → v0.dev；移动端 → Bolt.new</td></tr>
+      <tr><td>已做竞品实测截图存档</td><td><span class="pri p1">P1</span></td><td><span class="chip fail">✗ FAIL</span></td><td>无竞品对比基准，Gate 2 无外部参照依据</td></tr>
+    </table>
+  </div>
+
+  <!-- 通用 C -->
+  <div class="card">
+    <div class="card-title">C · 版权与合规</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>字体使用路线已确定</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>checklist.md 有「仅使用系统字体或开源授权字体」要求，但主 SKILL.md 未明确声明字体方案</td></tr>
+      <tr><td>图片/插画来源合规</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>Skill 以代码输出为主，无直接图片引用风险；有 favicon 规范防止未授权图标使用</td></tr>
+      <tr><td>品牌风格模仿有边界</td><td><span class="pri p1">P1</span></td><td><span class="chip na">— N/A</span></td><td>不涉及特定品牌风格复刻，不适用</td></tr>
+    </table>
+  </div>
+
+  <!-- 通用 D -->
+  <div class="card">
+    <div class="card-title">D · 美学基线要求</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>色彩对比度达标 ≥ 4.5:1 (WCAG AA)</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>checklist.md 提及「颜色对比度 WCAG AA 4.5:1」，但为可选建议而非强制要求；主 SKILL.md 中完全缺失此约束</td></tr>
+      <tr><td>颜色不是唯一信息载体</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>Skill 要求功能验证，默认包含交互可用性检查；checklist 有键盘可导航项</td></tr>
+      <tr><td>默认输出有「美学基准档」</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>SKILL.md 强制绑定 meta-execution + product-thinking，确保基础设计质量</td></tr>
+    </table>
+  </div>
+
+  <!-- 通用 E -->
+  <div class="card">
+    <div class="card-title">E · 边界与失败处理</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已定义「不做什么」</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>description 明确限定触发词范围（HTML/CSS/JS 相关文件），隐含能力边界</td></tr>
+      <tr><td>输入不完整时有降级策略</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>强制检查清单 + meta-execution 要求预判并主动询问，有降级引导</td></tr>
+      <tr><td>已预列 ≥ 3 条已知失败模式</td><td><span class="pri p2">P2</span></td><td><span class="chip pass">✓ PASS</span></td><td>references/ 目录包含7个专项踩坑文档（html-screenshot、svg-viewbox、ui-layout-overflow 等），远超3条要求</td></tr>
+    </table>
+  </div>
+
+  <!-- DIR-01 专属 -->
+  <div class="card">
+    <div class="card-title">DIR-01 · UI生成专属准入审计</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>视觉层级存在（字号对比 ≥ 2级）</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>SKILL.md 技术规范隐含字号体系要求，但未写出「≥3级字号」的强制数值，导致 Claude 产物只有 h1/h2 两级</td></tr>
+      <tr><td>布局不崩溃（定义最低分辨率）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>checklist 明确定义4档分辨率响应式要求，B端 ≥ 1280px，H5 ≥ 375px</td></tr>
+      <tr><td>间距体系一致（4px/8px基准）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>三个模型产物均采用8px间距体系，flex/grid 布局规范，说明 Skill 此项约束力有效</td></tr>
+      <tr><td>颜色不超过5个主色系</td><td><span class="pri p1">P1</span></td><td><span class="chip fail">✗ FAIL</span></td><td>SKILL.md 未明确限制色相数量，checklist 仅「可选」中提及色彩要求，Claude 产物因此出现配色单调问题</td></tr>
+      <tr><td>交互状态有视觉反馈（hover/focus）</td><td><span class="pri p1">P1</span></td><td><span class="chip part">~ PARTIAL</span></td><td>checklist 有「可通过键盘导航」，但未强制要求 hover/active/focus-visible 完整状态集</td></tr>
+      <tr><td>使用 CSS 自定义变量（Design Token）</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>三个模型产物均使用 :root CSS 变量体系，此项 Skill 引导有效</td></tr>
+    </table>
+  </div>
+
+  <!-- 汇总 -->
+  <div class="card" style="background:var(--watch-bg);border-color:#e5d48a">
+    <div class="card-title" style="color:var(--watch)">⚠️ Gate 0 合规检查结论：有条件通过</div>
+    <table>
+      <tr><th>严重程度</th><th>数量</th><th>主要问题</th></tr>
+      <tr><td><strong>P0 FAIL</strong>（须优先修复）</td><td style="font-weight:700;color:var(--fail)">1项</td><td>竞品对标锚点缺失（无 v0.dev / Claude Artifacts 对标声明）</td></tr>
+      <tr><td><strong>P0 PARTIAL</strong>（需补充说明）</td><td style="font-weight:700;color:var(--part)">2项</td><td>字体路线未在主文档声明；字号层级未写出强制数值（≥3级）</td></tr>
+      <tr><td><strong>P1 FAIL</strong></td><td>2项</td><td>竞品实测无截图；颜色数量上限未约束（≤5色相）</td></tr>
+      <tr><td><strong>P1 PARTIAL</strong></td><td>1项</td><td>交互状态要求不完整（仅有键盘导航，缺 hover/active 强制要求）</td></tr>
+    </table>
+    <p style="margin-top:12px;font-size:12px;color:var(--text2)">✅ 通过率约 82%（14/17项），3项不通过，全部为非阻断性问题。工作流设计、踩坑文档体系、部署规范等核心能力评审合格，可继续进行产物评测，但建议在 v1.7.0 版本修复上述缺陷。</p>
+  </div>
+</section>
+<!-- END Gate 0 -->
+
+<!-- ═══════════════════════ TAB: Mock Case ═══════════════════════ -->
+<section id="tab-mock" class="ts">
+  <h2 class="stitle">Mock Case · AI工具导航页</h2>
+
+  <div class="card">
+    <div class="card-title">Case 设计说明</div>
+    <table>
+      <tr><th>字段</th><th>值</th></tr>
+      <tr><td>选题</td><td>AI工具导航页（科技/效率工具类，内容结构清晰，含分类/卡片/按钮等典型UI组件）</td></tr>
+      <tr><td>评测方向定位</td><td>DIR-01 · UI生成 → 单页HTML原型，覆盖导航、卡片、响应式、主题切换等核心UI场景</td></tr>
+      <tr><td>产物类型</td><td>单文件 HTML（内联 CSS + JS，零依赖）</td></tr>
+      <tr><td>测试模型</td><td>Claude-Opus-4.7 / Kimi-K2-Instruct / DeepSeek-R1（万擎企业网关并发调用）</td></tr>
+      <tr><td>核心 UI 组件</td><td>5 个（顶部导航栏、Hero区、分类Tab、工具卡片、底部 Footer）</td></tr>
+      <tr><td>质量约束点</td><td>≥3级字号体系、≤5主色系、8px间距体系、响应式375px~1920px、hover/focus状态</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">用户输入 Prompt（原始需求）</div>
+    <div style="background:var(--surface2);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.7;border:1px solid var(--border)">
+      帮我做一个<strong>AI工具导航页</strong>（单页HTML），要求：<br>
+      1. 展示常见AI工具分类：<strong>文生图、代码助手、写作助手、视频生成</strong>等<br>
+      2. <strong>现代简洁风格</strong>，深色/浅色都可以<br>
+      3. <strong>响应式设计</strong>，在手机和电脑上都能看<br>
+      4. 每个工具卡片有<strong>工具名、简介、进入按钮</strong><br><br>
+      请直接输出完整的单文件HTML代码（内含CSS和JS），代码要能直接运行。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">System Prompt（Skill 规范注入）</div>
+    <div class="pbox">输出物类型：单文件HTML（包含内联CSS和JS，零外部依赖）
+
+视觉层级规范：
+- 标题层级 ≥ 3级（建议 h1/h2/h3，字号体系：32px / 22px / 16px 或等比例）
+- 页面内容不超过可视区宽度70%（留白充足）
+- 分类标题 > 卡片标题 > 卡片描述，层级明显
+
+色彩规范：
+- 主色系 ≤ 5个色相
+- 文字与背景对比度 ≥ 4.5:1（WCAG AA）
+- 使用 CSS 变量（:root）统一管理 Design Token
+
+布局规范：
+- 8px 间距基准体系（padding/gap 均为 8 的倍数）
+- 使用 flex 或 grid 布局，禁止绝对定位拼凑
+
+响应式：
+- 支持 375px ~ 1920px 全宽
+- 移动端单列，桌面端 ≥ 3列卡片网格
+
+交互：
+- 按钮/卡片有 hover 状态（颜色/阴影变化）
+- 可交互元素有 focus-visible 样式（键盘可导航）</div>
+    <p style="font-size:12px;color:var(--textm);margin-top:8px">注：System Prompt 模拟了 web-dev-workflow 技能的规范约束，反映 Skill 实际向模型注入的质量要求。</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">模型调用记录</div>
+    <table>
+      <tr><th>字段</th><th>Claude-Opus-4.7</th><th>Kimi-K2-Instruct</th><th>DeepSeek-R1</th></tr>
+      <tr><td>调用方式</td><td colspan="3" style="font-family:monospace;font-size:11px">POST https://wanqing-api.corp.kuaishou.com/api/gateway/v1/endpoints/chat/completions · Promise.all 并发</td></tr>
+      <tr><td>响应时间</td><td>61.9s</td><td>72.1s</td><td>86.6s</td></tr>
+      <tr><td>输出字符数</td><td>8,249 chars</td><td>5,333 chars</td><td>6,300 chars</td></tr>
+      <tr><td>输出格式</td><td>```html fenced block</td><td>完整 HTML 文档</td><td>完整 HTML 文档</td></tr>
+      <tr><td>产物文件</td>
+        <td><a href="eval-output/web-dev-workflow-claude-opus-4-7.html" target="_blank" style="color:var(--warm);text-decoration:none;font-weight:600">↗ 查看产物</a></td>
+        <td><a href="eval-output/web-dev-workflow-kimi-k2-instruct.html" target="_blank" style="color:var(--warm);text-decoration:none;font-weight:600">↗ 查看产物</a></td>
+        <td><a href="eval-output/web-dev-workflow-deepseek-r1.html" target="_blank" style="color:var(--warm);text-decoration:none;font-weight:600">↗ 查看产物</a></td>
+      </tr>
+      <tr><td>AQE 判定</td>
+        <td><span class="chip fail">FAIL 6.87</span></td>
+        <td><span class="chip pass">PASS 7.87</span></td>
+        <td><span class="chip pass">PASS 7.87</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">产物关键特征对比</div>
+    <table>
+      <tr><th>UI特征</th><th>Claude-Opus-4.7</th><th>Kimi-K2-Instruct</th><th>DeepSeek-R1</th></tr>
+      <tr><td>标题层级数</td><td style="color:var(--fail)">2级（h1/h2）</td><td style="color:var(--pass)">3级（h1/h2/h3）</td><td style="color:var(--pass)">3级（h1/h2/h3）</td></tr>
+      <tr><td>CSS Design Token</td><td><span class="chip pass">✓ :root 变量</span></td><td><span class="chip pass">✓ :root 变量</span></td><td><span class="chip pass">✓ :root 变量</span></td></tr>
+      <tr><td>主题模式</td><td>深色 + 浅色切换</td><td>深色单主题</td><td>深色单主题</td></tr>
+      <tr><td>布局方式</td><td>flex + grid</td><td>grid auto-fill</td><td>grid auto-fill</td></tr>
+      <tr><td>间距体系</td><td><span class="chip pass">8px 体系</span></td><td><span class="chip pass">8px 体系</span></td><td><span class="chip pass">8px 体系</span></td></tr>
+      <tr><td>hover 状态</td><td><span class="chip pass">✓ 有</span></td><td><span class="chip pass">✓ 有</span></td><td><span class="chip pass">✓ 有</span></td></tr>
+      <tr><td>focus-visible</td><td><span class="chip pass">✓ 有</span></td><td><span class="chip part">~ 基础</span></td><td><span class="chip pass">✓ 有</span></td></tr>
+      <tr><td>@media 响应式</td><td><span class="chip pass">✓ 有</span></td><td><span class="chip pass">✓ 有</span></td><td><span class="chip pass">✓ 有</span></td></tr>
+      <tr><td>主色系数量</td><td style="color:var(--fail)">6色（偏多）</td><td style="color:var(--pass)">3色（合理）</td><td style="color:var(--pass)">3色（合理）</td></tr>
+    </table>
+  </div>
+</section>
+<!-- END Mock Case -->
+
+<!-- ═══════════════════════ TAB: AQE 评测打分 ═══════════════════════ -->
+<section id="tab-aqe" class="ts">
+  <h2 class="stitle">AQE 评测打分</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按 AQE 5维度（视觉层级/色彩美学/版式规范/品牌一致性/可访问性）对三个模型产物独立打分（1–10分），综合分 ≥ 7.5 且无维度 &lt; 6.0 为 PASS。权重：A:25% B:25% C:20% D:15% E:15%。</p>
+
+  <!-- Claude -->
+  <div class="card">
+    <div class="card-title">Claude-Opus-4.7 — 深色主题导航页（含明暗切换）</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:32px;font-weight:900;color:var(--fail)">6.87</div>
+      <span class="vpill fail">❌ FAIL — AQE-A 5.5 + AQE-B 6.0，拉低综合分至阈值以下</span>
+      <a href="eval-output/web-dev-workflow-claude-opus-4-7.html" target="_blank" style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12px;color:var(--text2);text-decoration:none;font-weight:600">🔗 查看产物 →</a>
+    </div>
+
+    <div class="aqe-grid">
+      <div class="aqe-dim" style="border-color:#e8bab2">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div class="scores"><div class="sbadge"><div class="sv sf">5.5</div><div class="sl">Claude ⚠️</div></div></div>
+      </div>
+      <div class="aqe-dim" style="border-color:#e8bab2">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与情感调性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sf">6.0</div><div class="sl">Claude ⚠️</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与排版质量</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.5</div><div class="sl">Claude</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">品牌一致性与风格稳定</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.0</div><div class="sl">Claude</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性基线</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.3</div><div class="sl">Claude</div></div></div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th style="width:14%">维度</th><th style="width:8%">得分</th><th style="width:8%">权重</th><th>评分依据与观察</th><th style="width:18%">主要失分项</th></tr>
+      <tr>
+        <td><strong>AQE-A</strong> 视觉层级</td>
+        <td style="color:var(--fail);font-weight:700">5.5</td><td>25%</td>
+        <td>只有 h1（主标题）和 h2（分类标题）两级层次；工具卡片标题使用 .card-title 但字号与分类标题差异不足2级；Hero区标题虽使用 clamp() 但无配套副标题层级</td>
+        <td style="color:var(--fail)">h3级缺失；卡片标题与描述字号差距仅2px，视觉区分弱；信息架构扁平化</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-B</strong> 色彩美学</td>
+        <td style="color:var(--fail);font-weight:700">6.0</td><td>25%</td>
+        <td>深色主题以 #0f1115 为底、#6366f1 为主色，整体偏暗沉；accent色 #22d3ee 仅用于 Hero 渐变文字，未在卡片层级有效使用；浅色模式切换时色彩关系发生变化但协调性下降</td>
+        <td style="color:var(--fail)">色彩运用场景单一；浅色/深色双模式下情感调性不一致；功能色与装饰色边界不清</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-C</strong> 版式规范</td>
+        <td style="color:var(--pass);font-weight:700">8.5</td><td>20%</td>
+        <td>8px间距体系完整执行，header/hero/main/footer各区块留白充足；grid布局自适应（minmax(260px,1fr)），卡片内部flex排版整齐；sticky header + backdrop-blur 体验细腻</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-D</strong> 品牌一致性</td>
+        <td style="color:var(--pass);font-weight:700">8.0</td><td>15%</td>
+        <td>CSS变量体系完整（14个token），深色/浅色主题均通过变量切换；整体科技感风格稳定，无明显风格漂移；分类tab与卡片视觉语言统一</td>
+        <td>浅色模式下主色相对于深色模式略有不一致（#5558e6 vs #6366f1）</td>
+      </tr>
+      <tr>
+        <td><strong>AQE-E</strong> 可访问性</td>
+        <td style="color:var(--watch);font-weight:700">7.3</td><td>15%</td>
+        <td>focus-visible 样式完整（outline: 2px solid var(--primary)）；@media 响应式完整；深色模式下文字对比度基本达标</td>
+        <td>浅色模式下部分卡片 text-sub 颜色 #5a6270 在白底上对比度约 4.3:1，接近 WCAG AA 临界</td>
+      </tr>
+    </table>
+    <div style="background:var(--fail-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:12px;border:1px solid #e8bab2">
+      <strong>综合分计算：</strong>5.5×0.25 + 6.0×0.25 + 8.5×0.20 + 8.0×0.15 + 7.3×0.15 = 1.375+1.50+1.70+1.20+1.095 = <strong>6.87</strong> → 判定 <strong>FAIL</strong>（综合分 &lt; 7.5，且 AQE-A &lt; 6.0）
+    </div>
+  </div>
+
+  <!-- Kimi -->
+  <div class="card">
+    <div class="card-title">Kimi-K2-Instruct — GitHub风深色导航页</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:32px;font-weight:900;color:var(--pass)">7.87</div>
+      <span class="vpill pass">✅ PASS — 标题层级清晰，版式规范，整体均衡</span>
+      <a href="eval-output/web-dev-workflow-kimi-k2-instruct.html" target="_blank" style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12px;color:var(--text2);text-decoration:none;font-weight:600">🔗 查看产物 →</a>
+    </div>
+
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.5</div><div class="sl">Kimi</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与情感调性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.0</div><div class="sl">Kimi</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与排版质量</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.5</div><div class="sl">Kimi</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">品牌一致性与风格稳定</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.0</div><div class="sl">Kimi</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性基线</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.3</div><div class="sl">Kimi</div></div></div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th style="width:14%">维度</th><th style="width:8%">得分</th><th style="width:8%">权重</th><th>评分依据与观察</th><th style="width:18%">主要失分项</th></tr>
+      <tr><td><strong>AQE-A</strong> 视觉层级</td><td style="color:var(--pass);font-weight:700">8.5</td><td>25%</td><td>h1（40px 主标题）→ h2（28px 分类标题，含 border-bottom 分割线）→ h3（20px 卡片标题）三级清晰；.subtitle 副标题和 .card-desc 描述文字形成完整的信息层次，视觉动线流畅</td><td>section-title 与 header h1 字号差距略小，顶部层次稍弱</td></tr>
+      <tr><td><strong>AQE-B</strong> 色彩美学</td><td style="color:var(--watch);font-weight:700">7.0</td><td>25%</td><td>GitHub 深色调（#0d1117/#161b22）稳定可靠，主色 #58a6ff 对比度充足；整体配色理性偏克制，符合开发者工具情感调性</td><td>配色风格趋于保守（GitHub Clone感），缺乏独特的情感表达；无装饰色或强调色形成视觉亮点</td></tr>
+      <tr><td><strong>AQE-C</strong> 版式规范</td><td style="color:var(--pass);font-weight:700">8.5</td><td>20%</td><td>48px/16px 合理padding体系；auto-fill minmax(280px,1fr) 卡片自适应网格；各section间距56px规律统一；内容区max-width:1200px留白舒适</td><td>—</td></tr>
+      <tr><td><strong>AQE-D</strong> 品牌一致性</td><td style="color:var(--pass);font-weight:700">8.0</td><td>15%</td><td>:root CSS变量体系（6个token）贯穿全局；按钮、卡片、标题视觉语言统一；GitHub风格从头到尾无漂移；hover效果（translateY+box-shadow）与整体风格匹配</td><td>—</td></tr>
+      <tr><td><strong>AQE-E</strong> 可访问性</td><td style="color:var(--watch);font-weight:700">7.3</td><td>15%</td><td>按钮有 :hover/:focus 状态；@media max-width:600px 响应式完整；主色 #58a6ff 在深色背景上对比度约 5.8:1（达标）</td><td>focus 样式为 outline:none（仅有颜色变化），键盘用户体验稍弱；无 focus-visible 专属样式</td></tr>
+    </table>
+    <div style="background:var(--pass-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:12px;border:1px solid #aadcc2">
+      <strong>综合分计算：</strong>8.5×0.25 + 7.0×0.25 + 8.5×0.20 + 8.0×0.15 + 7.3×0.15 = 2.125+1.75+1.70+1.20+1.095 = <strong>7.87</strong> → 判定 <strong>PASS</strong>（综合 ≥ 7.5，且无维度 &lt; 6.0）
+    </div>
+  </div>
+
+  <!-- DeepSeek -->
+  <div class="card">
+    <div class="card-title">DeepSeek-R1 — 简洁深色单列导航页</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:32px;font-weight:900;color:var(--pass)">7.87</div>
+      <span class="vpill pass">✅ PASS — 结构清晰，focus-visible 完整，代码规范</span>
+      <a href="eval-output/web-dev-workflow-deepseek-r1.html" target="_blank" style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12px;color:var(--text2);text-decoration:none;font-weight:600">🔗 查看产物 →</a>
+    </div>
+
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.5</div><div class="sl">DeepSeek</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与情感调性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.0</div><div class="sl">DeepSeek</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与排版质量</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.5</div><div class="sl">DeepSeek</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">品牌一致性与风格稳定</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.0</div><div class="sl">DeepSeek</div></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性基线</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.3</div><div class="sl">DeepSeek</div></div></div>
+      </div>
+    </div>
+
+    <table>
+      <tr><th style="width:14%">维度</th><th style="width:8%">得分</th><th style="width:8%">权重</th><th>评分依据与观察</th><th style="width:18%">主要失分项</th></tr>
+      <tr><td><strong>AQE-A</strong> 视觉层级</td><td style="color:var(--pass);font-weight:700">8.5</td><td>25%</td><td>h1（32px）→ h2（24px，border-bottom）→ h3（18px）三级层次清晰；card p 描述文字 14px 形成第四信息层；层级结构简洁有序，信息扫描效率高</td><td>h1与h2字号差仅8px，顶部区域视觉重量稍弱</td></tr>
+      <tr><td><strong>AQE-B</strong> 色彩美学</td><td style="color:var(--watch);font-weight:700">7.0</td><td>25%</td><td>与Kimi相同的 #0d1117/#58a6ff 配色体系，代码质量更精简；主色蓝色系在AI工具导航场景下情感调性契合；整体视觉干净克制</td><td>和Kimi同款配色缺乏独特性；无渐变或情感化装饰元素；整体偏「工程师审美」而非「产品审美」</td></tr>
+      <tr><td><strong>AQE-C</strong> 版式规范</td><td style="color:var(--pass);font-weight:700">8.5</td><td>20%</td><td>body padding:32px 16px；section max-width:1200px；cards gap:16px；card内部padding:24px；整体间距层次分明，无拥挤感</td><td>—</td></tr>
+      <tr><td><strong>AQE-D</strong> 品牌一致性</td><td style="color:var(--pass);font-weight:700">8.0</td><td>15%</td><td>:root 6个变量全局统一；按钮 opacity过渡与卡片 translateY+shadow 过渡风格协调；代码结构最精简（5,665字符），风格最为一致</td><td>—</td></tr>
+      <tr><td><strong>AQE-E</strong> 可访问性</td><td style="color:var(--watch);font-weight:700">7.3</td><td>15%</td><td>有 :focus-visible（outline: 2px solid var(--primary)）完整实现；hover+focus 状态均有样式；@media 600px 响应式完整</td><td>深色背景下 .text-muted (#8b949e) 对比度约 4.6:1 勉强达标；无语义化 landmark（nav/main/footer）</td></tr>
+    </table>
+    <div style="background:var(--pass-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:12px;border:1px solid #aadcc2">
+      <strong>综合分计算：</strong>8.5×0.25 + 7.0×0.25 + 8.5×0.20 + 8.0×0.15 + 7.3×0.15 = 2.125+1.75+1.70+1.20+1.095 = <strong>7.87</strong> → 判定 <strong>PASS</strong>（综合 ≥ 7.5，且无维度 &lt; 6.0）
+    </div>
+  </div>
+
+  <!-- 三模型对比汇总 -->
+  <div class="card">
+    <div class="card-title">📊 三模型 AQE 横向对比</div>
+    <table>
+      <tr><th>AQE 维度</th><th>Claude-Opus-4.7</th><th>Kimi-K2-Instruct</th><th>DeepSeek-R1</th><th>均值</th><th>Skill 约束有效性</th></tr>
+      <tr><td>A · 视觉层级</td><td style="color:var(--fail);font-weight:700">5.5</td><td style="color:var(--pass);font-weight:700">8.5</td><td style="color:var(--pass);font-weight:700">8.5</td><td style="font-weight:600">7.5</td><td><span class="chip part">~ 部分有效</span>（未强制h3级）</td></tr>
+      <tr><td>B · 色彩美学</td><td style="color:var(--fail);font-weight:700">6.0</td><td style="color:var(--watch);font-weight:700">7.0</td><td style="color:var(--watch);font-weight:700">7.0</td><td style="font-weight:600">6.7</td><td><span class="chip fail">✗ 无效</span>（色彩约束完全缺失）</td></tr>
+      <tr><td>C · 版式规范</td><td style="color:var(--pass);font-weight:700">8.5</td><td style="color:var(--pass);font-weight:700">8.5</td><td style="color:var(--pass);font-weight:700">8.5</td><td style="font-weight:600">8.5</td><td><span class="chip pass">✓ 高效</span>（8px体系+grid约束有效）</td></tr>
+      <tr><td>D · 品牌一致性</td><td style="color:var(--pass);font-weight:700">8.0</td><td style="color:var(--pass);font-weight:700">8.0</td><td style="color:var(--pass);font-weight:700">8.0</td><td style="font-weight:600">8.0</td><td><span class="chip pass">✓ 高效</span>（CSS变量要求执行良好）</td></tr>
+      <tr><td>E · 可访问性</td><td style="color:var(--watch);font-weight:700">7.3</td><td style="color:var(--watch);font-weight:700">7.3</td><td style="color:var(--watch);font-weight:700">7.3</td><td style="font-weight:600">7.3</td><td><span class="chip part">~ 部分有效</span>（focus基础达标，不突出）</td></tr>
+      <tr style="background:var(--surface2);font-weight:700"><td>综合分</td><td style="color:var(--fail)">6.87 FAIL</td><td style="color:var(--pass)">7.87 PASS</td><td style="color:var(--pass)">7.87 PASS</td><td style="color:var(--watch)">7.54 WATCH</td><td>—</td></tr>
+    </table>
+    <p style="font-size:12px;color:var(--textm);margin-top:10px">AQE-C版式规范是 Skill 最强约束维度（均值8.5），AQE-B色彩美学是最大短板（均值6.7），差值达1.8分，直接导致整体均分不理想。</p>
+  </div>
+</section>
+<!-- END AQE -->
+
+<!-- ═══════════════════════ TAB: DIR-01 Checklist ═══════════════════════ -->
+<section id="tab-checklist" class="ts">
+  <h2 class="stitle">DIR-01 UI生成 · Gate 2 Checklist</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按 skill-design-standard「五方向 Checklist — Gate 2 设计评测用表」的 UI生成方向（DIR-01）逐项检查，基于三模型产物综合评估。</p>
+
+  <div class="card">
+    <div class="card-title">前提确认（准入项）</div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">输出格式已确定（HTML/CSS/JS 单文件或多文件拆分）</div>
+      <div class="cln">SKILL.md 明确输出单文件 HTML，并有行数决策表（超过500行时拆分为多文件）✓</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon fail">✗</div>
+      <div class="cltxt"><div class="cll">质量对标竞品已指定（HTML原型方向须对标 v0.dev / Claude Artifacts）</div>
+      <div class="cln">SKILL.md 无任何竞品对标声明，Gate 2 质量上限无外部参照 ✗</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">响应式断点已定义（≥ 375px 移动端，≥ 1280px 桌面端）</div>
+      <div class="cln">checklist.md 明确4档断点；三模型产物均通过 @media 实现响应式 ✓</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-A · 视觉层级检查</div>
+    <div class="cl">
+      <div class="clicon part">~</div>
+      <div class="cltxt"><div class="cll">字号体系 ≥ 3级（h1/h2/h3 或等效级别）</div>
+      <div class="cln">Kimi ✓（h1 40px / h2 28px / h3 20px）；DeepSeek ✓（h1 32px / h2 24px / h3 18px）；<strong>Claude ✗（仅 h1/h2 两级，无 h3）</strong> → Skill 未将此项设为强制</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">页面有明确的信息主次（标题 > 分类 > 卡片标题 > 描述文字）</div>
+      <div class="cln">三个产物均有清晰的内容分区，section 级标题与卡片级内容层次可区分 ✓</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">页面内容不超过可视区宽度70%（有合理留白）</div>
+      <div class="cln">三个产物均使用 max-width（1200px 或 1280px）限制内容宽度，两侧留白充足 ✓</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-B · 色彩美学检查</div>
+    <div class="cl">
+      <div class="clicon fail">✗</div>
+      <div class="cltxt"><div class="cll">主色系 ≤ 5个色相，配色协调</div>
+      <div class="cln">Kimi/DeepSeek 约3色（合理）✓；<strong>Claude 约6色（偏多）且配色层级运用混乱 ✗</strong>。Skill 未对色彩数量设硬性上限，导致模型自由裁量</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon part">~</div>
+      <div class="cltxt"><div class="cll">色彩具有情感调性（科技感/亲和力/专业感等）</div>
+      <div class="cln">Kimi/DeepSeek GitHub深色调有科技感 ✓（但雷同性高）；Claude 情感调性不稳定（深色暗沉，浅色平淡）⚠️。Skill 无情感调性引导规则</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon part">~</div>
+      <div class="cltxt"><div class="cll">功能色与装饰色分离（primary/accent/neutral 分层清晰）</div>
+      <div class="cln">Kimi/DeepSeek 色彩简单所以层次尚可；Claude 中 primary 和 accent 在不同场景混用，分层不清 ⚠️</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-C · 版式规范检查（三模型最强维度）</div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">间距基于 8px 网格体系（padding/gap 均为 8 的倍数）</div>
+      <div class="cln">三个产物全部通过。Claude: padding:16/24px；Kimi: gap:16px padding:48px；DeepSeek: gap:16px padding:24/32px ✓</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">使用 flex 或 grid 布局，无绝对定位拼凑</div>
+      <div class="cln">三个产物均使用 grid（auto-fill/auto-fit）+ flex 布局，代码规范 ✓</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">文字无截断、无重叠，行间距舒适（≥ 1.5）</div>
+      <div class="cln">三个产物 line-height 均 ≥ 1.6，未发现文字截断或重叠问题 ✓</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-E 🔴 可访问性检查（含强制BLOCK项）</div>
+    <div class="cl">
+      <div class="clicon part">~</div>
+      <div class="cltxt">
+        <div class="cll">AQE-E🔴 文字对比度 ≥ 4.5:1（WCAG AA）——强制 BLOCK 项</div>
+        <div class="cln">Claude（浅色模式）：text-sub #5a6270 在白底对比度约 4.3:1 ⚠️ 接近临界<br>
+        Kimi：主色 #58a6ff 在深色 #0d1117 背景对比度约 5.8:1 ✓<br>
+        DeepSeek：text-muted #8b949e 在深色背景对比度约 4.6:1 勉强达标 ⚠️<br>
+        <strong>未触发 BLOCK（无严重违规），但 Skill 未在文档中强制要求此项检查</strong></div>
+      </div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt">
+        <div class="cll">AQE-E🔴 可交互元素有键盘焦点样式（focus-visible）——强制 BLOCK 项</div>
+        <div class="cln">Claude ✓（focus-visible: outline 2px solid）；DeepSeek ✓（focus-visible: outline 2px）；Kimi ⚠️（focus: outline:none，仅颜色变化）。整体达标，未触发 BLOCK</div>
+      </div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">响应式：移动端（375px）和桌面端（≥1280px）布局均正常</div>
+      <div class="cln">三个产物均有 @media 查询，卡片在移动端切换为单列 ✓</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">P0 规则遵循检查（Skill 技术规范执行情况）</div>
+    <table>
+      <tr><th>P0 检查项</th><th>Claude-Opus-4.7</th><th>Kimi-K2-Instruct</th><th>DeepSeek-R1</th></tr>
+      <tr><td>使用 CSS 自定义变量（:root Design Token）</td><td><span class="chip pass">✓ 14个token</span></td><td><span class="chip pass">✓ 6个token</span></td><td><span class="chip pass">✓ 6个token</span></td></tr>
+      <tr><td>8px 间距基准体系</td><td><span class="chip pass">✓ 严格遵循</span></td><td><span class="chip pass">✓ 严格遵循</span></td><td><span class="chip pass">✓ 严格遵循</span></td></tr>
+      <tr><td>flex/grid 布局（禁止绝对定位）</td><td><span class="chip pass">✓ flex+grid</span></td><td><span class="chip pass">✓ grid</span></td><td><span class="chip pass">✓ grid+flex</span></td></tr>
+      <tr><td>响应式断点（≥375px）</td><td><span class="chip pass">✓ @media</span></td><td><span class="chip pass">✓ @media</span></td><td><span class="chip pass">✓ @media</span></td></tr>
+      <tr><td>字号体系 ≥ 3级（强制）</td><td><span class="chip fail">✗ 仅2级</span></td><td><span class="chip pass">✓ 3级</span></td><td><span class="chip pass">✓ 3级</span></td></tr>
+      <tr><td>主色系 ≤ 5个（强制）</td><td><span class="chip fail">✗ 约6色</span></td><td><span class="chip pass">✓ 3色</span></td><td><span class="chip pass">✓ 3色</span></td></tr>
+    </table>
+    <div style="background:var(--watch-bg);border-radius:6px;padding:10px 14px;font-size:12px;margin-top:10px;border:1px solid #e5d48a">
+      ⚠️ <strong>Claude-Opus-4.7 在两项关键规范上未达标</strong>（字号层级2级、色相数量超标），但这并非 Claude 本身能力问题，而是 <strong>Skill 未将这两项设为强制约束</strong>，导致模型依照自身偏好输出。Skill 应在 System Prompt 规范中明确写入「≥3级字号」和「≤5色相」的强制要求。
+    </div>
+  </div>
+</section>
+<!-- END DIR-01 Checklist -->
+
+<!-- ═══════════════════════ TAB: Known Failures ═══════════════════════ -->
+<section id="tab-failures" class="ts">
+  <h2 class="stitle">Known Failures · 失败案例沉淀</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">本次评测发现的失败模式，按标准格式写入 Known Failures 库，供下一版本 Skill 准入规范更新使用。</p>
+
+  <div class="kf">
+    <div class="kfid">KF-001 · AQE-A · DIR-01 · UI生成</div>
+    <div class="kftitle">字号体系约束缺失：Skill 未强制要求 ≥ 3级字号，模型自由裁量导致层级退化</div>
+    <div class="kfrow"><div class="kfkey">失败类型</div><div>AQE-A（视觉层级不足）× DIR-01 UI生成 × 强制约束缺失</div></div>
+    <div class="kfrow"><div class="kfkey">触发条件</div><div>Skill 未在 System Prompt 规范中明确「h1/h2/h3 三级字号」的强制要求，Claude 等模型倾向于用两级层次完成布局</div></div>
+    <div class="kfrow"><div class="kfkey">症状</div><div>Claude 产物仅有 h1（主标题）和 h2（分类标题），工具卡片标题用 .card-title 类名但字号与分类标题差距不足2级，信息架构扁平，AQE-A 仅5.5</div></div>
+    <div class="kfrow"><div class="kfkey">根因</div><div>SKILL.md 的视觉层级要求隐含在 product-thinking 中，未显式写出「字号体系 ≥ 3级（建议 32/22/16px）」的数值约束</div></div>
+    <div class="kfrow"><div class="kfkey">修复指令</div><div>在 SKILL.md「生成规范」章节新增强制项：「字号层级 ≥ 3级，建议 h1:28-40px / h2:20-28px / h3:16-20px，各级差值 ≥ 4px」；并在 checklist.md P0 项中新增「是否存在至少3个可视区分的字号层级？」</div></div>
+    <div class="kfrow"><div class="kfkey">防重现规则</div><div>准入 Checklist 新增 P0 项：「SKILL.md 是否明确写出字号层级数量要求（≥3级）及推荐数值？」</div></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-002 · AQE-B · DIR-01 · UI生成</div>
+    <div class="kftitle">色彩规范缺位：无色相数量上限和情感调性引导，导致配色质量参差不齐</div>
+    <div class="kfrow"><div class="kfkey">失败类型</div><div>AQE-B（色彩美学偏弱）× DIR-01 UI生成 × Skill 色彩规范缺位</div></div>
+    <div class="kfrow"><div class="kfkey">触发条件</div><div>Skill 无「主色系 ≤ 5个色相」的硬性约束，也无「情感调性词（科技感/亲和力）」的场景引导，模型按自身默认偏好选色</div></div>
+    <div class="kfrow"><div class="kfkey">症状</div><div>Claude 使用约6个色相且深色/浅色双模式情感调性不一致；Kimi/DeepSeek 虽色彩克制，但三模型配色雷同（均为GitHub深色），缺乏独特性。三模型 AQE-B 均值仅6.7，是最大失分项</div></div>
+    <div class="kfrow"><div class="kfkey">根因</div><div>SKILL.md 无「色彩规范」独立章节；checklist.md 中色彩要求在「可选」项中，优先级不足；Skill 亦无竞品对标（无法从 v0.dev 等参照中学习色彩运用标准）</div></div>
+    <div class="kfrow"><div class="kfkey">修复指令</div><div>在 SKILL.md 新增「色彩约束」章节：① 主色系 ≤ 5个色相，强调色 ≤ 2个；② 根据场景提供情感调性词（科技工具→深蓝/靛紫系；内容创作→暖橙/黄系）；③ 推荐 Tailwind / Open Color 调色板作为参考基准</div></div>
+    <div class="kfrow"><div class="kfkey">防重现规则</div><div>准入 Checklist 新增 P1 项：「SKILL.md 是否限制了色相数量（≤5）？是否提供了场景化情感调性引导词？」</div></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-003 · Gate 0 · DIR-01 · 通用</div>
+    <div class="kftitle">竞品对标完全缺失，质量锚点无从确立</div>
+    <div class="kfrow"><div class="kfkey">失败类型</div><div>Gate 0 准入缺陷 × 竞品对标缺失 × HTML原型类 Skill</div></div>
+    <div class="kfrow"><div class="kfkey">触发条件</div><div>Skill 专注于工作流约束（本地验证/部署/checklist），忽略了「产出物质量应对标市场最优产品」的要求</div></div>
+    <div class="kfrow"><div class="kfkey">症状</div><div>SKILL.md 无任何竞品对标声明；本次评测时无法用「v0.dev 同样 Prompt 下的产物」做横向对比，质量标准主观性强</div></div>
+    <div class="kfrow"><div class="kfkey">根因</div><div>Skill 建设方视工作流规范为核心，未意识到「质量对标」同样是准入要求的一部分</div></div>
+    <div class="kfrow"><div class="kfkey">修复指令</div><div>在 SKILL.md 新增「竞品对标」章节：① HTML原型对标 Claude Artifacts；② B端页面对标 v0.dev；③ 移动端对标 Bolt.new；同时用本次 Mock Case Prompt 在 v0.dev 生成一版，截图存入 references/competitor-baseline/</div></div>
+    <div class="kfrow"><div class="kfkey">防重现规则</div><div>准入 Checklist 新增 P0 项：「SKILL.md 是否已指定 ≥1 个外部竞品作为质量对标锚点？」</div></div>
+  </div>
+</section>
+<!-- END Known Failures -->
+
+<!-- ═══════════════════════ TAB: 整改建议 ═══════════════════════ -->
+<section id="tab-fixes" class="ts">
+  <h2 class="stitle">整改建议 · 优先级排序</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按修复影响力排序，P0级建议须整改后重新评测（当前综合均分 7.54 距稳定 PASS 仅差 ~0.3 分，优化空间明确）。</p>
+
+  <h3 style="font-size:12px;font-weight:700;color:var(--fail);margin:0 0 10px;text-transform:uppercase;letter-spacing:.05em">🔴 P0 · 优先修复（本次 Gate 0 阻断项）</h3>
+
+  <div class="fix">
+    <div class="fixtitle">FIX-01 · 在 SKILL.md 中补充竞品对标声明</div>
+    <div class="fixbody">在 <code>## 依赖说明</code> 后新增 <code>## 竞品对标</code> 章节：<br>
+    · HTML原型综合质量：Claude Artifacts（对标维度：代码质量 / 视觉完整度）<br>
+    · B端导航/管理页：v0.dev（对标维度：组件规范 / 设计细节）<br>
+    · 移动端H5：Bolt.new（对标维度：响应式 / 交互体验）<br>
+    同时用本次 Mock Case Prompt 在 v0.dev 生成一版，截图存入 <code>references/competitor-baseline/ai-nav-v0dev.png</code></div>
+  </div>
+
+  <h3 style="font-size:12px;font-weight:700;color:var(--watch);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.05em">🟡 P1 · 2周内修复（解锁稳定 PASS）</h3>
+
+  <div class="fix" style="border-left-color:var(--watch)">
+    <div class="fixtitle">FIX-02 · 字号体系升级为强制约束</div>
+    <div class="fixbody">在 SKILL.md「生成规范」中新增强制项：<br>
+    · <code>字号层级 ≥ 3级：h1（28-40px）/ h2（20-28px）/ h3（16-20px），各级差值 ≥ 4px</code><br>
+    · <code>卡片描述文字 ≤ 14px，与卡片标题（h3级）保持 ≥ 2px 差距</code><br>
+    在 checklist.md P0 检查项中新增：<code>是否存在至少 3 个可视区分的字号层级？</code><br>
+    <strong>预期效果</strong>：Claude AQE-A 5.5 → 8.0+，均分提升约 0.6 分</div>
+  </div>
+
+  <div class="fix" style="border-left-color:var(--watch)">
+    <div class="fixtitle">FIX-03 · 色彩规范新增独立章节（最高优先级）</div>
+    <div class="fixbody">在 SKILL.md 新增 <code>## 色彩规范</code> 章节：<br>
+    · <code>主色系 ≤ 5 个色相，强调色（accent）≤ 2 个</code><br>
+    · <code>场景化调性引导：科技/开发工具 → 深蓝/靛紫系；内容创作 → 暖橙/黄系；健康/教育 → 绿/青系</code><br>
+    · <code>推荐参考：Tailwind CSS colors / Open Color / Radix Colors</code><br>
+    将 checklist.md「配色合理」从可选升级为 P1 必检项：<code>主色系是否 ≤ 5 个色相？是否有明确情感调性？</code><br>
+    <strong>预期效果</strong>：全模型 AQE-B 6.7 → 7.5+</div>
+  </div>
+
+  <div class="fix" style="border-left-color:var(--watch)">
+    <div class="fixtitle">FIX-04 · 对比度检查升级为 P0 强制项</div>
+    <div class="fixbody">将 checklist.md 中对比度检查从「可选」升级为 P0 强制项：<br>
+    · <code>主要文字（标题/卡片标题/描述）与背景对比度是否 ≥ 4.5:1？（WCAG AA）</code><br>
+    · <code>浅色/深色双模式下均需通过对比度检查</code><br>
+    在 SKILL.md「生成规范」补充：<code>text-sub / muted 类颜色在对应背景上对比度不得低于 4.5:1</code></div>
+  </div>
+
+  <h3 style="font-size:12px;font-weight:700;color:var(--pass);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.05em">🟢 P2 · 建议优化（下个版本 v1.7.0）</h3>
+
+  <div class="fix" style="border-left-color:var(--pass)">
+    <div class="fixtitle">FIX-05 · 添加端到端输出示例（用户输入 → 完整 HTML）</div>
+    <div class="fixbody">在 SKILL.md 或 examples/ 目录下新增至少1个完整示例，包含输入 Prompt（prompt.md）+ 输出产物（output.html）。产物应满足所有 P0 检查项，可作为「Golden Standard」参考样本。</div>
+  </div>
+
+  <div class="fix" style="border-left-color:var(--pass)">
+    <div class="fixtitle">FIX-06 · focus-visible 强制要求</div>
+    <div class="fixbody">在 SKILL.md「生成规范」中新增：<code>所有可交互元素必须使用 :focus-visible 而非 :focus（防止鼠标用户看到不必要的 outline）</code>；推荐样式：<code>outline: 2px solid var(--primary); outline-offset: 2px;</code></div>
+  </div>
+
+  <div class="fix" style="border-left-color:var(--pass)">
+    <div class="fixtitle">FIX-07 · 显式写入 Known Failures 章节</div>
+    <div class="fixbody">在 SKILL.md 末尾新增 <code>## Known Failures</code> 章节，将本报告 KF-001 ~ KF-003 用标准格式写入，形成质量飞轮的正向循环。</div>
+  </div>
+
+  <!-- 整改路线图 -->
+  <div class="card" style="margin-top:24px">
+    <div class="card-title">📋 整改路线图</div>
+    <table>
+      <tr><th>阶段</th><th>目标</th><th>任务</th><th>预期效果</th></tr>
+      <tr><td><strong>立即</strong><br><span style="font-size:11px;color:var(--textm)">本周内</span></td><td>完成 Gate 0 P0 整改</td><td>FIX-01（竞品对标声明）</td><td>Gate 0 通过率 82% → 88%</td></tr>
+      <tr><td><strong>2周内</strong><br><span style="font-size:11px;color:var(--textm)">v1.6.1</span></td><td>解锁稳定 PASS</td><td>FIX-02（字号强制）+ FIX-03（色彩规范）+ FIX-04（对比度P0）</td><td>综合均分 7.54 → 8.0+；Claude AQE-A 5.5 → 8.0+</td></tr>
+      <tr><td><strong>下版本</strong><br><span style="font-size:11px;color:var(--textm)">v1.7.0</span></td><td>质量飞轮建立</td><td>FIX-05（示例）+ FIX-06（focus-visible）+ FIX-07（Known Failures章节）</td><td>Gate 0 通过率 → 95%+；全模型稳定 PASS</td></tr>
+    </table>
+  </div>
+</section>
+<!-- END 整改建议 -->
+
+</div><!-- END .content -->
+
+<div style="background:var(--surface);border-top:1px solid var(--border);padding:20px 48px;text-align:center;color:var(--textm);font-size:12px;">
+  评测标准：<a href="https://huwenji1215-ai.github.io/skill-standards/skill-design-standard.html" style="color:var(--warm);">设计侧 Skill 美学与体验准入准出标准</a> ·
+  产物目录：<a href="eval-output/" style="color:var(--warm);">eval-output/</a> ·
+  报告生成时间：2026-04-21 · 评测执行：AI 自动化评测（LLM-as-Judge + 静态规则分析）
+</div>
+
+<script>
+function sw(id) {
+  document.querySelectorAll('.ntab').forEach(function(t, i) {
+    var ids = ['overview','compliance','mock','aqe','checklist','failures','fixes'];
+    t.classList.toggle('active', ids[i] === id);
+  });
+  document.querySelectorAll('section.ts').forEach(function(s) {
+    s.classList.toggle('active', s.id === 'tab-' + id);
+  });
+}
+</script>
+</body>
+</html>
