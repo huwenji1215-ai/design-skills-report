@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Model B · Palette-F 午夜暗金 · AI Agent 企业应用</title>
+<style>
+/* ===== Design Tokens — Palette F: 午夜暗金 ===== */
+:root {
+  --bg: #0c0b08;
+  --container: #16140e;
+  --container-2: #1e1b12;
+  --accent: #d4a017;
+  --accent-soft: rgba(212,160,23,0.12);
+  --accent-2: #f0c040;
+  --text-primary: #f5f0e8;
+  --text-secondary: #b8a88a;
+  --text-muted: #6b5e42;
+  --border: rgba(212,160,23,0.2);
+  --shadow: rgba(212,160,23,0.25);
+  --font: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:1280px;height:720px;overflow:hidden;
+  background:var(--bg);font-family:var(--font);color:var(--text-primary);
+  background-image:
+    radial-gradient(ellipse 50% 50% at 15% 50%, rgba(212,160,23,0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 40% at 90% 10%, rgba(212,160,23,0.07) 0%, transparent 55%),
+    linear-gradient(160deg, #0c0b08 0%, #0e0d09 100%);
+}
+[contenteditable]{outline:none;cursor:text;transition:outline 0.15s}
+[contenteditable]:hover{outline:1px dashed var(--accent);border-radius:3px}
+[contenteditable]:focus{outline:2px solid var(--accent);border-radius:3px;background:var(--accent-soft)}
+.slide-number{position:absolute;bottom:16px;right:24px;font-size:13px;color:var(--text-muted)}
+
+/* Full cover layout */
+.cover-wrap{
+  position:relative;width:100%;height:100%;
+  display:grid;grid-template-columns:1fr 480px;
+  align-items:center;padding:64px 72px;gap:48px;
+}
+/* Left side */
+.cover-left{}
+.eyebrow{
+  font-size:11px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:2px;background:var(--accent)}
+.cover-title{
+  font-size:52px;font-weight:900;line-height:1.12;
+  color:var(--text-primary);margin-bottom:20px;
+}
+.cover-title em{font-style:normal;color:var(--accent)}
+.cover-sub{font-size:18px;color:var(--text-secondary);line-height:1.6;margin-bottom:36px}
+.cover-tags{display:flex;gap:10px;flex-wrap:wrap}
+.tag{
+  background:var(--accent-soft);border:1px solid var(--border);
+  color:var(--accent);font-size:12px;padding:5px 14px;border-radius:20px;
+}
+
+/* Right side: stat card stack */
+.stats-stack{display:flex;flex-direction:column;gap:12px}
+.stat-card{
+  background:var(--container);border:1px solid var(--border);
+  border-radius:10px;padding:18px 22px;
+  display:flex;align-items:center;gap:18px;
+}
+.stat-card.highlight{
+  background:var(--accent-soft);border-color:rgba(212,160,23,0.4);
+}
+.stat-icon{font-size:24px;flex-shrink:0}
+.stat-val{font-size:30px;font-weight:900;color:var(--accent-2);line-height:1}
+.stat-label{font-size:13px;color:var(--text-secondary);margin-top:4px}
+.stat-badge{font-size:10px;color:var(--text-muted)}
+
+/* Decorative horizontal rule */
+.deco-line{position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.4}
+</style>
+</head>
+<body>
+<div class="cover-wrap">
+  <div class="cover-left">
+    <div class="eyebrow" contenteditable="true">Enterprise Intelligence Report · 2025</div>
+    <h1 class="cover-title" contenteditable="true">
+      AI Agent<br>重塑企业<em>未来</em>
+    </h1>
+    <p class="cover-sub" contenteditable="true">
+      从概念验证到大规模生产部署——<br>解读全球 Top 500 企业的 AI Agent 实战经验
+    </p>
+    <div class="cover-tags">
+      <span class="tag" contenteditable="true">工作流自动化</span>
+      <span class="tag" contenteditable="true">智能客服</span>
+      <span class="tag" contenteditable="true">代码智能</span>
+      <span class="tag" contenteditable="true">数据分析</span>
+      <span class="tag" contenteditable="true">战略决策</span>
+    </div>
+  </div>
+
+  <div class="stats-stack">
+    <div class="stat-card highlight">
+      <div class="stat-icon">🚀</div>
+      <div>
+        <div class="stat-val" contenteditable="true">$472亿</div>
+        <div class="stat-label" contenteditable="true">全球 AI Agent 市场规模</div>
+        <div class="stat-badge" contenteditable="true">2025年预测 · Gartner</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏢</div>
+      <div>
+        <div class="stat-val" contenteditable="true">62%</div>
+        <div class="stat-label" contenteditable="true">Fortune 500 企业已部署</div>
+        <div class="stat-badge" contenteditable="true">较去年增长 +23%</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div>
+        <div class="stat-val" contenteditable="true">3.8×</div>
+        <div class="stat-label" contenteditable="true">工作流效率平均提升</div>
+        <div class="stat-badge" contenteditable="true">跨行业均值</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div>
+        <div class="stat-val" contenteditable="true">41%</div>
+        <div class="stat-label" contenteditable="true">运营成本平均降幅</div>
+        <div class="stat-badge" contenteditable="true">已验证案例均值</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="deco-line"></div>
+<div class="slide-number" contenteditable="false">1 / 8</div>
+</body>
+</html>

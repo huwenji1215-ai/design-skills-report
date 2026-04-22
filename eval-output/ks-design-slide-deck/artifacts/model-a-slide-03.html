@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>AI Agent 企业应用 — 架构图</title>
+<style>
+:root {
+  --bg: #050d1a;
+  --container: #0a1628;
+  --container-2: #0f1f38;
+  --accent: #2563eb;
+  --accent-soft: rgba(37,99,235,0.12);
+  --accent-2: #0ea5e9;
+  --text-primary: #f0f6ff;
+  --text-secondary: #93b4d4;
+  --text-muted: #4a6fa5;
+  --border: rgba(37,99,235,0.25);
+  --font: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:1280px;height:720px;overflow:hidden;
+  background:var(--bg);font-family:var(--font);color:var(--text-primary);
+  background-image:
+    radial-gradient(ellipse 60% 50% at 50% 50%, rgba(37,99,235,0.10) 0%, transparent 70%),
+    linear-gradient(180deg, #050d1a 0%, #060f1d 100%);
+}
+[contenteditable]{outline:none;cursor:text;transition:outline 0.15s}
+[contenteditable]:hover{outline:1px dashed var(--accent);border-radius:3px}
+[contenteditable]:focus{outline:2px solid var(--accent);border-radius:3px;background:var(--accent-soft)}
+.slide-number{position:absolute;bottom:16px;right:24px;font-size:13px;color:var(--text-muted)}
+
+.slide-wrap{width:100%;height:100%;display:flex;flex-direction:column;padding:36px 64px 44px}
+.eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.slide-title{font-size:26px;font-weight:700;color:var(--text-primary);margin-bottom:28px}
+
+/* Architecture diagram area */
+.arch-area{flex:1;display:flex;flex-direction:column;justify-content:space-between}
+
+/* Layer row */
+.arch-layer{display:flex;align-items:center;gap:0}
+.layer-label{
+  font-size:11px;font-weight:700;color:var(--text-muted);
+  letter-spacing:2px;text-transform:uppercase;
+  writing-mode:horizontal-tb;
+  width:80px;flex-shrink:0;text-align:right;padding-right:16px;
+}
+.layer-nodes{display:flex;gap:12px;flex:1}
+.arch-node{
+  background:var(--container);border:1px solid var(--border);
+  border-radius:8px;padding:14px 18px;flex:1;
+  display:flex;flex-direction:column;gap:4px;
+}
+.arch-node.accent{border-color:var(--accent);background:rgba(37,99,235,0.12)}
+.arch-node .node-icon{font-size:18px;margin-bottom:4px}
+.arch-node .node-name{font-size:13px;font-weight:700;color:var(--text-primary)}
+.arch-node .node-desc{font-size:11px;color:var(--text-muted);line-height:1.4}
+
+/* Connector row */
+.connector-row{display:flex;align-items:center;justify-content:center;gap:0;height:24px;padding-left:96px}
+.conn-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.4}
+.conn-arrow{font-size:11px;color:var(--text-muted);opacity:0.6;padding:0 8px}
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="eyebrow" contenteditable="true">技术架构 · Agent Architecture</div>
+  <div class="slide-title" contenteditable="true">企业级 AI Agent 分层架构</div>
+
+  <div class="arch-area">
+    <!-- 用户层 -->
+    <div class="arch-layer">
+      <div class="layer-label" contenteditable="true">用户层</div>
+      <div class="layer-nodes">
+        <div class="arch-node">
+          <div class="node-icon">💬</div>
+          <div class="node-name" contenteditable="true">自然语言界面</div>
+          <div class="node-desc" contenteditable="true">Chat / 语音 / API 接入</div>
+        </div>
+        <div class="arch-node">
+          <div class="node-icon">🖥️</div>
+          <div class="node-name" contenteditable="true">Web / 移动端</div>
+          <div class="node-desc" contenteditable="true">多端统一入口</div>
+        </div>
+        <div class="arch-node">
+          <div class="node-icon">⚙️</div>
+          <div class="node-name" contenteditable="true">系统集成接口</div>
+          <div class="node-desc" contenteditable="true">ERP / CRM / OA 对接</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector-row">
+      <div class="conn-line"></div>
+      <div class="conn-arrow">↕ 指令 / 反馈</div>
+      <div class="conn-line"></div>
+    </div>
+
+    <!-- Agent 层 -->
+    <div class="arch-layer">
+      <div class="layer-label" contenteditable="true">Agent 层</div>
+      <div class="layer-nodes">
+        <div class="arch-node accent">
+          <div class="node-icon">🤖</div>
+          <div class="node-name" contenteditable="true">规划器 Planner</div>
+          <div class="node-desc" contenteditable="true">任务分解 + 策略推理</div>
+        </div>
+        <div class="arch-node accent">
+          <div class="node-icon">🔧</div>
+          <div class="node-name" contenteditable="true">执行器 Executor</div>
+          <div class="node-desc" contenteditable="true">工具调用 + 动作执行</div>
+        </div>
+        <div class="arch-node accent">
+          <div class="node-icon">🧠</div>
+          <div class="node-name" contenteditable="true">记忆 Memory</div>
+          <div class="node-desc" contenteditable="true">短期上下文 + 长期知识库</div>
+        </div>
+        <div class="arch-node accent">
+          <div class="node-icon">✅</div>
+          <div class="node-name" contenteditable="true">验证器 Verifier</div>
+          <div class="node-desc" contenteditable="true">输出质检 + 反馈循环</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector-row">
+      <div class="conn-line"></div>
+      <div class="conn-arrow">↕ 数据 / 工具调用</div>
+      <div class="conn-line"></div>
+    </div>
+
+    <!-- 基础设施层 -->
+    <div class="arch-layer">
+      <div class="layer-label" contenteditable="true">基础层</div>
+      <div class="layer-nodes">
+        <div class="arch-node">
+          <div class="node-icon">🌐</div>
+          <div class="node-name" contenteditable="true">大语言模型</div>
+          <div class="node-desc" contenteditable="true">GPT-4o / Claude / Gemini</div>
+        </div>
+        <div class="arch-node">
+          <div class="node-icon">🗄️</div>
+          <div class="node-name" contenteditable="true">向量数据库</div>
+          <div class="node-desc" contenteditable="true">RAG 知识检索</div>
+        </div>
+        <div class="arch-node">
+          <div class="node-icon">🔌</div>
+          <div class="node-name" contenteditable="true">工具生态</div>
+          <div class="node-desc" contenteditable="true">MCP / Function Calling</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-number" contenteditable="false">3 / 8</div>
+</body>
+</html>

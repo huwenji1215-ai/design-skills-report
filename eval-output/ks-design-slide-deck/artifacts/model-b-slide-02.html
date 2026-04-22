@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Model B · Palette-F 午夜暗金 · 应用场景矩阵</title>
+<style>
+:root {
+  --bg: #0c0b08;
+  --container: #16140e;
+  --container-2: #1e1b12;
+  --accent: #d4a017;
+  --accent-soft: rgba(212,160,23,0.12);
+  --accent-2: #f0c040;
+  --text-primary: #f5f0e8;
+  --text-secondary: #b8a88a;
+  --text-muted: #6b5e42;
+  --border: rgba(212,160,23,0.2);
+  --font: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;
+  --pass: #22c55e; --watch: #f59e0b; --fail: #ef4444;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:1280px;height:720px;overflow:hidden;
+  background:var(--bg);font-family:var(--font);color:var(--text-primary);
+  background-image:
+    radial-gradient(ellipse 50% 40% at 50% 0%, rgba(212,160,23,0.10) 0%, transparent 60%),
+    linear-gradient(180deg, #0c0b08 0%, #0e0d09 100%);
+}
+[contenteditable]{outline:none;cursor:text}
+[contenteditable]:focus{outline:1px solid var(--accent);border-radius:3px}
+.slide-number{position:absolute;bottom:16px;right:24px;font-size:13px;color:var(--text-muted)}
+.slide-wrap{width:100%;height:100%;padding:36px 64px 44px;display:flex;flex-direction:column}
+.eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.slide-title{font-size:26px;font-weight:700;margin-bottom:24px}
+
+/* Use case matrix: 3x2 grid */
+.matrix{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:14px}
+.uc{
+  background:var(--container);border:1px solid var(--border);
+  border-radius:10px;padding:20px 22px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  transition:border-color 0.2s;
+}
+.uc:hover{border-color:rgba(212,160,23,0.5)}
+.uc-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.uc-icon{font-size:22px;flex-shrink:0}
+.uc-title{font-size:15px;font-weight:700;color:var(--text-primary)}
+.uc-cat{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
+.uc-desc{font-size:12px;color:var(--text-secondary);line-height:1.6;flex:1;margin-bottom:12px}
+.uc-metrics{display:flex;gap:8px;flex-wrap:wrap}
+.metric-chip{
+  font-size:11px;padding:3px 9px;border-radius:12px;
+  background:var(--accent-soft);color:var(--accent);border:1px solid var(--border);
+}
+.metric-chip.good{background:rgba(34,197,94,0.10);color:var(--pass);border-color:rgba(34,197,94,0.25)}
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="eyebrow" contenteditable="true">落地场景 · Enterprise Use Cases</div>
+  <div class="slide-title" contenteditable="true">六大核心应用场景</div>
+
+  <div class="matrix">
+    <div class="uc">
+      <div>
+        <div class="uc-head"><div class="uc-icon">🎧</div><div><div class="uc-title" contenteditable="true">智能客服</div><div class="uc-cat" contenteditable="true">Customer Service</div></div></div>
+        <div class="uc-desc" contenteditable="true">多轮对话 + 情绪识别 + 自动升级人工，解决复杂工单全流程闭环</div>
+      </div>
+      <div class="uc-metrics">
+        <span class="metric-chip good" contenteditable="true">响应时间 -78%</span>
+        <span class="metric-chip good" contenteditable="true">满意度 +31%</span>
+      </div>
+    </div>
+
+    <div class="uc">
+      <div>
+        <div class="uc-head"><div class="uc-icon">💻</div><div><div class="uc-title" contenteditable="true">代码智能助手</div><div class="uc-cat" contenteditable="true">Code Intelligence</div></div></div>
+        <div class="uc-desc" contenteditable="true">代码生成、Review、安全扫描、文档自动同步，覆盖研发全链路</div>
+      </div>
+      <div class="uc-metrics">
+        <span class="metric-chip good" contenteditable="true">开发效率 +45%</span>
+        <span class="metric-chip good" contenteditable="true">缺陷率 -28%</span>
+      </div>
+    </div>
+
+    <div class="uc">
+      <div>
+        <div class="uc-head"><div class="uc-icon">📊</div><div><div class="uc-title" contenteditable="true">数据分析自动化</div><div class="uc-cat" contenteditable="true">Data Analytics</div></div></div>
+        <div class="uc-desc" contenteditable="true">自然语言查询数仓、自动生成报告、异常监控实时告警</div>
+      </div>
+      <div class="uc-metrics">
+        <span class="metric-chip good" contenteditable="true">分析效率 +3.2×</span>
+        <span class="metric-chip good" contenteditable="true">人工成本 -60%</span>
+      </div>
+    </div>
+
+    <div class="uc">
+      <div>
+        <div class="uc-head"><div class="uc-icon">📋</div><div><div class="uc-title" contenteditable="true">流程自动化</div><div class="uc-cat" contenteditable="true">Process Automation</div></div></div>
+        <div class="uc-desc" contenteditable="true">OA 审批流、HR 入职、财务对账等重复性任务全自动编排执行</div>
+      </div>
+      <div class="uc-metrics">
+        <span class="metric-chip good" contenteditable="true">处理速度 +5×</span>
+        <span class="metric-chip good" contenteditable="true">错误率 -92%</span>
+      </div>
+    </div>
+
+    <div class="uc">
+      <div>
+        <div class="uc-head"><div class="uc-icon">🔍</div><div><div class="uc-title" contenteditable="true">知识管理</div><div class="uc-cat" contenteditable="true">Knowledge Management</div></div></div>
+        <div class="uc-desc" contenteditable="true">企业知识库 RAG 检索、跨系统信息聚合、专家知识沉淀与传承</div>
+      </div>
+      <div class="uc-metrics">
+        <span class="metric-chip good" contenteditable="true">检索准确率 94%</span>
+        <span class="metric-chip good" contenteditable="true">培训周期 -40%</span>
+      </div>
+    </div>
+
+    <div class="uc">
+      <div>
+        <div class="uc-head"><div class="uc-icon">📈</div><div><div class="uc-title" contenteditable="true">市场与竞品情报</div><div class="uc-cat" contenteditable="true">Market Intelligence</div></div></div>
+        <div class="uc-desc" contenteditable="true">实时监控竞品动态、市场舆情分析、趋势预测与战略建议自动生成</div>
+      </div>
+      <div class="uc-metrics">
+        <span class="metric-chip good" contenteditable="true">情报时效 +8×</span>
+        <span class="metric-chip good" contenteditable="true">分析覆盖度 +270%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-number" contenteditable="false">2 / 8</div>
+</body>
+</html>

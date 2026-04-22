@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Model C · Palette-B 暖橙商务 · 封面</title>
+<style>
+/* ===== Design Tokens — Palette B: 暖橙商务 ===== */
+:root {
+  --bg: #1a0e05;
+  --container: #231408;
+  --container-2: #2e1b0a;
+  --accent: #f97316;
+  --accent-soft: rgba(249,115,22,0.12);
+  --accent-dim: #ea6a10;
+  --text-primary: #fef3ec;
+  --text-secondary: #c8a585;
+  --text-muted: #7a5535;
+  --border: rgba(249,115,22,0.22);
+  --font: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:1280px;height:720px;overflow:hidden;
+  background:var(--bg);font-family:var(--font);color:var(--text-primary);
+  background-image:
+    radial-gradient(ellipse 55% 50% at 55% 50%, rgba(249,115,22,0.14) 0%, transparent 68%),
+    radial-gradient(ellipse 35% 35% at 95% 90%, rgba(249,115,22,0.08) 0%, transparent 55%),
+    linear-gradient(145deg, #1a0e05 0%, #1c1007 100%);
+}
+[contenteditable]{outline:none;cursor:text}
+[contenteditable]:focus{outline:1px solid var(--accent);border-radius:3px;background:var(--accent-soft)}
+.slide-number{position:absolute;bottom:16px;right:24px;font-size:13px;color:var(--text-muted)}
+
+/* Split layout: 60 / 40 */
+.cover-wrap{position:relative;width:100%;height:100%;display:flex}
+.cover-left{
+  flex:0 0 60%;padding:64px 56px;
+  display:flex;flex-direction:column;justify-content:center;
+  border-right:1px solid rgba(249,115,22,0.15);
+}
+.cover-right{
+  flex:1;padding:48px 40px;
+  display:flex;flex-direction:column;justify-content:center;gap:16px;
+  background:rgba(249,115,22,0.04);
+}
+.eyebrow{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:2px;background:var(--accent)}
+.cover-title{font-size:52px;font-weight:900;line-height:1.1;margin-bottom:18px}
+.cover-title span{
+  color:transparent;
+  -webkit-text-stroke:1.5px var(--accent);
+}
+.cover-sub{font-size:17px;color:var(--text-secondary);line-height:1.6;margin-bottom:32px}
+.author-row{display:flex;align-items:center;gap:12px}
+.author-ava{width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px}
+.author-name{font-size:14px;color:var(--text-secondary)}
+.author-date{font-size:12px;color:var(--text-muted)}
+
+/* Right: chapter index */
+.chap-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.chap-item{
+  background:var(--container);border:1px solid var(--border);
+  border-radius:8px;padding:12px 16px;
+  display:flex;align-items:center;gap:14px;
+}
+.chap-num{font-size:11px;font-weight:700;color:var(--accent);min-width:20px}
+.chap-text{font-size:13px;color:var(--text-secondary)}
+.chap-item.active{background:var(--accent-soft);border-color:rgba(249,115,22,0.45)}
+.chap-item.active .chap-text{color:var(--text-primary);font-weight:600}
+</style>
+</head>
+<body>
+<div class="cover-wrap">
+  <div class="cover-left">
+    <div class="eyebrow" contenteditable="true">实战报告 · Enterprise AI Report 2025</div>
+    <h1 class="cover-title" contenteditable="true">
+      AI Agent<br><span>落地</span>实战<br>企业智能化
+    </h1>
+    <p class="cover-sub" contenteditable="true">
+      六大核心场景 · 三阶段落地路径<br>带你读懂 AI Agent 如何真正改变企业运营
+    </p>
+    <div class="author-row">
+      <div class="author-ava">🤖</div>
+      <div>
+        <div class="author-name" contenteditable="true">快手技术研究院</div>
+        <div class="author-date" contenteditable="true">2025年 Q2 发布</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-right">
+    <div class="chap-label" contenteditable="false">目录预览</div>
+    <div class="chap-item active">
+      <div class="chap-num">01</div>
+      <div class="chap-text" contenteditable="true">市场全景：规模与趋势</div>
+    </div>
+    <div class="chap-item">
+      <div class="chap-num">02</div>
+      <div class="chap-text" contenteditable="true">技术架构：Agent 分层设计</div>
+    </div>
+    <div class="chap-item">
+      <div class="chap-num">03</div>
+      <div class="chap-text" contenteditable="true">六大落地场景详解</div>
+    </div>
+    <div class="chap-item">
+      <div class="chap-num">04</div>
+      <div class="chap-text" contenteditable="true">三阶段实施路径</div>
+    </div>
+    <div class="chap-item">
+      <div class="chap-num">05</div>
+      <div class="chap-text" contenteditable="true">典型案例：金融 / 制造 / 零售</div>
+    </div>
+    <div class="chap-item">
+      <div class="chap-num">06</div>
+      <div class="chap-text" contenteditable="true">ROI 测算与风险控制</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-number" contenteditable="false">1 / 8</div>
+</body>
+</html>

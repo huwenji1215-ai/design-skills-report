@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>AI Agent 企业应用 — 核心数据</title>
+<style>
+:root {
+  --bg: #050d1a;
+  --container: #0a1628;
+  --container-2: #0f1f38;
+  --accent: #2563eb;
+  --accent-soft: rgba(37,99,235,0.12);
+  --text-primary: #f0f6ff;
+  --text-secondary: #93b4d4;
+  --text-muted: #4a6fa5;
+  --border: rgba(37,99,235,0.25);
+  --font: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:1280px;height:720px;overflow:hidden;
+  background:var(--bg);font-family:var(--font);color:var(--text-primary);
+  background-image:
+    radial-gradient(ellipse 50% 40% at 50% 0%, rgba(37,99,235,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(14,165,233,0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #050d1a 0%, #060e1c 100%);
+}
+[contenteditable]{outline:none;cursor:text;transition:outline 0.15s}
+[contenteditable]:hover{outline:1px dashed var(--accent);border-radius:3px}
+[contenteditable]:focus{outline:2px solid var(--accent);border-radius:3px;background:var(--accent-soft)}
+.slide-number{position:absolute;bottom:16px;right:24px;font-size:13px;color:var(--text-muted)}
+
+/* Header zone */
+.slide-wrap{width:100%;height:100%;display:flex;flex-direction:column;padding:36px 64px 32px}
+.eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.slide-title{font-size:26px;font-weight:700;color:var(--text-primary);margin-bottom:24px}
+
+/* KPI grid: 2x2 */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:16px;flex:1}
+.kpi-card{
+  background:var(--container);border:1px solid var(--border);
+  border-radius:12px;padding:24px 28px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.kpi-card::before{
+  content:'';position:absolute;top:0;right:0;
+  width:120px;height:120px;
+  background:radial-gradient(ellipse at 80% 20%, var(--accent-soft), transparent);
+  pointer-events:none;
+}
+.kpi-icon{font-size:20px;margin-bottom:8px}
+.kpi-value{font-size:48px;font-weight:900;color:var(--text-primary);line-height:1}
+.kpi-value span{font-size:28px;color:var(--accent)}
+.kpi-label{font-size:14px;font-weight:600;color:var(--text-secondary);margin-top:8px}
+.kpi-change{
+  font-size:12px;font-weight:600;
+  background:rgba(34,197,94,0.15);color:#22c55e;
+  padding:3px 8px;border-radius:6px;
+  display:inline-flex;align-items:center;gap:3px;
+  width:fit-content;margin-top:8px;
+}
+.kpi-desc{font-size:12px;color:var(--text-muted);line-height:1.5;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="eyebrow" contenteditable="true">核心数据 · Market Data 2025</div>
+  <div class="slide-title" contenteditable="true">AI Agent 市场规模与企业采用率</div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-value" contenteditable="true">$472<span>亿</span></div>
+        <div class="kpi-label" contenteditable="true">全球 AI Agent 市场规模</div>
+        <div class="kpi-change" contenteditable="false">↑ +38.7% YoY</div>
+      </div>
+      <div class="kpi-desc" contenteditable="true">2025年预测值，Gartner 报告；2030年预计突破 $2,800亿</div>
+    </div>
+
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-icon">🏢</div>
+        <div class="kpi-value" contenteditable="true">62<span>%</span></div>
+        <div class="kpi-label" contenteditable="true">Fortune 500 企业已部署率</div>
+        <div class="kpi-change" contenteditable="false">↑ +23% vs 2023</div>
+      </div>
+      <div class="kpi-desc" contenteditable="true">其中 38% 已从 PoC 进入生产环境规模化运行</div>
+    </div>
+
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-icon">⏱️</div>
+        <div class="kpi-value" contenteditable="true">3.8<span>倍</span></div>
+        <div class="kpi-label" contenteditable="true">工作流自动化效率提升</div>
+        <div class="kpi-change" contenteditable="false">↑ 平均值，跨行业</div>
+      </div>
+      <div class="kpi-desc" contenteditable="true">企业 IT、HR、客服三大场景效率增益最显著</div>
+    </div>
+
+    <div class="kpi-card">
+      <div>
+        <div class="kpi-icon">📉</div>
+        <div class="kpi-value" contenteditable="true">41<span>%</span></div>
+        <div class="kpi-label" contenteditable="true">运营成本平均降幅</div>
+        <div class="kpi-change" contenteditable="false">↓ 已验证案例均值</div>
+      </div>
+      <div class="kpi-desc" contenteditable="true">含人力成本、错误返工成本、响应时延成本综合计算</div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-number" contenteditable="false">2 / 8</div>
+</body>
+</html>

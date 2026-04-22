@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Model C · Palette-B 暖橙商务 · ROI 对比</title>
+<style>
+:root {
+  --bg: #1a0e05;
+  --container: #231408;
+  --container-2: #2e1b0a;
+  --accent: #f97316;
+  --accent-soft: rgba(249,115,22,0.12);
+  --text-primary: #fef3ec;
+  --text-secondary: #c8a585;
+  --text-muted: #7a5535;
+  --border: rgba(249,115,22,0.22);
+  --pass: #22c55e;
+  --fail: #ef4444;
+  --font: -apple-system,'PingFang SC','Helvetica Neue',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:1280px;height:720px;overflow:hidden;
+  background:var(--bg);font-family:var(--font);color:var(--text-primary);
+  background-image:radial-gradient(ellipse 50% 40% at 50% 0%, rgba(249,115,22,0.10) 0%, transparent 60%),linear-gradient(180deg,#1a0e05,#1c1007);
+}
+[contenteditable]{outline:none;cursor:text}
+[contenteditable]:focus{outline:1px solid var(--accent);border-radius:3px}
+.slide-number{position:absolute;bottom:16px;right:24px;font-size:13px;color:var(--text-muted)}
+.slide-wrap{width:100%;height:100%;padding:36px 64px 44px;display:flex;flex-direction:column}
+.eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.slide-title{font-size:26px;font-weight:700;margin-bottom:24px}
+
+/* Compare table */
+.compare-wrap{flex:1;display:flex;gap:24px}
+.compare-col{flex:1;display:flex;flex-direction:column;gap:12px}
+.col-header{
+  background:var(--container);border:1px solid var(--border);
+  border-radius:10px 10px 0 0;padding:16px 20px;
+  font-size:16px;font-weight:700;text-align:center;
+}
+.col-header.before{color:var(--fail);border-color:rgba(239,68,68,0.3)}
+.col-header.after{color:var(--pass);border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.06)}
+.col-items{flex:1;display:flex;flex-direction:column;gap:8px}
+.citem{
+  background:var(--container);border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.citem.before{border-color:rgba(239,68,68,0.2)}
+.citem.after{border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.04)}
+.ci-label{font-size:12px;color:var(--text-secondary)}
+.ci-val{font-size:20px;font-weight:800}
+.ci-val.bad{color:var(--fail)}
+.ci-val.good{color:var(--pass)}
+.ci-unit{font-size:12px;font-weight:400;margin-left:2px;color:var(--text-muted)}
+
+/* Middle arrow column */
+.arrow-col{width:80px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding-top:56px}
+.arrow-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:20px;color:var(--pass)}
+.arrow-diff{font-size:11px;color:var(--accent);font-weight:700;text-align:center}
+</style>
+</head>
+<body>
+<div class="slide-wrap">
+  <div class="eyebrow" contenteditable="true">ROI 对比 · Before vs After AI Agent</div>
+  <div class="slide-title" contenteditable="true">引入 AI Agent 前后对比：客服场景为例</div>
+
+  <div class="compare-wrap">
+    <div class="compare-col">
+      <div class="col-header before" contenteditable="true">❌ 引入前（人工客服）</div>
+      <div class="col-items">
+        <div class="citem before">
+          <span class="ci-label" contenteditable="true">平均响应时间</span>
+          <span class="ci-val bad" contenteditable="true">8.5<span class="ci-unit">分钟</span></span>
+        </div>
+        <div class="citem before">
+          <span class="ci-label" contenteditable="true">月均人力成本</span>
+          <span class="ci-val bad" contenteditable="true">¥240<span class="ci-unit">万</span></span>
+        </div>
+        <div class="citem before">
+          <span class="ci-label" contenteditable="true">首次解决率</span>
+          <span class="ci-val bad" contenteditable="true">62<span class="ci-unit">%</span></span>
+        </div>
+        <div class="citem before">
+          <span class="ci-label" contenteditable="true">日均处理工单</span>
+          <span class="ci-val bad" contenteditable="true">4,200<span class="ci-unit">条</span></span>
+        </div>
+        <div class="citem before">
+          <span class="ci-label" contenteditable="true">客户满意度 (CSAT)</span>
+          <span class="ci-val bad" contenteditable="true">71<span class="ci-unit">%</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-col">
+      <div class="arrow-item">→<div class="arrow-diff" contenteditable="true">-78%</div></div>
+      <div class="arrow-item">→<div class="arrow-diff" contenteditable="true">-41%</div></div>
+      <div class="arrow-item">→<div class="arrow-diff" contenteditable="true">+28pp</div></div>
+      <div class="arrow-item">→<div class="arrow-diff" contenteditable="true">+5.3×</div></div>
+      <div class="arrow-item">→<div class="arrow-diff" contenteditable="true">+31pp</div></div>
+    </div>
+
+    <div class="compare-col">
+      <div class="col-header after" contenteditable="true">✅ 引入后（AI Agent + 人工协同）</div>
+      <div class="col-items">
+        <div class="citem after">
+          <span class="ci-label" contenteditable="true">平均响应时间</span>
+          <span class="ci-val good" contenteditable="true">1.9<span class="ci-unit">分钟</span></span>
+        </div>
+        <div class="citem after">
+          <span class="ci-label" contenteditable="true">月均人力成本</span>
+          <span class="ci-val good" contenteditable="true">¥142<span class="ci-unit">万</span></span>
+        </div>
+        <div class="citem after">
+          <span class="ci-label" contenteditable="true">首次解决率</span>
+          <span class="ci-val good" contenteditable="true">90<span class="ci-unit">%</span></span>
+        </div>
+        <div class="citem after">
+          <span class="ci-label" contenteditable="true">日均处理工单</span>
+          <span class="ci-val good" contenteditable="true">22,300<span class="ci-unit">条</span></span>
+        </div>
+        <div class="citem after">
+          <span class="ci-label" contenteditable="true">客户满意度 (CSAT)</span>
+          <span class="ci-val good" contenteditable="true">96<span class="ci-unit">%</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide-number" contenteditable="false">2 / 8</div>
+</body>
+</html>

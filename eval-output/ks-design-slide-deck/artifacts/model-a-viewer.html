@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Model A · Palette-A 企业科技蓝 · AI Agent 企业应用实践</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;
+  background:#0a0a0f;color:#e8edf5;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+}
+/* === Toolbar === */
+.toolbar{
+  width:100%;background:#111118;border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:0 24px;height:48px;display:flex;align-items:center;gap:16px;flex-shrink:0;
+  position:sticky;top:0;z-index:100;
+}
+.tb-brand{font-size:13px;font-weight:700;color:#2563eb;margin-right:8px}
+.tb-title{font-size:13px;color:rgba(255,255,255,0.7)}
+.tb-sep{width:1px;height:20px;background:rgba(255,255,255,0.12)}
+.tb-chip{
+  background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);
+  color:#60a5fa;font-size:11px;padding:3px 10px;border-radius:20px;
+}
+.tb-chip.good{background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.3);color:#4ade80}
+.tb-chip.warn{background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.3);color:#fbbf24}
+.spacer{flex:1}
+.tb-btn{
+  background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.4);
+  color:#93b4d4;font-size:12px;padding:5px 14px;border-radius:6px;cursor:pointer;
+}
+/* === Main layout === */
+.main{display:flex;width:100%;flex:1}
+/* === Sidebar === */
+.sidebar{
+  width:200px;flex-shrink:0;background:#0d0d14;border-right:1px solid rgba(255,255,255,0.07);
+  padding:16px 12px;display:flex;flex-direction:column;gap:8px;
+  position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto;
+}
+.sidebar h3{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:0 4px;margin-bottom:4px}
+.thumb{
+  border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;
+  transition:border-color 0.15s,transform 0.15s;flex-shrink:0;
+}
+.thumb:hover{transform:scale(1.02);border-color:rgba(37,99,235,0.5)}
+.thumb.active{border-color:#2563eb}
+.thumb iframe{width:200px;height:112.5px;pointer-events:none;transform:scale(0.15625);transform-origin:0 0;border:none}
+.thumb-label{font-size:10px;color:rgba(255,255,255,0.4);padding:4px 6px 6px}
+/* === Viewer === */
+.viewer{flex:1;display:flex;flex-direction:column;align-items:center;padding:32px;gap:16px;overflow-y:auto}
+.slide-frame{
+  width:1280px;height:720px;border-radius:12px;overflow:hidden;
+  border:1px solid rgba(37,99,235,0.2);
+  box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04);
+  flex-shrink:0;
+}
+.slide-frame iframe{width:100%;height:100%;border:none}
+/* === Navigation === */
+.nav-bar{
+  display:flex;align-items:center;gap:16px;
+  background:#111118;border:1px solid rgba(255,255,255,0.08);
+  border-radius:32px;padding:8px 20px;flex-shrink:0;
+}
+.nav-btn{
+  background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);
+  padding:6px 18px;border-radius:20px;cursor:pointer;font-size:13px;font-family:inherit;
+  transition:all 0.15s;
+}
+.nav-btn:hover:not(:disabled){background:rgba(37,99,235,0.2);border-color:rgba(37,99,235,0.5);color:#fff}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+.nav-count{font-size:14px;color:rgba(255,255,255,0.5);min-width:48px;text-align:center;font-variant-numeric:tabular-nums}
+/* === Model info card === */
+.model-info{
+  width:1280px;background:#0d0d14;border-radius:10px;border:1px solid rgba(255,255,255,0.07);
+  padding:20px 28px;display:flex;align-items:center;gap:40px;flex-shrink:0;
+}
+.mi-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:4px}
+.mi-value{font-size:14px;color:#e8edf5}
+/* === BG switcher === */
+.bg-switcher{
+  display:flex;gap:8px;align-items:center;
+}
+.bg-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color 0.15s}
+.bg-dot:hover,.bg-dot.active{border-color:rgba(255,255,255,0.6)}
+.bg-dot:nth-child(1){background:#0a0a0f}
+.bg-dot:nth-child(2){background:#1a1a2e}
+.bg-dot:nth-child(3){background:#0f172a}
+.bg-dot:nth-child(4){background:#111118}
+.bg-dot:nth-child(5){background:#1e1e2e}
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <span class="tb-brand">ks-design-slide-deck</span>
+  <div class="tb-sep"></div>
+  <span class="tb-title">Model A · Palette-A 企业科技蓝</span>
+  <div class="tb-sep"></div>
+  <span class="tb-chip">专业模式</span>
+  <span class="tb-chip good">v4.6.5</span>
+  <span class="tb-chip warn">Mock Case · AQE评测中</span>
+  <div class="spacer"></div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:11px;color:rgba(255,255,255,0.3)">背景</span>
+    <div class="bg-switcher" id="bg-sw">
+      <div class="bg-dot active" onclick="setBg('#0a0a0f',this)"></div>
+      <div class="bg-dot" onclick="setBg('#1a1a2e',this)"></div>
+      <div class="bg-dot" onclick="setBg('#0f172a',this)"></div>
+      <div class="bg-dot" onclick="setBg('#111118',this)"></div>
+      <div class="bg-dot" onclick="setBg('#1e1e2e',this)"></div>
+    </div>
+  </div>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="window.print()">导出 PDF</button>
+</div>
+
+<div class="main">
+  <!-- Sidebar thumbnails -->
+  <div class="sidebar">
+    <h3>幻灯片</h3>
+    <div id="thumbs"></div>
+  </div>
+
+  <!-- Main viewer -->
+  <div class="viewer" id="viewer">
+    <div class="model-info">
+      <div><div class="mi-label">Mock Case</div><div class="mi-value">AI Agent 在企业中的应用实践</div></div>
+      <div><div class="mi-label">模型路线</div><div class="mi-value">Model A · Palette-A 企业科技蓝 · 暗色</div></div>
+      <div><div class="mi-label">布局多样性</div><div class="mi-value">封面 / KPI卡片 / 架构图 / 时间轴 / 对比表 / 案例 / 路线图 / 结尾页</div></div>
+      <div><div class="mi-label">幻灯片数</div><div class="mi-value">8 张（已渲染 3 张）</div></div>
+    </div>
+
+    <div class="slide-frame">
+      <iframe id="main-frame" src="model-a-slide-01.html"></iframe>
+    </div>
+
+    <div class="nav-bar">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)" disabled>← 上一页</button>
+      <span class="nav-count" id="nav-count">1 / 3</span>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">下一页 →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var slides = ['model-a-slide-01.html','model-a-slide-02.html','model-a-slide-03.html'];
+var titles = ['01 封面','02 核心数据','03 架构图'];
+var cur = 0;
+
+// Build thumbnails
+var thumbsEl = document.getElementById('thumbs');
+slides.forEach(function(src, i) {
+  var d = document.createElement('div');
+  d.className = 'thumb' + (i === 0 ? ' active' : '');
+  d.innerHTML = '<iframe src="' + src + '"></iframe><div class="thumb-label">' + titles[i] + '</div>';
+  d.onclick = function() { goto(i); };
+  thumbsEl.appendChild(d);
+});
+
+function goto(idx) {
+  cur = idx;
+  document.getElementById('main-frame').src = slides[idx];
+  document.getElementById('nav-count').textContent = (idx+1) + ' / ' + slides.length;
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === slides.length - 1;
+  document.querySelectorAll('.thumb').forEach(function(t,i){t.classList.toggle('active',i===idx)});
+}
+function navigate(dir) { goto(Math.max(0, Math.min(slides.length-1, cur+dir))); }
+function setBg(c, el) {
+  document.body.style.background = c;
+  document.querySelectorAll('.bg-dot').forEach(d=>d.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
