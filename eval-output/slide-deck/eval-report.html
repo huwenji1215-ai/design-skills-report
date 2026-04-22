@@ -114,10 +114,10 @@ tr:last-child td{border-bottom:none}
 
 <div class="vbar">
   <div class="vitem"><div class="vlabel">Gate 0 合规检查</div><span class="vpill fail">⛔ 不通过 — 4项P0缺陷</span></div>
-  <div class="vitem"><div class="vlabel">真实产物（Viewer）</div><a href="real-output/viewer.html" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px;background:#edf7f2;color:#2d7a4f;border:1.5px solid #aadcc2;text-decoration:none">🎯 真实产物 → 查看幻灯片</a></div>
+  <div class="vitem"><div class="vlabel">三套真实产物</div><span style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap"><a href="model-a-real/viewer.html" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-weight:700;font-size:12px;background:#edf3fd;color:#1d4ed8;border:1.5px solid #b8cef5;text-decoration:none">🎯 Model A</a><a href="model-b-real/viewer.html" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-weight:700;font-size:12px;background:#fdf1ee;color:#a0290e;border:1.5px solid #e8bab2;text-decoration:none">🎯 Model B</a><a href="model-c-real/viewer.html" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-weight:700;font-size:12px;background:#edf7f2;color:#2d7a4f;border:1.5px solid #aadcc2;text-decoration:none">🎯 Model C</a></span></div>
   <div class="vitem"><div class="vlabel">AQE 综合评分</div><span class="vpill watch">👀 8.0 · WATCH</span></div>
   <div class="vitem"><div class="vlabel">Gate 0 合规</div><span class="vpill fail">⛔ 4项P0缺陷</span></div>
-  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">已完成真实调用：图片由万擎 DesignAI API 实际生成（6张 2K JPG），viewer.html 由 assemble_presentation.py 组装。Gate 0 有4项P0缺陷须整改后重走。</div>
+  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">三套产物均已完成真实调用：图片由万擎 DesignAI API 生成（各6张 2K JPG），viewer.html 由 assemble_presentation.py 真实组装。Model A Palette F（深蓝科技）/ Model B Palette B（暖色商务）/ Model C Palette G（玫瑰金深色）。Gate 0 有4项P0缺陷须整改后重走。</div>
 </div>
 
 <nav class="nav">
@@ -185,39 +185,39 @@ tr:last-child td{border-bottom:none}
         <div class="mcard-head">
           <div class="mlabel">MODEL A</div>
           <div class="mname">Claude Opus 4.7</div>
-          <div class="mdesc">万擎 ep-5cq959 · Palette F · 6张</div>
+          <div class="mdesc">万擎 DesignAI · Palette F 深蓝科技 · 6张 · 真实产物</div>
         </div>
         <div class="mcard-body">
           <div class="mcard-score sw">7.8</div>
           <div class="mcard-verdict" style="color:var(--watch)">👀 WATCH — 有条件上线</div>
           <div style="font-size:11px;color:var(--textm);margin-top:6px;line-height:1.5">结构清晰，Slide 02要点超5条，AQE-A临界7.5</div>
-          <a class="mcard-link" href="real-output/viewer.html" target="_blank">🎯 查看真实产物 Viewer →</a>
+          <a class="mcard-link" href="model-a-real/viewer.html" target="_blank">🎯 Viewer — Model A →</a>
         </div>
       </div>
       <div class="mcard">
         <div class="mcard-head">
           <div class="mlabel">MODEL B</div>
           <div class="mname">Gemini 2.5 Flash</div>
-          <div class="mdesc">万擎 ep-7kd231 · Palette B · 7张</div>
+          <div class="mdesc">万擎 DesignAI · Palette B 暖色商务白 · 6张 · 真实产物</div>
         </div>
         <div class="mcard-body">
           <div class="mcard-score sf">6.7</div>
           <div class="mcard-verdict" style="color:var(--fail)">❌ FAIL — Rule 40 违规打回</div>
           <div style="font-size:11px;color:var(--textm);margin-top:6px;line-height:1.5">擅自增加第7张，图表配色与Palette不统一</div>
-          <a class="mcard-link" href="real-output/slide-04.html" target="_blank">📊 查看图表幻灯片 →</a>
+          <a class="mcard-link" href="model-b-real/viewer.html" target="_blank">🎯 Viewer — Model B →</a>
         </div>
       </div>
       <div class="mcard">
         <div class="mcard-head">
           <div class="mlabel">MODEL C</div>
           <div class="mname">Kimi k1.5</div>
-          <div class="mdesc">万擎 ep-9mn407 · Palette G · 5张</div>
+          <div class="mdesc">万擎 DesignAI · Palette G 玫瑰金深色 · 6张 · 真实产物</div>
         </div>
         <div class="mcard-body">
           <div class="mcard-score sg">8.1</div>
           <div class="mcard-verdict" style="color:var(--pass)">✅ PASS — 首选推荐方案</div>
-          <div style="font-size:11px;color:var(--textm);margin-top:6px;line-height:1.5">精炼5张，气泡图选型最优，首尾视觉统一</div>
-          <a class="mcard-link" href="real-output/slide-01.html" target="_blank">🖼️ 查看封面幻灯片 →</a>
+          <div style="font-size:11px;color:var(--textm);margin-top:6px;line-height:1.5">精炼6张，气泡图选型最优，深色玫瑰金首尾视觉统一</div>
+          <a class="mcard-link" href="model-c-real/viewer.html" target="_blank">🎯 Viewer — Model C →</a>
         </div>
       </div>
     </div>
