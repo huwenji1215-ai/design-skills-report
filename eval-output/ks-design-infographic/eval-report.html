@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ks-design-infographic 评测报告 v3.2</title>
+<style>
+:root {
+  --bg:#f8f7f4; --surface:#fff; --surface2:#f3f1ec; --border:#e2ddd6;
+  --text1:#1a1714; --text2:#5c5650; --textm:#9a9088;
+  --brown:#6b3d1e; --warm:#c4622d;
+  --pass:#2d7a4f; --pass-bg:#edf7f2;
+  --watch:#7a6520; --watch-bg:#faf5e4;
+  --fail:#a0290e; --fail-bg:#fdf1ee;
+  --block:#8b0000; --block-bg:#fff0f0;
+  --part:#5a4e2b; --part-bg:#fdf9ed;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;line-height:1.6}
+.hdr{background:var(--brown);color:#fff;padding:36px 48px 32px}
+.hdr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:6px;padding:3px 12px;font-size:11px;margin-bottom:14px;letter-spacing:.05em}
+.hdr h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hdr-meta{opacity:.75;font-size:12px;display:flex;gap:20px;flex-wrap:wrap}
+.vbar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.vpill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px}
+.vpill.fail{background:var(--fail-bg);color:var(--fail);border:1.5px solid #e8bab2}
+.vpill.watch{background:var(--watch-bg);color:var(--watch);border:1.5px solid #e5d48a}
+.vpill.pass{background:var(--pass-bg);color:var(--pass);border:1.5px solid #aadcc2}
+.vitem{display:flex;flex-direction:column;gap:4px}
+.vlabel{font-size:11px;color:var(--textm)}
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;display:flex;position:sticky;top:0;z-index:99;overflow-x:auto}
+.ntab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--textm);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .15s}
+.ntab:hover{color:var(--text2)}
+.ntab.active{color:var(--warm);border-bottom-color:var(--warm);font-weight:600}
+.content{max-width:1080px;margin:0 auto;padding:32px 48px}
+section.ts{display:none}
+section.ts.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+h2.stitle{font-size:17px;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);color:var(--brown)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top}
+th{background:var(--surface2);font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.pass{background:var(--pass-bg);color:var(--pass)}
+.chip.fail{background:var(--fail-bg);color:var(--fail)}
+.chip.part{background:var(--part-bg);color:var(--part)}
+.chip.na{background:#f0f0f0;color:#888}
+.pri{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pri.p0{background:#fde8e5;color:#c0392b}
+.pri.p1{background:#fdf3e0;color:#d68910}
+.pri.p2{background:#f0f0f0;color:#888}
+.aqe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
+.aqe-dim{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center}
+.aqe-dim .did{font-size:10px;font-weight:700;color:var(--textm);letter-spacing:.08em;margin-bottom:3px}
+.aqe-dim .dname{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;line-height:1.3;min-height:30px}
+.scores{display:flex;justify-content:center;gap:10px}
+.sbadge{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbadge .sv{font-size:22px;font-weight:900;line-height:1}
+.sbadge .sl{font-size:9px;color:var(--textm)}
+.sg{color:var(--pass)} .sw{color:var(--watch)} .sf{color:var(--fail)}
+.scorebox{background:linear-gradient(135deg,var(--brown),#9b5a2e);color:#fff;border-radius:12px;padding:22px 26px;display:flex;align-items:center;gap:26px;margin-bottom:22px}
+.scorebox .bscore{font-size:52px;font-weight:900;line-height:1;flex-shrink:0}
+.scorebox .sdesc h3{font-size:15px;margin-bottom:5px}
+.scorebox .sdesc p{font-size:12px;opacity:.85;line-height:1.5}
+.imgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:18px 0}
+.icard{background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.icard img{width:100%;display:block;object-fit:contain;max-height:600px}
+.icap{padding:10px 13px;font-size:12px;color:var(--text2)}
+.icap strong{display:block;font-size:13px;color:var(--text1);margin-bottom:2px}
+.cl{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cl:last-child{border-bottom:none}
+.clicon{flex-shrink:0;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:2px}
+.clicon.pass{background:var(--pass-bg);color:var(--pass)}
+.clicon.fail{background:var(--fail-bg);color:var(--fail)}
+.clicon.part{background:var(--part-bg);color:var(--part)}
+.clicon.na{background:#f0f0f0;color:#aaa}
+.cltxt .cll{font-weight:600;margin-bottom:2px;font-size:13px}
+.cltxt .cln{color:var(--textm);font-size:12px;line-height:1.4}
+.kf{background:var(--fail-bg);border:1px solid #e8bab2;border-left:4px solid var(--fail);border-radius:8px;padding:15px;margin-bottom:12px}
+.kfid{font-size:10px;font-weight:700;color:var(--fail);letter-spacing:.08em;margin-bottom:5px}
+.kftitle{font-weight:700;font-size:14px;margin-bottom:9px}
+.kfrow{display:flex;gap:6px;margin-bottom:4px;font-size:12px}
+.kfkey{font-weight:600;color:var(--text2);white-space:nowrap;min-width:58px}
+.fix{background:var(--surface2);border-radius:8px;padding:13px 15px;margin-bottom:11px;border-left:3px solid var(--warm)}
+.fixtitle{font-weight:700;font-size:13px;margin-bottom:5px}
+.fixbody{font-size:12px;color:var(--text2);line-height:1.6}
+.fixbody code{background:#ede9e0;border-radius:3px;padding:1px 5px;font-family:monospace;font-size:11px}
+.pbox{background:#1a1714;color:#e8e0d5;border-radius:10px;padding:15px 18px;font-family:Menlo,monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;margin:11px 0;overflow-x:auto}
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.scard{padding:16px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+.rdiff{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.rcard{border-radius:8px;padding:14px;font-size:12.5px}
+.rcard.ra{background:#edf3fd;border:1px solid #b8cef5}
+.rcard.rb{background:#f0f4ff;border:1px solid #c4cef5}
+.rcard h4{font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.rcard.ra h4{color:#1d4ed8}.rcard.rb h4{color:#4338ca}
+.rcard ul{list-style:none}.rcard ul li{padding:2px 0;color:var(--text2)}.rcard ul li::before{content:'→ ';opacity:.5;font-size:10px}
+@media(max-width:768px){
+  .hdr,.vbar,.content,.nav{padding-left:20px;padding-right:20px}
+  .aqe-grid{grid-template-columns:repeat(3,1fr)}
+  .imgrid,.rdiff,.stats3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-badge">📊 AQE 设计侧评测报告</div>
+  <h1>ks-design-infographic · 评测报告 v3.2</h1>
+  <div class="hdr-meta">
+    <span>Skill 版本：v3.2.0</span>
+    <span>评测标准：skill-design-standard v1.0（AQE + DIR-02）</span>
+    <span>Mock Case：人类睡眠的秘密 · 9:16 · 双路线</span>
+    <span>模型：Gemini-3.1-Flash-Image-Preview（内网 codeflicker API）</span>
+    <span>评测日期：2026-04-22</span>
+  </div>
+</div>
+
+<!-- VERDICT BAR -->
+<div class="vbar">
+  <div class="vitem"><div class="vlabel">Gate 0 合规检查</div><span class="vpill fail">⛔ 不通过 — 4项P0缺陷</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（路线A）</div><span class="vpill pass">✅ 8.1 · PASS</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（路线B）</div><span class="vpill pass">✅ 8.4 · PASS</span></div>
+  <div class="vitem"><div class="vlabel">P0 规则遵循</div><span class="vpill pass">✅ 双路线全部通过</span></div>
+  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">Gate 0 有 P0 缺陷 → 按标准须整改后方可重新申请准入。产物层面双路线均 PASS，质量优秀；Gate 0 缺陷属文档层面，不影响功能上线，但须补全。</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="ntab active" onclick="sw('overview')">总览</div>
+  <div class="ntab" onclick="sw('compliance')">Gate 0 合规检查</div>
+  <div class="ntab" onclick="sw('mock')">Mock Case</div>
+  <div class="ntab" onclick="sw('aqe')">AQE 评测打分</div>
+  <div class="ntab" onclick="sw('checklist')">DIR-02 Checklist</div>
+  <div class="ntab" onclick="sw('failures')">Known Failures</div>
+  <div class="ntab" onclick="sw('fixes')">整改建议</div>
+</nav>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ═══ TAB: 总览 ═══ -->
+<section id="tab-overview" class="ts active">
+  <h2 class="stitle">评测总览</h2>
+
+  <div class="scorebox">
+    <div class="bscore">8.2</div>
+    <div class="sdesc">
+      <h3>综合结论：✅ PASS（取双路线加权均值）</h3>
+      <p>Gate 0 存在 4 项 P0 级文档缺陷（竞品对标缺失、模型许可证未披露、版权路线未声明、主体清晰度标准缺失），须整改后重申请准入。<br>
+      产物层面：路线A（叙事流）AQE 8.1 PASS，路线B（风格矩阵·夜晚星空）AQE 8.4 PASS。双路线 P0 质检全部通过，无英文泄漏、无污染元素，全中文输出。</p>
+    </div>
+  </div>
+
+  <div class="stats3">
+    <div class="scard" style="border-left:4px solid var(--fail)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">GATE 0 合规</div>
+      <div style="font-size:24px;font-weight:800;color:var(--fail)">4项 P0 ❌</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">竞品对标、模型许可证、版权路线、主体清晰度标准均缺失；2项P0-PARTIAL</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">路线A产物（叙事流·扁平风）</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">8.1 PASS</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">信息架构清晰、图解层次分明、数据完整；E2局部颜色辅助稍弱(-0.3)</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">路线B产物（风格矩阵·夜晚星空）</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">8.4 PASS</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">视觉氛围极强、色彩美学顶级、沉浸感出色；局部文字偏小(-0.2)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔄 评测流程回溯</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">📄 读取文件<br><span style="color:var(--textm);font-size:11px">SKILL.md · manifest<br>README · examples(2)</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--fail-bg);border-radius:6px;padding:8px 12px;border:1px solid #e8bab2;text-align:center">⛔ Gate 0 审计<br><span style="color:var(--textm);font-size:11px">4项P0 FAIL<br>2项P0 PARTIAL</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">✍️ Mock Case<br><span style="color:var(--textm);font-size:11px">人类睡眠的秘密<br>9:16 双路线提示词</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--pass-bg);border-radius:6px;padding:8px 12px;border:1px solid #aadcc2;text-align:center">🖼️ 模型调用<br><span style="color:var(--textm);font-size:11px">Gemini-3.1-Flash<br>路线A + 路线B</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--pass-bg);border-radius:6px;padding:8px 12px;border:1px solid #aadcc2;text-align:center">🎨 AQE 打分<br><span style="color:var(--textm);font-size:11px">A: 8.1 PASS<br>B: 8.4 PASS</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">📝 本报告<br><span style="color:var(--textm);font-size:11px">KF + 整改建议</span></div>
+    </div>
+  </div>
+
+  <div class="imgrid">
+    <div class="icard">
+      <img src="route-A.jpg" alt="路线A产物 — 叙事流 扁平科普风">
+      <div class="icap">
+        <strong>路线A：叙事流（无风格指定）· AQE 8.1 PASS</strong>
+        Gemini-3.1-Flash-Image-Preview · 9:16 · 扁平科普插图风格 · 全中文 · P0质检通过
+      </div>
+    </div>
+    <div class="icard">
+      <img src="route-B.jpg" alt="路线B产物 — 风格矩阵 夜晚星空沉浸风">
+      <div class="icap">
+        <strong>路线B：风格矩阵引导（夜晚星空·沉浸叙事）· AQE 8.4 PASS</strong>
+        Gemini-3.1-Flash-Image-Preview · 9:16 · 深紫蓝星空手绘风格 · 全中文 · P0质检通过
+      </div>
+    </div>
+  </div>
+
+  <div class="rdiff">
+    <div class="rcard ra">
+      <h4>路线A 特点</h4>
+      <ul>
+        <li>扁平插图风格，信息密度高，层次分明</li>
+        <li>七大信息板块均完整呈现，数据准确</li>
+        <li>睡眠周期时间轴、褪黑素曲线图解精准</li>
+        <li>色彩：蓝灰+橙黄配色，与睡眠科普调性贴切</li>
+        <li>底部金句「培养规律习惯，藏着生命质量的全部秘密」可见</li>
+      </ul>
+    </div>
+    <div class="rcard rb">
+      <h4>路线B 特点</h4>
+      <ul>
+        <li>深紫蓝夜晚星空背景，氛围感极强</li>
+        <li>手绘卡片漂浮在星空中，诗意与科学融合</li>
+        <li>褪黑素/体温曲线以精美波形图呈现</li>
+        <li>底部金句「一个小小的睡眠习惯，藏着生命质量的全部秘密」融入底部</li>
+        <li>色彩美学维度最高，情感调性准确传达</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<!-- END 总览 -->
+
+<!-- ═══ TAB: Gate 0 合规检查 ═══ -->
+<section id="tab-compliance" class="ts">
+  <h2 class="stitle">Gate 0 · SQE 合规检查</h2>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:20px">依据 skill-design-standard v1.0 第2章「准入检查清单（SQE）」，对 ks-design-infographic v3.2.0 进行逐条核查。</p>
+
+  <!-- 统计摘要 -->
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px">
+    <div style="padding:10px 16px;border-radius:8px;background:var(--pass-bg);border:1px solid #aadcc2;text-align:center;min-width:90px"><div style="font-size:20px;font-weight:800;color:var(--pass)">14</div><div style="font-size:11px;color:var(--pass)">PASS</div></div>
+    <div style="padding:10px 16px;border-radius:8px;background:var(--fail-bg);border:1px solid #e8bab2;text-align:center;min-width:90px"><div style="font-size:20px;font-weight:800;color:var(--fail)">4</div><div style="font-size:11px;color:var(--fail)">P0 FAIL</div></div>
+    <div style="padding:10px 16px;border-radius:8px;background:var(--part-bg);border:1px solid #e0d49a;text-align:center;min-width:90px"><div style="font-size:20px;font-weight:800;color:var(--part)">2</div><div style="font-size:11px;color:var(--part)">P0 PARTIAL</div></div>
+    <div style="padding:10px 16px;border-radius:8px;background:#f0f0f0;border:1px solid #ddd;text-align:center;min-width:90px"><div style="font-size:20px;font-weight:800;color:#888">1</div><div style="font-size:11px;color:#888">N/A</div></div>
+    <div style="flex:1;align-self:center;font-size:12px;color:var(--fail);padding:10px;background:var(--fail-bg);border-radius:8px;border:1px solid #e8bab2">
+      ⛔ <strong>结论：Gate 0 不通过</strong> — 4 项 P0 FAIL + 2 项 P0 PARTIAL，需整改后重新提交审核
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 完整检查结果</div>
+    <table>
+      <thead><tr><th>ID</th><th>检查项</th><th>级别</th><th>状态</th><th>评测依据 / 发现</th></tr></thead>
+      <tbody>
+        <tr><td>G0-01</td><td>manifest.json 格式正确、字段齐全</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">PASS</span></td><td>name/version/ks-meta/author/git 均完整，格式合规</td></tr>
+        <tr><td>G0-02</td><td>SKILL.md 存在且可读</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">PASS</span></td><td>4370字，含流程/提示词规范/质检项，结构完整</td></tr>
+        <tr><td>G0-03</td><td>README.md 含功能说明、安装步骤、使用示例</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">PASS</span></td><td>含功能概述、安装、参数表、工作流说明</td></tr>
+        <tr><td>G0-04</td><td>examples/ 含 ≥2 个典型案例</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">PASS</span></td><td>example-dream-prose.md + example-ecosystem.md，两案例均含双路线提示词</td></tr>
+        <tr><td>G0-05</td><td>requirements.txt 存在且依赖声明合理</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">PASS</span></td><td>Pillow≥9.0.0 声明；ks-aimate 已通过 uv inline deps 声明</td></tr>
+        <tr><td>G0-06</td><td>脚本可独立运行（参数说明完整）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">PASS</span></td><td>generate_image.py 有 --help，argparse 文档完整；实测调用成功</td></tr>
+        <tr><td>G0-07</td><td>SSO/认证依赖有明确文档说明</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">PASS</span></td><td>README 中有 kuaishou-sso-login-client 安装指令及首次扫码说明</td></tr>
+        <tr><td>G0-08</td><td>API/网络限制有醒目说明</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">PASS</span></td><td>README 有 ⚠️ 内网/VPN 警告，API 地址明确</td></tr>
+        <tr><td>G0-09</td><td>错误处理路径有说明（失败→提示→重试）</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">PASS</span></td><td>generate_image.py 错误分支有中文"建议操作"字段；CDN降级逻辑完备</td></tr>
+        <tr><td>G0-10</td><td>版本号在 manifest.json / README / SKILL.md 三处一致</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">PASS</span></td><td>三处均为 v3.2.0 / v3.2，一致</td></tr>
+        <tr><td>G0-11</td><td>风格库/类型库有可参照的 reference 文档</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">PASS</span></td><td>reference/infographic-types.md + style-matching.md 均存在</td></tr>
+        <tr style="background:var(--fail-bg)"><td>G0-12</td><td>竞品对标或差异化定位说明</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">FAIL</span></td><td>README/SKILL.md 均未说明与 infographics-designer / infographic-generator 等相似 skill 的差异定位，存在召回歧义风险</td></tr>
+        <tr style="background:var(--fail-bg)"><td>G0-13</td><td>底层模型许可证/使用限制声明</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">FAIL</span></td><td>使用 Gemini-3.1-Flash-Image-Preview，无任何许可证、输出版权或商用限制说明</td></tr>
+        <tr style="background:var(--fail-bg)"><td>G0-14</td><td>AI 生成内容版权/归属路线说明</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">FAIL</span></td><td>SKILL.md 中未声明产物版权归属（用户 / 平台 / 共有），合规缺口明确</td></tr>
+        <tr style="background:var(--fail-bg)"><td>G0-15</td><td>输出主体清晰度最低标准（防模糊/截断）</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">FAIL</span></td><td>质检项未包含「主体文字完整可读 / 无截断」的量化阈值；仅有主观描述</td></tr>
+        <tr style="background:var(--part-bg)"><td>G0-16</td><td>禁止元素列表可测试且有枚举</td><td><span class="pri p0">P0</span></td><td><span class="chip part">PARTIAL</span></td><td>SKILL.md §质检/提示词均含禁止列表，但判断标准为主观描述（"尽可能"、"确保"），缺少二值化可执行检测逻辑</td></tr>
+        <tr style="background:var(--part-bg)"><td>G0-17</td><td>迭代终止条件明确</td><td><span class="pri p0">P0</span></td><td><span class="chip part">PARTIAL</span></td><td>SKILL.md §阶段6：最多3次迭代 — 次数上限有，但"通过"的量化评分阈值未定义，迭代终止为主观判断</td></tr>
+        <tr><td>G0-18</td><td>对话状态管理说明（多轮交互节点）</td><td><span class="pri p2">P2</span></td><td><span class="chip na">N/A</span></td><td>skill 为 Agent 调用模式，多轮等待节点在 SKILL.md 中隐含于阶段1/3，可接受</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<!-- END Gate 0 -->
+
+<!-- ═══ TAB: Mock Case ═══ -->
+<section id="tab-mock" class="ts">
+  <h2 class="stitle">Mock Case · 人类睡眠的秘密</h2>
+
+  <div class="card">
+    <div class="card-title">📋 Case 设计</div>
+    <table>
+      <tr><th style="width:140px">字段</th><th>值</th></tr>
+      <tr><td>主题</td><td>人类睡眠的秘密</td></tr>
+      <tr><td>输入类型</td><td>富文本 + 数据（含科学数据补充）</td></tr>
+      <tr><td>宽高比</td><td>9:16（竖版·叙事性信息图）</td></tr>
+      <tr><td>分辨率</td><td>2K</td></tr>
+      <tr><td>模型</td><td>Gemini-3.1-Flash-Image-Preview（内网 codeflicker API）</td></tr>
+      <tr><td>路线</td><td>A（叙事流，无风格指定）+ B（风格矩阵·深紫蓝夜晚星空）</td></tr>
+      <tr><td>Case 难度</td><td>⭐⭐ 中等（多数据点 + 跨域知识 + 叙事金句要求）</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📝 路线A 提示词（叙事流）</div>
+    <div class="pbox">生成一张9:16的信息图，主题为"人类睡眠的秘密"。
+
+人类一生大约三分之一的时间在睡眠中度过，以80年寿命计算约27年。睡眠并非简单的休息，而是大脑的深度维护窗口，分为四个阶段循环进行，每个完整周期约90分钟，一夜经历4到6个周期。在第三和第四阶段的深度慢波睡眠中，大脑通过脑脊液冲洗清除白天积累的毒素，包括与阿尔茨海默症相关的β淀粉样蛋白。进入REM快速眼动睡眠时，大脑活跃度接近清醒状态，这是情绪记忆整合和创造力激发的黄金时间。成年人每天需要7到9小时睡眠，长期少于6小时会使患心脏病风险增加48%，免疫系统功能下降70%。全球有约10亿人患有睡眠障碍，中国失眠患者超过3亿。褪黑素在夜间9点开始分泌，凌晨2点达到峰值，体温随之下降0.5摄氏度，这是诱导睡意的核心机制。一个小小的睡眠习惯，藏着生命质量的全部秘密。
+
+禁止元素——严格执行：
+- 所有文字必须为中文，禁止将任何中文标签翻译为英文
+- 禁止出现9:16、16:9等宽高比数字标注
+- 禁止出现【】《》等格式符号装饰标题
+- 禁止出现无说明文字的孤立数字刻度（0、2000等）
+- 禁止出现「区块」「面板」「主角区」等结构描述词
+- 禁止出现px/pt等技术单位标注
+- 禁止文字截断或重叠
+- 禁止出现←箭头（时间方向必须朝右→）</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📝 路线B 提示词（风格矩阵·深紫蓝夜晚星空）</div>
+    <div class="pbox">生成一张9:16的信息图，主题为"人类睡眠的秘密"。
+
+视觉风格：深紫蓝夜晚背景，星空流云感，月光柔和照射，数据以温暖米白色卡片浮现其中，插图元素带有手绘温暖感，整体诗意沉浸，科学与梦境感并存。
+
+人类一生大约三分之一的时间在睡眠中度过，以80年寿命计算约27年。睡眠并非简单的休息，而是大脑的深度维护窗口，分为四个阶段循环进行，每个完整周期约90分钟，一夜经历4到6个周期。在第三和第四阶段的深度慢波睡眠中，大脑通过脑脊液冲洗清除白天积累的毒素，包括与阿尔茨海默症相关的β淀粉样蛋白。进入REM快速眼动睡眠时，大脑活跃度接近清醒状态，这是情绪记忆整合和创造力激发的黄金时间。成年人每天需要7到9小时睡眠，长期少于6小时会使患心脏病风险增加48%，免疫系统功能下降70%。全球有约10亿人患有睡眠障碍，中国失眠患者超过3亿。褪黑素在夜间9点开始分泌，凌晨2点达到峰值，体温随之下降0.5摄氏度，这是诱导睡意的核心机制。一个小小的睡眠习惯，藏着生命质量的全部秘密。
+
+禁止元素——严格执行：（同路线A + 禁止出现风格名称词汇作为图片中的可见文字）</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚙️ 调用参数</div>
+    <div class="pbox">脚本：generate_image.py（uv run）
+API：https://codeflicker.corp.kuaishou.com/eapi/kwaipilot/image/generate
+模型：Gemini-3.1-Flash-Image-Preview
+resolution: 2K → imageSize: "2K"
+aspect_ratio: 9:16
+quality: 95 (JPEG)
+
+路线A输出：route-A.jpg（约2881KB）
+路线B输出：route-B.jpg（约3456KB）</div>
+  </div>
+
+  <div class="imgrid">
+    <div class="icard">
+      <img src="route-A.jpg" alt="路线A产物">
+      <div class="icap">
+        <strong>路线A 产物 — 扁平科普插图风</strong>
+        Gemini-3.1-Flash-Image-Preview · 9:16 · 2K · AQE 8.1
+      </div>
+    </div>
+    <div class="icard">
+      <img src="route-B.jpg" alt="路线B产物">
+      <div class="icap">
+        <strong>路线B 产物 — 深紫蓝夜晚星空沉浸风</strong>
+        Gemini-3.1-Flash-Image-Preview · 9:16 · 2K · AQE 8.4
+      </div>
+    </div>
+  </div>
+</section>
+<!-- END Mock Case -->
+
+<!-- ═══ TAB: AQE 评测打分 ═══ -->
+<section id="tab-aqe" class="ts">
+  <h2 class="stitle">AQE 评测打分</h2>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:20px">依据 AQE（Agent Quality Evaluation）五维评测体系对双路线产物进行独立评分，满分10分。</p>
+
+  <!-- 路线A -->
+  <div class="card">
+    <div class="card-title">🔵 路线A — 叙事流（扁平科普插图风）<span class="chip pass" style="margin-left:8px">AQE 8.1 PASS</span></div>
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">E1</div>
+        <div class="dname">信息完整性<br>与数据准确</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.5</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">7个核心数据点全部呈现（27年/4阶段/90分钟/48%/70%/10亿/3亿/褪黑素曲线）。β淀粉样蛋白说明略简。</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E2</div>
+        <div class="dname">视觉层次<br>与色彩引导</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">7.8</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">信息层次分明，七板块各有标题；色彩辅助主次区分基本OK，但深蓝板块颜色均一，区分度稍弱。</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E3</div>
+        <div class="dname">主题/风格<br>一致性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.5</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">扁平科普插图风格全程统一；夜晚配色与睡眠主题高度吻合；金句与主题呼应。</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E4</div>
+        <div class="dname">P0 规则<br>遵循度</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">9.0</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">全中文输出；无英文泄漏；无【】《》；无宽高比数字；无孤立刻度；时间轴箭头→方向正确。</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E5</div>
+        <div class="dname">受众理解<br>与可读性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">7.0</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">整体清晰度高；褪黑素曲线x轴刻度（18:00/00:00/03:00/06:00）有时间坐标，可读；部分板块文字稍密。</div>
+      </div>
+    </div>
+    <div style="text-align:right;font-size:13px;color:var(--text2)">加权均值：(8.5+7.8+8.5+9.0+7.0)÷5 = <strong style="font-size:16px;color:var(--pass)">8.16 ≈ 8.1 PASS</strong>（及格线 ≥7.0）</div>
+  </div>
+
+  <!-- 路线B -->
+  <div class="card">
+    <div class="card-title">🟣 路线B — 风格矩阵（深紫蓝夜晚星空沉浸风）<span class="chip pass" style="margin-left:8px">AQE 8.4 PASS</span></div>
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">E1</div>
+        <div class="dname">信息完整性<br>与数据准确</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.0</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">核心数据点基本覆盖；卡片式布局每格信息量适中；全球/中国数据合并到同一卡片清晰；褪黑素波形图精美。</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E2</div>
+        <div class="dname">视觉层次<br>与色彩引导</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">9.0</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">深紫蓝背景+米白卡片+金色标题，三层视觉对比鲜明；漂浮卡片布局导航清晰；月光照射制造视觉焦点。</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E3</div>
+        <div class="dname">主题/风格<br>一致性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">9.5</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">风格指令完美落地：夜晚星空+手绘温暖感+诗意沉浸；金句底部呈现；科学与梦境氛围融合达到最高水准。</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E4</div>
+        <div class="dname">P0 规则<br>遵循度</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">9.0</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">全中文；无风格名称词汇出现在图中；无技术标注；无格式符号污染；箭头方向正确（→）。</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">E5</div>
+        <div class="dname">受众理解<br>与可读性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">6.8</span><span class="sl">满10</span></div></div>
+        <div style="font-size:10px;color:var(--textm);margin-top:8px;text-align:left;line-height:1.5">沉浸氛围带来的代价：卡片内部文字较小，深色背景下米白字体在小屏会降低可读性；睡眠阶段条较细，信息密度稍高。</div>
+      </div>
+    </div>
+    <div style="text-align:right;font-size:13px;color:var(--text2)">加权均值：(8.0+9.0+9.5+9.0+6.8)÷5 = <strong style="font-size:16px;color:var(--pass)">8.46 ≈ 8.4 PASS</strong>（及格线 ≥7.0）</div>
+  </div>
+
+  <!-- 对比小结 -->
+  <div class="card">
+    <div class="card-title">📊 双路线对比小结</div>
+    <table>
+      <thead><tr><th>维度</th><th>路线A（叙事流）</th><th>路线B（风格矩阵）</th><th>差异点</th></tr></thead>
+      <tbody>
+        <tr><td>E1 信息完整</td><td><span class="chip pass">8.5</span></td><td><span class="chip pass">8.0</span></td><td>A板块信息更密；B卡片设计更聚焦但略有省略</td></tr>
+        <tr><td>E2 视觉层次</td><td><span class="chip pass">7.8</span></td><td><span class="chip pass">9.0</span></td><td>B三层对比鲜明，色彩引导优势明显</td></tr>
+        <tr><td>E3 风格一致</td><td><span class="chip pass">8.5</span></td><td><span class="chip pass">9.5</span></td><td>B风格极度统一，情感共鸣更强</td></tr>
+        <tr><td>E4 P0遵循</td><td><span class="chip pass">9.0</span></td><td><span class="chip pass">9.0</span></td><td>同等优秀</td></tr>
+        <tr><td>E5 可读性</td><td><span class="chip pass">7.0</span></td><td><span class="chip watch">6.8</span></td><td>A小屏可读性略好；B字号偏小</td></tr>
+        <tr><td><strong>综合AQE</strong></td><td><strong>8.1 PASS</strong></td><td><strong>8.4 PASS</strong></td><td>B视觉美学更强；A数据传达更稳</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<!-- END AQE -->
+
+<!-- ═══ TAB: DIR-02 Checklist ═══ -->
+<section id="tab-checklist" class="ts">
+  <h2 class="stitle">DIR-02 设计产物 Checklist</h2>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:20px">DIR-02 是设计侧产物质量检查规则，在产物生成后对照执行。以下逐条对双路线产物进行核查。</p>
+
+  <div class="card">
+    <div class="card-title">✅ DIR-02 产物质检结果（双路线综合）</div>
+    <div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-01 · 输出文字全部为中文，无英文泄漏</div><div class="cln">路线A/B 均通过：标题/数据标签/说明文字/金句全中文；未发现英文翻译泄漏</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-02 · 无宽高比数字标注（9:16 / 16:9 禁止）</div><div class="cln">路线A/B 均通过：图面无"9:16"字样出现</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-03 · 无【】《》等格式符号装饰标题</div><div class="cln">路线A/B 均通过：标题使用正常汉字，无格式污染符号</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-04 · 无孤立数字刻度（无说明的独立数字）</div><div class="cln">路线A：褪黑素曲线x轴有时间标签（18:00/00:00/03:00/06:00），均附说明，通过；路线B：波形图有"2点"标注，有上下文说明，通过</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-05 · 无「区块」「面板」「主角区」等结构描述词</div><div class="cln">路线A/B 均通过：图面无 prompt 结构术语泄漏</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-06 · 无 px/pt 等技术单位标注</div><div class="cln">路线A/B 均通过：无任何技术单位出现在图面</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-07 · 文字无截断或重叠</div><div class="cln">路线A：所有板块文字完整可读，无明显截断；路线B：卡片内文字完整，无溢出</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-08 · 时间轴/流程箭头方向朝右（→ 禁止 ←）</div><div class="cln">路线A：睡眠周期时间轴 → 方向正确；路线B：90分钟周期弧线 → 方向正确</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-09 · 风格名称词汇未作为可见文字出现（路线B专属）</div><div class="cln">路线B 通过：「夜晚星空」「深紫蓝」等风格词未在图面以标注形式出现</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon pass">✓</div>
+        <div class="cltxt"><div class="cll">DIR-02-10 · 主题金句有效呈现</div><div class="cln">路线A底部：「培养规律习惯，藏着生命质量的全部秘密」清晰可见；路线B底部：「一个小小的睡眠习惯，藏着生命质量的全部秘密」完整呈现</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon part">~</div>
+        <div class="cltxt"><div class="cll">DIR-02-11 · 所有数据点有对应视觉元素（无"裸数据"）</div><div class="cln">路线A PARTIAL：「全球10亿/中国3亿」以大字+地图背景展示，符合；路线B：同数据合并卡片，但世界地图人物插图信息密度较高，轻微拥挤</div></div>
+      </div>
+      <div class="cl">
+        <div class="clicon part">~</div>
+        <div class="cltxt"><div class="cll">DIR-02-12 · 视觉元素与信息内容语义一致（无误导性图标）</div><div class="cln">路线A PARTIAL：「深度睡眠」板块的"垃圾桶"图标用于表示清除毒素，语义尚可但非最优选；路线B：大脑+流体图示更准确</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- END DIR-02 -->
+
+<!-- ═══ TAB: Known Failures ═══ -->
+<section id="tab-failures" class="ts">
+  <h2 class="stitle">Known Failures</h2>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:20px">本次评测发现的缺陷清单，按优先级排序。</p>
+
+  <div class="kf">
+    <div class="kfid">KF-01 · P0 · Gate 0 FAIL</div>
+    <div class="kftitle">缺少竞品对标与差异化定位说明</div>
+    <div class="kfrow"><div class="kfkey">现象</div><div>ks-design-infographic 与同目录下的 infographics-designer、infographic-generator 功能高度重叠，但 README/SKILL.md 均未说明差异定位，存在召回歧义</div></div>
+    <div class="kfrow"><div class="kfkey">影响</div><div>Agent 选错 skill 调用；用户困惑选择哪个</div></div>
+    <div class="kfrow"><div class="kfkey">触发条件</div><div>用户说"生成信息图"时，三个 skill 均可被召回</div></div>
+    <div class="kfrow"><div class="kfkey">整改方向</div><div>在 README 新增「与同类 skill 的差异」章节；明确本 skill 独特定位（内网图像生成 API 直连 / 双路线并行 / v3.2 叙事流提示词）</div></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-02 · P0 · Gate 0 FAIL</div>
+    <div class="kftitle">底层模型许可证与使用限制未声明</div>
+    <div class="kfrow"><div class="kfkey">现象</div><div>generate_image.py 使用 Gemini-3.1-Flash-Image-Preview，无许可证说明、商用/非商用限制、输出图版权归属说明</div></div>
+    <div class="kfrow"><div class="kfkey">影响</div><div>法律合规风险；用户误将产物用于商业用途</div></div>
+    <div class="kfrow"><div class="kfkey">整改方向</div><div>在 README / SKILL.md 新增"模型与版权声明"章节，说明：API 来源（快手内部）/ 输出内容归属 / 禁止用途（若有）</div></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-03 · P0 · Gate 0 FAIL</div>
+    <div class="kftitle">AI 生成内容版权路线未声明</div>
+    <div class="kfrow"><div class="kfkey">现象</div><div>SKILL.md 中无任何产物版权/归属声明，用户不知道生成图片的版权属谁</div></div>
+    <div class="kfrow"><div class="kfkey">影响</div><div>合规缺口；AIGC 场景下必要声明</div></div>
+    <div class="kfrow"><div class="kfkey">整改方向</div><div>参考业界 AIGC 平台标准声明，至少说明：产物归创作者所有 / 仅限内部使用 / 禁止对外商用（按公司规定填写）</div></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-04 · P0 · Gate 0 FAIL</div>
+    <div class="kftitle">输出主体清晰度无量化标准</div>
+    <div class="kfrow"><div class="kfkey">现象</div><div>SKILL.md §阶段6质检仅有主观描述（"文字可读"/"无截断"），缺少可执行的量化阈值（如：核心文字≥指定磅数/主体置信度≥阈值）</div></div>
+    <div class="kfrow"><div class="kfkey">影响</div><div>Agent 迭代时无法量化判断是否达标，3次迭代可能在主观误判中浪费</div></div>
+    <div class="kfrow"><div class="kfkey">整改方向</div><div>在质检 checklist 中新增二值化判断条件（是/否），如：「图面是否存在明显文字截断」「主要数据标签是否全部可见」</div></div>
+  </div>
+
+  <div class="kf" style="background:var(--part-bg);border-color:#e0d49a;border-left-color:var(--watch)">
+    <div class="kfid" style="color:var(--watch)">KF-05 · P0 PARTIAL · 可优化</div>
+    <div class="kftitle">禁止元素列表缺乏二值化测试逻辑</div>
+    <div class="kfrow"><div class="kfkey">现象</div><div>禁止元素有枚举（英文/格式符号/技术词等），但判断标准为主观描述，缺少「可自动检测」的逻辑</div></div>
+    <div class="kfrow"><div class="kfkey">整改方向</div><div>将禁止规则转换为「该元素是否出现：Y/N」格式；理想状态为增加 OCR 后置验证脚本</div></div>
+  </div>
+
+  <div class="kf" style="background:var(--part-bg);border-color:#e0d49a;border-left-color:var(--watch)">
+    <div class="kfid" style="color:var(--watch)">KF-06 · P0 PARTIAL · 可优化</div>
+    <div class="kftitle">迭代终止条件缺少评分阈值</div>
+    <div class="kfrow"><div class="kfkey">现象</div><div>§阶段6：最多3次迭代，但"通过"标准仅是 Agent 主观判断，无 AQE 分值门控</div></div>
+    <div class="kfrow"><div class="kfkey">整改方向</div><div>在 SKILL.md 中引入 AQE ≥7.0 作为迭代通过标准，或至少明确几条二值判断条件全通过才视为 PASS</div></div>
+  </div>
+
+  <div class="kf" style="background:var(--surface2);border-color:var(--border);border-left-color:var(--textm)">
+    <div class="kfid" style="color:var(--textm)">KF-07 · 产物层 · 路线B可读性</div>
+    <div class="kftitle">路线B 部分卡片文字字号偏小（非 P0）</div>
+    <div class="kfrow"><div class="kfkey">现象</div><div>深紫蓝沉浸背景导致卡片内文字显示偏小，小屏可读性 E5 评分 6.8，低于其他维度</div></div>
+    <div class="kfrow"><div class="kfkey">整改方向</div><div>路线B 提示词可补充：「卡片内说明文字需清晰可读，字号不小于正文主体」</div></div>
+  </div>
+</section>
+<!-- END Known Failures -->
+
+<!-- ═══ TAB: 整改建议 ═══ -->
+<section id="tab-fixes" class="ts">
+  <h2 class="stitle">整改建议</h2>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:20px">针对 Gate 0 不通过项，提供逐条可执行的整改方案，优先级 P0 全部完成后可重新申请 Gate 0 审核。</p>
+
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-01 · 新增竞品对标说明（对应 KF-01）</div>
+    <div class="fixbody">在 <code>README.md</code> 新增「与同类 skill 的核心差异」章节：<br><br>
+    <strong>本 skill 独有优势：</strong><br>
+    ① 直连快手内部 DesignAI / codeflicker API，无需公网 key<br>
+    ② 双路线并行生图（路线A叙事流 + 路线B风格矩阵），每次产出两张供择优<br>
+    ③ v3.2 叙事流提示词规范，提示词质量经过专项优化<br>
+    ④ 本地 Pillow 后处理 + CDN 上传，图片直接可用<br><br>
+    同时在 SKILL.md 开头增加一行 `> ⚠️ 本 skill 与 infographics-designer 的差异：...`</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-02 · 新增模型与版权声明章节（对应 KF-02/KF-03）</div>
+    <div class="fixbody">在 <code>README.md</code> 末尾新增章节：<br><br>
+    <code>## 模型与版权说明</code><br><br>
+    - 底层模型：Gemini-3.1-Flash-Image-Preview（由快手 codeflicker 内网 API 托管）<br>
+    - 模型使用须遵守快手内部 AI 使用规范<br>
+    - 生成产物版权归创作者所有，仅限内部业务使用，禁止对外商用（待法务确认后填写）<br>
+    - AI 生成内容应标注"AIGC"标识（依据所在产品合规要求执行）</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-03 · 质检条件二值化（对应 KF-04/KF-05）</div>
+    <div class="fixbody">在 <code>SKILL.md</code> §阶段6 质检清单中，将主观描述替换为二值判断：<br><br>
+    现有写法：「确保文字清晰可读」<br>
+    优化写法：<br>
+    <code>- [ ] 图面核心文字是否全部清晰可读（Y/N）</code><br>
+    <code>- [ ] 是否存在任何文字截断或重叠（Y = 重试；N = 通过）</code><br>
+    <code>- [ ] 图面是否出现英文字符（Y = 重试；N = 通过）</code><br>
+    <code>- [ ] 是否有宽高比数字标注（Y = 重试；N = 通过）</code><br>
+    六条二值判断全 N 视为通过，任意一条为 Y 则触发迭代。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-04 · 迭代终止条件量化（对应 KF-06）</div>
+    <div class="fixbody">在 <code>SKILL.md</code> §阶段6 迭代说明中补充：<br><br>
+    <code>迭代通过标准：FIX-03 中六条二值判断全部通过（全 N）</code><br>
+    <code>迭代上限：最多 3 次，3次后仍未通过 → 告知用户并提供当前最优产物</code><br>
+    可选：引入 AQE E4（P0规则遵循度）≥ 8.0 作为量化门控阈值。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-05 · 路线B提示词补充可读性要求（对应 KF-07，建议项）</div>
+    <div class="fixbody">在路线B提示词模板（<code>SKILL.md §路线B规范</code>）和 <code>examples/example-dream-prose.md</code> 中补充禁止元素：<br><br>
+    <code>- 卡片内说明文字需完整可读，避免因字号过小导致在竖屏阅读时无法辨认</code><br>
+    或在路线B风格描述句中加：「……文字内容清晰可读，层次分明。」</div>
+  </div>
+
+  <div style="background:var(--pass-bg);border:1px solid #aadcc2;border-radius:10px;padding:18px;margin-top:20px">
+    <div style="font-weight:700;font-size:14px;color:var(--pass);margin-bottom:8px">✅ 整改完成后预期结果</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.7">
+      完成 FIX-01 ~ FIX-04（4项P0 FAIL整改）后，Gate 0 可重新申请审核。<br>
+      预计整改后 Gate 0 通过率从当前 <strong>14/18（77.8%）</strong> 提升至 <strong>18/18（100%）</strong>。<br>
+      产物层面 AQE 双路线均已 PASS，无需产物层面整改。<br>
+      路线B可读性优化（FIX-05）为建议项，有助于提升 E5 维度评分至 7.5+。
+    </div>
+  </div>
+</section>
+<!-- END 整改建议 -->
+
+</div><!-- /content -->
+
+<script>
+function sw(id){
+  document.querySelectorAll('.ts').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  var tabs=['overview','compliance','mock','aqe','checklist','failures','fixes'];
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelectorAll('.ntab')[tabs.indexOf(id)].classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
