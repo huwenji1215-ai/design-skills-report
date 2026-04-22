@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>电商SaaS数据看板</title>
+<style>
+/* WCAG AA: 主文本 #f1f5f9 on #0f1117 对比度 > 14:1 */
+:root{
+  --bg-base:#0f1117;
+  --bg-surface:#1a1d27;
+  --bg-elevated:#242836;
+  --color-primary:#6366f1;
+  --color-primary-hover:#818cf8;
+  --color-success:#10b981;
+  --color-warning:#f59e0b;
+  --color-danger:#ef4444;
+  --color-info:#3b82f6;
+  --text-primary:#f1f5f9;
+  --text-secondary:#94a3b8;
+  --text-muted:#64748b;
+  --border:#2d3142;
+  --radius:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg-base);
+  color:var(--text-primary);
+  font-size:14px;
+  line-height:1.5;
+}
+.layout{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{
+  width:224px;
+  background:var(--bg-surface);
+  border-right:1px solid var(--border);
+  padding:24px 16px;
+  position:fixed;top:0;bottom:0;left:0;
+}
+.logo{
+  font-size:18px;font-weight:700;
+  color:var(--text-primary);
+  padding:0 8px 24px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.logo-dot{width:24px;height:24px;background:var(--color-primary);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;margin:4px 0;
+  border-radius:var(--radius);
+  color:var(--text-secondary);
+  cursor:pointer;
+  transition:all .15s;
+  font-size:14px;
+  user-select:none;
+}
+.nav-item:hover{background:var(--bg-elevated);color:var(--text-primary)}
+.nav-item:focus{outline:2px solid var(--color-primary);outline-offset:-2px}
+.nav-item.active{background:var(--color-primary);color:#fff}
+.nav-icon{width:18px;text-align:center}
+
+/* Main */
+.main{margin-left:224px;flex:1;padding:24px 32px}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:24px;
+}
+.topbar h1{font-size:22px;font-weight:600}
+.user-info{display:flex;align-items:center;gap:12px;color:var(--text-secondary)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:13px}
+
+/* Page */
+.page{display:none}
+.page.active{display:block}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{
+  background:var(--bg-surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  transition:border-color .15s;
+}
+.kpi-card:hover{border-color:var(--color-primary)}
+.kpi-label{color:var(--text-secondary);font-size:13px;margin-bottom:8px}
+.kpi-value{font-size:26px;font-weight:700;margin-bottom:8px}
+.kpi-delta{font-size:12px}
+.up{color:var(--color-success)}
+.down{color:var(--color-danger)}
+
+/* Card */
+.card{
+  background:var(--bg-surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  margin-bottom:16px;
+}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.card-title{font-size:16px;font-weight:600}
+.card-sub{color:var(--text-secondary);font-size:12px}
+
+.row-2{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+/* Line chart (CSS) */
+.chart{
+  position:relative;
+  height:240px;
+  padding:16px 8px 24px 40px;
+}
+.chart-grid{position:absolute;top:16px;left:40px;right:8px;bottom:24px}
+.chart-grid .grid-line{position:absolute;left:0;right:0;border-top:1px dashed var(--border)}
+.chart-yaxis{position:absolute;left:0;top:16px;bottom:24px;width:36px;font-size:11px;color:var(--text-muted)}
+.y-label{position:absolute;right:4px;transform:translateY(-50%)}
+.svg-chart{position:absolute;top:16px;left:40px;right:8px;bottom:24px;width:calc(100% - 48px);height:calc(100% - 40px);overflow:visible}
+.chart-xaxis{position:absolute;bottom:0;left:40px;right:8px;display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted)}
+
+/* Rank */
+.rank-list{list-style:none}
+.rank-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+.rank-item:last-child{border-bottom:none}
+.rank-no{
+  width:24px;height:24px;border-radius:6px;
+  background:var(--bg-elevated);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;
+}
+.rank-no.top{background:var(--color-primary);color:#fff}
+.rank-name{flex:1;font-size:13px}
+.rank-val{color:var(--text-secondary);font-size:13px}
+
+/* Live orders */
+.live-list{max-height:320px;overflow-y:auto}
+.live-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 12px;
+  border-radius:6px;
+  margin-bottom:4px;
+  background:var(--bg-elevated);
+  font-size:13px;
+  animation:slideIn .3s;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.live-user{color:var(--text-secondary);font-size:12px}
+.live-amt{color:var(--color-success);font-weight:600}
+
+/* Table */
+.filter-bar{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.filter-bar input,.filter-bar select{
+  background:var(--bg-elevated);
+  border:1px solid var(--border);
+  color:var(--text-primary);
+  padding:8px 12px;border-radius:6px;font-size:13px;
+  min-width:160px;
+}
+.filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--color-primary)}
+.btn{
+  background:var(--color-primary);color:#fff;border:none;
+  padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:background .15s;
+}
+.btn:hover{background:var(--color-primary-hover)}
+.btn:focus{outline:2px solid #fff;outline-offset:2px}
+.btn.ghost{background:var(--bg-elevated);color:var(--text-primary)}
+.btn.ghost:hover{background:var(--border)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid var(--border)}
+th{color:var(--text-secondary);font-weight:500;background:var(--bg-elevated)}
+tr:hover td{background:rgba(99,102,241,.05)}
+
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:12px;
+  font-size:11px;font-weight:500;
+}
+.b-success{background:rgba(16,185,129,.15);color:var(--color-success)}
+.b-warning{background:rgba(245,158,11,.15);color:var(--color-warning)}
+.b-info{background:rgba(59,130,246,.15);color:var(--color-info)}
+.b-danger{background:rgba(239,68,68,.15);color:var(--color-danger)}
+
+.pagination{display:flex;justify-content:space-between;align-items:center;margin-top:16px;color:var(--text-secondary);font-size:13px}
+.page-btns{display:flex;gap:4px}
+.page-btn{
+  min-width:32px;height:32px;padding:0 10px;
+  background:var(--bg-elevated);border:1px solid var(--border);
+  color:var(--text-primary);border-radius:6px;cursor:pointer;font-size:13px;
+}
+.page-btn:hover{border-color:var(--color-primary)}
+.page-btn.active{background:var(--color-primary);border-color:var(--color-primary)}
+
+/* Treemap */
+.treemap{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  grid-template-rows:repeat(4,60px);
+  gap:4px;
+}
+.tm-cell{
+  border-radius:4px;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  color:#fff;font-size:12px;padding:4px;text-align:center;
+  transition:transform .15s;cursor:pointer;
+}
+.tm-cell:hover{transform:scale(1.03)}
+.tm-cell .v{font-size:11px;opacity:.85}
+
+/* User tiers */
+.tier-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.tier-label{width:80px;font-size:13px;color:var(--text-secondary)}
+.tier-bar{flex:1;height:22px;background:var(--bg-elevated);border-radius:11px;overflow:hidden;position:relative}
+.tier-fill{height:100%;border-radius:11px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:11px;font-weight:500}
+.tier-count{width:70px;text-align:right;font-size:13px}
+
+/* Settings form */
+.form-group{margin-bottom:20px;max-width:480px}
+.form-label{display:block;margin-bottom:6px;color:var(--text-secondary);font-size:13px}
+.form-input{
+  width:100%;background:var(--bg-elevated);border:1px solid var(--border);
+  color:var(--text-primary);padding:10px 12px;border-radius:6px;font-size:14px;
+}
+.form-input:focus{outline:none;border-color:var(--color-primary)}
+
+.toggle-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0;border-bottom:1px solid var(--border);
+}
+.toggle-row:last-child{border-bottom:none}
+.toggle-info h4{font-size:14px;font-weight:500;margin-bottom:4px}
+.toggle-info p{font-size:12px;color:var(--text-secondary)}
+.toggle{
+  position:relative;width:44px;height:24px;background:var(--bg-elevated);
+  border-radius:12px;cursor:pointer;transition:background .2s;
+  border:1px solid var(--border);
+}
+.toggle::after{
+  content:'';position:absolute;width:18px;height:18px;background:#fff;
+  border-radius:50%;top:2px;left:2px;transition:left .2s;
+}
+.toggle.on{background:var(--color-primary);border-color:var(--color-primary)}
+.toggle.on::after{left:22px}
+.toggle:focus{outline:2px solid var(--color-primary);outline-offset:2px}
+
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo"><span class="logo-dot">E</span>ShopBoard</div>
+    <nav id="nav">
+      <div class="nav-item active" data-page="overview" tabindex="0"><span class="nav-icon">📊</span>数据概览</div>
+      <div class="nav-item" data-page="orders" tabindex="0"><span class="nav-icon">📦</span>订单管理</div>
+      <div class="nav-item" data-page="users" tabindex="0"><span class="nav-icon">👥</span>用户分析</div>
+      <div class="nav-item" data-page="settings" tabindex="0"><span class="nav-icon">⚙️</span>系统设置</div>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <h1 id="pageTitle">数据概览</h1>
+      <div class="user-info">
+        <span>👤 管理员</span>
+        <div class="avatar">AD</div>
+      </div>
+    </div>
+
+    <!-- Page: Overview -->
+    <section id="page-overview" class="page active">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">今日GMV</div><div class="kpi-value">¥128,450</div><div class="kpi-delta up">↑ 12.5% vs 昨日</div></div>
+        <div class="kpi-card"><div class="kpi-label">订单数</div><div class="kpi-value">1,247</div><div class="kpi-delta up">↑ 8.3% vs 昨日</div></div>
+        <div class="kpi-card"><div class="kpi-label">新增用户</div><div class="kpi-value">356</div><div class="kpi-delta down">↓ 2.1% vs 昨日</div></div>
+        <div class="kpi-card"><div class="kpi-label">转化率</div><div class="kpi-value">3.82%</div><div class="kpi-delta up">↑ 0.45% vs 昨日</div></div>
+      </div>
+
+      <div class="row-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">近7日GMV趋势</div><span class="card-sub">单位：万元</span></div>
+          <div class="chart" id="lineChart7"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">热销商品 Top5</div></div>
+          <ul class="rank-list" id="rankList"></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">实时订单流</div><span class="card-sub" id="liveTime">刷新中…</span></div>
+        <div class="live-list" id="liveList"></div>
+      </div>
+    </section>
+
+    <!-- Page: Orders -->
+    <section id="page-orders" class="page">
+      <div class="card">
+        <div class="filter-bar">
+          <input type="text" placeholder="🔍 搜索订单号/用户">
+          <select><option>全部状态</option><option>已完成</option><option>处理中</option><option>待发货</option><option>已取消</option></select>
+          <input type="date">
+          <button class="btn">筛选</button>
+          <button class="btn ghost">重置</button>
+        </div>
+
+        <table>
+          <thead><tr><th>订单号</th><th>用户</th><th>商品</th><th>金额</th><th>状态</th><th>下单时间</th><th>操作</th></tr></thead>
+          <tbody id="orderTable"></tbody>
+        </table>
+
+        <div class="pagination">
+          <div>共 <strong>1,247</strong> 条记录，每页 10 条</div>
+          <div class="page-btns">
+            <button class="page-btn">‹</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">5</button>
+            <button class="page-btn">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: Users -->
+    <section id="page-users" class="page">
+      <div class="sum-grid">
+        <div class="kpi-card"><div class="kpi-label">总用户数</div><div class="kpi-value">48,392</div><div class="kpi-delta up">↑ 5.2% 本月</div></div>
+        <div class="kpi-card"><div class="kpi-label">活跃用户(DAU)</div><div class="kpi-value">12,567</div><div class="kpi-delta up">↑ 3.8% 本周</div></div>
+        <div class="kpi-card"><div class="kpi-label">用户留存率</div><div class="kpi-value">68.4%</div><div class="kpi-delta down">↓ 1.2% 本月</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">近30日新增用户</div></div>
+        <div class="chart" id="lineChart30"></div>
+      </div>
+
+      <div class="row-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">地域分布 Treemap</div><span class="card-sub">Top 8 省份</span></div>
+          <div class="treemap" id="treemap"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">用户分层</div></div>
+          <div id="tiers"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: Settings -->
+    <section id="page-settings" class="page">
+      <div class="card">
+        <div class="card-header"><div class="card-title">账号信息</div></div>
+        <div class="form-group">
+          <label class="form-label">店铺名称</label>
+          <input class="form-input" value="ShopBoard 旗舰店">
+        </div>
+        <div class="form-group">
+          <label class="form-label">管理员邮箱</label>
+          <input class="form-input" type="email" value="admin@shopboard.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">联系电话</label>
+          <input class="form-input" value="+86 138 0000 0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">店铺时区</label>
+          <select class="form-input">
+            <option>Asia/Shanghai (UTC+8)</option>
+            <option>Asia/Tokyo (UTC+9)</option>
+            <option>America/Los_Angeles (UTC-8)</option>
+          </select>
+        </div>
+        <button class="btn">保存设置</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">通知与偏好</div></div>
+        <div id="toggleList">
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>订单邮件通知</h4><p>每当有新订单时发送邮件到管理员邮箱</p></div>
+            <div class="toggle on" tabindex="0"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>短信通知</h4><p>大额订单(¥1000+)通过短信提醒</p></div>
+            <div class="toggle" tabindex="0"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>每日数据报告</h4><p>每天早 9:00 推送昨日经营报告</p></div>
+            <div class="toggle on" tabindex="0"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>两步验证</h4><p>登录时启用短信/APP验证码</p></div>
+            <div class="toggle on" tabindex="0"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>Beta 功能</h4><p>启用实验性功能（AI智能推荐等）</p></div>
+            <div class="toggle" tabindex="0"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// Navigation
+const nav = document.getElementById('nav');
+const titles = {overview:'数据概览',orders:'订单管理',users:'用户分析',settings:'系统设置'};
+nav.addEventListener('click', e=>{
+  const item = e.target.closest('.nav-item');
+  if(!item) return;
+  switchPage(item.dataset.page);
+});
+nav.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && e.target.classList.contains('nav-item')){
+    switchPage(e.target.dataset.page);
+  }
+});
+function switchPage(p){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===p));
+  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('pageTitle').textContent = titles[p];
+}
+
+// Line chart builder
+function buildLineChart(container, data, labels, color='#6366f1'){
+  const max = Math.max(...data), min = Math.min(...data);
+  const range = max - min || 1;
+  const pad = range * 0.15;
+  const yMax = max + pad, yMin = Math.max(0, min - pad);
+  const w = 100, h = 100;
+
+  const points = data.map((v,i)=>{
+    const x = (i/(data.length-1))*w;
+    const y = h - ((v - yMin)/(yMax - yMin))*h;
+    return [x,y];
+  });
+  const pathD = 'M ' + points.map(p=>p.join(',')).join(' L ');
+  const areaD = pathD + ` L ${w},${h} L 0,${h} Z`;
+
+  const ySteps=4;
+  let yLabels='';
+  let gridLines='';
+  for(let i=0;i<=ySteps;i++){
+    const val = yMin + (yMax-yMin)*(1 - i/ySteps);
+    const pct = (i/ySteps)*100;
+    yLabels += `<span class="y-label" style="top:${pct}%">${val.toFixed(0)}</span>`;
+    gridLines += `<div class="grid-line" style="top:${pct}%"></div>`;
+  }
+  const xLabels = labels.map(l=>`<span>${l}</span>`).join('');
+  const dots = points.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.2" fill="${color}" stroke="#0f1117" stroke-width="0.4"/>`).join('');
+
+  container.innerHTML = `
+    <div class="chart-yaxis">${yLabels}</div>
+    <div class="chart-grid">${gridLines}</div>
+    <svg class="svg-chart" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      <defs><linearGradient id="g-${color.slice(1)}" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient></defs>
+      <path d="${areaD}" fill="url(#g-${color.slice(1)})"/>
+      <path d="${pathD}" fill="none" stroke="${color}" stroke-width="0.8" vector-effect="non-scaling-stroke"/>
+      ${dots}
+    </svg>
+    <div class="chart-xaxis">${xLabels}</div>
+  `;
+}
+
+// 7日折线
+buildLineChart(
+  document.getElementById('lineChart7'),
+  [8.5, 10.2, 9.3, 12.6, 11.8, 13.9, 12.8],
+  ['周一','周二','周三','周四','周五','周六','周日']
+);
+
+// 30日折线
+const d30 = [], l30 = [];
+for(let i=1;i<=30;i++){
+  d30.push(Math.round(200 + Math.random()*300 + Math.sin(i/3)*100));
+  l30.push(i%5===0 || i===1 ? i+'日':'');
+}
+buildLineChart(document.getElementById('lineChart30'), d30, l30, '#10b981');
+
+// 热销Top5
+const products = [
+  {n:'Apple AirPods Pro 2', v:'¥45,280'},
+  {n:'小米13 Pro 手机', v:'¥38,920'},
+  {n:'Nike 运动鞋 AJ1', v:'¥27,640'},
+  {n:'戴森吹风机 HD08', v:'¥19,350'},
+  {n:'Kindle Paperwhite', v:'¥12,870'},
+];
+document.getElementById('rankList').innerHTML = products.map((p,i)=>`
+  <li class="rank-item">
+    <div class="rank-no ${i<3?'top':''}">${i+1}</div>
+    <div class="rank-name">${p.n}</div>
+    <div class="rank-val">${p.v}</div>
+  </li>`).join('');
+
+// 实时订单流
+const names = ['张**','李**','王**','赵**','刘**','陈**','杨**','吴**'];
+const items = ['AirPods','iPhone壳','运动鞋','连衣裙','咖啡豆','蓝牙音箱','机械键盘','护肤套装'];
+const liveList = document.getElementById('liveList');
+function pushOrder(){
+  const n = names[Math.random()*names.length|0];
+  const it = items[Math.random()*items.length|0];
+  const amt = (Math.random()*800+50).toFixed(2);
+  const div = document.createElement('div');
+  div.className='live-item';
+  div.innerHTML = `<div><div>${it}</div><div class="live-user">${n} · #${(Math.random()*99999|0).toString().padStart(5,'0')}</div></div><div class="live-amt">¥${amt}</div>`;
+  liveList.insertBefore(div, liveList.firstChild);
+  while(liveList.children.length>8) liveList.removeChild(liveList.lastChild);
+  document.getElementById('liveTime').textContent = '最后更新：'+new Date().toLocaleTimeString();
+}
+for(let i=0;i<5;i++) pushOrder();
+setInterval(pushOrder, 3000);
+
+// 订单表格
+const orders = [
+  ['#ORD20241128001','张小明','AirPods Pro 2','¥1,899','success','已完成','2024-11-28 14:32'],
+  ['#ORD20241128002','李小红','Nike运动鞋 AJ1','¥899','warning','处理中','2024-11-28 14:28'],
+  ['#ORD20241128003','王大力','戴森吹风机','¥2,990','info','待发货','2024-11-28 14:15'],
+  ['#ORD20241128004','赵晓晓','Kindle Paperwhite','¥998','success','已完成','2024-11-28 14:02'],
+  ['#ORD20241128005','陈美丽','小米13 Pro','¥4,299','danger','已取消','2024-11-28 13:55'],
+  ['#ORD20241128006','刘大伟','机械键盘','¥659','success','已完成','2024-11-28 13:40'],
+  ['#ORD20241128007','杨丽娟','连衣裙','¥289','warning','处理中','2024-11-28 13:22'],
+  ['#ORD20241128008','吴彦祖','蓝牙音箱','¥499','info','待发货','2024-11-28 13:10'],
+  ['#ORD20241128009','林志玲','咖啡豆','¥128','success','已完成','2024-11-28 12:58'],
+  ['#ORD20241128010','周星星','护肤套装','¥1,288','warning','处理中','2024-11-28 12:41'],
+];
+document.getElementById('orderTable').innerHTML = orders.map(o=>`
+  <tr>
+    <td>${o[0]}</td><td>${o[1]}</td><td>${o[2]}</td><td>${o[3]}</td>
+    <td><span class="badge b-${o[4]}">${o[5]}</span></td>
+    <td style="color:var(--text-secondary)">${o[6]}</td>
+    <td><button class="btn ghost" style="padding:4px 10px;font-size:12px">详情</button></td>
+  </tr>`).join('');
+
+// Treemap 8 province
+const provinces = [
+  {n:'广东', v:9845, c:'#6366f1', col:1, row:1, cs:3, rs:2},
+  {n:'浙江', v:7203, c:'#8b5cf6', col:4, row:1, cs:2, rs:2},
+  {n:'江苏', v:6128, c:'#ec4899', col:6, row:1, cs:1, rs:2},
+  {n:'上海', v:4892, c:'#10b981', col:1, row:3, cs:2, rs:1},
+  {n:'北京', v:4210, c:'#3b82f6', col:3, row:3, cs:2, rs:1},
+  {n:'山东', v:3456, c:'#f59e0b', col:5, row:3, cs:2, rs:1},
+  {n:'四川', v:2890, c:'#14b8a6', col:1, row:4, cs:3, rs:1},
+  {n:'福建', v:2340, c:'#ef4444', col:4, row:4, cs:3, rs:1},
+];
+document.getElementById('treemap').innerHTML = provinces.map(p=>`
+  <div class="tm-cell" style="background:${p.c};grid-column:${p.col}/span ${p.cs};grid-row:${p.row}/span ${p.rs}">
+    <div>${p.n}</div><div class="v">${p.v}</div>
+  </div>`).join('');
+
+// User tiers
+const tiers = [
+  {n:'VIP钻石', c:'#f59e0b', pct:8, num:3872},
+  {n:'金牌会员', c:'#6366f1', pct:18, num:8710},
+  {n:'银牌会员', c:'#3b82f6', pct:32, num:15485},
+  {n:'普通会员', c:'#10b981', pct:28, num:13549},
+  {n:'新注册', c:'#64748b', pct:14, num:6776},
+];
+document.getElementById('tiers').innerHTML = tiers.map(t=>`
+  <div class="tier-row">
+    <div class="tier-label">${t.n}</div>
+    <div class="tier-bar"><div class="tier-fill" style="width:${t.pct*2.5}%;background:${t.c}">${t.pct}%</div></div>
+    <div class="tier-count">${t.num.toLocaleString()}</div>
+  </div>`).join('');
+
+// Toggles
+document.querySelectorAll('.toggle').forEach(t=>{
+  t.addEventListener('click', ()=> t.classList.toggle('on'));
+  t.addEventListener('keydown', e=>{
+    if(e.key===' '||e.key==='Enter'){ e.preventDefault(); t.classList.toggle('on'); }
+  });
+});
+</script>
+</body>
+</html>

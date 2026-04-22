@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ks-design-ui-prototype 评测报告 v2.0 — 电商SaaS看板</title>
+<style>
+:root {
+  --bg:#f8f7f4; --surface:#fff; --surface2:#f3f1ec; --border:#e2ddd6;
+  --text1:#1a1714; --text2:#5c5650; --textm:#9a9088;
+  --brown:#6b3d1e; --warm:#c4622d;
+  --pass:#2d7a4f; --pass-bg:#edf7f2;
+  --watch:#7a6520; --watch-bg:#faf5e4;
+  --fail:#a0290e; --fail-bg:#fdf1ee;
+  --block:#8b0000; --block-bg:#fff0f0;
+  --part:#5a4e2b; --part-bg:#fdf9ed;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;line-height:1.6}
+
+/* Header */
+.hdr{background:var(--brown);color:#fff;padding:36px 48px 32px}
+.hdr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:6px;padding:3px 12px;font-size:11px;margin-bottom:14px;letter-spacing:.05em}
+.hdr h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hdr-meta{opacity:.75;font-size:12px;display:flex;gap:20px;flex-wrap:wrap}
+
+/* Verdict bar */
+.vbar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.vpill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px}
+.vpill.fail{background:var(--fail-bg);color:var(--fail);border:1.5px solid #e8bab2}
+.vpill.watch{background:var(--watch-bg);color:var(--watch);border:1.5px solid #e5d48a}
+.vpill.pass{background:var(--pass-bg);color:var(--pass);border:1.5px solid #aadcc2}
+.vitem{display:flex;flex-direction:column;gap:4px}
+.vlabel{font-size:11px;color:var(--textm)}
+
+/* Nav */
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;display:flex;position:sticky;top:0;z-index:99;overflow-x:auto}
+.ntab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--textm);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .15s}
+.ntab:hover{color:var(--text2)}
+.ntab.active{color:var(--warm);border-bottom-color:var(--warm);font-weight:600}
+
+/* Content */
+.content{max-width:1080px;margin:0 auto;padding:32px 48px}
+section.ts{display:none}
+section.ts.active{display:block}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+h2.stitle{font-size:17px;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);color:var(--brown)}
+
+/* Table */
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top}
+th{background:var(--surface2);font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.pass{background:var(--pass-bg);color:var(--pass)}
+.chip.fail{background:var(--fail-bg);color:var(--fail)}
+.chip.part{background:var(--part-bg);color:var(--part)}
+.chip.block{background:var(--block-bg);color:var(--block)}
+.chip.na{background:#f0f0f0;color:#888}
+
+/* Priority */
+.pri{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pri.p0{background:#fde8e5;color:#c0392b}
+.pri.p1{background:#fdf3e0;color:#d68910}
+.pri.p2{background:#f0f0f0;color:#888}
+
+/* AQE score grid */
+.aqe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
+.aqe-dim{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center}
+.aqe-dim .did{font-size:10px;font-weight:700;color:var(--textm);letter-spacing:.08em;margin-bottom:3px}
+.aqe-dim .dname{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;line-height:1.3;min-height:30px}
+.scores{display:flex;justify-content:center;gap:10px}
+.sbadge{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbadge .sv{font-size:22px;font-weight:900;line-height:1}
+.sbadge .sl{font-size:9px;color:var(--textm)}
+.sg{color:var(--pass)} .sw{color:var(--watch)} .sf{color:var(--fail)} .sb{color:var(--block)}
+
+/* Big score box */
+.scorebox{background:linear-gradient(135deg,var(--brown),#9b5a2e);color:#fff;border-radius:12px;padding:22px 26px;display:flex;align-items:center;gap:26px;margin-bottom:22px}
+.scorebox .bscore{font-size:52px;font-weight:900;line-height:1;flex-shrink:0}
+.scorebox .sdesc h3{font-size:15px;margin-bottom:5px}
+.scorebox .sdesc p{font-size:12px;opacity:.85;line-height:1.5}
+
+/* Summary stats */
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.scard{padding:16px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+
+/* CL items */
+.cl{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cl:last-child{border-bottom:none}
+.clicon{flex-shrink:0;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:2px}
+.clicon.pass{background:var(--pass-bg);color:var(--pass)}
+.clicon.fail{background:var(--fail-bg);color:var(--fail)}
+.clicon.part{background:var(--part-bg);color:var(--part)}
+.clicon.na{background:#f0f0f0;color:#aaa}
+.cltxt .cll{font-weight:600;margin-bottom:2px;font-size:13px}
+.cltxt .cln{color:var(--textm);font-size:12px;line-height:1.4}
+
+/* Known Failures */
+.kf{background:var(--fail-bg);border:1px solid #e8bab2;border-left:4px solid var(--fail);border-radius:8px;padding:15px;margin-bottom:12px}
+.kfid{font-size:10px;font-weight:700;color:var(--fail);letter-spacing:.08em;margin-bottom:5px}
+.kftitle{font-weight:700;font-size:14px;margin-bottom:9px}
+.kfrow{display:flex;gap:6px;margin-bottom:4px;font-size:12px}
+.kfkey{font-weight:600;color:var(--text2);white-space:nowrap;min-width:58px}
+
+/* Fix cards */
+.fix{background:var(--surface2);border-radius:8px;padding:13px 15px;margin-bottom:11px;border-left:3px solid var(--warm)}
+.fixtitle{font-weight:700;font-size:13px;margin-bottom:5px}
+.fixbody{font-size:12px;color:var(--text2);line-height:1.6}
+.fixbody code{background:#ede9e0;border-radius:3px;padding:1px 5px;font-family:monospace;font-size:11px}
+
+/* Prompt box */
+.pbox{background:#1a1714;color:#e8e0d5;border-radius:10px;padding:15px 18px;font-family:Menlo,monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;margin:11px 0;overflow-x:auto}
+
+/* HTML product card with iframe */
+.prod-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:18px 0}
+.prod-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.prod-iframe-wrap{position:relative;width:100%;height:200px;overflow:hidden;background:#0f1117;cursor:pointer}
+.prod-iframe-wrap iframe{width:1280px;height:900px;border:none;transform:scale(0.25);transform-origin:top left;pointer-events:none}
+.prod-label{padding:12px 14px;border-top:1px solid var(--border)}
+.prod-label strong{display:block;font-size:13px;font-weight:700;margin-bottom:4px}
+.prod-label .plmeta{font-size:11px;color:var(--textm);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.prod-label a{color:var(--warm);font-weight:600;font-size:12px;text-decoration:none}
+.prod-label a:hover{text-decoration:underline}
+.model-rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+.rank1{background:var(--pass)} .rank2{background:var(--watch)} .rank3{background:#888}
+
+/* Score bar */
+.sbar-wrap{margin-bottom:12px}
+.sbar-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.sbar{height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:4px;background:var(--warm);transition:width .5s}
+
+@media(max-width:768px){
+  .hdr,.vbar,.content,.nav{padding-left:20px;padding-right:20px}
+  .aqe-grid{grid-template-columns:repeat(3,1fr)}
+  .prod-cards,.stats3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-badge">📊 AQE 设计侧评测报告 v2.0</div>
+  <h1>ks-design-ui-prototype · 评测报告 v2.0 — 电商 SaaS 数据看板</h1>
+  <div class="hdr-meta">
+    <span>Skill 版本：ks-design-ui-prototype</span>
+    <span>评测标准：skill-design-standard v1.0（AQE + DIR-01）</span>
+    <span>Mock Case：电商 SaaS 数据看板 · 4页面 · 多状态复杂交互</span>
+    <span>模型：Claude-4-Sonnet / Gemini-2.0-Flash（×2 风格）</span>
+    <span>评测日期：2025-04-22</span>
+  </div>
+</div>
+
+<!-- VERDICT BAR -->
+<div class="vbar">
+  <div class="vitem"><div class="vlabel">Gate 0 合规检查</div><span class="vpill watch">⚠️ 基本通过 — 2项P1改进</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（Model A / Claude）</div><span class="vpill pass">✅ 87.8 · PASS</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（Model C / Gemini 简约）</div><span class="vpill watch">👀 80.0 · WATCH</span></div>
+  <div class="vitem"><div class="vlabel">产物 AQE（Model B / Gemini 实用）</div><span class="vpill watch">👀 76.2 · WATCH</span></div>
+  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">整体结论：Skill 可有条件上线，Model A 表现优秀；B/C 在 ARIA 可访问性和 CSS 设计系统完整度上有提升空间。</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="ntab active" onclick="sw('overview')">总览</div>
+  <div class="ntab" onclick="sw('compliance')">Gate 0 合规检查</div>
+  <div class="ntab" onclick="sw('mock')">Mock Case</div>
+  <div class="ntab" onclick="sw('aqe')">AQE 评测打分</div>
+  <div class="ntab" onclick="sw('checklist')">DIR-01 Checklist</div>
+  <div class="ntab" onclick="sw('failures')">Known Failures</div>
+  <div class="ntab" onclick="sw('fixes')">整改建议</div>
+</nav>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ══════════ TAB: 总览 ══════════ -->
+<section id="tab-overview" class="ts active">
+  <h2 class="stitle">评测总览</h2>
+
+  <div class="scorebox">
+    <div class="bscore">87.8</div>
+    <div class="sdesc">
+      <h3>综合结论：✅ PASS（以 Model A 为基准，有条件上线）</h3>
+      <p>本次评测使用「电商 SaaS 数据看板」作为 Mock Case，复杂度显著高于上一版（情绪记录 App），覆盖：4页面切换、KPI 看板、CSS 折线图、数据表格、Treemap 布局、表单 + toggle 交互。<br>
+      Model A (Claude-4-Sonnet) 在设计系统完整度、页面完整度、交互质量三维度均达标，最终 AQE 87.8，判定 PASS。Model B/C 在 ARIA 属性和设计系统规范化上存在 P1 缺口，判定 WATCH，2周内修复可升级为 PASS。</p>
+    </div>
+  </div>
+
+  <div class="stats3">
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">GATE 0 合规</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">通过 ✅</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">2项P1改进建议（竞品对标深度、WCAG 注释规范），不阻塞上线</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">最高 AQE 分</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">87.8 / 100</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">Model A — 设计系统 + 页面完整度 + 交互质量全优</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--watch)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">主要待改项</div>
+      <div style="font-size:24px;font-weight:800;color:var(--watch)">2项 ARIA</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">3个产物均缺少 aria-label 属性，B/C 亦缺 WCAG 对比度注释</div>
+    </div>
+  </div>
+
+  <!-- 产物快览 -->
+  <div class="card">
+    <div class="card-title">🎨 产物快览（点击卡片可打开可视化原型）</div>
+    <div class="prod-cards">
+      <!-- Model A -->
+      <div class="prod-card">
+        <a href="complex-a-claude-sonnet.html" target="_blank" style="display:block;text-decoration:none">
+          <div class="prod-iframe-wrap">
+            <iframe src="complex-a-claude-sonnet.html" scrolling="no" tabindex="-1"></iframe>
+          </div>
+        </a>
+        <div class="prod-label">
+          <strong><span class="model-rank rank1">1</span> &nbsp;Model A — Claude-4-Sonnet</strong>
+          <div class="plmeta">
+            <span class="chip pass">87.8 PASS</span>
+            <span>24 KB · finish=stop</span>
+            <a href="complex-a-claude-sonnet.html" target="_blank">↗ 打开原型</a>
+          </div>
+        </div>
+      </div>
+      <!-- Model C -->
+      <div class="prod-card">
+        <a href="complex-c-gemini-simple.html" target="_blank" style="display:block;text-decoration:none">
+          <div class="prod-iframe-wrap">
+            <iframe src="complex-c-gemini-simple.html" scrolling="no" tabindex="-1"></iframe>
+          </div>
+        </a>
+        <div class="prod-label">
+          <strong><span class="model-rank rank2">2</span> &nbsp;Model C — Gemini-2.0 简约风</strong>
+          <div class="plmeta">
+            <span class="chip watch">80.0 WATCH</span>
+            <span>21 KB · finish=stop</span>
+            <a href="complex-c-gemini-simple.html" target="_blank">↗ 打开原型</a>
+          </div>
+        </div>
+      </div>
+      <!-- Model B -->
+      <div class="prod-card">
+        <a href="complex-b-gemini-pragmatic.html" target="_blank" style="display:block;text-decoration:none">
+          <div class="prod-iframe-wrap">
+            <iframe src="complex-b-gemini-pragmatic.html" scrolling="no" tabindex="-1"></iframe>
+          </div>
+        </a>
+        <div class="prod-label">
+          <strong><span class="model-rank rank3">3</span> &nbsp;Model B — Gemini-2.0 实用主义</strong>
+          <div class="plmeta">
+            <span class="chip watch">76.2 WATCH</span>
+            <span>16 KB · finish=stop</span>
+            <a href="complex-b-gemini-pragmatic.html" target="_blank">↗ 打开原型</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 维度对比总分 -->
+  <div class="card">
+    <div class="card-title">📊 AQE 5维度总分对比</div>
+    <table>
+      <thead><tr><th>评测维度</th><th>权重</th><th>Model A</th><th>Model B</th><th>Model C</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><strong>D1 设计系统完整度</strong></td><td>25%</td><td><span class="chip pass">65</span></td><td><span class="chip watch">65</span></td><td><span class="chip pass">80</span></td><td>CSS 变量数量、规范命名</td></tr>
+        <tr><td><strong>D2 页面完整度</strong></td><td>30%</td><td><span class="chip pass">100</span></td><td><span class="chip pass">100</span></td><td><span class="chip pass">100</span></td><td>4页面 + KPI + 图表 + 表格 + 表单</td></tr>
+        <tr><td><strong>D3 交互质量</strong></td><td>25%</td><td><span class="chip pass">100</span></td><td><span class="chip fail">60</span></td><td><span class="chip fail">60</span></td><td>页面切换 JS、sidebar、toggle 开关</td></tr>
+        <tr><td><strong>D4 可访问性</strong></td><td>10%</td><td><span class="chip watch">70</span></td><td><span class="chip fail">55</span></td><td><span class="chip fail">55</span></td><td>:focus、aria-、WCAG 注释</td></tr>
+        <tr><td><strong>D5 代码质量</strong></td><td>10%</td><td><span class="chip pass">95</span></td><td><span class="chip pass">95</span></td><td><span class="chip pass">95</span></td><td>完整性、无 CDN、真实数据</td></tr>
+        <tr style="background:var(--surface2)"><td><strong>加权 AQE 总分</strong></td><td>100%</td><td><strong style="color:var(--pass)">87.8</strong></td><td><strong style="color:var(--watch)">76.2</strong></td><td><strong style="color:var(--watch)">80.0</strong></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════ TAB: Gate 0 合规检查 ══════════ -->
+<section id="tab-compliance" class="ts">
+  <h2 class="stitle">Gate 0 — Skill 合规检查</h2>
+
+  <div class="card">
+    <div class="card-title">⚙️ Skill 结构 P0 检查</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">SKILL.md 存在且包含触发词</div><div class="cln">触发词列表完整，包含「做原型」「UI 原型」「prototype」等中英文关键词</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">Viewer 版本声明</div><div class="cln">Viewer v2 内置，功能固定，无外部依赖</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">PC/移动端双模式支持</div><div class="cln">PC 端浏览器外壳 + 移动端手机壳，自动锁定</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">Design Token 系统（20套 CSS 方案）</div><div class="cln">包含 5 套暗色专属方案，可选规范明确</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">5 阶段工作流声明</div><div class="cln">需求解析→页面地图→设计系统→代码生成→QA 验收，流程完整</div></div></div>
+    <div class="cl"><div class="clicon part">△</div><div class="cltxt"><div class="cll"><span class="pri p1">P1</span> 竞品对标文档缺失</div><div class="cln">Skill 描述未提及参考竞品（Figma / Linear / Vercel Dashboard）对标来源，建议在 SKILL.md 中补充"参考设计语言"章节</div></div></div>
+    <div class="cl"><div class="clicon part">△</div><div class="cltxt"><div class="cll"><span class="pri p1">P1</span> WCAG 标准要求未量化</div><div class="cln">描述中提到「可访问性」但未明确"至少 WCAG AA（4.5:1）"等量化标准，导致三个模型输出中 B/C 均未加注对比度注释</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Gate 0 结论</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7">Gate 0 整体通过，无 P0 阻塞项。2 项 P1 建议属于文档改进（非功能缺陷），不阻塞上线。建议在下一版本 SKILL.md 更新时一并修复。</p>
+  </div>
+</section>
+
+<!-- ══════════ TAB: Mock Case ══════════ -->
+<section id="tab-mock" class="ts">
+  <h2 class="stitle">Mock Case — 电商 SaaS 数据看板</h2>
+
+  <div class="card">
+    <div class="card-title">📝 Case 说明</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">本次使用「电商 SaaS 数据看板」作为 Mock Case，相比上一版「情绪记录 App 单页」难度大幅提升，覆盖以下复杂维度：</p>
+    <table>
+      <thead><tr><th>复杂度维度</th><th>具体要求</th><th>上版对比</th></tr></thead>
+      <tbody>
+        <tr><td>页面数量</td><td>4 个完整页面（数据概览 / 订单管理 / 用户分析 / 系统设置）</td><td>上版：1页</td></tr>
+        <tr><td>数据可视化</td><td>CSS 折线图 × 2（7日+30日）、Treemap 省份分布、KPI 卡片带环比</td><td>上版：无图表</td></tr>
+        <tr><td>数据表格</td><td>10行订单表格 + 4色状态 badge + 分页控件</td><td>上版：无表格</td></tr>
+        <tr><td>交互组件</td><td>toggle 开关（JS 可切换）、侧边栏导航切换、通知面板</td><td>上版：仅情绪选择</td></tr>
+        <tr><td>设计系统</td><td>暗色主题 + CSS 变量体系 + 8px 间距 + 5层字号 + WCAG 注释</td><td>上版：无系统要求</td></tr>
+        <tr><td>布局复杂度</td><td>固定侧边栏 + 顶部导航 + 主内容区滚动 + 多列布局</td><td>上版：单列</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💬 Prompt 核心片段</div>
+    <div class="pbox">【电商 SaaS 数据看板 · 复杂度升级 Case】
+
+目标：生成一个电商 SaaS 看板，面向卖家实时掌握店铺核心指标、订单和用户趋势
+
+页面 1 — 数据概览（默认激活）
+  • KPI卡×4：今日GMV(¥128,450) / 订单数(1,247) / 新增用户(356) / 转化率(3.82%)
+  • 近7日 GMV 折线图（CSS div+JS hover tooltip）
+  • 热销商品 Top5 列表（真实商品名+占比条形）
+  • 实时订单流（带状态tag：待付款/已付款/已发货/已完成）
+
+页面 2 — 订单管理
+  • 筛选栏 + 10行表格 + 4色状态badge + 分页控件
+
+页面 3 — 用户分析
+  • 30日折线 + 8省份 Treemap + 用户分层进度条
+
+页面 4 — 系统设置
+  • 账号表单 + 通知 toggle 开关（JS可切换）+ 安全设置
+
+设计系统：暗色主题 CSS 变量 / 8px间距体系 / WCAG AA对比度注释
+禁止：外部 CDN / 外部 JS 库 / 占位数据</div>
+  </div>
+</section>
+
+<!-- ══════════ TAB: AQE 评测打分 ══════════ -->
+<section id="tab-aqe" class="ts">
+  <h2 class="stitle">AQE 评测打分</h2>
+
+  <!-- Model A -->
+  <div class="card">
+    <div class="card-title"><span class="model-rank rank1" style="margin-right:6px">1</span> Model A — Claude-4-Sonnet &nbsp;<span class="chip pass">87.8 PASS</span></div>
+    <div class="scorebox" style="margin-bottom:16px">
+      <div class="bscore">87.8</div>
+      <div class="sdesc">
+        <h3>✅ PASS — 设计系统 + 交互全维度达标</h3>
+        <p>4页面完整实现，KPI 数据真实（¥128,450），交互逻辑完善（侧边栏JS切换、toggle事件监听、hover效果）。CSS 变量数量（14个）略低于最佳实践（应 ≥20），ARIA 属性缺失是唯一 P1 缺口。</p>
+      </div>
+    </div>
+    <div class="aqe-grid">
+      <div class="aqe-dim"><div class="did">D1</div><div class="dname">设计系统完整度</div><div class="scores"><div class="sbadge"><span class="sv sw">65</span><span class="sl">A</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D2</div><div class="dname">页面完整度</div><div class="scores"><div class="sbadge"><span class="sv sg">100</span><span class="sl">A</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D3</div><div class="dname">交互质量</div><div class="scores"><div class="sbadge"><span class="sv sg">100</span><span class="sl">A</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D4</div><div class="dname">可访问性</div><div class="scores"><div class="sbadge"><span class="sv sw">70</span><span class="sl">A</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D5</div><div class="dname">代码质量</div><div class="scores"><div class="sbadge"><span class="sv sg">95</span><span class="sl">A</span></div></div></div>
+    </div>
+    <table>
+      <thead><tr><th>维度</th><th>得分</th><th>通过项</th><th>缺失项</th></tr></thead>
+      <tbody>
+        <tr><td>D1 设计系统</td><td><span class="chip watch">65/100</span></td><td>--bg-base / --color-primary / --text-primary 均定义；14个 CSS 变量</td><td>--space-* 间距变量未声明；--font-size-* 字号层级未变量化</td></tr>
+        <tr><td>D2 页面完整度</td><td><span class="chip pass">100/100</span></td><td>4页面全覆盖；KPI 真实数据；折线图；数据表格；表单</td><td>—</td></tr>
+        <tr><td>D3 交互质量</td><td><span class="chip pass">100/100</span></td><td>侧边栏 data-page 点击切换；toggle classList.toggle JS；:hover + transition</td><td>—</td></tr>
+        <tr><td>D4 可访问性</td><td><span class="chip watch">70/100</span></td><td>:focus 状态、lang="zh-CN"、WCAG 对比度注释</td><td>aria-label 属性缺失</td></tr>
+        <tr><td>D5 代码质量</td><td><span class="chip pass">95/100</span></td><td">完整 &lt;/html&gt; 结尾；无 CDN；真实商品/用户名；24KB</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Model B -->
+  <div class="card">
+    <div class="card-title"><span class="model-rank rank3" style="margin-right:6px">3</span> Model B — Gemini-2.0 实用主义 &nbsp;<span class="chip watch">76.2 WATCH</span></div>
+    <div class="scorebox" style="margin-bottom:16px;background:linear-gradient(135deg,#7a6520,#a07828)">
+      <div class="bscore">76.2</div>
+      <div class="sdesc">
+        <h3>👀 WATCH — 页面完整但交互实现不足</h3>
+        <p>4 页面内容覆盖全面，表格实现优秀（10行+badge），但侧边栏切换 JS 实现不完整（未检测到 sidebar 类名关联），toggle 开关未绑定事件。WCAG 注释和 aria-label 均缺失，可访问性评分偏低。</p>
+      </div>
+    </div>
+    <div class="aqe-grid">
+      <div class="aqe-dim"><div class="did">D1</div><div class="dname">设计系统完整度</div><div class="scores"><div class="sbadge"><span class="sv sw">65</span><span class="sl">B</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D2</div><div class="dname">页面完整度</div><div class="scores"><div class="sbadge"><span class="sv sg">100</span><span class="sl">B</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D3</div><div class="dname">交互质量</div><div class="scores"><div class="sbadge"><span class="sv sf">60</span><span class="sl">B</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D4</div><div class="dname">可访问性</div><div class="scores"><div class="sbadge"><span class="sv sf">55</span><span class="sl">B</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D5</div><div class="dname">代码质量</div><div class="scores"><div class="sbadge"><span class="sv sg">95</span><span class="sl">B</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- Model C -->
+  <div class="card">
+    <div class="card-title"><span class="model-rank rank2" style="margin-right:6px">2</span> Model C — Gemini-2.0 简约风 &nbsp;<span class="chip watch">80.0 WATCH</span></div>
+    <div class="scorebox" style="margin-bottom:16px;background:linear-gradient(135deg,#7a6520,#a07828)">
+      <div class="bscore">80.0</div>
+      <div class="sdesc">
+        <h3>👀 WATCH — 设计系统优秀，交互JS不完整</h3>
+        <p>CSS 变量体系最完整（24 个，包含 --space-* 间距变量），设计系统 D1 最高分（80）；WCAG 对比度注释完整。但交互层面同样缺少 sidebar 命名关联和 toggle 事件绑定，交互评分与 B 相同。</p>
+      </div>
+    </div>
+    <div class="aqe-grid">
+      <div class="aqe-dim"><div class="did">D1</div><div class="dname">设计系统完整度</div><div class="scores"><div class="sbadge"><span class="sv sg">80</span><span class="sl">C</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D2</div><div class="dname">页面完整度</div><div class="scores"><div class="sbadge"><span class="sv sg">100</span><span class="sl">C</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D3</div><div class="dname">交互质量</div><div class="scores"><div class="sbadge"><span class="sv sf">60</span><span class="sl">C</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D4</div><div class="dname">可访问性</div><div class="scores"><div class="sbadge"><span class="sv sf">55</span><span class="sl">C</span></div></div></div>
+      <div class="aqe-dim"><div class="did">D5</div><div class="dname">代码质量</div><div class="scores"><div class="sbadge"><span class="sv sg">95</span><span class="sl">C</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ TAB: DIR-01 Checklist ══════════ -->
+<section id="tab-checklist" class="ts">
+  <h2 class="stitle">DIR-01 Checklist — UI 原型评测规则</h2>
+
+  <div class="card">
+    <div class="card-title">🎨 设计系统 & Token</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">背景色 CSS 变量（--bg-base / --bg-surface / --bg-elevated）</div><div class="cln">A✅ B△（--bg-surface 有但命名不完全一致）C✅</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">品牌主色 CSS 变量（--color-primary + hover 态）</div><div class="cln">A✅ B✅ C✅ — 三模型均使用 #6366f1 作为主色</div></div></div>
+    <div class="cl"><div class="clicon part">△</div><div class="cltxt"><div class="cll">字号 5 层变量（--font-size-xs/sm/base/md/lg）</div><div class="cln">A❌（直接写 px 值）B△（部分变量化）C△（部分变量化）</div></div></div>
+    <div class="cl"><div class="clicon part">△</div><div class="cltxt"><div class="cll">间距 8px 基准体系（--space-N 变量）</div><div class="cln">A❌ B❌ C✅（--space-1 到 --space-10 完整声明）</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🖱️ 交互 & 状态</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">侧边栏页面切换（JS，无刷新）</div><div class="cln">A✅（data-page 属性 + classList active）B✅ C✅</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">:hover 效果覆盖主要可交互元素</div><div class="cln">A✅ B✅ C✅</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">CSS transition 过渡动画</div><div class="cln">A✅ B✅ C✅</div></div></div>
+    <div class="cl"><div class="clicon fail">✗</div><div class="cltxt"><div class="cll">Toggle 开关 JS 事件绑定（可真实切换）</div><div class="cln">A✅ B❌（CSS 样式有但无 JS 事件）C❌（同B）</div></div></div>
+    <div class="cl"><div class="clicon part">△</div><div class="cltxt"><div class="cll">表格行 hover 高亮</div><div class="cln">A✅ B✅ C△（颜色对比不明显）</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">♿ 可访问性</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">lang="zh-CN" 声明</div><div class="cln">A✅ B✅ C✅</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">:focus 状态明确（输入框 border-color + box-shadow）</div><div class="cln">A✅ B✅ C✅</div></div></div>
+    <div class="cl"><div class="clicon fail">✗</div><div class="cltxt"><div class="cll">aria-label 属性（图标按钮、导航项）</div><div class="cln">A❌ B❌ C❌ — 三模型均未添加 ARIA 属性</div></div></div>
+    <div class="cl"><div class="clicon part">△</div><div class="cltxt"><div class="cll">WCAG AA 对比度注释（4.5:1）</div><div class="cln">A✅（有注释）B❌ C✅（注释最完整）</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📐 数据 & 真实感</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">KPI 真实数据（¥128,450 / 1,247 / 356 / 3.82%）</div><div class="cln">A✅ B✅ C✅</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">真实中文商品名 / 用户姓名</div><div class="cln">A✅（T恤/耳机/口红）B✅ C✅</div></div></div>
+    <div class="cl"><div class="clicon part">△</div><div class="cltxt"><div class="cll">订单状态 4 色 badge（待付款橙/已付款蓝/已发货紫/已完成绿）</div><div class="cln">A✅ B✅（4色）C△（2-3色，紫色状态缺失）</div></div></div>
+  </div>
+</section>
+
+<!-- ══════════ TAB: Known Failures ══════════ -->
+<section id="tab-failures" class="ts">
+  <h2 class="stitle">Known Failures</h2>
+
+  <div class="kf">
+    <div class="kfid">KF-V2-001 · <span class="pri p1">P1</span></div>
+    <div class="kftitle">Model B/C Toggle 开关无实际 JS 事件绑定</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>系统设置页的通知开关 — 点击无法真实切换状态</div>
+    <div class="kfrow"><span class="kfkey">根因：</span>Prompt 要求"toggle 点击可切换"，但 B/C 输出仅用 CSS 实现外观，未绑定 click 事件</div>
+    <div class="kfrow"><span class="kfkey">对比：</span>Model A 正确实现（document.querySelectorAll('.toggle').forEach → addEventListener('click', ...)）</div>
+    <div class="kfrow"><span class="kfkey">修复难度：</span>低（3行 JS）</div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-V2-002 · <span class="pri p1">P1</span></div>
+    <div class="kftitle">全部产物缺少 ARIA 属性</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>图标按钮（通知bell）、导航项、状态 badge — 屏幕阅读器无法识别语义</div>
+    <div class="kfrow"><span class="kfkey">根因：</span>Prompt 中提及 WCAG AA 但未强制要求 aria-label；模型未主动添加</div>
+    <div class="kfrow"><span class="kfkey">修复方案：</span>为所有 icon-only 按钮添加 aria-label；导航 &lt;nav&gt; 添加 role="navigation"</div>
+    <div class="kfrow"><span class="kfkey">修复难度：</span>低（批量 grep + 添加属性）</div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-V2-003 · <span class="pri p2">P2</span></div>
+    <div class="kftitle">折线图使用 div 宽度模拟，无真实数据点坐标</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>数据概览页折线图 — 视觉有折线形态但数据点不可精确 hover</div>
+    <div class="kfrow"><span class="kfkey">根因：</span>Prompt 禁止 canvas，要求"CSS+JS 伪图表"，导致无法实现精确坐标交互</div>
+    <div class="kfrow"><span class="kfkey">评估：</span>属于 Prompt 约束导致的合理降级，不计入 AQE 扣分</div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-V2-004 · <span class="pri p2">P2</span></div>
+    <div class="kftitle">Model A CSS 变量缺少 --font-size-* 和 --space-* 层级</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>字号和间距直接写 px 值，维护时需全文搜索修改</div>
+    <div class="kfrow"><span class="kfkey">对比：</span>Model C 完整声明了 --space-1 到 --space-10，设计系统最规范</div>
+    <div class="kfrow"><span class="kfkey">建议：</span>Prompt 中明确要求"字号和间距必须用 CSS 变量"，增加约束强度</div>
+  </div>
+</section>
+
+<!-- ══════════ TAB: 整改建议 ══════════ -->
+<section id="tab-fixes" class="ts">
+  <h2 class="stitle">整改建议</h2>
+
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-01：Prompt 中强制 ARIA 属性（P1 修复）</div>
+    <div class="fixbody">在 Prompt 可访问性要求中补充："所有 icon-only 按钮必须添加 <code>aria-label</code>；导航区域必须使用 <code>&lt;nav role="navigation" aria-label="主导航"&gt;</code>。" 通过 Prompt 约束层解决，无需 Skill 代码修改。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-02：Toggle 事件绑定明确化（P1 修复）</div>
+    <div class="fixbody">Prompt 原文："toggle 开关可点击切换状态（JS）"——改为更明确的约束："toggle 开关必须用 JS 绑定 click 事件，切换 <code>.on</code> class，不得仅用 CSS :checked 或无事件绑定实现。" 可配合示例片段提升一致性。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-03：CSS 变量完整性 Checklist 加入 QA Gate（P2 修复）</div>
+    <div class="fixbody">在 Skill 的 Gate 1 自检阶段加入 CSS 变量检查项：<br>
+    <code>--bg-base / --bg-surface / --bg-elevated</code> ✓<br>
+    <code>--font-size-xs/sm/base/md/lg</code> ✓<br>
+    <code>--space-1 ~ --space-10</code> ✓<br>
+    如任一缺失，Skill 在输出前补全 CSS 变量声明块。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">📈 FIX-04：升级建议 — 引入 Kimi/DeepSeek 端点测试多样性（架构改进）</div>
+    <div class="fixbody">本次评测中 Kimi endpoint (ep-3e24dk) 连续 connection reset，建议：① 检查 Kimi 端点的 max_tokens 上限；② 增加请求超时重试机制（3次，指数退避）；③ 在评测流水线中增加模型可用性健康检查。目标：确保 3 模型产物来自真正不同的模型架构，增加比较价值。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">📈 FIX-05：下一版 Mock Case 方向建议</div>
+    <div class="fixbody">本次看板 Case 已覆盖多页面+图表+表格+表单。下一版建议：<br>
+    方向A：移动端场景（手机壳 Viewer）— 如外卖 App 首页 + 购物车 + 个人中心<br>
+    方向B：深色/浅色主题切换 — 测试 Token 系统的主题扩展能力<br>
+    方向C：表单密集型（多步骤注册/校验状态/错误提示）— 测试输入态设计系统完整性</div>
+  </div>
+</section>
+
+</div><!-- /content -->
+
+<script>
+function sw(id) {
+  var ids = ['overview','compliance','mock','aqe','checklist','failures','fixes'];
+  document.querySelectorAll('.ntab').forEach(function(t, i) {
+    t.classList.toggle('active', ids[i] === id);
+  });
+  document.querySelectorAll('section.ts').forEach(function(s) {
+    s.classList.toggle('active', s.id === 'tab-' + id);
+  });
+}
+</script>
+
+</body>
+</html>
