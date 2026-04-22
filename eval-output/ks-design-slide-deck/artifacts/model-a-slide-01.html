@@ -25,10 +25,9 @@ html,body{
   width:1280px;height:720px;overflow:hidden;
   background:var(--bg);font-family:var(--font);
   color:var(--text-primary);
-  background-image:
-    radial-gradient(ellipse 60% 50% at 70% 50%, rgba(37,99,235,0.18) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(14,165,233,0.10) 0%, transparent 60%),
-    linear-gradient(135deg, #050d1a 0%, #080f1f 100%);
+  background-image: url('model-a-slide01-bg.jpg');
+  background-size: cover;
+  background-position: center;
 }
 [contenteditable]{outline:none;cursor:text;transition:outline 0.15s}
 [contenteditable]:hover{outline:1px dashed var(--accent);border-radius:3px}
@@ -96,6 +95,7 @@ html,body{
 </head>
 <body>
 <div class="grid-deco"></div>
+<div style="position:absolute;inset:0;background:rgba(5,13,26,0.68);pointer-events:none;z-index:0"></div>
 
 <div class="cover-wrap">
   <div class="eyebrow" contenteditable="true">Enterprise AI · 企业智能化白皮书 2025</div>

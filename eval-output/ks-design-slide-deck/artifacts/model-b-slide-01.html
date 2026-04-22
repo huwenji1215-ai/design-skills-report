@@ -24,10 +24,9 @@
 html,body{
   width:1280px;height:720px;overflow:hidden;
   background:var(--bg);font-family:var(--font);color:var(--text-primary);
-  background-image:
-    radial-gradient(ellipse 50% 50% at 15% 50%, rgba(212,160,23,0.12) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 40% at 90% 10%, rgba(212,160,23,0.07) 0%, transparent 55%),
-    linear-gradient(160deg, #0c0b08 0%, #0e0d09 100%);
+  background-image: url('model-b-slide01-bg.jpg');
+  background-size: cover;
+  background-position: center;
 }
 [contenteditable]{outline:none;cursor:text;transition:outline 0.15s}
 [contenteditable]:hover{outline:1px dashed var(--accent);border-radius:3px}
@@ -81,7 +80,8 @@ html,body{
 </style>
 </head>
 <body>
-<div class="cover-wrap">
+<div style="position:absolute;inset:0;background:rgba(12,11,8,0.68);pointer-events:none;z-index:0"></div>
+<div class="cover-wrap" style="position:relative;z-index:1">
   <div class="cover-left">
     <div class="eyebrow" contenteditable="true">Enterprise Intelligence Report · 2025</div>
     <h1 class="cover-title" contenteditable="true">

@@ -22,9 +22,9 @@
 html,body{
   width:1280px;height:720px;overflow:hidden;
   background:var(--bg);font-family:var(--font);color:var(--text-primary);
-  background-image:
-    radial-gradient(ellipse 60% 50% at 50% 50%, rgba(37,99,235,0.10) 0%, transparent 70%),
-    linear-gradient(180deg, #050d1a 0%, #060f1d 100%);
+  background-image: url('model-a-slide03-bg.jpg');
+  background-size: cover;
+  background-position: center;
 }
 [contenteditable]{outline:none;cursor:text;transition:outline 0.15s}
 [contenteditable]:hover{outline:1px dashed var(--accent);border-radius:3px}
@@ -64,7 +64,8 @@ html,body{
 </style>
 </head>
 <body>
-<div class="slide-wrap">
+<div style="position:absolute;inset:0;background:rgba(5,13,26,0.70);pointer-events:none;z-index:0"></div>
+<div class="slide-wrap" style="position:relative;z-index:1">
   <div class="eyebrow" contenteditable="true">技术架构 · Agent Architecture</div>
   <div class="slide-title" contenteditable="true">企业级 AI Agent 分层架构</div>
 

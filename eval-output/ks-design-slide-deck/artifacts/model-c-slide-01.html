@@ -23,10 +23,9 @@
 html,body{
   width:1280px;height:720px;overflow:hidden;
   background:var(--bg);font-family:var(--font);color:var(--text-primary);
-  background-image:
-    radial-gradient(ellipse 55% 50% at 55% 50%, rgba(249,115,22,0.14) 0%, transparent 68%),
-    radial-gradient(ellipse 35% 35% at 95% 90%, rgba(249,115,22,0.08) 0%, transparent 55%),
-    linear-gradient(145deg, #1a0e05 0%, #1c1007 100%);
+  background-image: url('model-c-slide01-bg.jpg');
+  background-size: cover;
+  background-position: center;
 }
 [contenteditable]{outline:none;cursor:text}
 [contenteditable]:focus{outline:1px solid var(--accent);border-radius:3px;background:var(--accent-soft)}
@@ -71,7 +70,8 @@ html,body{
 </style>
 </head>
 <body>
-<div class="cover-wrap">
+<div style="position:absolute;inset:0;background:rgba(26,14,5,0.68);pointer-events:none;z-index:0"></div>
+<div class="cover-wrap" style="position:relative;z-index:1">
   <div class="cover-left">
     <div class="eyebrow" contenteditable="true">实战报告 · Enterprise AI Report 2025</div>
     <h1 class="cover-title" contenteditable="true">
