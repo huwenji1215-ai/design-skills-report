@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Model C · Kimi k1.5 · SaaS AI产品宣传动效</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0A0A0F;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Inter', 'PingFang SC', sans-serif;
+  color: #fff;
+}
+.stage-info {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.35);
+  color: #a855f7;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  z-index: 100;
+}
+.model-badge {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4);
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  z-index: 100;
+}
+#canvas {
+  width: 1280px;
+  height: 720px;
+  position: relative;
+  overflow: hidden;
+  background: #0A0A0F;
+}
+
+/* Ambient purple glow */
+#canvas::before {
+  content: '';
+  position: absolute;
+  width: 800px; height: 800px;
+  background: radial-gradient(ellipse, rgba(168,85,247,0.06) 0%, transparent 60%);
+  top: -200px; left: -200px;
+  pointer-events: none;
+}
+#canvas::after {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(ellipse, rgba(236,72,153,0.05) 0%, transparent 60%);
+  bottom: -150px; right: -150px;
+  pointer-events: none;
+}
+
+.progress {
+  position: fixed;
+  bottom: 0; left: 0; height: 2px;
+  background: linear-gradient(90deg, #a855f7, #ec4899, #f97316);
+  transition: width 0.1s linear;
+  z-index: 200;
+}
+
+.scene { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.scene.active { opacity: 1; pointer-events: all; animation: scenePop 0.9s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.scene.exiting { animation: sceneFade 0.4s ease-in forwards; }
+@keyframes scenePop {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes sceneFade {
+  from { opacity: 1; }
+  to { opacity: 0; transform: scale(1.02); }
+}
+
+/* === S1: Gradient Hero === */
+.s1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px;
+}
+.s1-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #c084fc;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: popIn 0.5s 0.2s ease-out forwards;
+}
+.s1-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: #c084fc; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+.s1-headline {
+  font-size: 80px;
+  font-weight: 800;
+  line-height: 1.0;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #fff 0%, #c084fc 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0;
+  animation: popIn 0.7s 0.4s ease-out forwards;
+}
+.s1-sub {
+  font-size: 20px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 48px;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  animation: popIn 0.6s 0.6s ease-out forwards;
+}
+.s1-tags {
+  display: flex;
+  gap: 12px;
+  opacity: 0;
+  animation: popIn 0.5s 0.8s ease-out forwards;
+}
+.tag {
+  padding: 8px 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.7);
+}
+
+/* === S2: Code Terminal === */
+.s2 {
+  display: flex;
+  align-items: center;
+  padding: 60px 80px;
+  gap: 60px;
+}
+.s2-text { flex: 1; }
+.s2-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: #a855f7;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: popIn 0.4s 0.2s ease-out forwards;
+}
+.s2-title {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: popIn 0.5s 0.35s ease-out forwards;
+}
+.s2-title .grad {
+  background: linear-gradient(90deg, #a855f7, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.s2-desc {
+  font-size: 15px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.7;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: popIn 0.5s 0.5s ease-out forwards;
+}
+.s2-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  opacity: 0;
+  animation: popIn 0.5s 0.65s ease-out forwards;
+}
+.metric-card {
+  padding: 16px;
+  background: rgba(168,85,247,0.06);
+  border: 1px solid rgba(168,85,247,0.15);
+  border-radius: 10px;
+}
+.metric-num { font-size: 28px; font-weight: 700; background: linear-gradient(90deg, #a855f7, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.metric-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.terminal {
+  width: 520px;
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(168,85,247,0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  opacity: 0;
+  animation: popIn 0.6s 0.4s ease-out forwards;
+}
+.term-bar {
+  background: rgba(168,85,247,0.08);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(168,85,247,0.15);
+}
+.term-dot { width: 10px; height: 10px; border-radius: 50%; }
+.term-body {
+  padding: 20px;
+  font-family: 'Menlo', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 2;
+}
+.term-line { color: rgba(255,255,255,0.7); }
+.term-key { color: #a855f7; }
+.term-val { color: #34d399; }
+.term-comment { color: rgba(255,255,255,0.3); font-style: italic; }
+.term-prompt { color: #f97316; }
+
+/* === S3: Bento Grid === */
+.s3 {
+  padding: 48px 60px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+}
+.bento {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 24px;
+  opacity: 0;
+}
+.bento:nth-child(1) { grid-row: span 2; animation: popIn 0.5s 0.2s ease-out forwards; background: rgba(168,85,247,0.06); border-color: rgba(168,85,247,0.15); }
+.bento:nth-child(2) { animation: popIn 0.5s 0.35s ease-out forwards; }
+.bento:nth-child(3) { animation: popIn 0.5s 0.5s ease-out forwards; }
+.bento:nth-child(4) { animation: popIn 0.5s 0.65s ease-out forwards; }
+.bento:nth-child(5) { animation: popIn 0.5s 0.8s ease-out forwards; }
+.bento-icon { font-size: 28px; margin-bottom: 12px; }
+.bento-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.bento-desc { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.5); line-height: 1.6; }
+.bento-big-num { font-size: 52px; font-weight: 800; background: linear-gradient(135deg, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-top: 12px; }
+
+/* === S4: 3-panel split === */
+.s4 {
+  display: flex;
+  flex-direction: column;
+  padding: 48px 80px;
+  justify-content: center;
+}
+.s4-header { margin-bottom: 32px; opacity: 0; animation: popIn 0.5s 0.2s ease-out forwards; }
+.s4-eyebrow { font-size: 11px; letter-spacing: 0.25em; color: #a855f7; text-transform: uppercase; margin-bottom: 10px; }
+.s4-title { font-size: 40px; font-weight: 700; }
+.s4-title .grad { background: linear-gradient(90deg, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.step-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.step-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+}
+.step-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, #a855f7, #ec4899);
+  opacity: 0.6;
+}
+.step-item:nth-child(1) { animation: popIn 0.4s 0.3s ease-out forwards; }
+.step-item:nth-child(2) { animation: popIn 0.4s 0.45s ease-out forwards; }
+.step-item:nth-child(3) { animation: popIn 0.4s 0.6s ease-out forwards; }
+.step-num { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: #a855f7; margin-bottom: 10px; }
+.step-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.step-desc { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+/* === S5: CTA with gradient === */
+.s5 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px;
+  position: relative;
+}
+.s5-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 800px 500px at 50% 50%,
+    rgba(168,85,247,0.08) 0%, rgba(236,72,153,0.05) 40%, transparent 70%);
+  pointer-events: none;
+}
+.s5-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: #a855f7;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: popIn 0.5s 0.2s ease-out forwards;
+  position: relative;
+}
+.s5-headline {
+  font-size: 68px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 0%, #c084fc 40%, #ec4899 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: popIn 0.7s 0.4s ease-out forwards;
+  position: relative;
+}
+.s5-sub {
+  font-size: 18px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 44px;
+  opacity: 0;
+  animation: popIn 0.5s 0.6s ease-out forwards;
+  position: relative;
+}
+.s5-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 48px;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  cursor: default;
+  box-shadow: 0 8px 40px rgba(168,85,247,0.35);
+  opacity: 0;
+  animation: popIn 0.6s 0.8s ease-out forwards;
+  position: relative;
+}
+.s5-note {
+  margin-top: 20px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+  opacity: 0;
+  animation: popIn 0.4s 1.0s ease-out forwards;
+  position: relative;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+</style>
+</head>
+<body>
+<div class="stage-info" id="stageInfo">Scene 1 / 5 · Hero</div>
+<div class="model-badge">Model C · Kimi k1.5 · T2 Code Character + Gradient</div>
+<div class="progress" id="progress"></div>
+
+<div id="canvas">
+
+  <!-- S1 -->
+  <div class="scene s1 active" id="s1">
+    <div class="s1-pill"><div class="s1-pill-dot"></div>AI-Native · 企业级</div>
+    <div class="s1-headline">Build Smarter.<br>Ship Faster.</div>
+    <div class="s1-sub">FluxAI 赋能下一代智能应用，无限可能从这里开始</div>
+    <div class="s1-tags">
+      <div class="tag">⚡ 50ms 推理延迟</div>
+      <div class="tag">🔒 SOC 2 认证</div>
+      <div class="tag">🌍 全球部署</div>
+      <div class="tag">📡 API 优先</div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="scene s2" id="s2">
+    <div class="s2-text">
+      <div class="s2-eyebrow">技术架构</div>
+      <div class="s2-title">为开发者<br>设计的 <span class="grad">AI API</span></div>
+      <div class="s2-desc">简洁的 RESTful 接口，完善的 SDK，从零到上线只需 3 行代码。</div>
+      <div class="s2-metrics">
+        <div class="metric-card"><div class="metric-num">99.9%</div><div class="metric-label">服务可用性 SLA</div></div>
+        <div class="metric-card"><div class="metric-num">50ms</div><div class="metric-label">P99 推理延迟</div></div>
+        <div class="metric-card"><div class="metric-num">200+</div><div class="metric-label">企业客户</div></div>
+        <div class="metric-card"><div class="metric-num">12M+</div><div class="metric-label">日均 API 调用</div></div>
+      </div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar">
+        <div class="term-dot" style="background:#ff5f57"></div>
+        <div class="term-dot" style="background:#ffbd2e"></div>
+        <div class="term-dot" style="background:#28c840"></div>
+        <span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:8px">FluxAI SDK · Python</span>
+      </div>
+      <div class="term-body">
+        <div class="term-line"><span class="term-key">import</span> fluxai</div>
+        <div class="term-line">&nbsp;</div>
+        <div class="term-line"><span class="term-comment"># 初始化客户端</span></div>
+        <div class="term-line">client = fluxai.<span class="term-key">Client</span>(</div>
+        <div class="term-line">&nbsp;&nbsp;<span class="term-key">api_key</span>=<span class="term-val">"sk-flux-xxxx"</span></div>
+        <div class="term-line">)</div>
+        <div class="term-line">&nbsp;</div>
+        <div class="term-line"><span class="term-comment"># 发起推理请求</span></div>
+        <div class="term-line">result = client.chat.<span class="term-key">complete</span>(</div>
+        <div class="term-line">&nbsp;&nbsp;<span class="term-key">model</span>=<span class="term-val">"flux-v2"</span>,</div>
+        <div class="term-line">&nbsp;&nbsp;<span class="term-key">messages</span>=[...]</div>
+        <div class="term-line">)</div>
+        <div class="term-line"><span class="term-prompt">→</span> <span class="term-val">{ "content": "...", "latency": 48 }</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="scene s3" id="s3">
+    <div class="bento">
+      <div class="bento-icon">🚀</div>
+      <div class="bento-title">核心引擎</div>
+      <div class="bento-desc">自研 Flux 推理引擎，专为企业级低延迟场景优化，支持万亿参数模型高效推理，并行计算效率提升 5×。</div>
+      <div class="bento-big-num">5×</div>
+    </div>
+    <div class="bento">
+      <div class="bento-icon">🧠</div>
+      <div class="bento-title">多模态</div>
+      <div class="bento-desc">文字、图像、语音、代码统一输入</div>
+    </div>
+    <div class="bento">
+      <div class="bento-icon">⚡</div>
+      <div class="bento-title">流式输出</div>
+      <div class="bento-desc">Server-Sent Events，实时响应</div>
+    </div>
+    <div class="bento">
+      <div class="bento-icon">🔒</div>
+      <div class="bento-title">私有部署</div>
+      <div class="bento-desc">K8s + Docker，数据不出境</div>
+    </div>
+    <div class="bento">
+      <div class="bento-icon">📊</div>
+      <div class="bento-title">可观测性</div>
+      <div class="bento-desc">Prometheus 指标，全链路追踪</div>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="scene s4" id="s4">
+    <div class="s4-header">
+      <div class="s4-eyebrow">接入流程</div>
+      <div class="s4-title">3 步完成 <span class="grad">AI 集成</span></div>
+    </div>
+    <div class="step-row">
+      <div class="step-item">
+        <div class="step-num">STEP 01</div>
+        <div class="step-title">注册 & 获取密钥</div>
+        <div class="step-desc">1分钟注册企业账号，立即获取 API Key，免费额度 100万 Token 起</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">STEP 02</div>
+        <div class="step-title">接入 SDK</div>
+        <div class="step-desc">Python、Node.js、Java、Go 多语言 SDK，一行代码完成初始化</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">STEP 03</div>
+        <div class="step-title">上线运行</div>
+        <div class="step-desc">实时监控面板，弹性扩容，99.9% SLA 保障，7×24 专属支持</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="scene s5" id="s5">
+    <div class="s5-glow"></div>
+    <div class="s5-eyebrow">Join the Revolution</div>
+    <div class="s5-headline">AI 的未来<br>从今天开始</div>
+    <div class="s5-sub">与 200+ 领先企业一起，用 AI 重新定义可能</div>
+    <div class="s5-btn">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l7 4v4c0 3.5-3 6-7 7C2 16 -1 13.5-1 10V6l7-4z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="M6 9l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      免费开始 · 无需信用卡
+    </div>
+    <div class="s5-note">fluxai.com · Enterprise Plan 可联系销售</div>
+  </div>
+
+</div>
+
+<script>
+const scenes = [
+  { id: 's1', label: 'Scene 1/5 · 渐变 Hero 开场', duration: 4000 },
+  { id: 's2', label: 'Scene 2/5 · 代码终端展示', duration: 5500 },
+  { id: 's3', label: 'Scene 3/5 · Bento 能力网格', duration: 4500 },
+  { id: 's4', label: 'Scene 4/5 · 接入流程', duration: 4500 },
+  { id: 's5', label: 'Scene 5/5 · 渐变 CTA', duration: 4500 },
+];
+const totalDuration = scenes.reduce((s, x) => s + x.duration, 0);
+let current = 0;
+let startTime = Date.now();
+let timer;
+
+function showScene(idx) {
+  scenes.forEach((s, i) => {
+    const el = document.getElementById(s.id);
+    el.className = 'scene' + (i === idx ? ' active' : '');
+  });
+  document.getElementById('stageInfo').textContent = scenes[idx].label;
+}
+function nextScene() {
+  document.getElementById(scenes[current].id).className = 'scene exiting';
+  setTimeout(() => {
+    current = (current + 1) % scenes.length;
+    if (current === 0) startTime = Date.now();
+    showScene(current);
+    scheduleNext();
+  }, 400);
+}
+function scheduleNext() {
+  clearTimeout(timer);
+  timer = setTimeout(nextScene, scenes[current].duration);
+}
+function updateProgress() {
+  let tot = 0;
+  for (let i = 0; i < current; i++) tot += scenes[i].duration;
+  tot += (Date.now() - startTime);
+  document.getElementById('progress').style.width = Math.min((tot / totalDuration) * 100, 100) + '%';
+  requestAnimationFrame(updateProgress);
+}
+scheduleNext();
+requestAnimationFrame(updateProgress);
+</script>
+</body>
+</html>

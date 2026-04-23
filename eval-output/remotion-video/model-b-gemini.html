@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Model B · Gemini 2.5 Flash · SaaS AI产品宣传动效</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0F1B2D;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Inter', 'PingFang SC', sans-serif;
+  color: #fff;
+}
+.stage-info {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30,144,255,0.15);
+  border: 1px solid rgba(30,144,255,0.4);
+  color: #1E90FF;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  z-index: 100;
+}
+.model-badge {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4);
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  z-index: 100;
+}
+#canvas {
+  width: 1280px;
+  height: 720px;
+  position: relative;
+  overflow: hidden;
+  background: #0F1B2D;
+}
+#canvas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 50% 50%, rgba(30,144,255,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #1E90FF, #00B4D8);
+  transition: width 0.1s linear;
+  z-index: 200;
+}
+.scene { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.scene.active {
+  opacity: 1;
+  pointer-events: all;
+  animation: sceneEnter 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.scene.exiting {
+  animation: sceneLeave 0.5s ease-in forwards;
+}
+@keyframes sceneEnter {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); }
+  to { opacity: 1; clip-path: inset(0 0% 0 0); }
+}
+@keyframes sceneLeave {
+  from { opacity: 1; }
+  to { opacity: 0; transform: scale(0.97); }
+}
+
+/* === SCENE 1: Corporate Blue Hero === */
+.s1 {
+  display: flex;
+  align-items: center;
+  padding: 0 100px;
+  gap: 80px;
+}
+.s1-left {
+  flex: 1;
+}
+.s1-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: #1E90FF;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  opacity: 0;
+  animation: fadeSlide 0.5s 0.2s ease-out forwards;
+}
+.s1-title {
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: #E8F4FD;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeSlide 0.6s 0.35s ease-out forwards;
+}
+.s1-title .accent { color: #1E90FF; }
+.s1-desc {
+  font-size: 16px;
+  font-weight: 300;
+  color: rgba(232,244,253,0.6);
+  line-height: 1.7;
+  margin-bottom: 36px;
+  max-width: 420px;
+  opacity: 0;
+  animation: fadeSlide 0.6s 0.5s ease-out forwards;
+}
+.s1-btns {
+  display: flex;
+  gap: 14px;
+  opacity: 0;
+  animation: fadeSlide 0.5s 0.65s ease-out forwards;
+}
+.btn-primary {
+  padding: 12px 28px;
+  background: #1E90FF;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.04em;
+  cursor: default;
+}
+.btn-secondary {
+  padding: 12px 28px;
+  border: 1px solid rgba(30,144,255,0.4);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #1E90FF;
+  cursor: default;
+}
+.s1-right {
+  width: 460px;
+  flex-shrink: 0;
+  opacity: 0;
+  animation: fadeSlide 0.8s 0.5s ease-out forwards;
+}
+.dash-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(30,144,255,0.2);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.dash-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, #1E90FF, #00B4D8);
+  opacity: 0.7;
+}
+.dash-label {
+  font-size: 11px;
+  color: rgba(232,244,253,0.4);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.dash-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1E90FF;
+  line-height: 1;
+}
+.dash-value .small { font-size: 16px; font-weight: 400; margin-left: 4px; color: rgba(232,244,253,0.5); }
+.dash-trend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #00B4D8;
+  margin-top: 6px;
+}
+
+/* === SCENE 2: Feature Grid === */
+.s2 {
+  padding: 60px 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+.s2-header {
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: fadeSlide 0.5s 0.2s ease-out forwards;
+}
+.s2-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: #1E90FF;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.s2-title {
+  font-size: 42px;
+  font-weight: 700;
+  color: #E8F4FD;
+}
+.s2-title .accent { color: #1E90FF; }
+.feat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.feat-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 24px 20px;
+  opacity: 0;
+}
+.feat-item:nth-child(1) { animation: fadeSlide 0.4s 0.3s ease-out forwards; }
+.feat-item:nth-child(2) { animation: fadeSlide 0.4s 0.42s ease-out forwards; }
+.feat-item:nth-child(3) { animation: fadeSlide 0.4s 0.54s ease-out forwards; }
+.feat-item:nth-child(4) { animation: fadeSlide 0.4s 0.66s ease-out forwards; }
+.feat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(30,144,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  font-size: 20px;
+}
+.feat-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #E8F4FD;
+  margin-bottom: 8px;
+}
+.feat-desc {
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(232,244,253,0.5);
+  line-height: 1.6;
+}
+
+/* === SCENE 3: Timeline === */
+.s3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 100px;
+}
+.s3-header {
+  text-align: center;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeSlide 0.5s 0.2s ease-out forwards;
+}
+.s3-eyebrow { font-size: 11px; letter-spacing: 0.25em; color: #1E90FF; text-transform: uppercase; margin-bottom: 10px; }
+.s3-title { font-size: 40px; font-weight: 700; color: #E8F4FD; }
+.timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  width: 100%;
+  position: relative;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 60px;
+  right: 60px;
+  height: 1px;
+  background: rgba(30,144,255,0.2);
+}
+.tl-item {
+  flex: 1;
+  text-align: center;
+  padding: 0 16px;
+  opacity: 0;
+}
+.tl-item:nth-child(1) { animation: fadeSlide 0.4s 0.3s ease-out forwards; }
+.tl-item:nth-child(2) { animation: fadeSlide 0.4s 0.45s ease-out forwards; }
+.tl-item:nth-child(3) { animation: fadeSlide 0.4s 0.6s ease-out forwards; }
+.tl-item:nth-child(4) { animation: fadeSlide 0.4s 0.75s ease-out forwards; }
+.tl-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1E90FF;
+  margin: 0 auto 16px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 4px rgba(30,144,255,0.15);
+}
+.tl-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1E90FF;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.tl-event {
+  font-size: 15px;
+  font-weight: 600;
+  color: #E8F4FD;
+  margin-bottom: 6px;
+}
+.tl-note {
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(232,244,253,0.5);
+  line-height: 1.5;
+}
+
+/* === SCENE 4: Social Proof === */
+.s4 {
+  padding: 60px 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.s4-header {
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeSlide 0.5s 0.2s ease-out forwards;
+}
+.s4-eyebrow { font-size: 11px; letter-spacing: 0.25em; color: #1E90FF; text-transform: uppercase; margin-bottom: 10px; }
+.s4-title { font-size: 42px; font-weight: 700; color: #E8F4FD; }
+.quote-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.quote-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 24px;
+  opacity: 0;
+}
+.quote-card:nth-child(1) { animation: fadeSlide 0.4s 0.35s ease-out forwards; }
+.quote-card:nth-child(2) { animation: fadeSlide 0.4s 0.5s ease-out forwards; }
+.quote-card:nth-child(3) { animation: fadeSlide 0.4s 0.65s ease-out forwards; }
+.quote-text {
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(232,244,253,0.8);
+  line-height: 1.7;
+  margin-bottom: 18px;
+  font-style: italic;
+}
+.quote-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quote-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(30,144,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1E90FF;
+}
+.quote-name { font-size: 13px; font-weight: 600; color: #E8F4FD; }
+.quote-role { font-size: 11px; color: rgba(232,244,253,0.4); }
+
+/* === SCENE 5: CTA === */
+.s5 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.s5-bg-glow {
+  position: absolute;
+  width: 600px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(30,144,255,0.1) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.s5-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: #1E90FF;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeSlide 0.5s 0.2s ease-out forwards;
+  position: relative;
+}
+.s5-title {
+  font-size: 60px;
+  font-weight: 700;
+  color: #E8F4FD;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeSlide 0.7s 0.4s ease-out forwards;
+  position: relative;
+}
+.s5-title .accent { color: #1E90FF; }
+.s5-desc {
+  font-size: 18px;
+  font-weight: 300;
+  color: rgba(232,244,253,0.6);
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeSlide 0.6s 0.6s ease-out forwards;
+  position: relative;
+}
+.s5-cta-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  opacity: 0;
+  animation: fadeSlide 0.5s 0.8s ease-out forwards;
+  position: relative;
+}
+.cta-main {
+  padding: 16px 40px;
+  background: #1E90FF;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  cursor: default;
+  box-shadow: 0 8px 32px rgba(30,144,255,0.3);
+}
+.cta-sec {
+  padding: 16px 32px;
+  border: 1px solid rgba(30,144,255,0.4);
+  border-radius: 10px;
+  font-size: 15px;
+  color: #1E90FF;
+  cursor: default;
+}
+.s5-trust {
+  display: flex;
+  gap: 32px;
+  margin-top: 32px;
+  opacity: 0;
+  animation: fadeSlide 0.5s 1.0s ease-out forwards;
+  position: relative;
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(232,244,253,0.5);
+}
+.trust-dot { width: 6px; height: 6px; border-radius: 50%; background: #00B4D8; }
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+<div class="stage-info" id="stageInfo">Scene 1 / 5 · Hero</div>
+<div class="model-badge">Model B · Gemini 2.5 Flash · T1 Data-Driven Corporate</div>
+<div class="progress" id="progress"></div>
+
+<div id="canvas">
+
+  <!-- S1 -->
+  <div class="scene s1 active" id="s1">
+    <div class="s1-left">
+      <div class="s1-eyebrow">Enterprise AI Platform</div>
+      <div class="s1-title">让团队效率<br>提升 <span class="accent">3×</span></div>
+      <div class="s1-desc">FluxAI 将 AI 能力直接嵌入您的工作流，无需复杂集成，即刻提升团队生产力与决策质量。</div>
+      <div class="s1-btns">
+        <div class="btn-primary">免费开始使用</div>
+        <div class="btn-secondary">查看演示</div>
+      </div>
+    </div>
+    <div class="s1-right">
+      <div class="dash-card">
+        <div class="dash-label">本月 AI 处理量</div>
+        <div class="dash-value">12.4<span class="small">M 次请求</span></div>
+        <div class="dash-trend">↑ 较上月 +28%</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-label">平均响应延迟</div>
+        <div class="dash-value">48<span class="small">ms P99</span></div>
+        <div class="dash-trend">↓ 持续优化中</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="scene s2" id="s2">
+    <div class="s2-header">
+      <div class="s2-eyebrow">产品能力</div>
+      <div class="s2-title">一套平台，覆盖 <span class="accent">全部场景</span></div>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-item">
+        <div class="feat-icon">🧠</div>
+        <div class="feat-name">智能问答</div>
+        <div class="feat-desc">基于私有知识库，精准回答企业内部问题，准确率 96%+</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-icon">📊</div>
+        <div class="feat-name">数据洞察</div>
+        <div class="feat-desc">自然语言查询数据，秒级生成可视化报告，无需 SQL</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-name">流程自动化</div>
+        <div class="feat-desc">AI Agent 自主执行复杂任务流，释放人力处理高价值工作</div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-icon">🔒</div>
+        <div class="feat-name">安全合规</div>
+        <div class="feat-desc">SOC2 认证，私有化可选，满足金融、医疗等高合规要求</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="scene s3" id="s3">
+    <div class="s3-header">
+      <div class="s3-eyebrow">上线历程</div>
+      <div class="s3-title">从 0 到 10M+ 用户</div>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2024 Q1</div>
+        <div class="tl-event">内测启动</div>
+        <div class="tl-note">50 家种子用户，NPS 92</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2024 Q3</div>
+        <div class="tl-event">正式公测</div>
+        <div class="tl-note">接入企业 500+，DAU 破万</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2025 Q1</div>
+        <div class="tl-event">规模爆发</div>
+        <div class="tl-note">月调用量突破 1亿次</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#fff;box-shadow:0 0 0 4px rgba(30,144,255,0.3),0 0 20px #1E90FF"></div>
+        <div class="tl-date" style="color:#fff">NOW</div>
+        <div class="tl-event" style="color:#1E90FF">行业第一</div>
+        <div class="tl-note">全球 200+ 企业客户</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="scene s4" id="s4">
+    <div class="s4-header">
+      <div class="s4-eyebrow">客户声音</div>
+      <div class="s4-title">他们怎么说</div>
+    </div>
+    <div class="quote-grid">
+      <div class="quote-card">
+        <div class="quote-text">「FluxAI 让我们的客服团队效率直接翻倍，复杂问题解决时间从 30 分钟缩短到 5 分钟。」</div>
+        <div class="quote-author">
+          <div class="quote-avatar">张</div>
+          <div><div class="quote-name">张磊</div><div class="quote-role">某头部电商 CTO</div></div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">「私有化部署让我们彻底放下合规顾虑，数据安全有保障，业务团队用得放心。」</div>
+        <div class="quote-author">
+          <div class="quote-avatar">林</div>
+          <div><div class="quote-name">林晓峰</div><div class="quote-role">某金融机构首席信息官</div></div>
+        </div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">「从接入到上线只用了 3 天，API 文档清晰，工程团队非常满意，愿意继续扩大规模。」</div>
+        <div class="quote-author">
+          <div class="quote-avatar">王</div>
+          <div><div class="quote-name">王芳</div><div class="quote-role">某 SaaS 公司技术负责人</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="scene s5" id="s5">
+    <div class="s5-bg-glow"></div>
+    <div class="s5-eyebrow">开始您的旅程</div>
+    <div class="s5-title">准备好了吗？<br>让 <span class="accent">AI</span> 改变一切</div>
+    <div class="s5-desc">免费体验 14 天，无需信用卡，随时取消</div>
+    <div class="s5-cta-row">
+      <div class="cta-main">立即免费开始</div>
+      <div class="cta-sec">预约 Demo</div>
+    </div>
+    <div class="s5-trust">
+      <div class="trust-item"><div class="trust-dot"></div>200+ 企业客户</div>
+      <div class="trust-item"><div class="trust-dot"></div>SOC 2 认证</div>
+      <div class="trust-item"><div class="trust-dot"></div>99.9% SLA</div>
+      <div class="trust-item"><div class="trust-dot"></div>本地化部署</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const scenes = [
+  { id: 's1', label: 'Scene 1/5 · Hero 商务展示', duration: 4500 },
+  { id: 's2', label: 'Scene 2/5 · 产品能力矩阵', duration: 5000 },
+  { id: 's3', label: 'Scene 3/5 · 成长里程碑', duration: 4500 },
+  { id: 's4', label: 'Scene 4/5 · 客户证言', duration: 5000 },
+  { id: 's5', label: 'Scene 5/5 · CTA 转化', duration: 4500 },
+];
+const totalDuration = scenes.reduce((s, x) => s + x.duration, 0);
+let current = 0;
+let startTime = Date.now();
+let timer;
+
+function showScene(idx) {
+  scenes.forEach((s, i) => {
+    const el = document.getElementById(s.id);
+    el.className = 'scene ' + s.id + (i === idx ? ' active' : '');
+  });
+  document.getElementById('stageInfo').textContent = scenes[idx].label;
+}
+function nextScene() {
+  const prev = document.getElementById(scenes[current].id);
+  prev.className = 'scene ' + scenes[current].id + ' exiting';
+  setTimeout(() => {
+    current = (current + 1) % scenes.length;
+    if (current === 0) startTime = Date.now();
+    showScene(current);
+    scheduleNext();
+  }, 500);
+}
+function scheduleNext() {
+  clearTimeout(timer);
+  timer = setTimeout(nextScene, scenes[current].duration);
+}
+function updateProgress() {
+  let tot = 0;
+  for (let i = 0; i < current; i++) tot += scenes[i].duration;
+  tot += (Date.now() - startTime);
+  document.getElementById('progress').style.width = Math.min((tot / totalDuration) * 100, 100) + '%';
+  requestAnimationFrame(updateProgress);
+}
+scheduleNext();
+requestAnimationFrame(updateProgress);
+</script>
+</body>
+</html>
