@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内容审核系统 — 待审核列表（Model B · Gemini · 极简白色风格）</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --primary: #1a73e8;
+  --primary-light: #e8f0fe;
+  --surface: #fff;
+  --bg: #f8f9fa;
+  --border: #e0e0e0;
+  --text: #202124;
+  --text-2: #5f6368;
+  --text-3: #9aa0a6;
+  --error: #d93025;
+  --warn: #f29900;
+  --success: #34a853;
+  --radius: 8px;
+  --font: 'Google Sans', Roboto, -apple-system, 'PingFang SC', sans-serif;
+}
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+
+/* TOPBAR */
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); height: 64px; display: flex; align-items: center; padding: 0 24px; gap: 16px; position: sticky; top: 0; z-index: 100; }
+.logo { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; color: var(--text); }
+.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
+.hamburger { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; color: var(--text-2); font-size: 18px; }
+.hamburger:hover { background: rgba(0,0,0,.06); }
+.topbar-search { flex: 1; max-width: 480px; background: var(--bg); border: 1px solid var(--border); border-radius: 24px; height: 40px; display: flex; align-items: center; padding: 0 16px; gap: 10px; transition: background .15s, box-shadow .15s; }
+.topbar-search:focus-within { background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.15); border-color: transparent; }
+.topbar-search input { flex: 1; border: none; outline: none; font-size: 14px; background: transparent; color: var(--text); }
+.topbar-search input::placeholder { color: var(--text-3); }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.icon-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--text-2); position: relative; }
+.icon-btn:hover { background: rgba(0,0,0,.06); }
+.badge { position: absolute; top: 6px; right: 6px; width: 16px; height: 16px; background: var(--error); border-radius: 50%; font-size: 10px; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #4285f4, #1a73e8); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; cursor: pointer; }
+
+/* LAYOUT */
+.container { display: flex; max-width: 100%; }
+.sidenav { width: 256px; min-height: calc(100vh - 64px); background: var(--surface); padding: 8px 0; flex-shrink: 0; }
+.nav-item { display: flex; align-items: center; gap: 14px; padding: 10px 16px; margin: 2px 8px; border-radius: var(--radius); cursor: pointer; font-size: 14px; color: var(--text-2); transition: all .1s; }
+.nav-item:hover { background: var(--bg); color: var(--text); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+.nav-item .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+.nav-badge { margin-left: auto; background: var(--error); color: #fff; border-radius: 10px; padding: 1px 6px; font-size: 11px; font-weight: 600; }
+.nav-badge.warn { background: var(--warn); }
+.nav-badge.purple { background: #9c27b0; }
+.nav-divider { height: 1px; background: var(--border); margin: 8px 0; }
+.nav-label { font-size: 11px; font-weight: 500; color: var(--text-3); padding: 8px 16px 4px; letter-spacing: .06em; text-transform: uppercase; }
+
+/* MAIN */
+.main { flex: 1; padding: 24px; min-width: 0; }
+.page-title { font-size: 22px; font-weight: 400; color: var(--text); margin-bottom: 6px; }
+.page-desc { font-size: 13px; color: var(--text-2); margin-bottom: 24px; }
+
+/* CHIPS ROW */
+.chips-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1px solid var(--border); cursor: pointer; transition: all .15s; background: #fff; color: var(--text-2); }
+.chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.chip .num { background: rgba(255,255,255,.25); border-radius: 10px; padding: 0 6px; font-size: 11px; }
+.chip:not(.active) .num { background: var(--bg); color: var(--text-2); }
+
+/* TOOLBAR */
+.toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.toolbar-left { display: flex; gap: 8px; }
+.toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 16px; height: 36px; border-radius: var(--radius); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; border: 1px solid transparent; letter-spacing: .01em; }
+.btn-filled { background: var(--primary); color: #fff; }
+.btn-filled:hover { background: #1557b0; }
+.btn-outlined { border-color: var(--border); background: #fff; color: var(--text); }
+.btn-outlined:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
+.btn-text { color: var(--primary); background: transparent; padding: 0 8px; }
+.btn-text:hover { background: var(--primary-light); }
+
+/* TABLE CARD */
+.table-card { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--bg); }
+th { padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 500; color: var(--text-2); letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 13px 16px; border-bottom: 1px solid var(--bg); font-size: 13px; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background .1s; }
+tbody tr:hover { background: #f8f9ff; }
+
+/* CHECK */
+.check { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.check:hover { border-color: var(--primary); }
+.check.on { background: var(--primary); border-color: var(--primary); }
+.check.on::after { content: ''; display: block; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translate(-1px, -1px); }
+
+/* CONTENT CELL */
+.cc { display: flex; gap: 12px; align-items: center; }
+.cc-thumb { width: 48px; height: 36px; border-radius: 4px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid var(--border); }
+.cc-text { min-width: 0; }
+.cc-title { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; margin-bottom: 2px; }
+.cc-sub { font-size: 11px; color: var(--text-3); }
+
+/* BADGES */
+.badge-risk { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.badge-risk.h { background: #fce8e6; color: var(--error); }
+.badge-risk.m { background: #fef7e0; color: #e37400; }
+.badge-risk.l { background: #e6f4ea; color: #137333; }
+
+.badge-type { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; border: 1px solid; }
+.bt-vid { color: #1967d2; border-color: #c5d9f8; background: #e8f0fe; }
+.bt-img { color: #c5221f; border-color: #f5c6c5; background: #fce8e6; }
+.bt-txt { color: #0d652d; border-color: #b7dfc7; background: #e6f4ea; }
+.bt-live { color: #e37400; border-color: #fdd663; background: #fef7e0; }
+
+/* TAGS */
+.vtag { display: inline-block; padding: 1px 8px; border-radius: 12px; font-size: 11px; color: var(--text-2); background: var(--bg); border: 1px solid var(--border); margin: 1px; }
+
+/* CONF */
+.conf-wrap { display: flex; flex-direction: column; gap: 4px; }
+.conf-pct { font-size: 12px; font-weight: 600; }
+.conf-bar { width: 64px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.conf-fill { height: 100%; border-radius: 2px; }
+.cf-h { background: var(--error); }
+.cf-m { background: var(--warn); }
+.cf-l { background: var(--success); }
+
+/* STATUS DOT */
+.sdot { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+.sdot::before { content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sdot.p::before { background: var(--warn); }
+.sdot.r::before { background: var(--primary); }
+
+/* PAGINATION */
+.pgn { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-2); }
+.pgn-btns { display: flex; gap: 2px; }
+.pgn-btn { width: 36px; height: 36px; border-radius: var(--radius); border: 1px solid transparent; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; color: var(--text-2); transition: all .1s; }
+.pgn-btn:hover { background: var(--bg); }
+.pgn-btn.cur { background: var(--primary); color: #fff; border-color: var(--primary); }
+.pgn-btn.off { color: var(--text-3); cursor: default; }
+
+/* SNACKBAR */
+.snack-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.snack { background: #323232; color: #fff; padding: 12px 20px; border-radius: 4px; font-size: 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 3px 5px rgba(0,0,0,.2); min-width: 200px; transform: translateY(60px); opacity: 0; transition: all .25s; }
+.snack.vis { transform: translateY(0); opacity: 1; }
+.snack-action { color: #82b1ff; font-weight: 500; cursor: pointer; margin-left: auto; }
+
+/* DIALOG */
+.dlg-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.dlg-bg.open { opacity: 1; pointer-events: all; }
+.dlg { background: #fff; border-radius: 12px; width: 480px; max-width: 92vw; box-shadow: 0 8px 24px rgba(0,0,0,.2); transform: scale(.95); transition: transform .2s; }
+.dlg-bg.open .dlg { transform: scale(1); }
+.dlg-head { padding: 20px 24px 0; }
+.dlg-head h3 { font-size: 20px; font-weight: 400; }
+.dlg-body { padding: 16px 24px; font-size: 14px; line-height: 1.6; color: var(--text-2); }
+.dlg-foot { padding: 8px 16px; display: flex; justify-content: flex-end; gap: 8px; }
+.dlg-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+.di-label { font-size: 11px; color: var(--text-3); margin-bottom: 2px; }
+.di-value { font-size: 13px; color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="hamburger">☰</div>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    内容审核中台
+  </div>
+  <div class="topbar-search">
+    <span style="color:var(--text-3)">🔍</span>
+    <input type="text" placeholder="搜索内容标题、作者或 ID">
+  </div>
+  <div class="topbar-right">
+    <div class="icon-btn">⚙️</div>
+    <div class="icon-btn">
+      🔔
+      <div class="badge">9</div>
+    </div>
+    <div class="avatar">L</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <div class="nav-label">工作台</div>
+    <div class="nav-item active">
+      <span class="nav-icon">📋</span>
+      待审核内容
+      <span class="nav-badge">247</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">⚡</span>
+      急审队列
+      <span class="nav-badge warn">18</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">🤖</span>
+      AI 预审结果
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-label">管理</div>
+    <div class="nav-item">
+      <span class="nav-icon">📁</span>
+      已处理记录
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">🔄</span>
+      申诉复核
+      <span class="nav-badge purple">6</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📊</span>
+      数据看板
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-item">
+      <span class="nav-icon">⚙️</span>
+      审核策略
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <h1 class="page-title">待审核内容</h1>
+    <p class="page-desc">按风险等级和提交时间排序 · 最近更新于 13:42</p>
+
+    <!-- FILTER CHIPS -->
+    <div class="chips-row">
+      <div class="chip active" onclick="setChip(this)">全部 <span class="num">247</span></div>
+      <div class="chip" onclick="setChip(this)">🔴 高风险 <span class="num">38</span></div>
+      <div class="chip" onclick="setChip(this)">🟡 中风险 <span class="num">89</span></div>
+      <div class="chip" onclick="setChip(this)">🟢 低风险 <span class="num">120</span></div>
+      <div class="chip" onclick="setChip(this)">📹 视频 <span class="num">104</span></div>
+      <div class="chip" onclick="setChip(this)">🖼 图片 <span class="num">76</span></div>
+      <div class="chip" onclick="setChip(this)">📝 文本 <span class="num">52</span></div>
+      <div class="chip" onclick="setChip(this)">📺 直播 <span class="num">15</span></div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="btn btn-filled" onclick="showSnack('批量操作：请先勾选内容')">批量处理</button>
+        <button class="btn btn-outlined">📥 导出</button>
+        <button class="btn btn-outlined">🔄 刷新</button>
+      </div>
+      <div class="toolbar-right">
+        <span style="font-size:13px;color:var(--text-2)">排序方式：</span>
+        <button class="btn btn-outlined" style="gap:4px">提交时间 ▼</button>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:44px;padding-left:16px"><div class="check" onclick="this.classList.toggle('on')"></div></th>
+            <th>内容信息</th>
+            <th>类型</th>
+            <th>风险等级</th>
+            <th>AI 置信度</th>
+            <th>违规标签</th>
+            <th>提交时间</th>
+            <th>状态</th>
+            <th style="text-align:right;padding-right:16px">操作</th>
+          </tr>
+        </thead>
+        <tbody id="tb"></tbody>
+      </table>
+      <div class="pgn">
+        <span>第 1–10 条，共 247 条</span>
+        <div class="pgn-btns">
+          <div class="pgn-btn off">‹</div>
+          <div class="pgn-btn cur">1</div>
+          <div class="pgn-btn">2</div>
+          <div class="pgn-btn">3</div>
+          <div class="pgn-btn">…</div>
+          <div class="pgn-btn">25</div>
+          <div class="pgn-btn">›</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- DETAIL DIALOG -->
+<div class="dlg-bg" id="dlg" onclick="closeDlg(event)">
+  <div class="dlg" onclick="event.stopPropagation()">
+    <div class="dlg-head"><h3 id="dlg-title">内容详情</h3></div>
+    <div class="dlg-body" id="dlg-body"></div>
+    <div class="dlg-foot">
+      <button class="btn btn-outlined" style="color:#d93025;border-color:#d93025" onclick="act('违规下架')">违规下架</button>
+      <button class="btn btn-outlined" onclick="closeDlg()">跳过</button>
+      <button class="btn btn-filled" onclick="act('审核通过')">通过</button>
+    </div>
+  </div>
+</div>
+
+<!-- SNACK -->
+<div class="snack-wrap" id="snacks"></div>
+
+<script>
+const rows = [
+  {id:'C-001',title:'某地严重交通事故现场视频',author:'news_reporter',type:'vid',risk:'h',conf:94,tags:['血腥内容','未成年人'],time:'13:42',s:'p',e:'📹'},
+  {id:'C-002',title:'自制减肥神药真实记录',author:'健康博主Linda',type:'img',risk:'h',conf:87,tags:['虚假广告','健康违规'],time:'13:38',s:'p',e:'🖼'},
+  {id:'C-003',title:'知名艺人被曝出轨全部聊天记录',author:'娱乐爆料站',type:'txt',risk:'h',conf:91,tags:['侵犯隐私','散布谣言'],time:'13:31',s:'p',e:'📝'},
+  {id:'C-004',title:'上海最值得打卡的10家隐藏餐厅',author:'吃遍上海小明',type:'vid',risk:'l',conf:72,tags:['低风险'],time:'13:25',s:'r',e:'📹'},
+  {id:'C-005',title:'路边禁停城管不管？居民苦不堪言',author:'城市观察员',type:'img',risk:'m',conf:65,tags:['投诉类内容'],time:'13:19',s:'p',e:'🖼'},
+  {id:'C-006',title:'直播分享股票内幕消息必赚钱',author:'股神李老师',type:'live',risk:'h',conf:96,tags:['金融欺诈','违规荐股'],time:'13:08',s:'p',e:'📺'},
+  {id:'C-007',title:'北京周边最美5条徒步路线推荐',author:'户外探险家',type:'txt',risk:'l',conf:12,tags:['低风险'],time:'12:55',s:'p',e:'📝'},
+  {id:'C-008',title:'绕过平台检测发布违禁内容完整教程',author:'技术灰帽子',type:'txt',risk:'h',conf:99,tags:['平台规则违反','教唆违规'],time:'12:41',s:'p',e:'📝'},
+  {id:'C-009',title:'居家健身30天变化真实记录',author:'燃脂小达人',type:'vid',risk:'l',conf:8,tags:['低风险'],time:'12:33',s:'p',e:'📹'},
+  {id:'C-010',title:'AI换脸技术教学视频',author:'AI技术分享',type:'img',risk:'m',conf:78,tags:['深度伪造','AI滥用'],time:'12:18',s:'r',e:'🖼'},
+];
+
+const riskMap = {h:{cls:'h',label:'高风险'},m:{cls:'m',label:'中风险'},l:{cls:'l',label:'低风险'}};
+const typeMap = {vid:{cls:'bt-vid',label:'视频'},img:{cls:'bt-img',label:'图片'},txt:{cls:'bt-txt',label:'文本'},live:{cls:'bt-live',label:'直播'}};
+
+function renderTb(){
+  document.getElementById('tb').innerHTML = rows.map((r,i)=>{
+    const rk=riskMap[r.risk];const tp=typeMap[r.type];
+    const cfcls=r.risk==='h'?'cf-h':r.risk==='m'?'cf-m':'cf-l';
+    const cfcolor=r.risk==='h'?'var(--error)':r.risk==='m'?'var(--warn)':'var(--success)';
+    const tags=r.tags.map(t=>`<span class="vtag">${t}</span>`).join('');
+    return `<tr>
+      <td style="padding-left:16px"><div class="check" onclick="this.classList.toggle('on')"></div></td>
+      <td><div class="cc">
+        <div class="cc-thumb">${r.e}</div>
+        <div class="cc-text">
+          <div class="cc-title" title="${r.title}">${r.title}</div>
+          <div class="cc-sub">${r.author} · ${r.id}</div>
+        </div>
+      </div></td>
+      <td><span class="badge-type ${tp.cls}">${tp.label}</span></td>
+      <td><span class="badge-risk ${rk.cls}">${rk.label}</span></td>
+      <td><div class="conf-wrap">
+        <span class="conf-pct" style="color:${cfcolor}">${r.conf}%</span>
+        <div class="conf-bar"><div class="conf-fill ${cfcls}" style="width:${r.conf}%"></div></div>
+      </div></td>
+      <td>${tags}</td>
+      <td style="color:var(--text-2);font-size:12px">今天 ${r.time}</td>
+      <td><span class="sdot ${r.s}">${r.s==='p'?'待审核':'审核中'}</span></td>
+      <td style="text-align:right;padding-right:16px">
+        <button class="btn btn-text" onclick="openDlg(${i})" style="font-size:12px">详情</button>
+        <button class="btn btn-filled" onclick="act('通过')" style="height:28px;padding:0 12px;font-size:12px;background:var(--success)">通过</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setChip(el){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function openDlg(i){
+  const r=rows[i];const rk=riskMap[r.risk];const tp=typeMap[r.type];
+  document.getElementById('dlg-title').textContent='内容详情';
+  document.getElementById('dlg-body').innerHTML=`
+    <div class="dlg-info" style="margin-bottom:16px">
+      <div><div class="di-label">内容标题</div><div class="di-value"><strong>${r.title}</strong></div></div>
+      <div><div class="di-label">发布作者</div><div class="di-value">${r.author}</div></div>
+      <div><div class="di-label">内容类型</div><div class="di-value"><span class="badge-type ${tp.cls}">${tp.label}</span></div></div>
+      <div><div class="di-label">风险等级</div><div class="di-value"><span class="badge-risk ${rk.cls}">${rk.label}</span></div></div>
+      <div><div class="di-label">AI 置信度</div><div class="di-value" style="font-weight:600;color:${r.risk==='h'?'var(--error)':'var(--warn)'}">${r.conf}%</div></div>
+      <div><div class="di-label">提交时间</div><div class="di-value">今天 ${r.time}</div></div>
+    </div>
+    <div style="margin-bottom:12px"><div class="di-label" style="margin-bottom:6px">违规标签</div><div>${r.tags.map(t=>`<span class="vtag">${t}</span>`).join(' ')}</div></div>
+    <div style="background:#fef7e0;border-radius:6px;padding:12px 14px;font-size:13px;border-left:3px solid var(--warn)">
+      <strong>AI 审核意见：</strong>检测到内容可能存在「${r.tags[0]}」风险，置信度 ${r.conf}%，建议人工复核。
+    </div>`;
+  document.getElementById('dlg').classList.add('open');
+}
+
+function closeDlg(e){
+  if(!e||e.target.id==='dlg') document.getElementById('dlg').classList.remove('open');
+}
+
+function act(action){
+  document.getElementById('dlg').classList.remove('open');
+  showSnack(`操作「${action}」已执行`);
+}
+
+function showSnack(msg){
+  const w=document.getElementById('snacks');
+  const el=document.createElement('div');
+  el.className='snack';
+  el.innerHTML=`<span>${msg}</span><span class="snack-action" onclick="this.parentNode.remove()">关闭</span>`;
+  w.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('vis'));
+  setTimeout(()=>{el.classList.remove('vis');setTimeout(()=>el.remove(),300);},3000);
+}
+
+renderTb();
+</script>
+</body>
+</html>

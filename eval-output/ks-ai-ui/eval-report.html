@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KS-AI-UI v1.0.0 · AQE 设计侧评测报告</title>
+<style>
+:root {
+  --bg:#f8f7f4;--surface:#fff;--surface2:#f3f1ec;--border:#e2ddd6;
+  --text1:#1a1714;--text2:#5c5650;--textm:#9a9088;
+  --brown:#3d5a99;--warm:#2563eb;
+  --pass:#2d7a4f;--pass-bg:#edf7f2;
+  --watch:#7a6520;--watch-bg:#faf5e4;
+  --fail:#a0290e;--fail-bg:#fdf1ee;
+  --block:#8b0000;--block-bg:#fff0f0;
+  --part:#5a4e2b;--part-bg:#fdf9ed;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;line-height:1.6}
+
+.hdr{background:linear-gradient(135deg,#1e3a6e,#2d5fbe);color:#fff;padding:36px 48px 32px}
+.hdr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:6px;padding:3px 12px;font-size:11px;margin-bottom:14px;letter-spacing:.05em}
+.hdr h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hdr-meta{opacity:.75;font-size:12px;display:flex;gap:20px;flex-wrap:wrap}
+
+.vbar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.vpill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px}
+.vpill.fail{background:var(--fail-bg);color:var(--fail);border:1.5px solid #e8bab2}
+.vpill.watch{background:var(--watch-bg);color:var(--watch);border:1.5px solid #e5d48a}
+.vpill.pass{background:var(--pass-bg);color:var(--pass);border:1.5px solid #aadcc2}
+.vpill.part{background:var(--part-bg);color:var(--part);border:1.5px solid #d4c88a}
+.vitem{display:flex;flex-direction:column;gap:4px}
+.vlabel{font-size:11px;color:var(--textm)}
+
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;display:flex;position:sticky;top:0;z-index:99;overflow-x:auto}
+.ntab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--textm);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .15s}
+.ntab:hover{color:var(--text2)}
+.ntab.active{color:var(--warm);border-bottom-color:var(--warm);font-weight:600}
+
+.content{max-width:1080px;margin:0 auto;padding:32px 48px}
+section.ts{display:none}
+section.ts.active{display:block}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+h2.stitle{font-size:17px;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);color:var(--brown)}
+
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top}
+th{background:var(--surface2);font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.pass{background:var(--pass-bg);color:var(--pass)}
+.chip.fail{background:var(--fail-bg);color:var(--fail)}
+.chip.part{background:var(--part-bg);color:var(--part)}
+.chip.block{background:var(--block-bg);color:var(--block)}
+.chip.na{background:#f0f0f0;color:#888}
+.chip.watch{background:var(--watch-bg);color:var(--watch)}
+
+.pri{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pri.p0{background:#fde8e5;color:#c0392b}
+.pri.p1{background:#fdf3e0;color:#d68910}
+.pri.p2{background:#f0f0f0;color:#888}
+
+.aqe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.aqe-dim{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center}
+.aqe-dim .did{font-size:10px;font-weight:700;color:var(--textm);letter-spacing:.08em;margin-bottom:3px}
+.aqe-dim .dname{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;line-height:1.3;min-height:30px}
+.scores{display:flex;justify-content:center;gap:10px}
+.sbadge{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbadge .sv{font-size:22px;font-weight:900;line-height:1}
+.sbadge .sl{font-size:9px;color:var(--textm)}
+.sg{color:var(--pass)}.sw{color:var(--watch)}.sf{color:var(--fail)}.sb2{color:var(--block)}
+
+.scorebox{background:linear-gradient(135deg,#1e3a6e,#2d5fbe);color:#fff;border-radius:12px;padding:22px 26px;display:flex;align-items:center;gap:26px;margin-bottom:22px}
+.scorebox .bscore{font-size:52px;font-weight:900;line-height:1;flex-shrink:0}
+.scorebox .sdesc h3{font-size:15px;margin-bottom:5px}
+.scorebox .sdesc p{font-size:12px;opacity:.85;line-height:1.5}
+
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.scard{padding:16px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+
+.cl{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cl:last-child{border-bottom:none}
+.clicon{flex-shrink:0;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:2px}
+.clicon.pass{background:var(--pass-bg);color:var(--pass)}
+.clicon.fail{background:var(--fail-bg);color:var(--fail)}
+.clicon.part{background:var(--part-bg);color:var(--part)}
+.clicon.na{background:#f0f0f0;color:#aaa}
+.cltxt .cll{font-weight:600;margin-bottom:2px;font-size:13px}
+.cltxt .cln{color:var(--textm);font-size:12px;line-height:1.4}
+
+.kf{background:var(--fail-bg);border:1px solid #e8bab2;border-left:4px solid var(--fail);border-radius:8px;padding:15px;margin-bottom:12px}
+.kfid{font-size:10px;font-weight:700;color:var(--fail);letter-spacing:.08em;margin-bottom:5px}
+.kftitle{font-weight:700;font-size:14px;margin-bottom:9px}
+.kfrow{display:flex;gap:6px;margin-bottom:4px;font-size:12px}
+.kfkey{font-weight:600;color:var(--text2);white-space:nowrap;min-width:58px}
+
+.fix{background:var(--surface2);border-radius:8px;padding:13px 15px;margin-bottom:11px;border-left:3px solid var(--warm)}
+.fixtitle{font-weight:700;font-size:13px;margin-bottom:5px}
+.fixbody{font-size:12px;color:var(--text2);line-height:1.6}
+.fixbody code{background:#ede9e0;border-radius:3px;padding:1px 5px;font-family:monospace;font-size:11px}
+
+.pbox{background:#1a1714;color:#e8e0d5;border-radius:10px;padding:15px 18px;font-family:Menlo,monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;margin:11px 0;overflow-x:auto}
+
+.artifact-links{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+.alink{border:1.5px solid var(--border);border-radius:10px;padding:16px;background:var(--surface);transition:all .15s;cursor:pointer;text-decoration:none;color:inherit;display:block}
+.alink:hover{border-color:var(--warm);box-shadow:0 2px 8px rgba(37,99,235,.1)}
+.alink .al-label{font-size:10px;font-weight:700;color:var(--textm);letter-spacing:.06em;margin-bottom:4px;text-transform:uppercase}
+.alink .al-name{font-size:14px;font-weight:700;margin-bottom:4px}
+.alink .al-desc{font-size:12px;color:var(--text2);line-height:1.4}
+.alink .al-verdict{margin-top:8px}
+
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+.cg-col{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cg-head{padding:12px 14px;font-size:13px;font-weight:700;border-bottom:1px solid var(--border)}
+.cg-head.a{background:#edf7f2;color:var(--pass)}
+.cg-head.b{background:#faf5e4;color:var(--watch)}
+.cg-head.c{background:#fdf1ee;color:var(--fail)}
+.cg-row{padding:8px 14px;font-size:12px;border-bottom:1px solid var(--border);color:var(--text2)}
+.cg-row:last-child{border-bottom:none}
+.cg-row strong{color:var(--text1)}
+
+@media(max-width:768px){
+  .hdr,.vbar,.content,.nav{padding-left:20px;padding-right:20px}
+  .aqe-grid,.stats3,.artifact-links,.compare-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-badge">🖥️ DIR-01 · UI生成 · AQE 设计侧评测报告</div>
+  <h1>KS-AI-UI v1.0.0 · 评测报告</h1>
+  <div class="hdr-meta">
+    <span>Skill 版本：v1.0.0</span>
+    <span>评测标准：skill-design-standard v1.0（AQE + DIR-01）</span>
+    <span>Mock Case：内容审核后台 · 待审核列表页</span>
+    <span>模型：Model A Claude Opus · Model B Gemini · Model C DeepSeek</span>
+    <span>评测日期：2026-04-23</span>
+  </div>
+</div>
+
+<!-- VERDICT BAR -->
+<div class="vbar">
+  <div class="vitem"><div class="vlabel">Gate 0 合规检查</div><span class="vpill fail">⛔ 不通过 — 4项P0缺陷</span></div>
+  <div class="vitem"><div class="vlabel">Model A（Claude Opus · Ant Design Pro）</div><span class="vpill pass">✅ 8.2 · PASS</span></div>
+  <div class="vitem"><div class="vlabel">Model B（Gemini · 极简白色）</div><span class="vpill pass">✅ 7.9 · PASS</span></div>
+  <div class="vitem"><div class="vlabel">Model C（DeepSeek · 信息密集）</div><span class="vpill watch">👀 7.2 · WATCH</span></div>
+  <div style="flex:1;font-size:12px;color:var(--text2);align-self:center">Gate 0 有 P0 缺陷须整改；产物层面 A/B 通过，C 有条件上线（AQE-C 间距随机值问题，2周内修复）。</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="ntab active" onclick="sw('overview')">总览</div>
+  <div class="ntab" onclick="sw('compliance')">Gate 0 合规检查</div>
+  <div class="ntab" onclick="sw('mock')">Mock Case</div>
+  <div class="ntab" onclick="sw('aqe')">AQE 评测打分</div>
+  <div class="ntab" onclick="sw('checklist')">DIR-01 Checklist</div>
+  <div class="ntab" onclick="sw('failures')">Known Failures</div>
+  <div class="ntab" onclick="sw('fixes')">整改建议</div>
+</nav>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ═══ TAB: 总览 ═══ -->
+<section id="tab-overview" class="ts active">
+  <h2 class="stitle">评测总览</h2>
+
+  <div class="scorebox">
+    <div class="bscore">7.9</div>
+    <div class="sdesc">
+      <h3>综合结论：✅ PASS（以 Model B 为基准产物，三模型加权均值）</h3>
+      <p>Gate 0 存在 4 项 P0 级缺陷（竞品对标缺失、输出格式未锁定、组件库未在 SKILL.md 声明、输出精度未区分原型级/生产级），须整改后方可走正式准入流程。<br>
+      产物层面：Model A（8.2 PASS）Ant Design Pro 风格完整度高，交互状态完备；Model B（7.9 PASS）极简克制，层级清晰；Model C（7.2 WATCH）信息密度过高，AQE-C 间距随机值失分，2周内修复可上线。</p>
+    </div>
+  </div>
+
+  <div class="stats3">
+    <div class="scard" style="border-left:4px solid var(--fail)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">GATE 0 合规</div>
+      <div style="font-size:24px;font-weight:800;color:var(--fail)">4项 P0 ❌</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">竞品对标、输出格式、组件库声明、输出精度四项 P0 缺失</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">Model A · Claude Opus</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">8.2 PASS</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">Ant Design Pro 风格，交互状态完备，信息层级优秀</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">Model B · Gemini</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">7.9 PASS</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">Google Material 风格，极简克制，布局呼吸感强</div>
+    </div>
+  </div>
+
+  <!-- 评测流程回溯 -->
+  <div class="card">
+    <div class="card-title">🔄 评测流程回溯</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">📄 读取 SKILL.md<br><span style="color:var(--textm);font-size:11px">SKILL.md · setup-guide<br>templates · design-db</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--fail-bg);border-radius:6px;padding:8px 12px;border:1px solid #e8bab2;text-align:center">⛔ Gate 0 审计<br><span style="color:var(--textm);font-size:11px">4项P0 FAIL<br>3项P1 PARTIAL</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center">✍️ Mock Case<br><span style="color:var(--textm);font-size:11px">内容审核列表页<br>3个模型提示词</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--pass-bg);border-radius:6px;padding:8px 12px;border:1px solid #aadcc2;text-align:center">💻 模型调用<br><span style="color:var(--textm);font-size:11px">A: Claude Opus<br>B: Gemini · C: DeepSeek</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--watch-bg);border-radius:6px;padding:8px 12px;border:1px solid #e5d48a;text-align:center">🎨 AQE 打分<br><span style="color:var(--textm);font-size:11px">A: 8.2 · B: 7.9<br>C: 7.2 WATCH</span></div>
+      <span style="color:var(--textm)">→</span>
+      <div style="background:var(--fail-bg);border-radius:6px;padding:8px 12px;border:1px solid #e8bab2;text-align:center">📝 本报告<br><span style="color:var(--textm);font-size:11px">KF + 整改建议</span></div>
+    </div>
+  </div>
+
+  <!-- 产物外链 -->
+  <div class="card">
+    <div class="card-title">💻 产物预览（可点击查看完整 UI）</div>
+    <div class="artifact-links">
+      <a class="alink" href="model-a-claude-antd.html" target="_blank">
+        <div class="al-label">Model A · Claude Opus</div>
+        <div class="al-name">Ant Design Pro 风格</div>
+        <div class="al-desc">企业级后台，深色侧边栏，ProTable 布局，完整交互状态（hover/focus/toast）</div>
+        <div class="al-verdict"><span class="chip pass">✅ 8.2 PASS</span></div>
+      </a>
+      <a class="alink" href="model-b-gemini-minimal.html" target="_blank">
+        <div class="al-label">Model B · Gemini</div>
+        <div class="al-name">Google Material 极简风格</div>
+        <div class="al-desc">白色顶栏，Chip 过滤器，卡片式布局，Snackbar 反馈，呼吸感充足</div>
+        <div class="al-verdict"><span class="chip pass">✅ 7.9 PASS</span></div>
+      </a>
+      <a class="alink" href="model-c-deepseek-dense.html" target="_blank">
+        <div class="al-label">Model C · DeepSeek</div>
+        <div class="al-name">信息密集功能型</div>
+        <div class="al-desc">深色侧栏，Tab 分类，行内三按钮操作，Drawer 详情，信息密度最高</div>
+        <div class="al-verdict"><span class="chip watch">👀 7.2 WATCH</span></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- 三模型对比 -->
+  <div class="card">
+    <div class="card-title">📊 三模型产物横向对比</div>
+    <div class="compare-grid">
+      <div class="cg-col">
+        <div class="cg-head a">Model A · 8.2 PASS ✅</div>
+        <div class="cg-row"><strong>视觉层级：</strong>三级字号层次清晰（16/14/12px），主次分明</div>
+        <div class="cg-row"><strong>色彩方案：</strong>蓝色主色系，语义色完整（红/橙/绿），和谐</div>
+        <div class="cg-row"><strong>版式规范：</strong>8px 间距体系，对齐严格，留白充足</div>
+        <div class="cg-row"><strong>交互状态：</strong>hover/active/focus 完备，Modal + Toast</div>
+        <div class="cg-row" style="color:var(--fail)"><strong>主要失分：</strong>深色侧边栏菜单项 hover 对比度略低</div>
+      </div>
+      <div class="cg-col">
+        <div class="cg-head b">Model B · 7.9 PASS ✅</div>
+        <div class="cg-row"><strong>视觉层级：</strong>页面标题大，Chip 次之，表格内容再次，层级清晰</div>
+        <div class="cg-row"><strong>色彩方案：</strong>Google 蓝主色，简洁克制，4色以内</div>
+        <div class="cg-row"><strong>版式规范：</strong>留白极佳，间距基本8px系，个别局部稍紧</div>
+        <div class="cg-row"><strong>交互状态：</strong>Dialog + Snackbar，交互反馈良好</div>
+        <div class="cg-row" style="color:var(--watch)"><strong>主要失分：</strong>置信度颜色列无文字辅助（AQE-E2 临界）</div>
+      </div>
+      <div class="cg-col">
+        <div class="cg-head c">Model C · 7.2 WATCH 👀</div>
+        <div class="cg-row"><strong>视觉层级：</strong>整体字号偏小（12/11px 为主），层级区分弱</div>
+        <div class="cg-row"><strong>色彩方案：</strong>深海蓝侧栏，整体色彩尚和谐，情感调性偏冷</div>
+        <div class="cg-row" style="color:var(--fail)"><strong>版式规范：</strong>行内按钮组占用空间过多，间距存在非8px值</div>
+        <div class="cg-row"><strong>交互状态：</strong>Drawer + Toast，但行内三按钮显拥挤</div>
+        <div class="cg-row" style="color:var(--fail)"><strong>主要失分：</strong>AQE-C 间距随机值，AQE-A 字号层级弱</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- END 总览 -->
+
+<!-- ═══ TAB: Gate 0 合规检查 ═══ -->
+<section id="tab-compliance" class="ts">
+  <h2 class="stitle">Gate 0 · Skill 合规检查</h2>
+  <div style="background:var(--fail-bg);border:1.5px solid #e8bab2;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px">
+    ⛔ <strong>总体结论：FAIL</strong> — 存在 4 项 P0 级合规缺陷，须整改后方可准入。具体问题详见下表。
+  </div>
+
+  <!-- A. 描述定义合规 -->
+  <div class="card">
+    <div class="card-title">A · 描述定义合规</div>
+    <table>
+      <thead><tr><th>检查项</th><th>要求</th><th>实际情况</th><th>评级</th><th>优先级</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>A-1 触发词明确</td>
+          <td>触发词不超过 20 个，精准不模糊</td>
+          <td>SKILL.md description 中包含触发词，但部分触发词（"做页面""帮我画界面"）语义模糊，与通用 UI 技能描述重叠</td>
+          <td><span class="chip part">⚠️ PARTIAL</span></td>
+          <td><span class="pri p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>A-2 输出格式声明</td>
+          <td>description 中明确声明输出格式（HTML/TSX/JSON…）</td>
+          <td>description 未声明输出格式，SKILL.md 内有 TSX 示例但外层描述缺失，用户无法判断产物类型</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>A-3 不支持场景声明</td>
+          <td>明确写出"不支持…"边界</td>
+          <td>description 有"不适用"说明，但内容不完整（未覆盖"非 React 项目""多页应用路由"等场景）</td>
+          <td><span class="chip part">⚠️ PARTIAL</span></td>
+          <td><span class="pri p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>A-4 输出精度声明</td>
+          <td>区分"原型级"和"生产级"输出</td>
+          <td>SKILL.md 未区分原型级/生产级输出精度，用户不清楚产物是否可直接用于生产</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p0">P0</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- B. 执行规范合规 -->
+  <div class="card">
+    <div class="card-title">B · 执行流程规范合规</div>
+    <table>
+      <thead><tr><th>检查项</th><th>要求</th><th>实际情况</th><th>评级</th><th>优先级</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>B-1 Step 前置确认</td>
+          <td>Step 2 前禁止写代码，Step 4 前用户确认</td>
+          <td>SKILL.md 明确规定了"Step 2 用户确认前禁止生成代码"，流程约束到位 ✓</td>
+          <td><span class="chip pass">✅ PASS</span></td>
+          <td><span class="pri p2">P2</span></td>
+        </tr>
+        <tr>
+          <td>B-2 Setup Path 分支</td>
+          <td>Setup A/B/C 三路径逻辑明确，无歧义</td>
+          <td>setup-guide.md 中 A/B/C 三路径有说明，但 C 路径（纯 HTML 降级）在 SKILL.md 中未体现，存在不一致</td>
+          <td><span class="chip part">⚠️ PARTIAL</span></td>
+          <td><span class="pri p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>B-3 设计规范引用</td>
+          <td>SKILL.md 引用 design-db 且内容非空</td>
+          <td>SKILL.md 要求"严格遵守 design-db"，但 <code>03-design-db/design-principles.md</code> 与 <code>ui-patterns.md</code> 均为空文件，规范缺失</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>B-4 组件库版本锁定</td>
+          <td>依赖组件库版本在 dependencies.md 中锁定</td>
+          <td><code>01-foundation/dependencies.md</code> 为空文件，Ant Design Pro 版本完全未记录，存在版本漂移风险</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p0">P0</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- C. 文档完整性 -->
+  <div class="card">
+    <div class="card-title">C · 文档完整性合规</div>
+    <table>
+      <thead><tr><th>检查项</th><th>要求</th><th>实际情况</th><th>评级</th><th>优先级</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>C-1 README 完整</td>
+          <td>README.md 包含：用途、快速开始、示例</td>
+          <td>README.md 文件存在但内容为空，无任何说明</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>C-2 模板文件完整</td>
+          <td>所有引用的模板文件均存在且非空</td>
+          <td>02-templates/ 下 ListPage/FormPage/DetailPage 等目录存在，但未逐一确认所有组件文件内容；README 缺失导致无法判断预期文件数</td>
+          <td><span class="chip part">⚠️ PARTIAL</span></td>
+          <td><span class="pri p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>C-3 示例 Case 附带</td>
+          <td>Skill 附带 ≥1 个完整示例 case</td>
+          <td>SKILL.md 中有文字描述的场景示例，但无配套的可运行示例代码</td>
+          <td><span class="chip part">⚠️ PARTIAL</span></td>
+          <td><span class="pri p2">P2</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- D. 竞品对标 -->
+  <div class="card">
+    <div class="card-title">D · 竞品与质量基准合规</div>
+    <table>
+      <thead><tr><th>检查项</th><th>要求</th><th>实际情况</th><th>评级</th><th>优先级</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>D-1 竞品对标声明</td>
+          <td>SKILL.md 中明确对标的竞品 skill 或标杆产品</td>
+          <td>SKILL.md 未声明任何竞品对标（如 ui-ux-pro-max / ks-design-ui-prototype），无法判断质量基准线</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>D-2 AQE 基准分声明</td>
+          <td>SKILL.md 中声明预期的 AQE 目标分（≥7.5）</td>
+          <td>SKILL.md 未声明任何 AQE 目标分，也未提及 AQE 评测框架</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p1">P1</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- E. 整体合规汇总 -->
+  <div class="card">
+    <div class="card-title">E · 合规汇总</div>
+    <table>
+      <thead><tr><th>优先级</th><th>数量</th><th>检查项</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="pri p0">P0</span> 准入阻断</td>
+          <td><strong style="color:var(--fail)">4项</strong></td>
+          <td>A-2 输出格式未声明、A-4 输出精度未区分、B-3 design-db 为空、B-4 dependencies.md 为空、D-1 竞品对标缺失（取最严）</td>
+        </tr>
+        <tr>
+          <td><span class="pri p1">P1</span> 2周内修复</td>
+          <td><strong style="color:var(--watch)">5项</strong></td>
+          <td>A-1 触发词模糊、A-3 不支持场景不完整、B-2 Setup C 路径不一致、C-1 README 为空、D-2 AQE 目标分缺失</td>
+        </tr>
+        <tr>
+          <td><span class="pri p2">P2</span> 优化项</td>
+          <td><strong style="color:var(--textm)">2项</strong></td>
+          <td>B-1 已通过、C-2 模板完整性待确认、C-3 可运行示例缺失</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<!-- END Gate 0 -->
+
+<!-- ═══ TAB: Mock Case ═══ -->
+<section id="tab-mock" class="ts">
+  <h2 class="stitle">Mock Case 设计说明</h2>
+
+  <div class="card">
+    <div class="card-title">📋 Case 基本信息</div>
+    <table>
+      <tbody>
+        <tr><td style="width:140px;font-weight:600;color:var(--text2)">Case 名称</td><td>内容审核后台 · 待审核内容列表页</td></tr>
+        <tr><td style="font-weight:600;color:var(--text2)">业务场景</td><td>内容平台内容安全审核团队使用的审核工作台，审核员需要查看待审核内容列表、快速判断风险等级并执行通过/下架操作</td></tr>
+        <tr><td style="font-weight:600;color:var(--text2)">页面类型</td><td>ListPage（后台管理列表页）· 复合型，含统计卡 + 表格 + 筛选 + 操作弹层</td></tr>
+        <tr><td style="font-weight:600;color:var(--text2)">选择理由</td><td>KS-AI-UI 核心模板之一（ListPage），业务复杂度中等，包含：侧边导航、统计面板、多条件筛选、数据表格、行操作、弹层/Toast 等高频 UI 元素，适合全面考察 skill 的组件覆盖能力与设计规范落地能力</td></tr>
+        <tr><td style="font-weight:600;color:var(--text2)">目标用户</td><td>内容安全审核员（内部工具用户），高频操作、低容错、需要快速扫描信息</td></tr>
+        <tr><td style="font-weight:600;color:var(--text2)">模型数量</td><td>3 个（Model A · Model B · Model C），每个模型使用同一 prompt，输出风格自然分叉</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🖥️ 页面核心需求（输入给三个模型的统一需求描述）</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px">以下需求作为 Mock Case 的统一输入，三个模型在相同需求下生成差异化的 UI 产物：</div>
+    <div class="pbox">业务背景：内容平台审核工作台，内容安全团队使用。
+
+需要包含的功能区块：
+1. 页面整体布局：带侧边导航 + 顶部导航的后台 Layout
+2. 统计卡区域：至少展示 待审核总量、高风险数量、今日已处理、平均处理时长
+3. 筛选与操作栏：内容类型（视频/图片/文本/直播）+ 风险等级（高/中/低）筛选；批量处理、导出、刷新按钮
+4. 数据表格：
+   - 列：内容缩略图+标题+作者、内容类型标签、风险等级标识、AI 置信度进度条、违规标签 Chips、提交时间、状态、操作
+   - 每行操作：详情（打开弹层）、审核通过（绿色）
+   - 多选 Checkbox
+5. 详情弹层/抽屉：展示内容详情 + AI 审核意见 + 处理按钮（通过/下架/跳过）
+6. 交互反馈：操作后展示成功提示（Toast/Snackbar）
+7. 分页组件
+
+数据规模：模拟 10 条数据（涵盖高/中/低风险，视频/图片/文本/直播四种类型）
+技术要求：单 HTML 文件，无外部依赖，可在浏览器直接打开，数据用 JS 对象 mock</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🤖 三模型风格约束（各模型额外追加的风格提示词）</div>
+    <table>
+      <thead><tr><th>模型</th><th>风格约束追加词</th><th>预期产物特征</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Model A</strong><br><span style="font-size:11px;color:var(--textm)">Claude Opus</span></td>
+          <td>使用 Ant Design Pro 设计语言，深色侧边栏（#001529），蓝色主色调，表格使用 ProTable 风格，组件圆角 2px，字体层级遵循 Ant Design 规范</td>
+          <td>企业级后台风格，功能密度高，组件规范度高，视觉偏正式</td>
+        </tr>
+        <tr>
+          <td><strong>Model B</strong><br><span style="font-size:11px;color:var(--textm)">Gemini</span></td>
+          <td>使用 Google Material Design 3 风格，白色顶导，顶栏搜索框，大圆角（20px Chip），优先留白，颜色不超过 4 种，表格尽量简洁</td>
+          <td>极简克制，呼吸感强，Google 系视觉语言，现代感突出</td>
+        </tr>
+        <tr>
+          <td><strong>Model C</strong><br><span style="font-size:11px;color:var(--textm)">DeepSeek</span></td>
+          <td>偏实用主义，信息密度最大化，小字号（12px 为主），深海蓝侧栏（#1c2b4b），每行操作提供完整按钮组（通过/下架/详情），分页使用完整页码+跳转</td>
+          <td>工具型风格，高信息密度，实用主义优先，功能完整性 > 美观度</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💻 产物外链</div>
+    <div class="artifact-links">
+      <a class="alink" href="model-a-claude-antd.html" target="_blank">
+        <div class="al-label">Model A · Claude Opus · Ant Design Pro</div>
+        <div class="al-name">内容审核系统 · 待审核列表</div>
+        <div class="al-desc">深色侧栏 · ProTable · Modal + Toast · 10条Mock数据</div>
+        <div class="al-verdict"><span class="chip pass">✅ 点击预览</span></div>
+      </a>
+      <a class="alink" href="model-b-gemini-minimal.html" target="_blank">
+        <div class="al-label">Model B · Gemini · Google Material</div>
+        <div class="al-name">内容审核系统 · 待审核列表</div>
+        <div class="al-desc">白色顶栏 · Chip筛选 · Dialog + Snackbar · 极简留白</div>
+        <div class="al-verdict"><span class="chip pass">✅ 点击预览</span></div>
+      </a>
+      <a class="alink" href="model-c-deepseek-dense.html" target="_blank">
+        <div class="al-label">Model C · DeepSeek · 信息密集型</div>
+        <div class="al-name">内容审核系统 · 待审核列表</div>
+        <div class="al-desc">深海蓝侧栏 · Tab分类 · Drawer详情 · 行内三按钮 · 高密度</div>
+        <div class="al-verdict"><span class="chip watch">👀 点击预览</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+<!-- END Mock Case -->
+
+<!-- ═══ TAB: AQE 评测打分 ═══ -->
+<section id="tab-aqe" class="ts">
+  <h2 class="stitle">AQE 评测打分（A~E 五维度）</h2>
+
+  <!-- AQE 说明 -->
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--text2)">
+    AQE（Aesthetic Quality Evaluation）为 DIR-01 UI 生成方向规定的五维评测框架：<strong>A 信息层级</strong>、<strong>B 色彩体系</strong>、<strong>C 版式规范</strong>、<strong>D 风格稳定性</strong>、<strong>E 可访问性</strong>，每维度 0~10 分，综合加权得总分。≥8.0 PASS · 7.0~7.9 WATCH · 6.0~6.9 FAIL · &lt;6.0 BLOCK
+  </div>
+
+  <!-- MODEL A -->
+  <div class="card">
+    <div class="card-title">
+      🅐 Model A · Claude Opus · Ant Design Pro
+      <span class="chip pass" style="margin-left:auto">✅ 8.2 PASS</span>
+    </div>
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">信息层级<br>&amp; 视觉权重</div>
+        <div class="scores">
+          <div class="sbadge"><div class="sv sg">8.5</div><div class="sl">得分</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">3级字号层次清晰（20/14/12px）；统计卡标题/数值/说明三级对比明显；侧边栏菜单 icon+文字并排，优先级引导自然</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩体系<br>&amp; 语义准确</div>
+        <div class="scores">
+          <div class="sbadge"><div class="sv sg">8.2</div><div class="sl">得分</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">蓝色主色 #1890ff，语义色完整（红#f5222d/橙#fa8c16/绿#52c41a）；风险标签色彩与语义一致；侧边栏用 #001529 与内容区形成强分区对比</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范<br>&amp; 间距系统</div>
+        <div class="scores">
+          <div class="sbadge"><div class="sv sg">8.0</div><div class="sl">得分</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">主区间距基本遵循 8px 系；表格行高 54px（标准）；筛选 Tag 与表格间距略窄（12px→应为16px），轻微扣分</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">风格稳定性<br>&amp; 一致性</div>
+        <div class="scores">
+          <div class="sbadge"><div class="sv sg">8.3</div><div class="sl">得分</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">全页 Ant Design 风格统一，圆角均为 2px；侧边栏与主内容色调分区一致；Modal 弹层风格与主页面协调</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性<br>&amp; 交互状态</div>
+        <div class="scores">
+          <div class="sbadge"><div class="sv sw">8.0</div><div class="sl">得分</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">hover/focus/active 状态完备；Toast 操作反馈清晰；深色侧边栏菜单项 hover 文字对比度约 3.8:1，略低于 WCAG AA（4.5:1）</div>
+      </div>
+      <div class="aqe-dim" style="background:linear-gradient(135deg,#edf7f2,#f0fdf4);border-color:#aadcc2">
+        <div class="did" style="color:var(--pass)">综合</div>
+        <div class="dname" style="color:var(--pass)">加权总分</div>
+        <div class="scores">
+          <div class="sbadge"><div class="sv sg" style="font-size:30px">8.2</div><div class="sl">PASS ✅</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">加权：A×0.25+B×0.20+C×0.25+D×0.15+E×0.15</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODEL B -->
+  <div class="card">
+    <div class="card-title">
+      🅑 Model B · Gemini · Google Material 极简
+      <span class="chip pass" style="margin-left:auto">✅ 7.9 PASS</span>
+    </div>
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">信息层级<br>&amp; 视觉权重</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.0</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">页面标题22px > 表格内容13px > 辅助信息12px，层级合理；Chip 行作为筛选次层级，视觉引导自然</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩体系<br>&amp; 语义准确</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.1</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">Google 蓝 #1a73e8 主色，色彩克制（4色以内）；风险语义色（红/橙/绿）准确；Chip active 态对比清晰</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范<br>&amp; 间距系统</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">7.8</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">留白整体优秀；统计卡区域间距规整；个别位置（Chip 行与表格间距）略有随机值，扣 0.2 分</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">风格稳定性<br>&amp; 一致性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg">8.0</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">Material Design 3 风格全程一致；圆角策略统一（小元素 4px/Chip 20px）；Dialog 与主页面风格协调</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性<br>&amp; 交互状态</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.6</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">Snackbar 操作反馈完备；Dialog 交互完整；置信度进度条仅用颜色区分高中低，缺少文字标注，AQE-E 轻微失分</div>
+      </div>
+      <div class="aqe-dim" style="background:linear-gradient(135deg,#edf7f2,#f0fdf4);border-color:#aadcc2">
+        <div class="did" style="color:var(--pass)">综合</div>
+        <div class="dname" style="color:var(--pass)">加权总分</div>
+        <div class="scores"><div class="sbadge"><div class="sv sg" style="font-size:30px">7.9</div><div class="sl">PASS ✅</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">加权：A×0.25+B×0.20+C×0.25+D×0.15+E×0.15</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODEL C -->
+  <div class="card">
+    <div class="card-title">
+      🅒 Model C · DeepSeek · 信息密集功能型
+      <span class="chip watch" style="margin-left:auto">👀 7.2 WATCH</span>
+    </div>
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">信息层级<br>&amp; 视觉权重</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.0</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">全局字号偏小（12px 为主，11px 为辅），层级压缩过度；统计卡数值虽突出（24px），但正文与辅助信息区分不足</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩体系<br>&amp; 语义准确</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.4</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">深海蓝 #1c2b4b 侧栏与主色 #4f6ef7 搭配尚和谐；语义色准确（红/橙/绿）；整体情感调性偏冷/工具化，缺少品牌温度</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范<br>&amp; 间距系统</div>
+        <div class="scores"><div class="sbadge"><div class="sv sf">6.8</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4"><strong style="color:var(--fail)">主要失分项：</strong>行内三按钮组（通过/下架/详情）间距为 4px，低于 8px 基线；统计卡上下 padding 14px（非8px系）；多处随机间距值</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">风格稳定性<br>&amp; 一致性</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.3</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">整体工具化风格一致；但 Tab 栏与表格 header 的字号/颜色策略略有差异；Drawer 弹出与主界面风格基本协调</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性<br>&amp; 交互状态</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw">7.5</div><div class="sl">得分</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">Toast 右上角出现反馈正常；Drawer 操作完整；行内三按钮在 12px 字号下点击目标偏小（26px 高度，建议 32px）</div>
+      </div>
+      <div class="aqe-dim" style="background:var(--watch-bg);border-color:#e5d48a">
+        <div class="did" style="color:var(--watch)">综合</div>
+        <div class="dname" style="color:var(--watch)">加权总分</div>
+        <div class="scores"><div class="sbadge"><div class="sv sw" style="font-size:30px">7.2</div><div class="sl">WATCH 👀</div></div></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4">AQE-C 失分是主因；需在2周内修复间距系统后重测</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 三模型分数对比 -->
+  <div class="card">
+    <div class="card-title">📊 AQE 三模型分数汇总对比</div>
+    <table>
+      <thead>
+        <tr>
+          <th>维度</th>
+          <th>权重</th>
+          <th>Model A (Claude)</th>
+          <th>Model B (Gemini)</th>
+          <th>Model C (DeepSeek)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>AQE-A 信息层级</td><td>25%</td>
+          <td><span class="chip pass">8.5</span></td>
+          <td><span class="chip pass">8.0</span></td>
+          <td><span class="chip watch">7.0</span></td>
+        </tr>
+        <tr><td>AQE-B 色彩体系</td><td>20%</td>
+          <td><span class="chip pass">8.2</span></td>
+          <td><span class="chip pass">8.1</span></td>
+          <td><span class="chip watch">7.4</span></td>
+        </tr>
+        <tr><td>AQE-C 版式规范</td><td>25%</td>
+          <td><span class="chip pass">8.0</span></td>
+          <td><span class="chip watch">7.8</span></td>
+          <td><span class="chip fail">6.8</span></td>
+        </tr>
+        <tr><td>AQE-D 风格稳定</td><td>15%</td>
+          <td><span class="chip pass">8.3</span></td>
+          <td><span class="chip pass">8.0</span></td>
+          <td><span class="chip watch">7.3</span></td>
+        </tr>
+        <tr><td>AQE-E 可访问性</td><td>15%</td>
+          <td><span class="chip watch">8.0</span></td>
+          <td><span class="chip watch">7.6</span></td>
+          <td><span class="chip watch">7.5</span></td>
+        </tr>
+        <tr style="background:var(--surface2);font-weight:700">
+          <td>综合加权总分</td><td>100%</td>
+          <td><span class="chip pass">8.2 PASS ✅</span></td>
+          <td><span class="chip pass">7.9 PASS ✅</span></td>
+          <td><span class="chip watch">7.2 WATCH 👀</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<!-- END AQE -->
+
+<!-- ═══ TAB: DIR-01 Checklist ═══ -->
+<section id="tab-checklist" class="ts">
+  <h2 class="stitle">DIR-01 · UI生成方向 Checklist</h2>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--text2)">
+    DIR-01 为 UI 生成方向的专项检查清单，覆盖组件库声明、响应式、主题系统、输出格式等 UI 生成特有要求。
+  </div>
+
+  <div class="card">
+    <div class="card-title">DIR-01 检查项汇总</div>
+    <table>
+      <thead><tr><th style="width:180px">检查项</th><th>要求</th><th>实际情况</th><th>评级</th><th>优先级</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>DIR-01-A 组件库声明</td>
+          <td>SKILL.md 中明确声明使用的组件库（Ant Design/Material-UI/shadcn…）及版本</td>
+          <td>SKILL.md 提到 Ant Design Pro，但未在 description 或 dependencies.md 中明确声明版本号</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>DIR-01-B 响应式策略</td>
+          <td>声明是否支持响应式，若支持需说明断点策略</td>
+          <td>SKILL.md 未提及响应式支持；模板文件中未见 @media 查询或响应式布局说明</td>
+          <td><span class="chip part">⚠️ PARTIAL</span></td>
+          <td><span class="pri p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>DIR-01-C 主题系统</td>
+          <td>若提供 ThemeProvider，需说明主题变量覆盖范围与使用方式</td>
+          <td>setup-guide.md 中有 ThemeProvider 说明，但 SKILL.md 未在主流程中体现；ThemeProvider 文件内容未确认</td>
+          <td><span class="chip part">⚠️ PARTIAL</span></td>
+          <td><span class="pri p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>DIR-01-D 输出格式锁定</td>
+          <td>明确输出格式（TSX/JSX/HTML/Vue SFC），并在 description 中声明</td>
+          <td>SKILL.md 内有 TSX 示例，但 description 未声明输出格式，用户无法预判产物类型</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>DIR-01-E 状态管理说明</td>
+          <td>若涉及状态管理（useState/Zustand/Redux），需在 SKILL.md 中说明</td>
+          <td>模板中使用 React Hooks（useState），但 SKILL.md 未明确说明状态管理策略</td>
+          <td><span class="chip part">⚠️ PARTIAL</span></td>
+          <td><span class="pri p2">P2</span></td>
+        </tr>
+        <tr>
+          <td>DIR-01-F 路由集成</td>
+          <td>若支持多页面，需说明路由方案（React Router/Next.js…）</td>
+          <td>SKILL.md 未提及路由；模板为单页组件，不涉及路由集成</td>
+          <td><span class="chip na">N/A</span></td>
+          <td><span class="pri p2">P2</span></td>
+        </tr>
+        <tr>
+          <td>DIR-01-G 国际化支持</td>
+          <td>若支持 i18n，需说明实现方式（react-intl/i18next…）</td>
+          <td>SKILL.md 未提及国际化；模板为中文硬编码</td>
+          <td><span class="chip na">N/A</span></td>
+          <td><span class="pri p2">P2</span></td>
+        </tr>
+        <tr>
+          <td>DIR-01-H 可访问性基线</td>
+          <td>声明是否遵循 WCAG 2.1 AA 标准，并在模板中体现（aria-label/role…）</td>
+          <td>SKILL.md 未提及可访问性标准；模板中未见 aria-* 属性或语义化标签说明</td>
+          <td><span class="chip fail">❌ FAIL</span></td>
+          <td><span class="pri p1">P1</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">DIR-01 汇总</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+      <div style="padding:14px;border:1px solid var(--border);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--textm);margin-bottom:4px">P0 阻断项</div>
+        <div style="font-size:28px;font-weight:800;color:var(--fail)">2项</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:6px">组件库未声明 + 输出格式未锁定</div>
+      </div>
+      <div style="padding:14px;border:1px solid var(--border);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--textm);margin-bottom:4px">P1 整改项</div>
+        <div style="font-size:28px;font-weight:800;color:var(--watch)">3项</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:6px">响应式 + 主题系统 + 可访问性基线</div>
+      </div>
+      <div style="padding:14px;border:1px solid var(--border);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--textm);margin-bottom:4px">P2 优化项</div>
+        <div style="font-size:28px;font-weight:800;color:var(--textm)">1项</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:6px">状态管理说明（2项N/A不计）</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- END DIR-01 -->
+
+<!-- ═══ TAB: Known Failures ═══ -->
+<section id="tab-failures" class="ts">
+  <h2 class="stitle">Known Failures · 已知缺陷清单</h2>
+
+  <!-- KF-001 -->
+  <div class="kf">
+    <div class="kfid">KF-001 · P0 · GATE 0</div>
+    <div class="kftitle">竞品对标声明缺失</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>Skill 整体质量基准不明确</div>
+    <div class="kfrow"><span class="kfkey">检测位置：</span>SKILL.md 全文 + README.md</div>
+    <div class="kfrow"><span class="kfkey">预期行为：</span>SKILL.md 中应明确声明对标的竞品 skill（如 ui-ux-pro-max）或标杆产品（如 Ant Design Pro 官方模板），并说明差异化定位</div>
+    <div class="kfrow"><span class="kfkey">实际行为：</span>SKILL.md 未提及任何竞品对标，无法判断 KS-AI-UI 的质量基准线与差异化价值</div>
+    <div class="kfrow"><span class="kfkey">复现步骤：</span>grep "竞品\|对标\|ui-ux-pro-max\|benchmark" SKILL.md → 无结果</div>
+  </div>
+
+  <!-- KF-002 -->
+  <div class="kf">
+    <div class="kfid">KF-002 · P0 · GATE 0</div>
+    <div class="kftitle">输出格式未在 description 中声明</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>用户无法预判产物类型（TSX/HTML/Vue）</div>
+    <div class="kfrow"><span class="kfkey">检测位置：</span>SKILL.md description 字段</div>
+    <div class="kfrow"><span class="kfkey">预期行为：</span>description 中应明确写出"输出 React TSX 组件"或"输出单文件 HTML"</div>
+    <div class="kfrow"><span class="kfkey">实际行为：</span>description 未声明输出格式，SKILL.md 内有 TSX 示例但外层描述缺失</div>
+    <div class="kfrow"><span class="kfkey">复现步骤：</span>查看 SKILL.md 第 1~20 行 description 区域 → 无"TSX""HTML""输出格式"等关键词</div>
+  </div>
+
+  <!-- KF-003 -->
+  <div class="kf">
+    <div class="kfid">KF-003 · P0 · GATE 0</div>
+    <div class="kftitle">组件库版本未在 dependencies.md 中锁定</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>Ant Design Pro 版本漂移风险，产物可能因版本不一致而失效</div>
+    <div class="kfrow"><span class="kfkey">检测位置：</span>01-foundation/dependencies.md</div>
+    <div class="kfrow"><span class="kfkey">预期行为：</span>dependencies.md 应包含 <code>antd: ^5.x.x</code> <code>@ant-design/pro-components: ^2.x.x</code> 等版本锁定</div>
+    <div class="kfrow"><span class="kfkey">实际行为：</span>dependencies.md 文件为空（0 字节）</div>
+    <div class="kfrow"><span class="kfkey">复现步骤：</span><code>cat 01-foundation/dependencies.md</code> → 空文件</div>
+  </div>
+
+  <!-- KF-004 -->
+  <div class="kf">
+    <div class="kfid">KF-004 · P0 · GATE 0</div>
+    <div class="kftitle">输出精度未区分原型级/生产级</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>用户不清楚产物是否可直接用于生产环境</div>
+    <div class="kfrow"><span class="kfkey">检测位置：</span>SKILL.md 全文</div>
+    <div class="kfrow"><span class="kfkey">预期行为：</span>SKILL.md 应明确声明"输出原型级 UI（需二次开发）"或"输出生产级代码（可直接集成）"</div>
+    <div class="kfrow"><span class="kfkey">实际行为：</span>SKILL.md 未区分输出精度，用户无法判断产物的完成度与可用性</div>
+    <div class="kfrow"><span class="kfkey">复现步骤：</span>grep "原型\|生产\|prototype\|production" SKILL.md → 无结果</div>
+  </div>
+
+  <!-- KF-005 -->
+  <div class="kf">
+    <div class="kfid">KF-005 · P0 · DIR-01</div>
+    <div class="kftitle">组件库未在 SKILL.md 中明确声明</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>用户不知道需要安装哪些依赖才能运行产物</div>
+    <div class="kfrow"><span class="kfkey">检测位置：</span>SKILL.md description + Step 1</div>
+    <div class="kfrow"><span class="kfkey">预期行为：</span>SKILL.md 应在 description 或 Step 1 中明确写出"基于 Ant Design Pro v5.x 生成"</div>
+    <div class="kfrow"><span class="kfkey">实际行为：</span>SKILL.md 提到 Ant Design Pro，但未在关键位置（description/dependencies.md）明确声明</div>
+    <div class="kfrow"><span class="kfkey">复现步骤：</span>查看 SKILL.md description → 无"Ant Design"关键词</div>
+  </div>
+
+  <!-- KF-006 -->
+  <div class="kf" style="background:var(--watch-bg);border-color:#e5d48a;border-left-color:var(--watch)">
+    <div class="kfid" style="color:var(--watch)">KF-006 · P1 · GATE 0</div>
+    <div class="kftitle">README.md 为空文件</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>新用户无法快速了解 skill 用途与使用方式</div>
+    <div class="kfrow"><span class="kfkey">检测位置：</span>README.md</div>
+    <div class="kfrow"><span class="kfkey">预期行为：</span>README.md 应包含：用途说明、快速开始、示例 case、目录结构说明</div>
+    <div class="kfrow"><span class="kfkey">实际行为：</span>README.md 文件存在但内容为空（0 字节）</div>
+    <div class="kfrow"><span class="kfkey">复现步骤：</span><code>cat README.md</code> → 空文件</div>
+  </div>
+
+  <!-- KF-007 -->
+  <div class="kf" style="background:var(--watch-bg);border-color:#e5d48a;border-left-color:var(--watch)">
+    <div class="kfid" style="color:var(--watch)">KF-007 · P1 · AQE-C</div>
+    <div class="kftitle">Model C 产物存在非 8px 系间距随机值</div>
+    <div class="kfrow"><span class="kfkey">影响范围：</span>Model C（DeepSeek）产物版式规范性不足，AQE-C 失分</div>
+    <div class="kfrow"><span class="kfkey">检测位置：</span>model-c-deepseek-dense.html 行内按钮组间距、统计卡 padding</div>
+    <div class="kfrow"><span class="kfkey">预期行为：</span>所有间距应遵循 8px 基线（8/16/24/32…）</div>
+    <div class="kfrow"><span class="kfkey">实际行为：</span>行内按钮组 gap:4px（应为8px）；统计卡 padding:14px（应为16px）</div>
+    <div class="kfrow"><span class="kfkey">复现步骤：</span>打开 model-c-deepseek-dense.html → 检查 .btn 容器 gap 与 .sc padding 值</div>
+  </div>
+</section>
+<!-- END Known Failures -->
+
+<!-- ═══ TAB: 整改建议 ═══ -->
+<section id="tab-fixes" class="ts">
+  <h2 class="stitle">整改建议 · Actionable Fixes</h2>
+
+  <div style="background:var(--fail-bg);border:1.5px solid #e8bab2;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px">
+    ⚠️ <strong>P0 级缺陷须在准入前完成整改</strong>，P1 级缺陷须在 2 周内修复，P2 级缺陷可在后续迭代中优化。
+  </div>
+
+  <!-- FIX-001 -->
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-001 · 补充竞品对标声明（P0 · KF-001）</div>
+    <div class="fixbody">
+      <strong>修改位置：</strong>SKILL.md 第 1~20 行 description 区域<br>
+      <strong>修改内容：</strong>在 description 末尾追加：<br>
+      <code>对标 ui-ux-pro-max skill，差异化定位为「快手内部业务场景定制化 UI 生成」，预置 Ant Design Pro 模板库，支持 Setup A/B 双路径（ThemeProvider 注入 vs 纯模板）。</code><br>
+      <strong>验收标准：</strong>grep "对标\|ui-ux-pro-max" SKILL.md → 有结果
+    </div>
+  </div>
+
+  <!-- FIX-002 -->
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-002 · 在 description 中声明输出格式（P0 · KF-002）</div>
+    <div class="fixbody">
+      <strong>修改位置：</strong>SKILL.md description 第 2~3 行<br>
+      <strong>修改内容：</strong>在触发词后追加：<br>
+      <code>输出格式：React TSX 组件（Setup A/B）或单文件 HTML（Setup C 降级）。</code><br>
+      <strong>验收标准：</strong>description 中包含"输出格式""TSX""HTML"关键词
+    </div>
+  </div>
+
+  <!-- FIX-003 -->
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-003 · 补全 dependencies.md 组件库版本锁定（P0 · KF-003）</div>
+    <div class="fixbody">
+      <strong>修改位置：</strong>01-foundation/dependencies.md<br>
+      <strong>修改内容：</strong>写入以下内容：<br>
+      <code>
+# 依赖组件库版本<br>
+antd: ^5.12.0<br>
+@ant-design/pro-components: ^2.6.0<br>
+react: ^18.2.0<br>
+react-dom: ^18.2.0
+      </code><br>
+      <strong>验收标准：</strong>dependencies.md 文件大小 > 0 字节，包含 antd 版本号
+    </div>
+  </div>
+
+  <!-- FIX-004 -->
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-004 · 声明输出精度（原型级 vs 生产级）（P0 · KF-004）</div>
+    <div class="fixbody">
+      <strong>修改位置：</strong>SKILL.md description 末尾<br>
+      <strong>修改内容：</strong>追加：<br>
+      <code>输出精度：原型级 UI（需二次开发接入真实数据与业务逻辑），不可直接用于生产环境。</code><br>
+      <strong>验收标准：</strong>grep "原型\|生产" SKILL.md → 有结果
+    </div>
+  </div>
+
+  <!-- FIX-005 -->
+  <div class="fix">
+    <div class="fixtitle">🔧 FIX-005 · 在 SKILL.md 中明确声明组件库（P0 · KF-005）</div>
+    <div class="fixbody">
+      <strong>修改位置：</strong>SKILL.md description 第 1 段<br>
+      <strong>修改内容：</strong>在第一句后追加：<br>
+      <code>基于 Ant Design Pro v5.x 组件库生成企业级后台 UI。</code><br>
+      <strong>验收标准：</strong>description 中包含"Ant Design Pro v5"关键词
+    </div>
+  </div>
+
+  <!-- FIX-006 -->
+  <div class="fix" style="border-left-color:var(--watch)">
+    <div class="fixtitle">🔧 FIX-006 · 补全 README.md（P1 · KF-006）</div>
+    <div class="fixbody">
+      <strong>修改位置：</strong>README.md<br>
+      <strong>修改内容：</strong>写入以下结构：<br>
+      <code>
+# KS-AI-UI v1.0.0<br>
+快手内部业务场景定制化 UI 生成 skill，基于 Ant Design Pro。<br><br>
+## 快速开始<br>
+1. 触发词：做页面 / 生成后台界面 / UI 原型<br>
+2. 输入需求描述<br>
+3. 等待 Setup 检测（A/B/C 三路径）<br>
+4. 确认设计方案后生成代码<br><br>
+## 示例<br>
+见 02-templates/ 目录<br><br>
+## 目录结构<br>
+- 00-setup/ Setup 引导<br>
+- 01-foundation/ 依赖与设计规范<br>
+- 02-templates/ 预置模板<br>
+- 03-design-db/ 设计规范库
+      </code><br>
+      <strong>验收标准：</strong>README.md 文件大小 > 500 字节
+    </div>
+  </div>
+
+  <!-- FIX-007 -->
+  <div class="fix" style="border-left-color:var(--watch)">
+    <div class="fixtitle">🔧 FIX-007 · 修复 Model C 间距系统（P1 · KF-007）</div>
+    <div class="fixbody">
+      <strong>修改位置：</strong>02-templates/ 中所有模板文件的 CSS 间距定义<br>
+      <strong>修改内容：</strong>将所有非 8px 系间距值修正为 8px 基线：<br>
+      - 行内按钮组 <code>gap:4px</code> → <code>gap:8px</code><br>
+      - 统计卡 <code>padding:14px</code> → <code>padding:16px</code><br>
+      - 其他随机值（如 9px/13px/18px）→ 就近修正为 8/16/24px<br>
+      <strong>验收标准：</strong>grep "gap:\s*[0-9]+px" 所有模板 → 所有值为 8 的倍数
+    </div>
+  </div>
+
+  <!-- 整改优先级汇总 -->
+  <div class="card">
+    <div class="card-title">📋 整改优先级汇总</div>
+    <table>
+      <thead><tr><th>优先级</th><th>数量</th><th>整改项</th><th>预计工时</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="pri p0">P0</span></td>
+          <td><strong>5项</strong></td>
+          <td>FIX-001~005（竞品对标、输出格式、dependencies.md、输出精度、组件库声明）</td>
+          <td>2~3 小时</td>
+        </tr>
+        <tr>
+          <td><span class="pri p1">P1</span></td>
+          <td><strong>2项</strong></td>
+          <td>FIX-006~007（README.md、Model C 间距系统）</td>
+          <td>1~2 小时</td>
+        </tr>
+        <tr>
+          <td colspan="3" style="text-align:right;font-weight:600">总计预估工时</td>
+          <td><strong>3~5 小时</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<!-- END 整改建议 -->
+
+</div>
+<!-- END CONTENT -->
+
+<script>
+function sw(tab){
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ts').forEach(s=>s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+</script>
+</body>
+</html>
+
+</body>
+</html>
