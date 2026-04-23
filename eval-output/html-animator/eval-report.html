@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>html-animator 评测报告 v1.0</title>
+<style>
+:root {
+  --bg:#f8f7f4; --surface:#fff; --surface2:#f3f1ec; --border:#e2ddd6;
+  --text1:#1a1714; --text2:#5c5650; --textm:#9a9088;
+  --brown:#1e3a5f; --warm:#2563eb;
+  --pass:#2d7a4f; --pass-bg:#edf7f2;
+  --watch:#7a6520; --watch-bg:#faf5e4;
+  --fail:#a0290e; --fail-bg:#fdf1ee;
+  --block:#8b0000; --block-bg:#fff0f0;
+  --part:#5a4e2b; --part-bg:#fdf9ed;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;line-height:1.6}
+
+.hdr{background:linear-gradient(135deg,#0f2547,#1e3a5f);color:#fff;padding:36px 48px 32px}
+.hdr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:6px;padding:3px 12px;font-size:11px;margin-bottom:14px;letter-spacing:.05em}
+.hdr h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.hdr-meta{opacity:.75;font-size:12px;display:flex;gap:20px;flex-wrap:wrap}
+
+.vbar{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 48px;display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.vpill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px}
+.vpill.fail{background:var(--fail-bg);color:var(--fail);border:1.5px solid #e8bab2}
+.vpill.watch{background:var(--watch-bg);color:var(--watch);border:1.5px solid #e5d48a}
+.vpill.pass{background:var(--pass-bg);color:var(--pass);border:1.5px solid #aadcc2}
+.vitem{display:flex;flex-direction:column;gap:4px}
+.vlabel{font-size:11px;color:var(--textm)}
+
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 48px;display:flex;position:sticky;top:0;z-index:99;overflow-x:auto}
+.ntab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--textm);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .15s}
+.ntab:hover{color:var(--text2)}
+.ntab.active{color:var(--warm);border-bottom-color:var(--warm);font-weight:600}
+
+.content{max-width:1080px;margin:0 auto;padding:32px 48px}
+section.ts{display:none}
+section.ts.active{display:block}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+h2.stitle{font-size:17px;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);color:var(--brown)}
+
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top}
+th{background:var(--surface2);font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.pass{background:var(--pass-bg);color:var(--pass)}
+.chip.fail{background:var(--fail-bg);color:var(--fail)}
+.chip.part{background:var(--part-bg);color:var(--part)}
+.chip.block{background:var(--block-bg);color:var(--block)}
+.chip.na{background:#f0f0f0;color:#888}
+
+.pri{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pri.p0{background:#fde8e5;color:#c0392b}
+.pri.p1{background:#fdf3e0;color:#d68910}
+.pri.p2{background:#f0f0f0;color:#888}
+
+.aqe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
+.aqe-dim{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center}
+.aqe-dim .did{font-size:10px;font-weight:700;color:var(--textm);letter-spacing:.08em;margin-bottom:3px}
+.aqe-dim .dname{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;line-height:1.3;min-height:30px}
+.scores{display:flex;justify-content:center;gap:10px}
+.sbadge{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbadge .sv{font-size:22px;font-weight:900;line-height:1}
+.sbadge .sl{font-size:9px;color:var(--textm)}
+.sg{color:var(--pass)} .sw{color:var(--watch)} .sf{color:var(--fail)} .sb{color:var(--block)}
+
+.scorebox{background:linear-gradient(135deg,#0f2547,#1e3a5f);color:#fff;border-radius:12px;padding:22px 26px;display:flex;align-items:center;gap:26px;margin-bottom:22px}
+.scorebox .bscore{font-size:52px;font-weight:900;line-height:1;flex-shrink:0}
+.scorebox .sdesc h3{font-size:15px;margin-bottom:5px}
+.scorebox .sdesc p{font-size:12px;opacity:.85;line-height:1.5}
+
+.artifact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0}
+.acard{background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.acard-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.acard-title{font-size:13px;font-weight:700}
+.acard-body{padding:14px}
+.acard-body p{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px}
+.acard-link{display:inline-flex;align-items:center;gap:5px;color:var(--warm);font-size:12px;font-weight:600;text-decoration:none;padding:5px 12px;border:1.5px solid var(--warm);border-radius:6px;transition:background .15s}
+.acard-link:hover{background:rgba(37,99,235,.06)}
+
+.cl{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cl:last-child{border-bottom:none}
+.clicon{flex-shrink:0;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:2px}
+.clicon.pass{background:var(--pass-bg);color:var(--pass)}
+.clicon.fail{background:var(--fail-bg);color:var(--fail)}
+.clicon.part{background:var(--part-bg);color:var(--part)}
+.clicon.na{background:#f0f0f0;color:#aaa}
+.cltxt .cll{font-weight:600;margin-bottom:2px;font-size:13px}
+.cltxt .cln{color:var(--textm);font-size:12px;line-height:1.4}
+
+.kf{background:var(--fail-bg);border:1px solid #e8bab2;border-left:4px solid var(--fail);border-radius:8px;padding:15px;margin-bottom:12px}
+.kfid{font-size:10px;font-weight:700;color:var(--fail);letter-spacing:.08em;margin-bottom:5px}
+.kftitle{font-weight:700;font-size:14px;margin-bottom:9px}
+.kfrow{display:flex;gap:6px;margin-bottom:4px;font-size:12px}
+.kfkey{font-weight:600;color:var(--text2);white-space:nowrap;min-width:58px}
+
+.fix{background:var(--surface2);border-radius:8px;padding:13px 15px;margin-bottom:11px;border-left:3px solid var(--warm)}
+.fixtitle{font-weight:700;font-size:13px;margin-bottom:5px}
+.fixbody{font-size:12px;color:var(--text2);line-height:1.6}
+.fixbody code{background:#ede9e0;border-radius:3px;padding:1px 5px;font-family:monospace;font-size:11px}
+
+.pbox{background:#1a1714;color:#e8e0d5;border-radius:10px;padding:15px 18px;font-family:Menlo,monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;margin:11px 0;overflow-x:auto}
+
+.stats3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.scard{padding:16px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+
+.flow-steps{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;margin:14px 0}
+.flow-step{background:var(--surface2);border-radius:6px;padding:8px 12px;border:1px solid var(--border);text-align:center}
+.flow-arrow{color:var(--textm);font-size:14px}
+
+.model-compare{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+.mc{border-radius:10px;padding:14px;border:1px solid var(--border)}
+.mc.mc-a{background:#edf7f2;border-color:#aadcc2}
+.mc.mc-b{background:#faf5e4;border-color:#e5d48a}
+.mc.mc-c{background:#fdf1ee;border-color:#e8bab2}
+.mc-label{font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:4px;text-transform:uppercase}
+.mc.mc-a .mc-label{color:var(--pass)}
+.mc.mc-b .mc-label{color:var(--watch)}
+.mc.mc-c .mc-label{color:var(--fail)}
+.mc-score{font-size:28px;font-weight:900;line-height:1;margin-bottom:6px}
+.mc.mc-a .mc-score{color:var(--pass)}
+.mc.mc-b .mc-score{color:var(--watch)}
+.mc.mc-c .mc-score{color:var(--fail)}
+.mc-name{font-size:13px;font-weight:700;margin-bottom:8px}
+.mc-list{font-size:11.5px;color:var(--text2);line-height:1.6}
+.mc-verdict{display:inline-block;margin-top:8px;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700}
+.mc.mc-a .mc-verdict{background:var(--pass-bg);color:var(--pass)}
+.mc.mc-b .mc-verdict{background:var(--watch-bg);color:var(--watch)}
+.mc.mc-c .mc-verdict{background:var(--fail-bg);color:var(--fail)}
+
+@media(max-width:768px){
+  .hdr,.vbar,.content,.nav{padding-left:20px;padding-right:20px}
+  .aqe-grid{grid-template-columns:repeat(3,1fr)}
+  .artifact-grid,.model-compare,.stats3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-badge">🎬 AQE 设计侧评测报告 · DIR-03 视频动效</div>
+  <h1>html-animator · 评测报告 v1.0</h1>
+  <div class="hdr-meta">
+    <span>Skill 版本：v3.2.0</span>
+    <span>评测标准：skill-design-standard v1.0（AQE + DIR-03）</span>
+    <span>Mock Case：KwaiDesign 设计系统落地页 · HTML 动效注入</span>
+    <span>模型：Claude-4-Sonnet / Gemini 2.5 Flash / DeepSeek-V3</span>
+    <span>评测日期：2026-04-23</span>
+  </div>
+</div>
+
+<!-- VERDICT BAR -->
+<div class="vbar">
+  <div class="vitem"><div class="vlabel">Gate 0 合规检查</div><span class="vpill fail">⛔ 不通过 — 4项P0缺陷</span></div>
+  <div class="vitem"><div class="vlabel">Model A（Claude）AQE</div><span class="vpill pass">✅ 8.3 · PASS</span></div>
+  <div class="vitem"><div class="vlabel">Model B（Gemini）AQE</div><span class="vpill watch">👀 7.6 · WATCH</span></div>
+  <div class="vitem"><div class="vlabel">Model C（DeepSeek）AQE</div><span class="vpill fail">❌ 6.9 · FAIL</span></div>
+  <div style="flex:1;font-size:12px;color:var(--textm);align-self:center">Gate 0 有 P0 缺陷须整改。产物层面：Model A PASS，Model B 有条件上线，Model C 打回修改。</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="ntab active" onclick="sw('overview')">总览</div>
+  <div class="ntab" onclick="sw('compliance')">Gate 0 合规检查</div>
+  <div class="ntab" onclick="sw('mock')">Mock Case</div>
+  <div class="ntab" onclick="sw('aqe')">AQE 评测打分</div>
+  <div class="ntab" onclick="sw('checklist')">DIR-03 Checklist</div>
+  <div class="ntab" onclick="sw('failures')">Known Failures</div>
+  <div class="ntab" onclick="sw('fixes')">整改建议</div>
+</nav>
+
+<div class="content">
+
+<!-- ═══════════════════ TAB: 总览 ═══════════════════ -->
+<section id="tab-overview" class="ts active">
+  <h2 class="stitle">评测总览</h2>
+
+  <div class="scorebox">
+    <div class="bscore">7.6</div>
+    <div class="sdesc">
+      <h3>综合结论：Model A PASS · Skill 有 P0 缺陷需整改</h3>
+      <p>Gate 0 发现 4 项 P0 缺陷（竞品对标缺失、动效复杂度分级未声明、帧率/时长标准未定义、缓动函数规则未前置），按准入规范需整改后重走评测流程。<br>
+      产物层面：Model A（Claude）8.3 PASS，规范遵循度最高，ha- 前缀完整、prefers-reduced-motion 全覆盖；Model B（Gemini）7.6 WATCH，动效丰富但缺 ha- 前缀规范；Model C（DeepSeek）6.9 FAIL，动效数量不足 4 类且缺乏进度条/背景层等核心动效，综合分低于阈值。</p>
+    </div>
+  </div>
+
+  <div class="stats3">
+    <div class="scard" style="border-left:4px solid var(--fail)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">GATE 0 合规</div>
+      <div style="font-size:24px;font-weight:800;color:var(--fail)">4项 P0 ❌</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">竞品对标、复杂度分级、帧率/时长声明、缓动函数前置均缺失</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--pass)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">最优产物（Model A · Claude）</div>
+      <div style="font-size:24px;font-weight:800;color:var(--pass)">8.3 PASS ✅</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">6 类动效，ha- 前缀规范，可访问性全覆盖，注入标记完整</div>
+    </div>
+    <div class="scard" style="border-left:4px solid var(--watch)">
+      <div style="font-size:11px;color:var(--textm);margin-bottom:3px">AQE 均值（3 模型）</div>
+      <div style="font-size:24px;font-weight:800;color:var(--watch)">7.6 均值</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:5px">A: 8.3 / B: 7.6 / C: 6.9 · 模型间差异显著，说明 Skill 稳定性有改进空间</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔄 评测流程回溯</div>
+    <div class="flow-steps">
+      <div class="flow-step">📄 读取 Skill<br><span style="color:var(--textm);font-size:11px">SKILL.md v3.2.0<br>patterns/ + rules/</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step" style="background:var(--fail-bg);border-color:#e8bab2">⛔ Gate 0 审计<br><span style="color:var(--textm);font-size:11px">4项P0 FAIL<br>2项P1 PARTIAL</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">✍️ Mock Case<br><span style="color:var(--textm);font-size:11px">KwaiDesign 落地页<br>深色科技主题</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step" style="background:var(--pass-bg);border-color:#aadcc2">⚡ 3模型注入<br><span style="color:var(--textm);font-size:11px">Claude / Gemini<br>DeepSeek</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step" style="background:var(--watch-bg);border-color:#e5d48a">🎨 AQE 打分<br><span style="color:var(--textm);font-size:11px">8.3 / 7.6 / 6.9</span></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step" style="background:var(--fail-bg);border-color:#e8bab2">📝 本报告<br><span style="color:var(--textm);font-size:11px">KF + 整改建议</span></div>
+    </div>
+  </div>
+
+  <div class="model-compare">
+    <div class="mc mc-a">
+      <div class="mc-label">Model A · Claude-4-Sonnet</div>
+      <div class="mc-score">8.3</div>
+      <div class="mc-name">精准注入 · 规范优先</div>
+      <div class="mc-list">
+        ✅ 6 类动效（BG-01/DS-03/EN-01/HV-01/AT-01/TY-01）<br>
+        ✅ ha- 前缀完整无命名冲突<br>
+        ✅ prefers-reduced-motion 每段均有<br>
+        ✅ 注入标记 START/END 格式规范<br>
+        ✅ 滚动进度条 + 粒子背景 + 入场动效<br>
+        ⚠️ 粒子数量偏少，视觉冲击力略弱
+      </div>
+      <span class="mc-verdict">✅ PASS</span>
+    </div>
+    <div class="mc mc-b">
+      <div class="mc-label">Model B · Gemini 2.5 Flash</div>
+      <div class="mc-score">7.6</div>
+      <div class="mc-name">效果丰富 · 规范较弱</div>
+      <div class="mc-list">
+        ✅ 7 类动效，极光背景视觉出色<br>
+        ✅ 标题渐变动效有品质感<br>
+        ✅ 磁性卡片倾斜效果体验优<br>
+        ❌ 无 ha- 前缀，存在命名冲突风险<br>
+        ❌ 注入标记格式不符合规范<br>
+        ⚠️ 部分 transition 时长超过 500ms
+      </div>
+      <span class="mc-verdict">👀 WATCH</span>
+    </div>
+    <div class="mc mc-c">
+      <div class="mc-label">Model C · DeepSeek-V3</div>
+      <div class="mc-score">6.9</div>
+      <div class="mc-name">基础实现 · 动效不足</div>
+      <div class="mc-list">
+        ✅ 动效时长均在合理范围<br>
+        ✅ 缓动函数使用 ease-out / cubic-bezier<br>
+        ❌ 仅 4 类动效，无背景层/进度条<br>
+        ❌ 无 IntersectionObserver 触发，动效即时播放<br>
+        ❌ 无注入标记，无法溯源删除<br>
+        ❌ 无 JavaScript 增强，纯 CSS 动效局限
+      </div>
+      <span class="mc-verdict">❌ FAIL</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔗 产物外链（点击预览动效效果）</div>
+    <div class="artifact-grid">
+      <div class="acard">
+        <div class="acard-header">
+          <span class="acard-title">Model A · Claude</span>
+          <span class="chip pass">8.3 PASS</span>
+        </div>
+        <div class="acard-body">
+          <p>精准注入 6 类动效：粒子背景 + 滚动进度条 + 渐显入场 + 卡片发光 + CTA 脉冲 + 数字翻滚。完整的 ha- 前缀规范与可访问性降级。</p>
+          <a class="acard-link" href="artifacts/model-a-claude.html" target="_blank">▶ 查看动效效果</a>
+        </div>
+      </div>
+      <div class="acard">
+        <div class="acard-header">
+          <span class="acard-title">Model B · Gemini</span>
+          <span class="chip part">7.6 WATCH</span>
+        </div>
+        <div class="acard-body">
+          <p>7 类动效：极光背景 + 渐变标题 + 磁性卡片 + 彩虹 CTA + 进度条 + 滚动入场 + Stats 淡入。视觉效果丰富但规范性弱。</p>
+          <a class="acard-link" href="artifacts/model-b-gemini.html" target="_blank">▶ 查看动效效果</a>
+        </div>
+      </div>
+      <div class="acard">
+        <div class="acard-header">
+          <span class="acard-title">Model C · DeepSeek</span>
+          <span class="chip fail">6.9 FAIL</span>
+        </div>
+        <div class="acard-body">
+          <p>4 类基础动效：Hero 淡入 + 卡片 hover + 按钮 hover + 数字缩放。实现简洁但动效类别不足，缺少背景层与进度条。</p>
+          <a class="acard-link" href="artifacts/model-c-deepseek.html" target="_blank">▶ 查看动效效果</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+<!-- END 总览 -->
+
+<!-- ═══════════════════ TAB: Gate 0 合规检查 ═══════════════════ -->
+<section id="tab-compliance" class="ts">
+  <h2 class="stitle">Gate 0 · 合规检查</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">依据 skill-design-standard 准入规范（通用清单 A~E + DIR-03 视频动效专属）对 html-animator SKILL.md v3.2.0 逐项审计。</p>
+
+  <div class="card">
+    <div class="card-title">A · 输出物定义</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>输出物类型已明确</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>SKILL.md 明确：注入 CSS/JS 代码到 HTML 文件，交付格式为可在浏览器运行的 HTML</td></tr>
+      <tr><td>有 ≥ 1 个完整输出示例</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 8 输出报告模板提供了完整的注入结果示例，链路清晰</td></tr>
+      <tr><td>输出精度已定义（原型级 vs 生产级）</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>SKILL.md 写"production-ready CSS animations"但未在准入层面二选一声明精度级别</td></tr>
+      <tr><td>输出尺寸/分辨率已约束（帧率/时长）</td><td><span class="pri p1">P1</span></td><td><span class="chip fail">✗ FAIL</span></td><td><strong>P1缺陷：</strong>时长范围与帧率标准未在文档层面前置声明（仅在 CRITICAL Rules 中提及 200-400ms，非准入声明）</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">B · 竞品对标锚点</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已指定质量对标竞品</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td><strong>P0缺陷：</strong>整个 SKILL.md 未提及竞品对标。DIR-03 应对标：L1微动效→Framer Motion；L2独立动效→LottieFiles；复杂视频→Remotion 示例库</td></tr>
+      <tr><td>已做竞品实测截图存档</td><td><span class="pri p1">P1</span></td><td><span class="chip fail">✗ FAIL</span></td><td>无竞品对比基准，Gate 2 无参照依据</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">C · 版权与合规</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>字体使用路线已确定</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>CRITICAL Rules 明确禁止更改 font-family，且仅允许 Google Fonts 外部依赖，合规路线清晰</td></tr>
+      <tr><td>图片/插画来源合规</td><td><span class="pri p0">P0</span></td><td><span class="chip na">N/A</span></td><td>本 Skill 为纯 CSS/JS 动效注入，无图片生成，不适用</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">D · 美学基线要求</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>色彩对比度达标（≥4.5:1）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 3 分析会读取页面颜色，CRITICAL Rules 禁止修改已有颜色变量，原页面对比度不被破坏</td></tr>
+      <tr><td>缓动函数非线性（禁止 linear）</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td><strong>P0缺陷：</strong>禁止 linear ease 的规则藏在 CRITICAL Rules 正文中，未作为准入声明前置。应在 description 或准入 Checklist 中显式声明</td></tr>
+      <tr><td>节奏感标准（时长范围）已定义</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td><strong>P0缺陷：</strong>SKILL.md 在注意事项中提到"一次最多注入 8 类"，但动效时长范围（200-400ms / 300-500ms）未作为准入规范白纸黑字声明</td></tr>
+      <tr><td>默认输出有美学基准档</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 4 缺口报告机制确保根据页面主题推荐最合适的动效组合，有美学基准</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">E · 边界与失败处理</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>已定义「不做什么」</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>CRITICAL Rules 中 NEVER 列表清晰定义了 8 条禁止项，边界明确</td></tr>
+      <tr><td>输入不完整时有降级策略</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>Phase 1 意图识别 + Phase 2 环境判断均有完善的降级与反问机制</td></tr>
+      <tr><td>已预列 3 条已知失败模式</td><td><span class="pri p2">P2</span></td><td><span class="chip fail">✗ FAIL</span></td><td>SKILL.md 未预列已知失败模式，如"绝对定位冲突导致位移错误"等高频问题未文档化</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🎬 DIR-03 视频动效专属准入检查</div>
+    <table>
+      <tr><th style="width:38%">检查项</th><th style="width:7%">优先级</th><th style="width:14%">状态</th><th>说明</th></tr>
+      <tr><td>动效复杂度分级已选定（L1/L2/L3）</td><td><span class="pri p0">P0</span></td><td><span class="chip fail">✗ FAIL</span></td><td><strong>P0缺陷：</strong>Skill 覆盖 L1（微动效）到 L2（独立动效），但从未在文档中声明所属分级，准入文件未明确</td></tr>
+      <tr><td>技术路线已确定（CSS/SVG/Lottie/Remotion）</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>description 明确：CSS animations + vanilla JS，不引入 CDN/npm 依赖</td></tr>
+      <tr><td>交付格式已明确</td><td><span class="pri p0">P0</span></td><td><span class="chip pass">✓ PASS</span></td><td>明确交付可在浏览器运行的注入后 HTML 文件</td></tr>
+      <tr><td>时长范围和帧率标准已约束</td><td><span class="pri p0">P0</span></td><td><span class="chip part">~ PARTIAL</span></td><td>CRITICAL Rules 提及时长范围，但帧率标准（60fps）未声明，且时长要求未在准入 Checklist 前置</td></tr>
+      <tr><td>prefers-reduced-motion 已处理</td><td><span class="pri p1">P1</span></td><td><span class="chip pass">✓ PASS</span></td><td>ALWAYS 列表明确要求每段动效必须包含 @media (prefers-reduced-motion: reduce) 降级</td></tr>
+      <tr><td>无快速闪烁（&gt;3Hz 防癫痫）</td><td><span class="pri p1">P1</span></td><td><span class="chip part">~ PARTIAL</span></td><td>SKILL.md 未明确禁止高频闪烁内容，BG-01 粒子动效如参数不当可能触发问题</td></tr>
+    </table>
+  </div>
+
+  <div style="background:var(--fail-bg);border:1px solid #e8bab2;border-radius:8px;padding:14px;margin-top:4px">
+    <div style="font-weight:700;font-size:13px;color:var(--fail);margin-bottom:6px">⛔ Gate 0 结论：不通过（4 项 P0 缺陷）</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.7">
+      <strong>P0 缺陷（必须修复）：</strong>① 竞品对标缺失 ② 动效复杂度分级未声明 ③ 节奏感时长标准未前置声明 ④ 缓动函数非线性规则未作为准入条款<br>
+      <strong>P1 缺陷（建议修复）：</strong>⑤ 帧率标准（60fps）未声明 ⑥ 已知失败模式未预列<br>
+      按标准规定，P0 缺陷需整改完成后方可重新申请 Gate 2 设计评测。
+    </div>
+  </div>
+</section>
+<!-- END Gate 0 -->
+
+<!-- ═══════════════════ TAB: Mock Case ═══════════════════ -->
+<section id="tab-mock" class="ts">
+  <h2 class="stitle">Mock Case · 评测用例设计</h2>
+
+  <div class="card">
+    <div class="card-title">📋 用例基本信息</div>
+    <table>
+      <tr><th style="width:25%">字段</th><th>内容</th></tr>
+      <tr><td>用例名称</td><td>KwaiDesign 设计系统落地页动效注入</td></tr>
+      <tr><td>页面主题</td><td>深色科技风（Dark Tech）— #0f0e17 背景 + #ff6b35 主强调色</td></tr>
+      <tr><td>页面类型</td><td>Landing Page — 包含 Hero 区、Feature 卡片、Stats 数据区</td></tr>
+      <tr><td>目标动效密度</td><td>moderate（中等密度）→ 强制最小 4 类，目标 6-8 类</td></tr>
+      <tr><td>评测重点</td><td>规范遵循（ha- 前缀）/ 动效选型匹配 / 缓动函数质量 / 可访问性覆盖</td></tr>
+      <tr><td>基线 HTML</td><td>240 行纯 CSS 静态页面，已有色彩变量系统（:root CSS vars）</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📝 Mock Prompt（注入指令）</div>
+    <div class="pbox">给这个 KwaiDesign 设计系统落地页添加动效。
+页面是深色科技风，主色 #ff6b35，背景 #0f0e17。
+
+要求：
+1. 添加背景层动效（粒子或渐变流动）
+2. Hero 区标题和文字入场动效
+3. Feature 卡片 hover 动效
+4. 主 CTA 按钮注意力引导动效
+5. 底部 Stats 数字区动效
+6. 滚动进度条
+
+遵循规范：ha- 前缀，prefers-reduced-motion 降级，注入标记完整。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🎯 预期产物标准（评测基准）</div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">动效数量 ≥ 4 类</div><div class="cln">per Skill v3.1 强制最小值规则</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">所有新增 class 使用 ha- 前缀</div><div class="cln">避免与原页面命名冲突</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">每段动效含 prefers-reduced-motion 降级</div><div class="cln">WCAG 可访问性强制项</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">注入标记格式规范 START/END</div><div class="cln">支持精准溯源删除</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">颜色占位符替换正确</div><div class="cln">使用 CSS 变量而非硬编码色值</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">缓动函数非 linear</div><div class="cln">使用 ease-out / ease-in-out / cubic-bezier</div></div>
+    </div>
+    <div class="cl">
+      <div class="clicon pass">✓</div>
+      <div class="cltxt"><div class="cll">动效时长合理（UI微动效 200-400ms）</div><div class="cln">过快 &lt;100ms 感知不到，过慢 &gt;1s 显卡顿</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 三模型产物对比概览</div>
+    <table>
+      <tr><th>维度</th><th>Model A (Claude)</th><th>Model B (Gemini)</th><th>Model C (DeepSeek)</th></tr>
+      <tr><td>动效类别数</td><td>6 类</td><td>7 类</td><td>4 类</td></tr>
+      <tr><td>ha- 前缀规范</td><td>✅ 完整</td><td>❌ 无前缀</td><td>❌ 无前缀</td></tr>
+      <tr><td>prefers-reduced-motion</td><td>✅ 每段覆盖</td><td>✅ 每段覆盖</td><td>✅ 每段覆盖</td></tr>
+      <tr><td>注入标记 START/END</td><td>✅ 规范</td><td>❌ 注释格式不标准</td><td>❌ 无标记</td></tr>
+      <tr><td>IntersectionObserver</td><td>✅ 触发数字动效</td><td>✅ 触发入场动效</td><td>❌ 无触发，即时播放</td></tr>
+      <tr><td>背景层动效</td><td>✅ 粒子系统</td><td>✅ 极光渐变</td><td>❌ 缺失</td></tr>
+      <tr><td>滚动进度条</td><td>✅ 渐变发光</td><td>✅ 三色渐变</td><td>❌ 缺失</td></tr>
+      <tr><td>代码行数</td><td>~180行</td><td>~210行</td><td>~90行</td></tr>
+      <tr><td>视觉丰富度</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐</td></tr>
+      <tr><td>规范遵循度</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐</td></tr>
+    </table>
+  </div>
+</section>
+<!-- END Mock Case -->
+
+<!-- ═══════════════════ TAB: AQE 评测打分 ═══════════════════ -->
+<section id="tab-aqe" class="ts">
+  <h2 class="stitle">AQE 评测打分 · DIR-03 视频动效方向</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按 AQE 美学评测矩阵 5 维度（A视觉层级 / B色彩美学 / C版式规范 / D品牌一致性 / E可访问性）对三个模型产物逐一打分。DIR-03 方向核心维度：B（色彩/缓动）、D（跨次稳定性）、E（prefers-reduced-motion）。</p>
+
+  <!-- AQE 维度说明 -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">AQE 维度权重（DIR-03 视频动效）</div>
+    <div class="aqe-grid">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div>
+        <div class="dname">视觉层级与信息架构</div>
+        <div style="font-size:11px;color:var(--textm)">权重 10%<br>动效方向次要维度</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div>
+        <div class="dname">色彩美学与缓动质量</div>
+        <div style="font-size:11px;color:var(--textm)">权重 30%<br>核心维度</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div>
+        <div class="dname">版式规范与注入质量</div>
+        <div style="font-size:11px;color:var(--textm)">权重 20%<br>代码规范重点</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div>
+        <div class="dname">品牌一致性与跨次稳定</div>
+        <div style="font-size:11px;color:var(--textm)">权重 25%<br>核心维度</div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div>
+        <div class="dname">可访问性（强制）</div>
+        <div style="font-size:11px;color:var(--textm)">权重 15%<br>强制 BLOCK 维度</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Model A -->
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      <span>🅰️ Model A · Claude-4-Sonnet</span>
+      <span class="chip pass">8.3 · PASS ✅</span>
+    </div>
+    <div class="aqe-grid" style="margin-bottom:14px">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div><div class="dname">视觉层级</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.0</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div><div class="dname">色彩/缓动</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.5</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div><div class="dname">版式/规范</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">9.0</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div><div class="dname">品牌/稳定</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.0</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div><div class="dname">可访问性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.5</span><span class="sl">/ 10</span></div></div>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:12%">维度</th><th style="width:8%">得分</th><th>评分依据</th></tr>
+      <tr><td>AQE-A</td><td><strong>8.0</strong></td><td>入场动效 EN-01 为 Hero 内容提供了清晰的视觉焦点引导；粒子背景不干扰主体层级；动效节奏强化了信息层次感</td></tr>
+      <tr><td>AQE-B</td><td><strong>8.5</strong></td><td>缓动函数全部使用 cubic-bezier(0.22, 1, 0.36, 1)，非常接近 spring 效果；粒子渐变与主色 #ff6b35 协调；CTA 脉冲节奏感强；粒子数量偏少，视觉冲击力略欠</td></tr>
+      <tr><td>AQE-C</td><td><strong>9.0</strong></td><td>ha- 前缀完整无遗漏；注入标记 START/END 格式严格规范；颜色使用 CSS 变量而非硬编码；代码结构清晰，注入位置正确</td></tr>
+      <tr><td>AQE-D</td><td><strong>8.0</strong></td><td>整体动效风格统一于"流光科技"调性；色调选取与原页面高度匹配；同 Prompt 调用风格预计稳定，因模型对规则执行严格</td></tr>
+      <tr><td>AQE-E</td><td><strong>8.5</strong></td><td>prefers-reduced-motion 每段均有明确降级；粒子背景检测 matchMedia 后跳过生成；E4 强制项完整达标；E1 对比度未破坏原页面</td></tr>
+    </table>
+  </div>
+
+  <!-- Model B -->
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      <span>🅱️ Model B · Gemini 2.5 Flash</span>
+      <span class="chip part">7.6 · WATCH 👀</span>
+    </div>
+    <div class="aqe-grid" style="margin-bottom:14px">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div><div class="dname">视觉层级</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.0</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div><div class="dname">色彩/缓动</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">8.5</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div><div class="dname">版式/规范</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">6.5</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div><div class="dname">品牌/稳定</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.0</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div><div class="dname">可访问性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">7.5</span><span class="sl">/ 10</span></div></div>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:12%">维度</th><th style="width:8%">得分</th><th>评分依据</th></tr>
+      <tr><td>AQE-A</td><td><strong>8.0</strong></td><td>标题渐变动效 + 滚动触发入场为页面提供了优秀的视觉焦点引导；极光背景层次感强，不遮挡主要内容</td></tr>
+      <tr><td>AQE-B</td><td><strong>8.5</strong></td><td>极光背景动效 12s 周期感强；标题渐变 6s 循环优雅；磁性卡片 3D 倾斜体验感极佳；进度条三色渐变（橙→粉→紫）有品质感；部分 transition 用了 0.65s 略超500ms 阈值</td></tr>
+      <tr><td>AQE-C</td><td><strong>6.5</strong></td><td>未使用 ha- 前缀（使用 gemini- 前缀），与规范要求不符；注入标记格式不规范（仅有注释无 START/END 格式）；命名规范问题是主要失分原因</td></tr>
+      <tr><td>AQE-D</td><td><strong>7.0</strong></td><td>整体风格统一于"现代科技+渐变美学"；但多次调用时极光颜色方向（紫色强调）与原页面主色 #ff6b35 有轻微风格漂移风险</td></tr>
+      <tr><td>AQE-E</td><td><strong>7.5</strong></td><td>prefers-reduced-motion 覆盖完整；matchMedia 检测在磁性效果和粒子中均有实现；E4 基本达标</td></tr>
+    </table>
+    <div style="font-size:12px;color:var(--watch);margin-top:10px;padding:8px 12px;background:var(--watch-bg);border-radius:6px">👀 WATCH：综合分 7.6，无维度低于 6.0，可有条件上线。需在 2 周内将 gemini- 前缀改为 ha- 前缀并规范注入标记格式。</div>
+  </div>
+
+  <!-- Model C -->
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      <span>🅲 Model C · DeepSeek-V3</span>
+      <span class="chip fail">6.9 · FAIL ❌</span>
+    </div>
+    <div class="aqe-grid" style="margin-bottom:14px">
+      <div class="aqe-dim">
+        <div class="did">AQE-A</div><div class="dname">视觉层级</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.0</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-B</div><div class="dname">色彩/缓动</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.5</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-C</div><div class="dname">版式/规范</div>
+        <div class="scores"><div class="sbadge"><span class="sv sf">5.5</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-D</div><div class="dname">品牌/稳定</div>
+        <div class="scores"><div class="sbadge"><span class="sv sw">7.0</span><span class="sl">/ 10</span></div></div>
+      </div>
+      <div class="aqe-dim">
+        <div class="did">AQE-E</div><div class="dname">可访问性</div>
+        <div class="scores"><div class="sbadge"><span class="sv sg">7.5</span><span class="sl">/ 10</span></div></div>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:12%">维度</th><th style="width:8%">得分</th><th>评分依据</th></tr>
+      <tr><td>AQE-A</td><td><strong>7.0</strong></td><td>Hero 入场动效基本合格；但缺少背景层，页面视觉深度不足；Stats 数字动效有助于引导注意力</td></tr>
+      <tr><td>AQE-B</td><td><strong>7.5</strong></td><td>缓动函数选用得当（ease-out, cubic-bezier）；时长均在合理范围（200-600ms）；但动效品类单一，缺少背景层和进度条，整体视觉丰富度低</td></tr>
+      <tr><td>AQE-C</td><td><strong>5.5</strong></td><td>无 ha- 前缀，直接修改原始 class 选择器；无注入标记，无法溯源删除；动效 CSS 直接追加在原样式后，规范性严重不足。AQE-C 低于 6.0 是 FAIL 关键原因</td></tr>
+      <tr><td>AQE-D</td><td><strong>7.0</strong></td><td>整体风格符合深色科技调性；但由于功能单一，跨次稳定性难以评估；风格输出较保守，缺乏品质感</td></tr>
+      <tr><td>AQE-E</td><td><strong>7.5</strong></td><td>prefers-reduced-motion 在所有动效段均有降级处理，E4 达标。可访问性是 Model C 表现最好的维度</td></tr>
+    </table>
+    <div style="font-size:12px;color:var(--fail);margin-top:10px;padding:8px 12px;background:var(--fail-bg);border-radius:6px">❌ FAIL：AQE-C 5.5 低于 6.0 强制阈值，综合分 6.9 低于 7.5 通过线。打回修改：需补充 ha- 前缀、注入标记，并增加背景层/进度条动效。</div>
+  </div>
+
+</section>
+<!-- END AQE -->
+
+<!-- ═══════════════════ TAB: DIR-03 Checklist ═══════════════════ -->
+<section id="tab-checklist" class="ts">
+  <h2 class="stitle">DIR-03 Checklist · Gate 2 设计评测用表</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">按视频动效方向（DIR-03）五方向 Checklist 对三个模型产物逐项检查。</p>
+
+  <div class="card">
+    <div class="card-title">前提条件检查（准入确认）</div>
+    <div class="cl"><div class="clicon fail">✗</div><div class="cltxt"><div class="cll"><span class="pri p0">P0</span> 动效复杂度分级已选定（L1/L2/L3）</div><div class="cln">❌ 未声明。本 Skill 实际覆盖 L1（微动效 ≤0.5s）+ L2（独立动效 ≤3s），需在文档中明确</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">技术路线已确定（CSS / JS），交付格式已明确</div><div class="cln">✅ CSS animations + vanilla JS，输出注入后 HTML，符合要求</div></div></div>
+    <div class="cl"><div class="clicon fail">✗</div><div class="cltxt"><div class="cll"><span class="pri p0">P0</span> 时长范围和帧率标准已约束</div><div class="cln">❌ 仅在 CRITICAL Rules 正文中提及时长，帧率（60fps）从未声明，未作准入条款前置</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-B · 缓动函数与时长质量</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">缓动函数非线性（Model A / B / C 均通过）</div><div class="cln">✅ 三个模型均使用 ease-out、ease-in-out 或 cubic-bezier，无 linear 动效</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">UI 微动效时长 200–400ms（Model A / C 通过，B 部分超出）</div><div class="cln">Model A: 全部合规 ✅ | Model B: 部分 transition 0.65s 超标 ⚠️ | Model C: 全部合规 ✅</div></div></div>
+    <div class="cl"><div class="clicon part">~</div><div class="cltxt"><div class="cll">过渡动效 300–500ms（Model B 部分超标）</div><div class="cln">Model B 极光背景 12s 循环属于环境动效，可接受；但 gemini-reveal 的 0.65s 略超阈值</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-D · 品牌调性与跨次风格稳定</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">动效调性与页面品牌匹配（深色科技风）</div><div class="cln">✅ 三个模型均保持深色科技调性，粒子/极光/简洁过渡均符合页面气质</div></div></div>
+    <div class="cl"><div class="clicon part">~</div><div class="cltxt"><div class="cll">跨次风格稳定（Model B 有漂移风险）</div><div class="cln">Model A: 高稳定性（规则约束强）✅ | Model B: 极光色方向可能漂移 ⚠️ | Model C: 稳定但平淡 ✅</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-E · 可访问性基线（强制项）</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">E4: 响应 prefers-reduced-motion（三模型全通过）</div><div class="cln">✅ 三个模型均为每段动效添加了 @media (prefers-reduced-motion: reduce) 降级</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">无快速闪烁（&gt;3Hz 防癫痫）</div><div class="cln">✅ 三个模型均无高频闪烁内容</div></div></div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">E1: 文字对比度未被破坏</div><div class="cln">✅ 三个模型均遵守禁止修改颜色变量规则，原页面对比度未被破坏</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AQE-C · 注入规范性（命名 + 标记）</div>
+    <div class="cl"><div class="clicon pass">✓</div><div class="cltxt"><div class="cll">ha- 前缀规范（仅 Model A 通过）</div><div class="cln">Model A: ✅ 完整 | Model B: ❌ gemini- 前缀 | Model C: ❌ 直接使用原 class 名</div></div></div>
+    <div class="cl"><div class="clicon part">~</div><div class="cltxt"><div class="cll">注入标记 START/END 格式规范（仅 Model A 通过）</div><div class="cln">Model A: ✅ 标准格式 | Model B: ❌ 普通注释 | Model C: ❌ 无任何标记</div></div></div>
+  </div>
+
+</section>
+<!-- END Checklist -->
+
+<!-- ═══════════════════ TAB: Known Failures ═══════════════════ -->
+<section id="tab-failures" class="ts">
+  <h2 class="stitle">Known Failures · 已知失败模式沉淀</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:20px">本次评测发现的失败模式，写入 Known Failures 库，用于下一批 Skill 准入规范更新。</p>
+
+  <div class="kf">
+    <div class="kfid">KF-001 · AQE-C · DIR-03</div>
+    <div class="kftitle">Skill 未强制命名规范导致模型自创前缀</div>
+    <div class="kfrow"><span class="kfkey">触发条件</span><span>Skill description 中仅在 CRITICAL Rules 提及 ha- 前缀，未在 description 首句或准入条款中前置声明</span></div>
+    <div class="kfrow"><span class="kfkey">症状</span><span>Model B 使用 gemini- 前缀，Model C 直接沿用原 class 名，与规范要求不符，存在命名冲突风险</span></div>
+    <div class="kfrow"><span class="kfkey">根因</span><span>LLM 在较长 Skill 文档中注意力衰减，CRITICAL Rules 在后半段，执行概率低于 description 首段</span></div>
+    <div class="kfrow"><span class="kfkey">修复指令</span><span>将 "所有新增 class 必须使用 ha- 前缀" 移入 description 首段，作为 Skill 最高优先级声明</span></div>
+    <div class="kfrow"><span class="kfkey">防重现规则</span><span>下一批动效类 Skill 准入时，必须在 description 第一句写明命名规范前缀</span></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-002 · AQE-C · DIR-03</div>
+    <div class="kftitle">部分模型跳过注入标记导致无法溯源删除</div>
+    <div class="kfrow"><span class="kfkey">触发条件</span><span>模型未被明确告知注入标记格式的强制性，在简洁实现时倾向跳过标记注释</span></div>
+    <div class="kfrow"><span class="kfkey">症状</span><span>Model C 产物中无任何 html-animator: START/END 标记，用户无法识别哪些代码是注入的，删除困难</span></div>
+    <div class="kfrow"><span class="kfkey">根因</span><span>注入标记在 Phase 6 才出现，且未被归入 CRITICAL Rules 的 ALWAYS 列表</span></div>
+    <div class="kfrow"><span class="kfkey">修复指令</span><span>将注入标记格式加入 ALWAYS 列表，与 ha- 前缀并列作为强制项</span></div>
+    <div class="kfrow"><span class="kfkey">防重现规则</span><span>注入类 Skill 必须在 ALWAYS 列表前三条中包含注入标记要求</span></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-003 · Gate 0 · DIR-03</div>
+    <div class="kftitle">竞品对标缺失导致质量锚点模糊</div>
+    <div class="kfrow"><span class="kfkey">触发条件</span><span>Skill 建设时未在准入文件中指定竞品（如 Framer Motion / LottieFiles），导致"好的动效"无可对比参照</span></div>
+    <div class="kfrow"><span class="kfkey">症状</span><span>三个模型产物质量差异悬殊（8.3 vs 6.9），说明 Skill 自身描述的质量锚点不够清晰</span></div>
+    <div class="kfrow"><span class="kfkey">根因</span><span>SKILL.md 聚焦于"如何做"的流程，忽略了"做到什么水准"的质量基线声明</span></div>
+    <div class="kfrow"><span class="kfkey">修复指令</span><span>在 SKILL.md 的 description 或 README 中添加竞品对标：L1微动效→Framer Motion；L2→LottieFiles 优质案例</span></div>
+    <div class="kfrow"><span class="kfkey">防重现规则</span><span>所有设计类 Skill 在准入时必须完成竞品对标声明（PRINCIPLE 02）</span></div>
+  </div>
+
+  <div class="kf">
+    <div class="kfid">KF-004 · AQE-D · DIR-03</div>
+    <div class="kftitle">动效数量不足导致 FAIL（Model C 仅 4 类，低于预期标准）</div>
+    <div class="kfrow"><span class="kfkey">触发条件</span><span>用户提出包含 6 个明确需求的 Prompt，模型仍只输出最低限度（4 类），未主动匹配需求密度</span></div>
+    <div class="kfrow"><span class="kfkey">症状</span><span>缺少背景层动效和滚动进度条，页面视觉深度和动态感明显不足，与 PASS 标准产物差距显著</span></div>
+    <div class="kfrow"><span class="kfkey">根因</span><span>模型对 Phase 4 缺口摘要理解不足，未能正确执行"针对页面特征推荐最优组合"逻辑</span></div>
+    <div class="kfrow"><span class="kfkey">修复指令</span><span>在 Phase 4 缺口报告中增加"当用户明确列出需求时，优先满足用户列表，再按匹配矩阵补充"的说明</span></div>
+    <div class="kfrow"><span class="kfkey">防重现规则</span><span>用户 Prompt 中有明确动效清单时，Phase 5 Auto 模式必须全量响应用户列表</span></div>
+  </div>
+
+</section>
+<!-- END Known Failures -->
+
+<!-- ═══════════════════ TAB: 整改建议 ═══════════════════ -->
+<section id="tab-fixes" class="ts">
+  <h2 class="stitle">整改建议 · P0 必修 + P1 建议</h2>
+
+  <p style="color:var(--text2);font-size:13px;margin-bottom:18px">以下为针对 html-animator v3.2.0 的具体整改指令，完成 P0 项后可重新申请 Gate 2 评测。</p>
+
+  <div style="font-size:12px;font-weight:700;color:var(--fail);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">🔴 P0 必须修复（4 项）</div>
+
+  <div class="fix">
+    <div class="fixtitle">FIX-01 · 竞品对标 — 在 description 或 README 中声明质量锚点</div>
+    <div class="fixbody">在 SKILL.md 的 description 中添加：<br>
+    <code>Targets L1/L2 animation quality matching Framer Motion (L1 microinteractions) and LottieFiles curated examples (L2 standalone).</code><br>
+    并在 docs/README.md 中新增"质量基线"章节，列出 L1/L2 竞品对比链接。</div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">FIX-02 · ha- 前缀强制声明 — 移入 description 首段</div>
+    <div class="fixbody">将 description 中的第一句改为：<br>
+    <code>Injects production-ready CSS animations with mandatory ha- class prefix (no exceptions)...</code><br>
+    同时在 ALWAYS 列表第一条加粗强调：<strong>ALL new CSS classes MUST use ha- prefix — this is non-negotiable.</strong></div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">FIX-03 · 动效复杂度分级声明 — 在文档中明确 L1+L2</div>
+    <div class="fixbody">在 SKILL.md 的 description 中添加分级声明：<br>
+    <code>Covers L1 (microinteractions ≤400ms) and L2 (standalone animations ≤3s). Default: 60fps target. Respects prefers-reduced-motion.</code></div>
+  </div>
+
+  <div class="fix">
+    <div class="fixtitle">FIX-04 · 缓动函数规则前置 — 加入 ALWAYS 强制列表</div>
+    <div class="fixbody">在 ALWAYS 列表中新增一条：<br>
+    <code>Use non-linear easing only: ease-out / ease-in-out / cubic-bezier — NEVER use linear as default animation easing.</code><br>
+    同时在 description 中提及：<code>enforces non-linear easing for all animations</code>。</div>
+  </div>
+
+  <div style="font-size:12px;font-weight:700;color:var(--watch);margin-bottom:10px;margin-top:18px;text-transform:uppercase;letter-spacing:.05em">🟡 P1 建议修复（3 项）</div>
+
+  <div class="fix" style="border-left-color:var(--watch)">
+    <div class="fixtitle">FIX-05 · 注入标记强制化 — 加入 ALWAYS 列表第二条</div>
+    <div class="fixbody">在 ALWAYS 列表第二条添加：<br>
+    <code>Mark ALL injected code with /* html-animator: START [ID] */ ... /* html-animator: END [ID] */ comments — required for traceability.</code></div>
+  </div>
+
+  <div class="fix" style="border-left-color:var(--watch)">
+    <div class="fixtitle">FIX-06 · 帧率标准声明 — 在动效时长规则中补充 60fps</div>
+    <div class="fixbody">在"注意事项（精简版）"第一条后新增：<br>
+    <code>目标帧率：60fps（CSS 动效由浏览器调度，JS 动效使用 requestAnimationFrame）</code></div>
+  </div>
+
+  <div class="fix" style="border-left-color:var(--watch)">
+    <div class="fixtitle">FIX-07 · 预列已知失败模式 — 在 SKILL.md 末尾添加 Known Failures 章节</div>
+    <div class="fixbody">在 SKILL.md 末尾新增章节，预列 3 条高频失败场景：<br>
+    <code>KF-1: position:absolute + transform 组合导致位移错乱 → 使用 opacity-only 版本</code><br>
+    <code>KF-2: 注入后 class 未挂载到 HTML 元素 → Phase 7 验证是强制步骤</code><br>
+    <code>KF-3: 深色页面粒子颜色与背景对比不足 → 提高粒子不透明度或增大尺寸</code></div>
+  </div>
+
+  <div style="background:var(--pass-bg);border:1px solid #aadcc2;border-radius:8px;padding:14px;margin-top:16px">
+    <div style="font-weight:700;font-size:13px;color:var(--pass);margin-bottom:6px">✅ 整改完成后的预期评级</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.7">
+      完成 FIX-01~04 四项 P0 修复后，Skill 准入规范合规，可重新申请 Gate 2 评测。<br>
+      基于 Model A 产物表现（8.3 PASS），整改后的 Skill 具备通过 Gate 2 的基础条件。<br>
+      建议同时完成 FIX-05~07 三项 P1 修复，预计综合 AQE 均值可从当前 7.6 提升至 8.0+。
+    </div>
+  </div>
+</section>
+<!-- END 整改建议 -->
+
+</div><!-- /content -->
+
+<script>
+function sw(id){
+  document.querySelectorAll('.ts').forEach(function(s){s.classList.remove('active')});
+  document.querySelectorAll('.ntab').forEach(function(t){t.classList.remove('active')});
+  var el=document.getElementById('tab-'+id);
+  if(el) el.classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

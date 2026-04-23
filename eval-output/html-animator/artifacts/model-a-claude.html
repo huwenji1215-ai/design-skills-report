@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KwaiDesign 设计系统</title>
+<style>
+:root {
+  --accent: #ff6b35;
+  --accent2: #f7c59f;
+  --bg: #0f0e17;
+  --surface: #1a1826;
+  --text: #fffffe;
+  --text2: #a7a9be;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, 'PingFang SC', sans-serif; min-height: 100vh; }
+
+.hero { padding: 80px 48px; text-align: center; }
+.hero h1 { font-size: 56px; font-weight: 800; margin-bottom: 16px; }
+.hero p { font-size: 20px; color: var(--text2); max-width: 560px; margin: 0 auto 32px; }
+.cta { display: inline-flex; gap: 16px; }
+.btn-primary { background: var(--accent); color: #fff; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; }
+.btn-secondary { background: transparent; color: var(--text); padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.15); }
+
+.features { padding: 64px 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1080px; margin: 0 auto; }
+.card { background: var(--surface); border-radius: 12px; padding: 28px; border: 1px solid rgba(255,255,255,0.06); }
+.card-icon { width: 48px; height: 48px; border-radius: 10px; background: rgba(255,107,53,0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 22px; }
+.card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+.stats { padding: 48px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1080px; margin: 0 auto; }
+.stat { text-align: center; }
+.stat-num { font-size: 40px; font-weight: 900; color: var(--accent); }
+.stat-label { font-size: 14px; color: var(--text2); margin-top: 4px; }
+
+/* ============================================
+   html-animator: START [DS-03] — 滚动进度条
+   ============================================ */
+.ha-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  z-index: 9999;
+  transition: width 0.1s ease-out;
+  box-shadow: 0 0 8px rgba(255, 107, 53, 0.6);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ha-scroll-progress { transition: none; }
+}
+/* html-animator: END [DS-03] */
+
+/* ============================================
+   html-animator: START [EN-01] — 渐显上移入场
+   ============================================ */
+@keyframes ha-fadeInUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ha-animate {
+  opacity: 0;
+  animation: ha-fadeInUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.ha-animate:nth-child(1) { animation-delay: 0.05s; }
+.ha-animate:nth-child(2) { animation-delay: 0.15s; }
+.ha-animate:nth-child(3) { animation-delay: 0.25s; }
+.ha-animate:nth-child(4) { animation-delay: 0.35s; }
+@media (prefers-reduced-motion: reduce) {
+  .ha-animate { opacity: 1; animation: none; }
+}
+/* html-animator: END [EN-01] */
+
+/* ============================================
+   html-animator: START [HV-01] — 卡片浮起发光
+   ============================================ */
+.card {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
+  will-change: transform;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(255, 107, 53, 0.18), 0 4px 12px rgba(0,0,0,0.3);
+  border-color: rgba(255, 107, 53, 0.3);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .card:hover { transform: none; box-shadow: none; }
+}
+/* html-animator: END [HV-01] */
+
+/* ============================================
+   html-animator: START [AT-01] — CTA 脉冲注意力
+   ============================================ */
+@keyframes ha-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 107, 53, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+}
+.btn-primary {
+  animation: ha-pulse-ring 2.5s ease-out infinite;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.btn-primary:hover {
+  transform: scale(1.04);
+  background: #ff8255;
+}
+.btn-secondary {
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.btn-secondary:hover {
+  border-color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.04);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary { animation: none; }
+  .btn-primary, .btn-secondary { transition: none; }
+}
+/* html-animator: END [AT-01] */
+
+/* ============================================
+   html-animator: START [TY-01] — 数字翻滚计数
+   ============================================ */
+.stat-num {
+  display: inline-block;
+  transition: opacity 0.3s ease;
+}
+.ha-counting {
+  animation: ha-countUp 0.8s ease-out forwards;
+}
+@keyframes ha-countUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ha-counting { animation: none; }
+}
+/* html-animator: END [TY-01] */
+
+/* ============================================
+   html-animator: START [BG-01] — 粒子流动背景
+   ============================================ */
+.ha-bg-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ha-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,107,53,0.3), transparent 70%);
+  animation: ha-float linear infinite;
+}
+@keyframes ha-float {
+  from { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  to { transform: translateY(-20vh) scale(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ha-bg-overlay { display: none; }
+}
+/* html-animator: END [BG-01] */
+</style>
+</head>
+<body>
+
+<!-- html-animator: START [BG-01] — 粒子容器 HTML -->
+<div class="ha-bg-overlay" aria-hidden="true" id="ha-particles"></div>
+<!-- html-animator: END [BG-01] -->
+
+<!-- html-animator: START [DS-03] — 进度条 HTML -->
+<div class="ha-scroll-progress" id="ha-scroll-bar" role="progressbar" aria-hidden="true"></div>
+<!-- html-animator: END [DS-03] -->
+
+<section class="hero">
+  <h1 class="ha-animate">KwaiDesign 设计系统</h1>
+  <p class="ha-animate">为快手设计师和工程师提供的统一设计语言，构建一致、高质量的用户体验。</p>
+  <div class="cta ha-animate">
+    <button class="btn-primary">开始探索</button>
+    <button class="btn-secondary">查看文档</button>
+  </div>
+</section>
+
+<section class="features">
+  <div class="card">
+    <div class="card-icon">🎨</div>
+    <h3>设计 Token</h3>
+    <p>统一的颜色、字体、间距规范，确保跨平台视觉一致性。</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">⚡</div>
+    <h3>组件库</h3>
+    <p>200+ 生产就绪的 React 组件，覆盖所有常见业务场景。</p>
+  </div>
+  <div class="card">
+    <div class="card-icon">🔧</div>
+    <h3>开发工具</h3>
+    <p>Figma 插件、VSCode 扩展，让设计到开发无缝衔接。</p>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat">
+    <div class="stat-num ha-counting" data-target="200">200+</div>
+    <div class="stat-label">UI 组件</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num ha-counting" data-target="98">98%</div>
+    <div class="stat-label">设计覆盖率</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num ha-counting" data-target="3">3x</div>
+    <div class="stat-label">开发效率</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num ha-counting" data-target="50">50+</div>
+    <div class="stat-label">团队使用</div>
+  </div>
+</section>
+
+<script>
+/* html-animator: START [DS-03] — 滚动进度条 JS */
+(function() {
+  const bar = document.getElementById('ha-scroll-bar');
+  if (!bar) return;
+  window.addEventListener('scroll', function() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = Math.min(100, pct) + '%';
+  }, { passive: true });
+})();
+/* html-animator: END [DS-03] */
+
+/* html-animator: START [BG-01] — 粒子生成 JS */
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const container = document.getElementById('ha-particles');
+  if (!container) return;
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('div');
+    p.className = 'ha-particle';
+    const size = 60 + Math.random() * 120;
+    p.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      left: ${Math.random() * 100}%;
+      animation-duration: ${8 + Math.random() * 10}s;
+      animation-delay: ${-Math.random() * 12}s;
+    `;
+    container.appendChild(p);
+  }
+})();
+/* html-animator: END [BG-01] */
+
+/* html-animator: START [TY-01] — IntersectionObserver 触发数字动效 JS */
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const stats = document.querySelectorAll('.stat-num.ha-counting');
+  if (!stats.length) return;
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.style.animation = 'none';
+        entry.target.offsetHeight; // reflow
+        entry.target.style.animation = '';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  stats.forEach(function(el) { observer.observe(el); });
+})();
+/* html-animator: END [TY-01] */
+</script>
+</body>
+</html>

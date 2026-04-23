@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KwaiDesign 设计系统</title>
+<style>
+:root {
+  --accent: #ff6b35;
+  --accent2: #f7c59f;
+  --bg: #0f0e17;
+  --surface: #1a1826;
+  --text: #fffffe;
+  --text2: #a7a9be;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, 'PingFang SC', sans-serif; min-height: 100vh; }
+
+.hero { padding: 80px 48px; text-align: center; }
+.hero h1 { font-size: 56px; font-weight: 800; margin-bottom: 16px; }
+.hero p { font-size: 20px; color: var(--text2); max-width: 560px; margin: 0 auto 32px; }
+.cta { display: inline-flex; gap: 16px; }
+.btn-primary { background: var(--accent); color: #fff; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; }
+.btn-secondary { background: transparent; color: var(--text); padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.15); }
+
+.features { padding: 64px 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1080px; margin: 0 auto; }
+.card { background: var(--surface); border-radius: 12px; padding: 28px; border: 1px solid rgba(255,255,255,0.06); }
+.card-icon { width: 48px; height: 48px; border-radius: 10px; background: rgba(255,107,53,0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 22px; }
+.card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.card p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+.stats { padding: 48px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1080px; margin: 0 auto; }
+.stat { text-align: center; }
+.stat-num { font-size: 40px; font-weight: 900; color: var(--accent); }
+.stat-label { font-size: 14px; color: var(--text2); margin-top: 4px; }
+
+/* === [Gemini — BG-03] 流动极光背景 === */
+@keyframes gemini-aurora {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  33% { transform: translate(40px, -30px) scale(1.1); opacity: 0.6; }
+  66% { transform: translate(-20px, 20px) scale(0.95); opacity: 0.35; }
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: -20%;
+  left: -20%;
+  width: 80vw;
+  height: 80vh;
+  background: radial-gradient(ellipse, rgba(255,107,53,0.12) 0%, transparent 60%);
+  animation: gemini-aurora 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vh;
+  background: radial-gradient(ellipse, rgba(100,50,200,0.1) 0%, transparent 60%);
+  animation: gemini-aurora 16s ease-in-out infinite reverse;
+  pointer-events: none;
+  z-index: -1;
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after { animation: none; }
+}
+
+/* === [Gemini — EN-01 + EN-06] 滚动触发入场 === */
+@keyframes gemini-reveal {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.gemini-reveal {
+  opacity: 0;
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.6s ease;
+}
+.gemini-reveal.is-visible {
+  animation: gemini-reveal 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gemini-reveal, .gemini-reveal.is-visible { opacity: 1; animation: none; filter: none; transform: none; }
+}
+
+/* === [Gemini — HV-01 + HV-13] 卡片磁性浮起 + 3D 倾斜 === */
+.card {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+  will-change: transform;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,107,53,0.15), transparent 65%);
+  pointer-events: none;
+}
+.card { position: relative; overflow: hidden; }
+.card:hover {
+  transform: translateY(-8px) rotateX(3deg) rotateY(-2deg);
+  box-shadow: 0 20px 50px rgba(255,107,53,0.2), 0 8px 20px rgba(0,0,0,0.4);
+  border-color: rgba(255,107,53,0.25);
+}
+.card:hover::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .card:hover { transform: none; box-shadow: none; }
+  .card::after { display: none; }
+}
+
+/* === [Gemini — AT-01] CTA 按钮彩虹光圈 === */
+@keyframes gemini-cta-glow {
+  0% { box-shadow: 0 0 0 0 rgba(255,107,53,0.5), 0 4px 15px rgba(255,107,53,0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(255,107,53,0), 0 4px 20px rgba(255,107,53,0.5); }
+  100% { box-shadow: 0 0 0 0 rgba(255,107,53,0), 0 4px 15px rgba(255,107,53,0.3); }
+}
+.btn-primary {
+  animation: gemini-cta-glow 3s ease-in-out infinite;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: left 0.5s ease;
+}
+.btn-primary:hover::before { left: 100%; }
+.btn-primary:hover { transform: scale(1.06); background: #ff8255; }
+.btn-secondary {
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-secondary:hover {
+  border-color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.05);
+  transform: scale(1.02);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary { animation: none; transition: none; }
+  .btn-primary::before, .btn-secondary { transition: none; }
+  .btn-primary:hover, .btn-secondary:hover { transform: none; }
+}
+
+/* === [Gemini — DS-03] 滚动进度条 === */
+#gemini-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), #a855f7);
+  z-index: 9999;
+  transition: width 0.08s linear;
+  box-shadow: 0 0 10px rgba(255,107,53,0.8);
+}
+@media (prefers-reduced-motion: reduce) {
+  #gemini-progress { transition: none; }
+}
+
+/* === [Gemini — TY-08] 标题文字渐变彩色 === */
+@keyframes gemini-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.hero h1 {
+  background: linear-gradient(135deg, #fffffe 20%, var(--accent) 50%, var(--accent2) 70%, #a78bfa 90%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gemini-gradient-shift 6s ease infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero h1 { background: none; -webkit-text-fill-color: var(--text); color: var(--text); animation: none; }
+}
+
+/* === [Gemini — SD-02] 数据卡片视差淡入 === */
+.stat {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.stat.gemini-stat-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .stat { opacity: 1; transform: none; transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="gemini-progress" aria-hidden="true"></div>
+
+<section class="hero">
+  <h1 class="gemini-reveal">KwaiDesign 设计系统</h1>
+  <p class="gemini-reveal">为快手设计师和工程师提供的统一设计语言，构建一致、高质量的用户体验。</p>
+  <div class="cta gemini-reveal">
+    <button class="btn-primary">开始探索</button>
+    <button class="btn-secondary">查看文档</button>
+  </div>
+</section>
+
+<section class="features">
+  <div class="card gemini-reveal">
+    <div class="card-icon">🎨</div>
+    <h3>设计 Token</h3>
+    <p>统一的颜色、字体、间距规范，确保跨平台视觉一致性。</p>
+  </div>
+  <div class="card gemini-reveal">
+    <div class="card-icon">⚡</div>
+    <h3>组件库</h3>
+    <p>200+ 生产就绪的 React 组件，覆盖所有常见业务场景。</p>
+  </div>
+  <div class="card gemini-reveal">
+    <div class="card-icon">🔧</div>
+    <h3>开发工具</h3>
+    <p>Figma 插件、VSCode 扩展，让设计到开发无缝衔接。</p>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat">
+    <div class="stat-num">200+</div>
+    <div class="stat-label">UI 组件</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">98%</div>
+    <div class="stat-label">设计覆盖率</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">3x</div>
+    <div class="stat-label">开发效率</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">50+</div>
+    <div class="stat-label">团队使用</div>
+  </div>
+</section>
+
+<script>
+// 滚动进度条
+(function() {
+  const bar = document.getElementById('gemini-progress');
+  if (!bar) return;
+  function updateBar() {
+    const scrollTop = window.scrollY;
+    const docH = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (docH > 0 ? (scrollTop / docH) * 100 : 0) + '%';
+  }
+  window.addEventListener('scroll', updateBar, { passive: true });
+  updateBar();
+})();
+
+// IntersectionObserver 触发入场
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.gemini-reveal').forEach(el => {
+      el.style.opacity = '1';
+    });
+    return;
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const siblings = [...el.parentElement.children].filter(c => c.classList.contains('gemini-reveal'));
+        const idx = siblings.indexOf(el);
+        el.style.animationDelay = (idx * 0.1) + 's';
+        el.classList.add('is-visible');
+        io.unobserve(el);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.gemini-reveal').forEach(el => io.observe(el));
+})();
+
+// Stats 淡入
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const io = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('gemini-stat-visible'), i * 100);
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.stat').forEach(el => io.observe(el));
+})();
+
+// 卡片磁性光效跟随鼠标
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--mx', x + '%');
+      card.style.setProperty('--my', y + '%');
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.removeProperty('--mx');
+      card.style.removeProperty('--my');
+    });
+  });
+})();
+</script>
+</body>
+</html>
