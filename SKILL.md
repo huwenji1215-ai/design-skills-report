@@ -12,7 +12,7 @@ description: |-
   （1）Landing Page / 产品官网；（2）数据日报 / 周报；（3）数据看板 / Dashboard；
   （4）工具型应用 / 内部系统；（5）内容站 / 文档站。
   【6 套主题风格】
-  A-企业亮色（Ant Design 系 / 阿里云蓝）、B-深色专业（大屏 / 高管报告）、
+  A-企业亮色（数平蓝 #2563F4 / 大厂商务风）、B-深色专业（大屏 / 高管报告）、
   C-编辑排版（内容型 / 阅读优先）、D-极简轻量（Linear / Notion 感）、E-卡片网格（Bento / 强对比）、
   F-深色霓虹（用户明确要求暗黑时使用，青蓝科技感，来源快手DataAgent风格）。
   【不适用】创意自由度页面（海报/邀请函/活动页/游戏）→ frontend-design；
@@ -106,7 +106,7 @@ Tier 3（高级定制，特殊场景）：
 
 | 主题 | 关键词 | 适用场景 | 文件 |
 |------|--------|---------|------|
-| **A — 企业亮色** | 大厂风 / Ant Design / 阿里云蓝 / 专业商务 | landing-page ★ / tool-app ★ / **data-report ★ / dashboard ★** | `themes/A-enterprise-light.md` |
+| **A — 企业亮色** | 大厂风 / 数平蓝设计系统 / 专业商务 | landing-page ★ / tool-app ★ / **data-report ★ / dashboard ★** | `themes/A-enterprise-light.md` |
 | **B — 深色专业** | 暗色大屏 / 高管汇报 / 简洁深色 | dashboard / data-report | `themes/B-dark-pro.md` |
 | **C — 编辑排版** | 杂志感 / 高端阅读 / 内容优先 / 排版讲究 | content-doc ★ / landing-page | `themes/C-editorial.md` |
 | **D — 极简轻量** | Notion / Linear / 干净 / 无装饰 | tool-app / content-doc | `themes/D-minimal.md` |
