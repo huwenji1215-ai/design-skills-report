@@ -11,9 +11,10 @@ description: |-
   【5 大场景】
   （1）Landing Page / 产品官网；（2）数据日报 / 周报；（3）数据看板 / Dashboard；
   （4）工具型应用 / 内部系统；（5）内容站 / 文档站。
-  【5 套主题风格】
+  【6 套主题风格】
   A-企业亮色（Ant Design 系 / 阿里云蓝）、B-深色专业（大屏 / 高管报告）、
-  C-编辑排版（内容型 / 阅读优先）、D-极简轻量（Linear / Notion 感）、E-卡片网格（Bento / 强对比）。
+  C-编辑排版（内容型 / 阅读优先）、D-极简轻量（Linear / Notion 感）、E-卡片网格（Bento / 强对比）、
+  F-深色霓虹（数据报告/看板默认，青蓝科技感，来源快手DataAgent风格）。
   【不适用】创意自由度页面（海报/邀请函/活动页/游戏）→ frontend-design；
   流程图/架构图 → drawio-diagram；Python 图表美化 → DesignAI-reports。
 ---
@@ -43,11 +44,12 @@ Tier 1（按场景选一个，必读）：
   scenes/content-doc.md        内容站 / 文档站
 
 Tier 2（按需加载）：
-  themes/A-enterprise-light.md   主题 A — 企业亮色（默认）
+  themes/A-enterprise-light.md   主题 A — 企业亮色（Landing Page / 工具应用默认）
   themes/B-dark-pro.md           主题 B — 深色专业
   themes/C-editorial.md          主题 C — 编辑排版
   themes/D-minimal.md            主题 D — 极简轻量
   themes/E-bold-bento.md         主题 E — 卡片网格
+  themes/F-dark-neon.md          主题 F — 深色霓虹（data-report/dashboard 默认 ★）
 
 Tier 3（高级定制，特殊场景）：
   core/design-tokens.md          全局 Token 体系（色彩/字号/间距/圆角/阴影）
@@ -101,15 +103,16 @@ Tier 3（高级定制，特殊场景）：
 
 | 主题 | 关键词 | 适用场景 | 文件 |
 |------|--------|---------|------|
-| **A — 企业亮色** | 大厂风 / Ant Design / 阿里云蓝 / 专业商务 | landing-page ★ / tool-app | `themes/A-enterprise-light.md` |
-| **B — 深色专业** | 暗色 / 大屏 / 高管汇报 / 科技感 | dashboard ★ / data-report | `themes/B-dark-pro.md` |
+| **A — 企业亮色** | 大厂风 / Ant Design / 阿里云蓝 / 专业商务 | landing-page ★ / tool-app ★ | `themes/A-enterprise-light.md` |
+| **B — 深色专业** | 暗色 / 大屏 / 高管汇报 / 科技感 | dashboard / data-report | `themes/B-dark-pro.md` |
 | **C — 编辑排版** | 杂志感 / 高端阅读 / 内容优先 / 排版讲究 | content-doc ★ / landing-page | `themes/C-editorial.md` |
-| **D — 极简轻量** | Notion / Linear / 干净 / 无装饰 | tool-app ★ / content-doc | `themes/D-minimal.md` |
+| **D — 极简轻量** | Notion / Linear / 干净 / 无装饰 | tool-app / content-doc | `themes/D-minimal.md` |
 | **E — 卡片网格** | Bento / 强对比 / 大字 / 现代感 | landing-page / dashboard | `themes/E-bold-bento.md` |
+| **F — 深色霓虹** | 深海军蓝 / 青蓝主色 / 科技仪表板 / DataAgent 风格 | **data-report ★ / dashboard ★** | `themes/F-dark-neon.md` |
 
-> ★ = 该场景最常用主题  
-> 无明确指定时，按场景默认推荐选 ★ 主题  
-> 数据类场景（data-report/dashboard）且用户未指定时，默认 A 主题（亮色）
+> ★ = 该场景最常用主题（新增 F 主题为数据场景默认）  
+> **数据类场景（data-report/dashboard）且用户未指定主题时：默认使用 F — 深色霓虹**  
+> 用户明确要求「亮色报告」时切换为 A 主题
 
 ---
 
@@ -272,11 +275,12 @@ web-site-beautifier/
 │   └── content-doc.md            内容站 / 文档站
 │
 ├── themes/                       ← Tier 2：按主题选一个
-│   ├── A-enterprise-light.md     企业亮色（Ant Design / 阿里云蓝）
+│   ├── A-enterprise-light.md     企业亮色（Landing Page / 工具应用默认）
 │   ├── B-dark-pro.md             深色专业（大屏 / 高管）
 │   ├── C-editorial.md            编辑排版（杂志 / 内容）
 │   ├── D-minimal.md              极简轻量（Linear / Notion）
-│   └── E-bold-bento.md           卡片网格（Bento / 强对比）
+│   ├── E-bold-bento.md           卡片网格（Bento / 强对比）
+│   └── F-dark-neon.md            深色霓虹（data-report/dashboard 默认 ★）（🆕）
 │
 ├── core/                         ← Tier 3：高级定制时按需读
 │   ├── design-tokens.md          全局 Token：色/字/距/角/影
