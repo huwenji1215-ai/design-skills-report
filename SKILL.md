@@ -49,12 +49,13 @@ Tier 2（按需加载）：
   themes/C-editorial.md          主题 C — 编辑排版
   themes/D-minimal.md            主题 D — 极简轻量
   themes/E-bold-bento.md         主题 E — 卡片网格
-  themes/F-dark-neon.md          主题 F — 深色霓虹（data-report/dashboard 默认 ★）
+  themes/F-dark-neon.md          主题 F — 深色霓虹（仅用户说暗黑时触发）
 
 Tier 3（高级定制，特殊场景）：
   core/design-tokens.md          全局 Token 体系（色彩/字号/间距/圆角/阴影）
   core/anti-patterns.md          反模式清单 20 条（BAD vs GOOD 对照）
-  core/three-layer-spec.md       User→Design→Tech 三层映射模板
+  core/three-layer-spec.md       三层映射规范 + 品牌定制推导指南
+  core/brand-token-derivation.md 从品牌色/风格描述推导完整 Token 体系（🆕）
   core/responsive-spec.md        响应式完整规范（断点/缩放/触控）
   core/accessibility.md          可访问性规范（对比度/ARIA/色盲友好）
   data-components/kpi-card.md    KPI Card + Sparkline 规范
