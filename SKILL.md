@@ -53,12 +53,15 @@ Tier 2（按需加载）：
 
 Tier 3（高级定制，特殊场景）：
   core/design-tokens.md          全局 Token 体系（色彩/字号/间距/圆角/阴影）
-  core/anti-patterns.md          反模式清单（BAD vs GOOD 对照）
+  core/anti-patterns.md          反模式清单 20 条（BAD vs GOOD 对照）
   core/three-layer-spec.md       User→Design→Tech 三层映射模板
+  core/responsive-spec.md        响应式完整规范（断点/缩放/触控）
+  core/accessibility.md          可访问性规范（对比度/ARIA/色盲友好）
   data-components/kpi-card.md    KPI Card + Sparkline 规范
   data-components/echarts-config.md  ECharts 标准配置
   data-components/table-spec.md  表格密度自适应规范
   data-components/semantic-colors.md 语义色使用规则
+  data-components/site-chrome.md 站点框架组件（导航/Tab/筛选）
   references/CHANGELOG.md        版本变更记录
 ```
 
@@ -195,18 +198,124 @@ Tier 3（高级定制，特殊场景）：
 [P0] 正向 delta = 绿（见主题色彩），负向 delta = 红，不得反向
 [P0] border-radius ≤ 12px（landing page 可放宽到 16px，其余场景 ≤ 8px）
 [P0] 非灰色彩色 ≤ 3 种（primary + success + danger）；多分类语义场景最多 10 色
-[P0] 禁止多层叠加阴影、彩色阴影、发光效果（glow）
+[P0] 发光效果（glow/box-shadow 彩色阴影）仅限 themes/F-dark-neon.md；其余主题禁止
 
 ── 版式 ──────────────────────────────────────────────────────────────
 [P0] 禁止 float 布局（必须用 grid / flex）
 [P0] 字号使用 5 级体系，禁止自造第 6 级（见 core/design-tokens.md）
 [P0] font-weight 禁止使用 100 / 300（中文下过细，糊）
+[P0] 正文颜色对比度 ≥ 4.5:1（WCAG AA 标准）
 
 ── 数据场景专属（data-report / dashboard）─────────────────────────────
 [P0] 禁止彩色卡片顶条（card colored top bar）
 [P0] KPI 数字 ≥ 28px，且必须是区域内最大字号
 [P0] ECharts grid.top ≥ 48px（含 markPoint 时）；含 2 行标题时 ≥ 56px
 [P0] ECharts 容器禁止设固定 px 高度，必须用 flex:1;min-height:0 撑满父卡片
+```
+
+---
+
+## 边界 Case 处理指南
+
+> **以下情况均有明确处理规则，不得随意判断。**
+
+### Case 1：用户提供了品牌色（如"主色用 #FF5C00"）
+
+```
+品牌色的正确用法：
+  ✅ CTA 按钮（Primary Button）背景色
+  ✅ Active 导航项、Tab 指示线
+  ✅ 链接颜色
+  ✅ 数据图表的第一个系列色
+  ✅ Section 编号方块背景
+
+  ❌ 禁止：整个 header/hero 背景用品牌色（除非是深色浓郁品牌）
+  ❌ 禁止：卡片背景用品牌色（变成彩色卡片）
+  ❌ 禁止：用品牌色替代 --color-success/danger（语义色不可替换）
+  
+  处理：将品牌色注入 --color-primary，其余 Token 保持主题默认。
+```
+
+### Case 2：页面已经有深色背景（暗色代码存在）
+
+```
+判断是否匹配已有主题：
+  a) 背景接近 #060C1A / #0F172A 等深海军蓝 → 匹配 F 或 B 主题
+  b) 背景是 #18181B / #111 等近黑 → 匹配 B 主题
+  c) 其他深色 → 提取现有 bg 色，注入 --bg 覆盖默认值
+
+  不得强制切换到亮色主题，应在原有暗色体系内对齐规范。
+```
+
+### Case 3：混合场景（如"报告里有一个工具型筛选器"）
+
+```
+原则：以内容主场景为准，组件级可跨场景借用。
+  
+  示例：data-report 页面中有一个复杂的 FilterBar
+  → 主场景仍是 data-report，加载 scenes/data-report.md
+  → FilterBar 组件直接借用 data-components/site-chrome.md §七、FilterBar
+  → 不需要额外加载 tool-app.md
+```
+
+### Case 4：用户提供了截图/参考图，要求"做成这个风格"
+
+```
+处理步骤：
+  1. 识别参考图的主场景（是 Landing Page 还是 Dashboard？）
+  2. 提取参考图的色调（亮/暗）
+  3. 识别最接近的主题（A/B/C/D/E/F）
+  4. 加载对应场景 + 主题文件
+  5. 使用 core/three-layer-spec.md 的三层框架，将参考图的每个视觉决策
+     映射到 User→Design→Tech 三层
+  6. 不得"像素级复刻"参考图（违法版权），而是提炼设计原则后重新生成
+```
+
+### Case 5：代码已有多套 CSS（有 BEM / 有 Tailwind / 有 inline style 混用）
+
+```
+Mode A 处理策略（显式优化）：
+  a) Tailwind：在 className 末尾追加覆盖类，或在 <style> 中用 !important 覆盖关键 Token
+  b) BEM + CSS Module：追加 :root Token，让 CSS 变量全局生效
+  c) Inline style：保留 inline style（业务数据计算型），只修改 class-based 样式
+  d) 三者混用：优先级策略 inline > class > :root，追加 :root 对 inline 无效时，
+     评估是否修改 inline（仅限纯视觉参数，如颜色/圆角）
+```
+
+### Case 6：响应式已有但断点与本规范不一致
+
+```
+不强制重写已有断点，而是：
+  a) 读取已有断点值
+  b) 检查移动端是否有基础适配（主要检查 3 点：
+     - 单列 / 多列降级
+     - 字号是否过大
+     - tap 区域是否 ≥ 44px）
+  c) 只修改严重影响可用性的断点，其余保留
+```
+
+### Case 7：图表数据由用户提供但量很少（只有 1-2 个数据点）
+
+```
+1 个数据点：不生成折线图（无意义），用大 KPI 数字 + 文字说明代替
+2 个数据点：可生成柱状图做对比（Bar），但不生成折线图
+3+ 个数据点：可生成折线图
+如果 Sparkline 数据 < 3 个点：不生成 canvas/sparkline，不捏造数据
+```
+
+### Case 8：既有 ECharts 图表，主题切换时图表配色不跟随
+
+```
+Mode A 处理：
+  1. 找到 echarts.init(el) 所在代码
+  2. 不修改 options 数据逻辑
+  3. 在 setOption 之后追加样式覆盖：
+     chart.setOption({
+       color: NEON_PALETTE,  // 仅追加颜色配置
+       ...ECHARTS_DARK_NEON, // 追加主题基础配置
+     }, { replaceMerge: ['color'] });
+  4. 如果无法访问 chart 实例，在 data-components/echarts-config.md 
+     中找对应主题的 CSS 变量覆盖方案
 ```
 
 ---
@@ -222,11 +331,15 @@ Tier 3（高级定制，特殊场景）：
 [ ] 配色使用主题 Token，未随意自造颜色
 [ ] 字号使用 5 级体系，未出现第 6 级
 [ ] border-radius 符合场景限制
-[ ] box-shadow 全页面 ≤ 1 处（landing-page 可适当放宽）
 [ ] 布局使用 grid/flex，无 float
-[ ] 无渐变背景卡片（卡片背景为纯白或浅灰平色）
-[ ] 无装饰性 radial-gradient 光晕（landing-page header 除外，见场景规范）
-[ ] delta 仅用颜色区分，不用 ▲▼ 字符
+[ ] 无渐变背景卡片（卡片背景为纯白或浅灰平色，F主题除外）
+[ ] 无装饰性 radial-gradient 光晕（landing-page header 和 F主题除外）
+[ ] delta 仅用颜色区分，不用 ▲▼ 字符；同时有箭头图标（色盲双重编码）
+[ ] 正文颜色对比度 ≥ 4.5:1（辅助文字 ≥ 3:1）
+[ ] 多列卡片使用 grid + align-items:stretch（高度对齐）
+[ ] 按钮有权重层级（primary/secondary/ghost，一屏 primary ≤ 2）
+[ ] 响应式：核心断点 768px/480px 已覆盖
+[ ] 移动端可点击元素 min-height ≥ 44px
 
 场景专项（加载对应场景文件后补充）
 [ ] → 见 scenes/{scene-name}.md § Self-Check 补充项
@@ -239,13 +352,13 @@ Tier 3（高级定制，特殊场景）：
 
 ## 场景 × 主题 兼容矩阵
 
-| 场景 \ 主题 | A 企业亮色 | B 深色专业 | C 编辑排版 | D 极简 | E 卡片网格 |
-|-----------|-----------|-----------|-----------|--------|-----------|
-| Landing Page | ✅ ★推荐 | ⚠️ 慎用 | ✅ 可用 | ✅ 可用 | ✅ 可用 |
-| 数据日报 | ✅ ★推荐 | ✅ 可用 | ❌ 不适合 | ✅ 可用 | ❌ 不适合 |
-| 数据看板 | ✅ 可用 | ✅ ★推荐 | ❌ 不适合 | ✅ 可用 | ✅ 可用 |
-| 工具应用 | ✅ 可用 | ✅ 可用 | ❌ 不适合 | ✅ ★推荐 | ❌ 不适合 |
-| 内容站 | ⚠️ 可用 | ❌ 不适合 | ✅ ★推荐 | ✅ 可用 | ❌ 不适合 |
+| 场景 \ 主题 | A 企业亮色 | B 深色专业 | C 编辑排版 | D 极简 | E 卡片网格 | F 深色霓虹 |
+|-----------|-----------|-----------|-----------|--------|-----------|-----------|
+| Landing Page | ✅ ★推荐 | ⚠️ 慎用 | ✅ 可用 | ✅ 可用 | ✅ 可用 | ⚠️ 慎用 |
+| 数据日报 | ✅ ★推荐 | ✅ 可用 | ❌ 不适合 | ✅ 可用 | ❌ 不适合 | ✅ 可用（暗黑时）|
+| 数据看板 | ✅ 可用 | ✅ 可用 | ❌ 不适合 | ✅ 可用 | ✅ 可用 | ✅ 可用（暗黑时）|
+| 工具应用 | ✅ 可用 | ✅ 可用 | ❌ 不适合 | ✅ ★推荐 | ❌ 不适合 | ⚠️ 慎用 |
+| 内容站 | ⚠️ 可用 | ❌ 不适合 | ✅ ★推荐 | ✅ 可用 | ❌ 不适合 | ❌ 不适合 |
 
 > ✅ = 完全兼容 / ⚠️ = 可用但需调整 / ❌ = 不推荐，视觉逻辑冲突
 
@@ -284,9 +397,11 @@ web-site-beautifier/
 │
 ├── core/                         ← Tier 3：高级定制时按需读
 │   ├── design-tokens.md          全局 Token：色/字/距/角/影
-│   ├── anti-patterns.md          反模式清单（BAD vs GOOD）
+│   ├── anti-patterns.md          反模式清单 20 条（BAD vs GOOD）
 │   ├── three-layer-spec.md       User→Design→Tech 三层映射规范
-│   └── motion-icons.md           交互动效规范 + 图标引用体系（🆕）
+│   ├── motion-icons.md           交互动效规范 + 图标引用体系
+│   ├── responsive-spec.md        响应式完整规范（断点/缩放/触控）（🆕）
+│   └── accessibility.md          可访问性规范（对比度/ARIA/色盲）（🆕）
 │
 ├── data-components/              ← Tier 3：数据场景专用组件
 │   ├── kpi-card.md               KPI 卡片 + Sparkline（零依赖 JS）

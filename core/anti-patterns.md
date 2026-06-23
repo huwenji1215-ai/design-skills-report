@@ -210,7 +210,218 @@ Card 4: 橙色顶条
 
 ---
 
-## 常见误导性需求 & 正确处理方式
+---
+
+## 反模式 12：多列高度不对齐
+
+```
+❌ BAD（flex 同行卡片高度不一，悬空留白）:
+.card-row { display: flex; gap: 16px; }
+/* 内容多的卡片撑开，内容少的卡片矮一截，底部对不齐 */
+
+✅ GOOD（强制拉伸对齐）:
+.card-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+.card { display: flex; flex-direction: column; }
+.card-body { flex: 1; }  /* 内容区自动撑满 */
+```
+
+> 同行卡片高度不一 = 版面破碎感 = 设计师最不能接受的低级错误之一
+
+---
+
+## 反模式 13：滥用 position:absolute 装饰元素
+
+```
+❌ BAD（装饰 blob 遮挡内容）:
+.hero::after {
+  position: absolute; width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(#7B61FF, transparent);
+  top: -100px; right: -200px;
+  /* 未设 z-index 和 pointer-events，可能遮挡文字 */
+}
+
+✅ GOOD（安全装饰方式）:
+.hero-blob {
+  position: absolute; z-index: 0; pointer-events: none;
+  opacity: 0.12;  /* ≤ 0.15 */
+  /* 内容区 z-index: 1，确保内容始终在装饰层之上 */
+}
+.hero-content { position: relative; z-index: 1; }
+```
+
+> 规则：装饰 blob 必须 `pointer-events:none` + `z-index:0`，内容层 `z-index:1`。
+
+---
+
+## 反模式 14：按钮视觉权重混乱
+
+```
+❌ BAD（所有按钮等权重，行动点不突出）:
+<button class="btn-primary">开始使用</button>   /* 实心蓝色 */
+<button class="btn-primary">查看文档</button>    /* 同样实心蓝色 */
+<button class="btn-primary">联系我们</button>    /* 同样实心蓝色 */
+
+✅ GOOD（按钮层级系统）:
+<button class="btn-primary">立即开始</button>   /* 实心：唯一主行动 */
+<button class="btn-secondary">查看文档</button> /* 描边：次要行动 */
+<button class="btn-ghost">联系我们</button>     /* 文本：辅助行动 */
+```
+
+```css
+.btn-primary   { background: var(--color-primary); color: #FFF; }
+.btn-secondary { background: transparent; border: 1px solid var(--color-primary); color: var(--color-primary); }
+.btn-ghost     { background: transparent; color: var(--color-primary); text-decoration: none; }
+/* 原则：一屏/一区块内 btn-primary ≤ 2 个 */
+```
+
+---
+
+## 反模式 15：颜色对比度不足（可读性差）
+
+```
+❌ BAD（低对比度，无障碍失败）:
+.badge { background: #E5E7EB; color: #9CA3AF; }  /* 对比度 ≈ 2.5:1，不达标 */
+.link  { color: #93C5FD; }  /* 浅蓝在白底 ≈ 2.8:1，不达标 */
+
+✅ GOOD（WCAG AA 最低标准 4.5:1）:
+.badge    { background: #F0F5FF; color: #2563EB; }  /* 对比度 ≈ 6.5:1 ✓ */
+.link     { color: #2563EB; }  /* 白底 ≈ 7.0:1 ✓ */
+.subtext  { color: #6B7280; }  /* 白底 ≈ 4.6:1 ✓ */
+
+/* 最低门槛（正文）: 4.5:1
+   大文字（≥18px 常规 / ≥14px 加粗）: 3:1
+   禁止：浅灰底 + 浅灰字、白底 + 浅蓝字 */
+```
+
+---
+
+## 反模式 16：表单元素/输入框设计失范
+
+```
+❌ BAD（常见 AI 生成的输入框问题）:
+input { border: none; border-radius: 20px; background: #F3F4F6; }
+/* 圆角过大 + 无底线/无边框 = 没有"可交互"感 */
+
+select { /* 无任何自定义，浏览器原生样式 */ }
+/* 与页面设计系统完全不一致 */
+
+✅ GOOD（输入框标准规范）:
+input, select, textarea {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;   /* 工具/数据场景 */
+  background: #FFFFFF;
+  font-size: 14px; color: var(--color-text-primary);
+  outline: none;
+  transition: border-color 150ms;
+}
+input:focus, select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);  /* focus ring */
+}
+/* 错误状态 */
+input.error { border-color: var(--color-danger); }
+input.error:focus { box-shadow: 0 0 0 2px rgba(239,68,68,0.15); }
+```
+
+---
+
+## 反模式 17：字间距/行高与字号不配套
+
+```
+❌ BAD（标题行高太大，正文太紧）:
+h1 { font-size: 40px; line-height: 1.8; }  /* 行高过大，标题松垮 */
+p  { font-size: 14px; line-height: 1.2; }  /* 行高过小，正文拥挤难读 */
+
+✅ GOOD（字号与行高对应关系）:
+大标题（40-48px）:  line-height: 1.1 - 1.2; letter-spacing: -0.03em 到 -0.04em
+中标题（24-32px）:  line-height: 1.2 - 1.3; letter-spacing: -0.02em
+小标题（16-20px）:  line-height: 1.3 - 1.5;
+正文（13-15px）:    line-height: 1.6 - 1.8;
+小字（11-12px）:    line-height: 1.5 - 1.6;
+
+/* 中文正文推荐 line-height: 1.8（比英文稍大，中文字形方）*/
+/* 标题字号越大，letter-spacing 越应该为负值（kerning）*/
+```
+
+---
+
+## 反模式 18：图表数据缺失时 crash
+
+```
+❌ BAD（数据为空时图表直接挂掉或显示空白）:
+const chart = echarts.init(el);
+chart.setOption({ series: [{ data: props.data }] });
+// 如果 props.data 是 [] 或 null，ECharts 显示空轴，没有任何提示
+
+✅ GOOD（空数据友好降级）:
+if (!data || data.length === 0) {
+  // 显示"暂无数据"占位状态
+  el.innerHTML = '<div class="empty-state">暂无数据</div>';
+  return;
+}
+chart.setOption({...});
+
+/* 空状态样式 */
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  height: 200px; font-size: 13px; color: var(--color-text-secondary);
+  border: 1px dashed var(--color-border); border-radius: 6px;
+}
+```
+
+---
+
+## 反模式 19：Z-index 层叠战争
+
+```
+❌ BAD（随意设置 z-index，导致弹窗被遮挡/导航穿透）:
+.modal   { z-index: 99999; }
+.sidebar { z-index: 100000; }
+.tooltip { z-index: 999999999; }
+
+✅ GOOD（标准化 z-index 层级）:
+:root {
+  --z-base:     1;      /* 普通卡片/内容层 */
+  --z-dropdown: 100;    /* Dropdown/Select 弹出层 */
+  --z-sticky:   200;    /* Sticky 导航/FilterBar */
+  --z-overlay:  300;    /* Modal 遮罩层 */
+  --z-modal:    400;    /* Modal 内容层 */
+  --z-tooltip:  500;    /* Tooltip/Popover */
+  --z-toast:    600;    /* Toast 通知（最顶层）*/
+}
+```
+
+---
+
+## 反模式 20：移动端 tap 区域过小
+
+```
+❌ BAD（图标按钮 16px，手指难以准确点击）:
+.icon-btn { width: 16px; height: 16px; }
+.nav-item { padding: 4px 8px; }
+
+✅ GOOD（移动端最小触控面积 44x44px）:
+.icon-btn {
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+}
+/* 图标视觉尺寸可以是 20px，但触控区域 ≥ 44px */
+
+.nav-item {
+  min-height: 44px;
+  padding: 0 16px;
+  display: flex; align-items: center;
+}
+```
+
+> Apple HIG / Google Material 均要求最小触控区域 44x44px。
+
+---
+
+## 常见误导性需求 & 正确处理方式（扩展版）
 
 | 用户说 | 错误理解 | 正确做法 |
 |--------|---------|---------|
@@ -219,3 +430,6 @@ Card 4: 橙色顶条
 | "更高级感" | 深色背景、发光效果 | 更多留白、精准字重、统一色系 |
 | "突出重点" | 把重要内容都变彩色 | 用字号+字重突出，颜色只标注 1 处 |
 | "现代一点" | 大圆角 + 渐变 + 阴影 | 强留白 + 极简边框 + 大字号数字 |
+| "加动效" | 到处加 transition 和 animation | 只在交互反馈处加 150-250ms transition |
+| "更像 XX 公司的风格" | 模仿配色 | 先读 core/three-layer-spec.md，从 User→Design→Tech 三层映射入手 |
+| "品牌色是 #XXXXXX" | 直接用作背景大面积铺色 | 品牌色只用于 primary CTA / active 状态 / 语义点缀，背景保持中性 |
