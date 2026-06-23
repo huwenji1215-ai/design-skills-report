@@ -14,7 +14,7 @@ description: |-
   【6 套主题风格】
   A-企业亮色（Ant Design 系 / 阿里云蓝）、B-深色专业（大屏 / 高管报告）、
   C-编辑排版（内容型 / 阅读优先）、D-极简轻量（Linear / Notion 感）、E-卡片网格（Bento / 强对比）、
-  F-深色霓虹（数据报告/看板默认，青蓝科技感，来源快手DataAgent风格）。
+  F-深色霓虹（用户明确要求暗黑时使用，青蓝科技感，来源快手DataAgent风格）。
   【不适用】创意自由度页面（海报/邀请函/活动页/游戏）→ frontend-design；
   流程图/架构图 → drawio-diagram；Python 图表美化 → DesignAI-reports。
 ---
@@ -106,16 +106,17 @@ Tier 3（高级定制，特殊场景）：
 
 | 主题 | 关键词 | 适用场景 | 文件 |
 |------|--------|---------|------|
-| **A — 企业亮色** | 大厂风 / Ant Design / 阿里云蓝 / 专业商务 | landing-page ★ / tool-app ★ | `themes/A-enterprise-light.md` |
+| **A — 企业亮色** | 大厂风 / Ant Design / 阿里云蓝 / 专业商务 | landing-page ★ / tool-app ★ / **data-report ★ / dashboard ★** | `themes/A-enterprise-light.md` |
 | **B — 深色专业** | 暗色大屏 / 高管汇报 / 简洁深色 | dashboard / data-report | `themes/B-dark-pro.md` |
 | **C — 编辑排版** | 杂志感 / 高端阅读 / 内容优先 / 排版讲究 | content-doc ★ / landing-page | `themes/C-editorial.md` |
 | **D — 极简轻量** | Notion / Linear / 干净 / 无装饰 | tool-app / content-doc | `themes/D-minimal.md` |
 | **E — 卡片网格** | Bento / 强对比 / 大字 / 现代感 | landing-page / dashboard | `themes/E-bold-bento.md` |
-| **F — 深色霓虹** | 深海军蓝 / 青蓝主色 / 科技仪表板 / DataAgent 风格 | data-report / dashboard | `themes/F-dark-neon.md` |
+| **F — 深色霓虹** | 深海军蓝 / 青蓝主色 / 科技仪表板 / DataAgent 风格 | data-report / dashboard（暗黑版）| `themes/F-dark-neon.md` |
 
-> ★ = 该场景最常用主题  
-> 无明确指定时，按场景默认推荐选 ★ 主题  
-> **用户说「暗黑」/「暗色」/「深色」/「dark」时 → 优先使用 F — 深色霓虹**
+> ★ = 该场景默认推荐主题（用户未指定时选此）  
+> **所有场景未指定主题时默认 A — 企业亮色（蓝色）**  
+> **用户说「暗黑」/「暗色」/「深色」/「dark」→ 使用 F — 深色霓虹**  
+> 用户说「大屏」/「简洁暗色」→ 使用 B — 深色专业
 
 ---
 
@@ -355,8 +356,8 @@ Mode A 处理：
 | 场景 \ 主题 | A 企业亮色 | B 深色专业 | C 编辑排版 | D 极简 | E 卡片网格 | F 深色霓虹 |
 |-----------|-----------|-----------|-----------|--------|-----------|-----------|
 | Landing Page | ✅ ★推荐 | ⚠️ 慎用 | ✅ 可用 | ✅ 可用 | ✅ 可用 | ⚠️ 慎用 |
-| 数据日报 | ✅ ★推荐 | ✅ 可用 | ❌ 不适合 | ✅ 可用 | ❌ 不适合 | ✅ 可用（暗黑时）|
-| 数据看板 | ✅ 可用 | ✅ 可用 | ❌ 不适合 | ✅ 可用 | ✅ 可用 | ✅ 可用（暗黑时）|
+| 数据日报 | ✅ **★默认** | ✅ 可用 | ❌ 不适合 | ✅ 可用 | ❌ 不适合 | ✅ 可用（暗黑时）|
+| 数据看板 | ✅ **★默认** | ✅ 可用 | ❌ 不适合 | ✅ 可用 | ✅ 可用 | ✅ 可用（暗黑时）|
 | 工具应用 | ✅ 可用 | ✅ 可用 | ❌ 不适合 | ✅ ★推荐 | ❌ 不适合 | ⚠️ 慎用 |
 | 内容站 | ⚠️ 可用 | ❌ 不适合 | ✅ ★推荐 | ✅ 可用 | ❌ 不适合 | ❌ 不适合 |
 
