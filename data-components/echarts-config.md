@@ -8,51 +8,99 @@
 
 ## 一、全局 ECharts 默认配置（必须应用）
 
+> **⚠️ 两套颜色体系，用途严格分离：**
+>
+> | 色系 | 用途 | 配置位置 |
+> |------|------|---------|
+> | **页面 UI Token**（`--color-xxx`）| 按钮 / 状态 Badge / Delta 涨跌 / 选中行 / 边框 | CSS `:root` 变量 |
+> | **图表多系列色**（`CHART_PALETTE`）| ECharts 各系列线/柱/扇形区分 | `color: [...]` 配置 |
+>
+> 两套体系的颜色**刻意设计为不同**，防止图表颜色与 UI 状态色产生语义混淆  
+>（例：图表第2系列若用 `#18A058` 会与正向 delta 的绿色混淆，让用户以为这条线"是好的"）
+
 ```javascript
+/**
+ * 图表多系列配色序列（主题 A 数平蓝系）
+ * 设计原则：
+ *  - 色相均匀分布（每两色 Hue ≥ 30°），确保 8 条线同时显示时仍可区分
+ *  - 第 0 色与品牌主色一致（#2563F4），建立品牌感
+ *  - 不复用语义色（#18A058 绿 / #F04848 红），避免图例与涨跌颜色混淆
+ */
+const CHART_PALETTE = [
+  '#2563F4',  // 0 数平蓝（主系列，与品牌主色一致）
+  '#00B09B',  // 1 青绿（≠ 语义正 #18A058，色相不同）
+  '#F5A623',  // 2 琥珀橙（≠ 语义预警 #F0800A，更亮）
+  '#9B59B6',  // 3 中紫
+  '#E84848',  // 4 朱红（图表标注用，≠ 语义负 #F04848，稍亮）
+  '#00C9D7',  // 5 青蓝
+  '#8BC34A',  // 6 草绿
+  '#FF6B8A',  // 7 玫瑰粉
+  '#9395A8',  // 8 中性灰（低优先级 / 对比基准系列）
+];
+
 // 所有 ECharts 实例必须应用此配置作为基础
 const ECHARTS_DEFAULTS = {
   backgroundColor: 'transparent',  // 背景透明，由卡片 CSS 控制
-  color: [
-    '#3B7FF5', '#2BBD8E', '#F5A623', '#E8532A',
-    '#6B48C8', '#00B8D4', '#7B8FAB', '#8BC34A', '#F0477A', '#9B27AF'
-  ],
+  color: CHART_PALETTE,             // 使用图表专用配色序列（非 UI Token）
   textStyle: {
     fontFamily: '"Inter", -apple-system, "PingFang SC", sans-serif',
   },
   grid: {
-    top: 40,       // 普通图表
+    top: 40,
     right: 16,
     bottom: 40,
     left: 16,
     containLabel: true
   },
   xAxis: {
-    axisLine:  { lineStyle: { color: '#E5E7EB' } },
-    axisLabel: { color: '#9CA3AF', fontSize: 11 },
+    axisLine:  { lineStyle: { color: '#DFE0E8' } },
+    axisLabel: { color: '#9395A8', fontSize: 11 },
     axisTick:  { show: false },
     splitLine: { show: false }
   },
   yAxis: {
     axisLine:  { show: false },
     axisTick:  { show: false },
-    axisLabel: { color: '#9CA3AF', fontSize: 11 },
-    splitLine: { lineStyle: { color: '#F3F4F6', type: 'dashed' } }
+    axisLabel: { color: '#9395A8', fontSize: 11 },
+    splitLine: { lineStyle: { color: '#F0F1F5', type: 'dashed' } }
   },
   tooltip: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
-    borderWidth: 1,
-    textStyle: { color: '#374151', fontSize: 12 },
-    extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.10); border-radius: 6px;'
+    backgroundColor: '#1A1A2E',
+    borderWidth: 0,
+    textStyle: { color: '#FFFFFF', fontSize: 12 },
+    extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.18); border-radius: 6px; padding: 8px 12px;'
   },
   legend: {
-    textStyle: { color: '#6B7280', fontSize: 11 },
+    textStyle: { color: '#696B80', fontSize: 11 },
     icon: 'circle',
     itemWidth: 8, itemHeight: 8,
     itemGap: 16,
     top: 'top'
   },
 };
+```
+
+### 例外：语义强制场景（只有这 3 种情况允许直接指定颜色）
+
+```javascript
+// 1. 只有一个系列，且该系列有明确正/负语义时
+//    例：折线图只显示"目标达成率"，用品牌蓝即可
+series: [{ color: '#2563F4', ... }]
+
+// 2. 瀑布图 / 偏差图 — 必须区分正负
+const WATERFALL_COLORS = {
+  positive: '#18A058',  // 此处用语义色，因为颜色=数值方向
+  negative: '#F04848',
+  total:    '#2563F4',
+};
+
+// 3. 达成率仪表盘 / 进度条 — 配色跟随达成状态
+function getProgressColor(rate) {
+  if (rate >= 1.0) return '#18A058';   // 超额 → 绿
+  if (rate >= 0.8) return '#2563F4';   // 达标 → 蓝
+  if (rate >= 0.6) return '#F5A623';   // 接近 → 橙
+  return '#F04848';                    // 预警 → 红
+}
 ```
 
 ---
@@ -264,27 +312,42 @@ markPoint：   fontSize: 10（最小）
 
 ## 六、深色主题 ECharts 覆盖
 
-> 使用主题 B（dark-pro）时，覆盖以下 ECharts 配置：
+> 使用主题 B（dark-pro）或 F（dark-neon）时，覆盖以下配置：
 
 ```javascript
+// 深色主题图表配色（与亮色主题刻意区分，更亮更鲜艳）
+const CHART_PALETTE_DARK = [
+  '#4F8EF7',  // 0 亮数平蓝
+  '#2ECDA4',  // 1 亮青绿
+  '#F5B832',  // 2 亮琥珀
+  '#B97BFF',  // 3 亮紫
+  '#FF6B6B',  // 4 亮朱红
+  '#22D4E5',  // 5 亮青蓝
+  '#A8D95A',  // 6 亮草绿
+  '#FF8FB0',  // 7 亮玫瑰
+  '#778CA8',  // 8 深灰蓝
+];
+
 const ECHARTS_DARK_OVERRIDES = {
   backgroundColor: 'transparent',
-  textStyle: { color: '#94A3B8' },
-  title: { textStyle: { color: '#F1F5F9' } },
-  legend: { textStyle: { color: '#94A3B8' } },
+  color: CHART_PALETTE_DARK,  // 深色专用配色序列
+  textStyle: { color: '#8BA3C7' },
+  title: { textStyle: { color: '#E2EAF8' } },
+  legend: { textStyle: { color: '#8BA3C7' } },
   xAxis: {
-    axisLine:  { lineStyle: { color: '#334155' } },
-    axisLabel: { color: '#64748B' },
-    splitLine: { lineStyle: { color: '#1E293B' } }
+    axisLine:  { lineStyle: { color: '#1E3A5F' } },
+    axisLabel: { color: '#4A6080' },
+    splitLine: { lineStyle: { color: '#0D2040' } }
   },
   yAxis: {
-    axisLabel: { color: '#64748B' },
-    splitLine: { lineStyle: { color: '#1E293B', type: 'dashed' } }
+    axisLabel: { color: '#4A6080' },
+    splitLine: { lineStyle: { color: '#0D2040', type: 'dashed' } }
   },
   tooltip: {
-    backgroundColor: '#1E293B',
-    borderColor: '#334155',
-    textStyle: { color: '#F1F5F9' }
+    backgroundColor: '#0D1830',
+    borderColor: '#1E3A5F',
+    borderWidth: 1,
+    textStyle: { color: '#E2EAF8' }
   }
 };
 ```

@@ -248,25 +248,45 @@ body {
 
 ---
 
-## ECharts 配色（数据场景使用）
+## ECharts 图表色序（独立于页面 UI 色）
+
+> **重要**：图表色序 ≠ 页面语义色。两套体系用途不同，不得混用。
+>
+> | 色系 | 职责 | 示例 |
+> |------|------|------|
+> | **页面 UI 色**（上方 Token 体系）| 按钮 / Tag / 状态 / 选中行 / 边框 | `--color-primary`, `--color-success` |
+> | **图表多系列色**（本节 Palette）| ECharts 折线 / 柱 / 饼图各系列区分 | `THEME_A_PALETTE[0..8]` |
+>
+> 图表颜色要求：多系列之间**色相充分区分**（每系列 Hue 相差 ≥ 30°），  
+> 不能全是蓝系（会导致各线条难以区分）。
 
 ```javascript
-// 主题 A — 数平蓝配色序列
-const THEME_A_PALETTE = [
-  '#2563F4',  // 数平蓝（主系列）
-  '#18A058',  // 绿（正向/成功）
-  '#F0800A',  // 橙（预测/警告）
-  '#F04848',  // 红（负向/危险）
-  '#9B59B6',  // 紫
-  '#00B4D8',  // 青蓝
-  '#F0C030',  // 黄
-  '#4F80F7',  // 浅蓝（辅助蓝系列）
-  '#9395A8',  // 灰（对比低优先级）
+/**
+ * 主题 A — ECharts 图表多系列配色
+ * 设计原则：
+ *  - 第 0 色与品牌主色保持一致（数平蓝），建立品牌感
+ *  - 其余系列按色相轮均匀分布，确保 8 色同时出现时仍清晰区分
+ *  - 避免与 semantic-positive(#18A058) / semantic-negative(#F04848) 过于接近，
+ *    防止图例颜色与涨跌语义色混淆
+ */
+const THEME_A_CHART_PALETTE = [
+  '#2563F4',  // 0 数平蓝（与品牌主色一致，主系列）
+  '#00B09B',  // 1 青绿（区别于语义绿 #18A058）
+  '#F5A623',  // 2 琥珀橙（区别于语义橙 #F0800A）
+  '#9B59B6',  // 3 中紫
+  '#E84848',  // 4 朱红（图表标注色，与语义负 #F04848 相近但图例中不混淆）
+  '#00C9D7',  // 5 青蓝
+  '#8BC34A',  // 6 草绿
+  '#FF6B8A',  // 7 玫瑰粉
+  '#9395A8',  // 8 中性灰（低优先级系列）
 ];
 
-// ECharts 主题 A 基础配置
-const ECHARTS_THEME_A = {
-  color: THEME_A_PALETTE,
+/**
+ * 主题 A — ECharts 基础配置对象
+ * 使用方式：chart.setOption({ ...ECHARTS_THEME_A_BASE, series: [...] })
+ */
+const ECHARTS_THEME_A_BASE = {
+  color: THEME_A_CHART_PALETTE,
   backgroundColor: 'transparent',
   textStyle: { fontFamily: 'Inter, PingFang SC, sans-serif', fontSize: 12 },
   grid: { top: 48, right: 16, bottom: 32, left: 48, containLabel: true },
@@ -290,6 +310,27 @@ const ECHARTS_THEME_A = {
     padding: [8, 12],
   },
 };
+```
+
+### 颜色职责边界（避免混用）
+
+```
+页面 UI 色 → 用 CSS Token（--color-xxx）
+  ✅ 按钮背景:       background: var(--color-primary)    = #2563F4
+  ✅ 成功 Badge:     background: var(--color-success)    = #18A058
+  ✅ 正向 Delta:     color: var(--color-positive)        = #18A058
+  ✅ 危险状态:       color: var(--color-danger)          = #F04848
+  ✅ 选中行背景:     background: var(--color-bg-subtle)  = #EBF1FE
+
+图表系列色 → 用 THEME_A_CHART_PALETTE 数组
+  ✅ 折线图系列1:   color = THEME_A_CHART_PALETTE[0]    = #2563F4
+  ✅ 折线图系列2:   color = THEME_A_CHART_PALETTE[1]    = #00B09B
+  ✅ 饼图6个扇形:   依序 THEME_A_CHART_PALETTE[0..5]
+
+  ❌ 错误：用 --color-success(#18A058) 直接设置图表第2系列
+          → 与图例中正向涨跌的绿色语义混淆
+  ❌ 错误：用 THEME_A_CHART_PALETTE[1] 给 Badge 上色
+          → Badge 颜色应跟随语义，而非图表排序
 ```
 
 ---
