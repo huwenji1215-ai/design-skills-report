@@ -104,15 +104,15 @@ Tier 3（高级定制，特殊场景）：
 | 主题 | 关键词 | 适用场景 | 文件 |
 |------|--------|---------|------|
 | **A — 企业亮色** | 大厂风 / Ant Design / 阿里云蓝 / 专业商务 | landing-page ★ / tool-app ★ | `themes/A-enterprise-light.md` |
-| **B — 深色专业** | 暗色 / 大屏 / 高管汇报 / 科技感 | dashboard / data-report | `themes/B-dark-pro.md` |
+| **B — 深色专业** | 暗色大屏 / 高管汇报 / 简洁深色 | dashboard / data-report | `themes/B-dark-pro.md` |
 | **C — 编辑排版** | 杂志感 / 高端阅读 / 内容优先 / 排版讲究 | content-doc ★ / landing-page | `themes/C-editorial.md` |
 | **D — 极简轻量** | Notion / Linear / 干净 / 无装饰 | tool-app / content-doc | `themes/D-minimal.md` |
 | **E — 卡片网格** | Bento / 强对比 / 大字 / 现代感 | landing-page / dashboard | `themes/E-bold-bento.md` |
-| **F — 深色霓虹** | 深海军蓝 / 青蓝主色 / 科技仪表板 / DataAgent 风格 | **data-report ★ / dashboard ★** | `themes/F-dark-neon.md` |
+| **F — 深色霓虹** | 深海军蓝 / 青蓝主色 / 科技仪表板 / DataAgent 风格 | data-report / dashboard | `themes/F-dark-neon.md` |
 
-> ★ = 该场景最常用主题（新增 F 主题为数据场景默认）  
-> **数据类场景（data-report/dashboard）且用户未指定主题时：默认使用 F — 深色霓虹**  
-> 用户明确要求「亮色报告」时切换为 A 主题
+> ★ = 该场景最常用主题  
+> 无明确指定时，按场景默认推荐选 ★ 主题  
+> **用户说「暗黑」/「暗色」/「深色」/「dark」时 → 优先使用 F — 深色霓虹**
 
 ---
 
